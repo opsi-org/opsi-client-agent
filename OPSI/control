@@ -1,7 +1,6 @@
 [Package]
-version: 3
+version: 1
 depends: 
-incremental: False
 
 [Product]
 type: localboot
@@ -9,11 +8,11 @@ id: opsi-client-agent
 name: opsi.org client agent
 description: opsi windows client agent
 advice: 
-version: 4.0.7.24
+version: 4.1.0.0
 priority: 95
 licenseRequired: False
 productClasses: 
-setupScript: files\opsi\setup.opsiscript
+setupScript: files\opsi\setup412.opsiscript
 uninstallScript: files\opsi\uninst\uninstall.opsiscript
 updateScript: files\opsi\config.opsiscript
 alwaysScript: 
@@ -69,6 +68,8 @@ name: setup_after_install
 multivalue: True
 editable: True
 description: Which opsi product(s) should we switch to setup after installation is done ?
+values: []
+default: []
 
 [ProductProperty]
 type: unicode
@@ -119,12 +120,14 @@ values: ["productid : request", "productname : request", "productname productver
 default: ["productname : request"]
 
 [Changelog]
-***************************************************************************
- Subversion:
- $Revision: 79 $
- $Author: oertel $
- $Date: 2017-08-01 20:49:21 +0200 (Di, 01 Aug 2017) $
-***************************************************************************
+opsi-client-agent (4.1.0.0-1) stable; urgency=low
+
+  * added opsiclientdguard service
+  * upgrade to opsi-winst 4.12.0.15
+  * fork setup scripts by winst version
+
+-- Detlef Oertel <d.oertel@uib.de>  Fri,  16 Mar 2018:15:00:00 +0200
+
 
 opsi-client-agent (4.0.7.24-3) stable; urgency=low
 
