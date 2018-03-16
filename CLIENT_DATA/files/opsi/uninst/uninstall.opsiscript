@@ -1,0 +1,472 @@
+; Copyright (c) uib gmbh (www.uib.de)
+; This sourcecode is owned by uib gmbh
+; and published under the Terms of the General Public License.
+; credits: http://www.opsi.org/credits/
+
+encoding=cp1252
+
+[Actions]
+requiredWinstVersion >= "4.11.4.12"
+ScriptErrorMessages = False
+
+Message=opsi-client-agent
+ShowBitmap "%scriptpath%\opsi.png" "opsi-client-agent"
+
+DefVar $ComputerName$
+DefVar $RemoveMsgina$
+DefVar $INST_firstGinaDll$
+DefVar $INST_chainedGinaDll$
+DefVar $ServiceName$
+
+;******** installation vars **********
+DefVar $INST_Cfgini$
+DefVar $INST_BaseDir$
+DefVar $INST_OS$
+DefVar $INST_MinorOS$
+DefVar $INST_NTVersion$
+DefVar $INST_SystemType$
+DefVar $INST_SearchKey$
+DefVar $INST_SearchValue$
+DefVar $INST_SearchResult$
+DefVar $INST_ClientId$
+DefVar $SHI_pckey$
+DefVar $OCD_config_service.url$
+DefVar $INST_wellKnownGinaFound$
+DefVar $Modus$
+DefStringList $INST_ResultList$
+DefStringList $INST_ResultList2$
+
+
+;******** Sektion opsiLoginBlocker **********
+DefVar $OLB_LogLevel$
+DefVar $OLB_LoginBlockerStart$
+DefVar $OLB_LoginBlockerTimeoutConnect$
+
+;******** section on_shutdown **********
+DefVar $on_shutdown_GPOname$
+DefVar $on_shutdown_active$
+DefVar $on_shutdown_RegKeyA$
+DefVar $on_shutdown_RegKeyB$
+DefVar $on_shutdown_found$
+DefVar $on_shutdown_last_val$
+Defvar $on_shutdown_install$
+DefVar $on_shutdown_install_set_policy$
+DefVar $on_shutdown_RunScript$
+
+DefStringList $on_shutdown_configStates$
+DefStringList $on_shutdown_keylist$
+
+;******** sections end **********
+
+
+
+Set $INST_BaseDir$   = "%ProgramFilesDir%\opsi.org\opsi-client-agent"
+Set $OLB_LoginBlockerTimeoutConnect$ = "120"
+Set $OLB_LogLevel$ = "1"
+Set $INST_ClientId$ = GetValueFromInifile($INST_BaseDir$+"\opsiclientd\opsiclientd.conf","global","host_id","")
+Set $SHI_pckey$ = GetValueFromInifile($INST_BaseDir$+"\opsiclientd\opsiclientd.conf","global","opsi_host_key","")
+Set $OCD_config_service.url$ = GetValueFromInifile($INST_BaseDir$+"\opsiclientd\opsiclientd.conf","config_service","url","")
+
+;******** section on_shutdown **********
+Set $on_shutdown_RegKeyA$ = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts\Shutdown"
+set $on_shutdown_GPOname$ = "opsi shutdown install policy"
+
+;******** sections end **********
+
+
+
+set $INST_OS$ = GetOS
+set $INST_MinorOS$ = GetNTVersion
+set $INST_NTVersion$ = GetMsVersionInfo
+set $INST_SystemType$ = GetSystemType
+Set $INST_Cfgini$ = "%ScriptPath%\cfg\config.ini"
+
+comment "read on_shutdown settings"
+if $INST_SystemType$ = "64 Bit System"
+	set $on_shutdown_RunScript$ = $INST_BaseDir$+"\on_shutdown\doinstall64.cmd"
+else
+	set $on_shutdown_RunScript$ = $INST_BaseDir$+"\on_shutdown\doinstall32.cmd"
+endif
+if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") < "0"
+	Set $on_shutdown_RegKeyB$ = "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System\Scripts\Shutdown"
+else
+	Set $on_shutdown_RegKeyB$ = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Shutdown"
+endif
+
+Set $on_shutdown_install$ = GetProductProperty("on_shutdown_install", "off")
+Set $on_shutdown_install_set_policy$ = GetProductProperty("on_shutdown_install_set_policy", "on")
+
+if CompareDotSeparatedNumbers($INST_NTVersion$,"5.0") < "0"
+	logError "DeInstallation aborted: wrong OS version: only win 5.0 (win2k) and higher alowed"
+	isFatalError
+else
+
+	
+	Set $MODUS$=PARAMSTR
+	
+	if $MODUS$ = ""
+		if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") < "0" 
+			; This is XP
+			Set $MODUS$="SRV_OFF"
+		else
+			; This is >= Vista
+			Set $MODUS$="DEINSTALL"
+		endif
+	endif
+	
+	if $Modus$ = "SRV_ON"
+		Message "opsi-client-agent activation"
+		ShowBitmap "%scriptpath%\opsi.png" "opsi-client-agent"
+		if not( FileExists($INST_BaseDir$))
+			LogError "Activation is not possible - please install again."
+			pause "Activation is not possible - please install again."
+			isFatalError
+		else
+			Set $OLB_LoginBlockerStart$ = "1"
+			if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") >= "0"
+				Registry_vista_loginblocker /Sysnative
+			endif
+			if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") < "0"
+				Registry_opsigina_Config /Sysnative
+				Registry_set_loginblocker_start /Sysnative
+			endif
+			DosInAnIcon_opsiclientd_register_service
+			opsiservicecall_setOpsiclientagentInstallationStatus /username $INST_ClientId$ /password $SHI_pckey$ /serviceurl $OCD_config_service.url$
+		endif
+		comment "configure on_shutdown"
+		if ($on_shutdown_install$ = "on")
+			if ($on_shutdown_install_set_policy$ = "on")
+		
+				;************************** Registry patches for shutdown script ***********************************
+				comment "Patch Registry for on_shutdown SCRIPT"
+				if CompareDotSeparatedNumbers($INST_NTVersion$,"5.0") = "0"
+					;;** Win2k = 5.0
+					LogError "for Win2k install_on_shutdown manual installation with gpedit.msc is available (shutdown script timeout=10 min.)"	
+				else	
+					Set $on_shutdown_found$ = ""
+					Set $on_shutdown_last_val$ = ""
+					Set $on_shutdown_keylist$ = getRegistryKeyListSysnative($on_shutdown_RegKeyA$)
+					
+					if (count($on_shutdown_keylist$) = "0")
+						comment "no Shutdown Policy entry found - inserting entry 0"
+						Set $on_shutdown_RegKeyA$ = $on_shutdown_RegKeyA$ + "\0"
+						Set $on_shutdown_RegKeyB$ = $on_shutdown_RegKeyB$ + "\0"
+					else
+						comment "Shutdown Policy entries found - searching for opsi shutdown script entry"
+						Set $on_shutdown_found$ = ""
+						Set $on_shutdown_last_val$ = ""
+						for %s% in $on_shutdown_keylist$ do sub_on_shutdown_find_regkey
+						if ($on_shutdown_found$ = "")
+							comment "no opsi shutdown script entry found - on_shutdown_last_val="+$on_shutdown_last_val$"+" - appending new entry"
+							Set $on_shutdown_RegKeyA$ = $on_shutdown_RegKeyA$ + "\"+calculate($on_shutdown_last_val$+"+1")
+							Set $on_shutdown_RegKeyB$ = $on_shutdown_RegKeyB$ + "\"+calculate($on_shutdown_last_val$+"+1")
+						else
+							comment "opsi shutdown script entry found - reusing entry No "+ $on_shutdown_found$
+							Set $on_shutdown_RegKeyA$ = $on_shutdown_RegKeyA$ + "\"+$on_shutdown_found$
+							Set $on_shutdown_RegKeyB$ = $on_shutdown_RegKeyB$ + "\"+$on_shutdown_found$
+						endif
+					endif
+					
+					if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") < "0"
+						Registry_install_on_shutdown_XP /sysnative
+					else
+						Registry_install_on_shutdown_WIN7 /sysnative
+					endif
+				endif
+			endif	;on_shutdown_install_set_policy=on
+		endif
+	else
+		comment "($Modus$ = SRV_OFF) or ($Modus$ = DEINSTALL)"
+		comment "get configuration data"
+		if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") < "0"
+			set $INST_wellKnownGinaFound$ = "false"
+			comment "what is the first gina ? (We can't deinstall if the first gina is not a opsi gina)"
+			Set $INST_firstGinaDll$ = GetRegistryStringValueSysnative("[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon] GinaDLL")
+			;if $INST_firstGinaDll$ = "%ProgramFilesDir%\opsi.org\preloginloader\pgina\pgina.dll"
+			;	Set $INST_chainedGinaDll$ = GetRegistryStringValueSysnative("[HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\preloginloader] pathMSGina")
+			;	comment "it is a old pgina...."
+			;	set $INST_wellKnownGinaFound$ = "true"
+			;endif
+			;if $INST_firstGinaDll$ = "%ProgramFilesDir%\opsi.org\preloginloader\opsigina\opsigina.dll"
+			;	Set $INST_chainedGinaDll$ = GetRegistryStringValueSysnative("[HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\preloginloader] NextGina")
+			;	comment "it is a preloginloader opsigina...."
+			;	set $INST_wellKnownGinaFound$ = "true"
+			;endif
+			if $INST_firstGinaDll$ = "%ProgramFilesDir%\opsi.org\opsi-client-agent\opsigina\opsigina.dll"
+				set $INST_chainedGinaDll$ = GetRegistryStringValueSysnative("[HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\opsi-client-agent] NextGina")
+				comment "it is a opsi-client-agent opsigina...."
+				set $INST_wellKnownGinaFound$ = "true"
+				if $INST_chainedGinaDll$ = ""
+					comment "no nextGina entry at opsi-client-agent sysnative- let us look at 32 bit registry"
+					set $INST_chainedGinaDll$ = GetRegistryStringValue32("[HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\opsi-client-agent] NextGina")
+				endif
+				;if $INST_chainedGinaDll$ = ""
+				;	comment "no nextGina entry at opsi-client-agent - let us look at the old preloginloader key"
+				;	set $INST_chainedGinaDll$ = GetRegistryStringValue32("[HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\preloginloader] NextGina")
+				;endif
+			endif
+			if ($INST_chainedGinaDll$ = "") or not ("true" = $INST_wellKnownGinaFound$)
+				if $Modus$ = "DEINSTALL"
+					LogWarning "First Gina in chain is no well known opsi gina: "+$INST_firstGinaDll$
+					LogWarning "Deinstallation may damage the OS. So we fallback to deactivation"
+					set $Modus$ = "SRV_OFF"
+				endif
+				comment "default to msgina"
+				set $INST_chainedGinaDll$ = "msgina.dll"
+			endif
+		endif ; $INST_MSVersion$ < "6.0"
+		comment "configure on_shutdown"
+		Set $on_shutdown_keylist$ = getRegistryKeyListSysnative($on_shutdown_RegKeyA$)
+		if (count($on_shutdown_keylist$) = "0")
+			comment "no opsi shutdown script entry found - nothing to remove"
+		else
+			comment "Shutdown Policy entries found - searching for opsi shutdown script entry"
+			Set $on_shutdown_found$ = ""
+			Set $on_shutdown_last_val$ = ""
+			for %s% in $on_shutdown_keylist$ do sub_on_shutdown_find_regkey
+			if ($on_shutdown_found$ = "")
+				comment "no opsi shutdown script entry found - nothing to remove"
+			else
+				comment "opsi shutdown script entry found - removing entry"
+				Set $on_shutdown_RegKeyA$ = $on_shutdown_RegKeyA$ + "\"+$on_shutdown_found$
+				Set $on_shutdown_RegKeyB$ = $on_shutdown_RegKeyB$ + "\"+$on_shutdown_found$ 
+				Registry_install_on_shutdown_delete /sysnative
+			endif
+		endif ; "configure on_shutdown"
+		
+		if $Modus$ = "SRV_OFF"
+			Message "opsi-client-agent deactivation"
+			ShowBitmap "%scriptpath%\opsi.png" "opsi-client-agent"
+			DosInAnIcon_StopService
+			DosInAnIcon_kill_notifier
+			DosInAnIcon_opsiclientd_unregister_service
+			if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") >= "0"
+				Registry_vista_del_loginblocker /Sysnative
+			endif
+			if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") < "0"
+				Set $OLB_LoginBlockerStart$ = "0"
+				Registry_set_loginblocker_start /Sysnative
+			endif
+		else
+			if $Modus$ = "DEINSTALL"
+				Message "opsi-client-agent deinstallation"
+				ShowBitmap "%scriptpath%\opsi.png" "opsi-client-agent"
+				killtask "notifier.exe"
+				DosInAnIcon_StopService
+				DosInAnIcon_opsiclientd_unregister_service
+				if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") >= "0"
+					Registry_vista_del_loginblocker /Sysnative
+					DosInAnIcon_close_firewall_for_control_server_nt6
+				endif
+
+				if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") < "0"
+					DosInAnIcon_close_firewall_for_control_server
+					Set $OLB_LoginBlockerStart$ = "0"
+					Registry_set_loginblocker_start /Sysnative
+					comment "unregister opsigina , set ginadll to the one that was chained by opsigina"
+					comment "set gina to the chained gina"
+					Registry_xp_set_gina /Sysnative
+					if CompareDotSeparatedNumbers($INST_NTVersion$,"5.1") = "0"
+						Set $RemoveMsgina$ = GetRegistryStringValue32("[HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\opsi-client-agent] RemoveMsginaOnDeinst")
+						;if $RemoveMsgina$ = ""
+						;	Set $RemoveMsgina$ = GetRegistryStringValue32("[HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\preloginloader] RemoveMsginaOnDeinst")
+						;endif
+					endif
+
+					DosInAnIcon_RemovePcpatchAccount
+					if fileexists($INST_firstGinaDll$)
+						comment "opsigina was not deleted while in use. To avoid delays at the next login, we copy the msgina over the opsigina"
+						DosInAnIcon_copy_msgina_to_opsigina
+						Files_copy_msgina_to_opsigina
+					endif
+
+					if $RemoveMsgina$ = "1"
+						Set $INST_firstGinaDll$ = GetRegistryStringValueSysnative("[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon] GinaDLL")
+						if $INST_firstGinaDll$ = "msgina.dll"
+							Registry_RemoveMsgina /Sysnative
+							DosInAnIcon_RemoveMsgina
+						endif
+					endif
+				endif
+				
+				Files_delete_opsiloginblocker /Sysnative
+				comment "create batch and runonce entry to delete all the running stuff after reboot"
+				Registry_del_via_runonce /Sysnative
+				DosInAnIcon_del_via_runonce
+				
+				Registry_del_opsi_org /32bit
+				Registry_del_uninstall /32bit 
+
+				;ExitWindows /Reboot
+				killtask "opsiclientd.exe"
+				killtask "notifier.exe"
+				DosInAnIcon_kill_notifier
+				Files_Delete_OpsiFiles
+				Registry_DeleteOpsiclientd
+				;pause "The system will reboot now !"
+			else
+				Logerror  "Internal Error: unknown parameter: "+$Modus$
+				isFatalError
+			endif
+		endif ;"DEINSTALL"
+	endif ;"SRV_OFF"
+endif ; OS
+		
+;**************************************************
+;**************************************************
+; ******************** login blockers sections*****************************************
+[Registry_set_loginblocker_start]
+;OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\preloginloader]
+;Set "LoginBlockerStart" = REG_DWORD:$OLB_LoginBlockerStart$ 
+OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\opsi-client-agent]
+Set "LoginBlockerStart" = REG_DWORD:$OLB_LoginBlockerStart$ 
+
+[Files_delete_opsiloginblocker]
+del -fc "%system%\OpsiLoginBlocker.dll"
+
+; ******************** credential provider login blockers sections********************
+[Registry_vista_del_loginblocker]
+deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Providers\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
+deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Provider Filters\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
+deletekey [HKEY_CLASSES_ROOT\CLSID\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
+
+[Registry_vista_loginblocker]
+openkey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Providers\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
+set ""="OpsiLoginBlocker"
+openkey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Provider Filters\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
+set ""="OpsiLoginBlocker"
+openkey [HKEY_CLASSES_ROOT\CLSID\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
+set ""="OpsiLoginBlocker"
+openkey [HKEY_CLASSES_ROOT\CLSID\{d2028e19-82fe-44c6-ad64-51497c97a02a}\InprocServer32]
+set ""="OpsiLoginBlocker.dll"
+set "ThreadingModel"="Apartment"
+openkey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Provider Filters\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
+set ""="OpsiLoginBlocker"
+set "ServiceConnectionTimeout"=reg_dword:$OLB_LoginBlockerTimeoutConnect$
+set "StartOpsiCredentialProvider"=reg_dword:0x00000000
+set "LogLevel"=reg_dword:$OLB_LogLevel$
+
+; ******************** end credential provider login blockers sections********************
+;************************ pgina loginblocker sections **********************
+[Registry_xp_set_gina]
+OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon]
+set "GinaDLL"="$INST_chainedGinaDll$"
+
+[Registry_RemoveMsgina]
+OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon]
+DeleteVar "GinaDLL"
+
+; ******************** end pgina loginblocker sections *****************************************
+; ******************** end loginblockers sections *****************************************
+; ******************** service sections*****************************************
+[DosInAnIcon_StopService]
+net stop opsiclientd
+
+; ******************** opsiclientd sections *****************************************
+[DosInAnIcon_opsiclientd_unregister_service]
+"$INST_BaseDir$\opsiclientd.exe" -remove
+
+[DosInAnIcon_opsiclientd_register_service]
+"$INST_BaseDir$\opsiclientd.exe" -auto -install
+
+[Registry_DeleteOpsiclientd]
+DeleteKey [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\opsiclientd]
+
+[Registry_DeactivateOpsiclientd]
+OpenKey [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\opsiclientd]
+Set "Start" = REG_DWORD:4
+OpenKey [HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\opsiclientd]
+Set "Start" = REG_DWORD:4
+OpenKey [HKEY_LOCAL_MACHINE\SYSTEM\ControlSet002\Services\opsiclientd]
+Set "Start" = REG_DWORD:4
+
+[Registry_ActivateOpsiclientd]
+OpenKey [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\opsiclientd]
+Set "Start" = REG_DWORD:2
+
+[DosInAnIcon_close_firewall_for_control_server]
+netsh firewall delete portopening protocol = TCP port = $OCD_control_server.port$ name = opsiclientd-control-port
+
+[DosInAnIcon_close_firewall_for_control_server_nt6]
+netsh advfirewall firewall delete rule name="opsiclientd-control-port"
+
+; ******************** end opsiclientd sections *****************************************
+;**************************** start on_shutdown sections *******************************************
+
+[sub_on_shutdown_find_regkey]
+Set $on_shutdown_last_val$ = "%s%"
+if GetRegistryStringValueSysNative("["+$on_shutdown_RegKeyA$+"\%s%] GPOName") = $on_shutdown_GPOname$
+	Set $on_shutdown_found$ = "%s%"
+endif
+
+
+[Registry_install_on_shutdown_delete]
+DeleteKey [$on_shutdown_RegKeyA$]
+DeleteKey [$on_shutdown_RegKeyB$]
+
+; ******************** end on_shutdown sections*****************************************
+
+; ******************** Install helpers sections *****************************************
+[Registry_del_opsi_org]
+deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org]
+
+[Registry_del_uninstall]
+deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\opsi-client-agent]
+
+[DosInAnIcon_RemovePcpatchAccount]
+net user pcpatch /DELETE
+
+[Files_Delete_OpsiFiles]
+del -sfc "%ProgramFiles32Dir%\opsi.org\opsi-client-agent\"
+del -sfc "%ProgramFiles32Dir%\python25\Lib\site-packages\OPSI\"
+del -fc "%ProgramFiles32Dir%\python25\Lib\site-packages\json.rpc"
+del -fc "%SYSTEM%\opsiloginblocker.dll"
+del -sfc "%SYSTEMDRIVE%\opsi\"
+del -sfc "%SYSTEMDRIVE%\opsi.org\"
+del -sfc "%SYSTEMDRIVE%\tmp\"
+
+[Registry_del_via_runonce]
+OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce]
+set "delopsi" ="%Systemroot%\temp\delopsi.bat" 
+
+[DosInAnIcon_del_via_runonce]
+echo del /s/f/q "%Programfiles32Dir%\opsi.org\opsi-client-agent"> "%Systemroot%\temp\delopsi.bat"
+echo del /s/f/q "%SYSTEMDRIVE%\opsi.org">> "%Systemroot%\temp\delopsi.bat"
+echo rmdir /s/q "%Programfiles32Dir%\opsi.org\opsi-client-agent">> "%Systemroot%\temp\delopsi.bat"
+echo rmdir /q "%Programfiles32Dir%\opsi.org">> "%Systemroot%\temp\delopsi.bat"
+echo rmdir /q "%SYSTEMDRIVE%\tmp\">> "%Systemroot%\temp\delopsi.bat"
+echo rmdir /q "%SYSTEMDRIVE%\opsi.org\">> "%Systemroot%\temp\delopsi.bat"
+echo reg delete "HKLM\SYSTEM\software\opsi.org" /f>> "%Systemroot%\temp\delopsi.bat"
+
+[DosInAnIcon_RemoveMsgina]
+echo reg delete HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon /v GinaDll /f>> "%Systemroot%\temp\delopsi.bat"
+
+[DosInAnIcon_kill_notifier]
+taskkill /IM opsiclientd.exe /F /T
+taskkill /IM notifier.exe /F /T
+
+[DosInAnIcon_copy_msgina_to_opsigina]
+copy -c "%system%\msgina.dll" "C:\tmp\opsigina.dll"
+
+[Files_copy_msgina_to_opsigina]
+copy -c "c:\tmp\opsigina.dll" "$INST_BaseDir$\opsigina"
+del -fc "c:\tmp\opsigina.dll"
+
+[opsiservicecall_setOpsiclientagentInstallationStatus]
+"method": "setProductInstallationStatus"
+"params": [
+					"opsi-client-agent",
+					"$INST_ClientId$",
+					"installed"
+					]
+
+
+
+; ******************** End Install helpers sections *****************************************
+
+
+
+
+;**************************************************
+;**************************************************
+ 

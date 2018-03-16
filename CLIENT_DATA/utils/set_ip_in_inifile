@@ -1,0 +1,98 @@
+#!/usr/bin/perl -w 
+
+# pragmas
+use strict;
+
+# modules
+use File::Basename;
+use File::Copy;
+use Sys::Hostname;
+ 
+# global variables
+my $prog;
+my $host;
+my $addr;
+my $ipaddr;
+my $dnsdomain;
+my $datei;
+my @lines;
+my $line;
+my $configserver;
+
+$prog = basename $0;
+$host = hostname();
+$dnsdomain = `hostname -d`;
+$configserver = `opsi-admin -dS method getServerIds_list | head -n1 2>/dev/null`;
+print "configserver is: $configserver\n";
+print "dnsdomain is: $dnsdomain\n";
+
+#####################
+#
+# Dateiuebergabe
+#
+#####################
+ 
+if ($ARGV[0]) {
+  if ($ARGV[0] eq "-v") {
+    version();
+  } elsif ($ARGV[0] eq "-h") {
+    help();
+  } elsif ($ARGV[0] =~ /^-/) {
+    print "Unbekannte Option!\n";
+    help();
+  }
+} 
+elsif (!$ARGV[0]){help();}
+
+$addr = (gethostbyname($configserver))[4];
+$ipaddr = join(".", unpack("C4", $addr));
+
+print "ipaddress of configserver is: $ipaddr\n";
+
+foreach $datei (@ARGV) { 
+  @lines = ();
+
+  if (open(FILE,"+<$datei")) {
+    print "Setze IP-Adresse $ipaddr in $datei ...\n";
+    while ($line = <FILE>) {
+#      $line =~ s/^Set "IP_HOST"="XXX.XXX.XXX.XXX"/Set "IP_HOST"="$ipaddr"/; 
+#      $line =~ s/^Set "HOST"="SERVERNAME"/Set "HOST"="$host"/; 
+      $line =~ s/^dnsdomain=<dnsdomain>/dnsdomain=$dnsdomain/;
+      $line =~ s/^tftpserver=<serverip>/tftpserver=$ipaddr/; 
+      $line =~ s/^depoturl=smb:\\\\<servername>\\opt_pcbin\\install/depoturl=smb:\\\\$host\\opt_pcbin\\install/; 
+      $line =~ s/^configurl=smb:\\\\<servername>\\opt_pcbin\\pcpatch/configurl=smb:\\\\$host\\opt_pcbin\\pcpatch/; 
+      $line =~ s/^utilsurl=smb:\\\\<servername>\\opt_pcbin\\utils/utilsurl=smb:\\\\$host\\opt_pcbin\\utils/;
+      $line =~ s/^config_service\.url=https:\/\/<serverip>:4447/config_service\.url=https:\/\/$ipaddr:4447/;
+      push(@lines, $line);
+    }
+
+    seek (FILE,0,0);
+    truncate (FILE,0);
+    print FILE @lines;
+    close(FILE);
+  } else {
+    print "$datei: $! \n";
+  }
+}
+
+############################
+#
+# FUNKTIONEN
+# 
+############################
+ 
+ 
+sub version {
+ print "$prog Version 1.993 22.04.2002 (c) J.Weintz\n";
+ exit;
+}
+ 
+sub help {
+ print "Aufruf: $prog [Optionen] [Dateiliste]\n";
+ print "Optionen:  --   wird ignoriert\n";
+ print "           -v   gibt Versionskennung aus\n";
+ print "           -h   gibt diese Hilfe aus\n";
+ print "$prog setzt die eigene IP-Adresse in INCOM-Bootprom-Menu-Dateien ein.\n";
+ exit;
+}
+ 

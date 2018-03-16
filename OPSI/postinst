@@ -1,0 +1,66 @@
+#!/bin/bash
+#
+# postinst script
+# This script executes after unpacking files from that archive and registering the product at the server.
+#
+# The following environment variables can be used to obtain information about the current installation:
+#   PRODUCT_ID: id of the current product
+#   CLIENT_DATA_DIR: directory which contains the installed client data
+#   DEPOT_ID
+#   PRODUCT_VERSION
+#   PACKAGE_VERSION
+echo [${PRODUCT_ID}]  > $CLIENT_DATA_DIR/files/opsi/product.ini
+echo ProductVersion=${PRODUCT_VERSION}-${PACKAGE_VERSION} >> $CLIENT_DATA_DIR/files/opsi/product.ini
+
+chmod u+x $CLIENT_DATA_DIR/utils/set_ip_in_inifile
+chmod u+x $CLIENT_DATA_DIR/utils/patch_config_file.py
+chmod u+x $CLIENT_DATA_DIR/winexe*
+chmod u+x $CLIENT_DATA_DIR/opsi-deploy-client-agent
+#chmod u+x $CLIENT_DATA_DIR/opsi-deploy-client-agent-old
+
+# for backward compatibiliy: create a setup.ins:
+cd $CLIENT_DATA_DIR/files/opsi
+ln setup.opsiscript setup.ins
+
+echo "Patching server information ..."
+#$CLIENT_DATA_DIR/utils/set_ip_in_inifile $CLIENT_DATA_DIR/files/opsi/cfg/config.ini
+$CLIENT_DATA_DIR/utils/patch_config_file.py $CLIENT_DATA_DIR/files/opsi/cfg/config.ini || exit 1
+
+TMP_DIR=${CLIENT_DATA_DIR}/../${PRODUCT_ID}.tmp
+if [ ! -d $TMP_DIR ]; then
+	echo "Nothing to do!"
+	exit 0
+fi
+
+# removed for 4.0.7.23 (do 12.10.2017)
+#echo 'Restoring previous files...'
+##for fn in files/opsi/cfg/config.ini files/opsi/dist/opsiclientd/opsiclientd.conf files/opsi/dist/notifier/event.bmp files/opsi/dist/notifier/action.bmp files/opsi/opsi-winst/winstskin/bg.png; do
+#for fn in files/opsi/dist/notifier/event.bmp files/opsi/dist/notifier/action.bmp files/opsi/opsi-winst/winstskin/bg.png; do
+#	test -e $CLIENT_DATA_DIR/$fn && cp $CLIENT_DATA_DIR/$fn $CLIENT_DATA_DIR/$fn.template
+#	chmod 660 $CLIENT_DATA_DIR/$fn.template
+#	for path in $TMP_DIR/`basename $fn`; do
+#		if [ -e $path ]; then
+#			echo "   moving $path to $CLIENT_DATA_DIR/$fn"
+#			mv $path $CLIENT_DATA_DIR/$fn || exit 1
+#			chmod 660 $CLIENT_DATA_DIR/$fn
+#		fi
+#	done
+#done
+
+if [ -d $TMP_DIR ]; then
+	echo 'Restoring previous directories...'
+	for dirname in files/opsi/custom; do
+		for path in $TMP_DIR/`basename $dirname`; do
+			if [ -d $path ]; then
+				test -e $CLIENT_DATA_DIR/$dirname && rm -rf $CLIENT_DATA_DIR/$dirname
+				echo "   moving $path to $CLIENT_DATA_DIR/$dirname"
+				mv $path $CLIENT_DATA_DIR/$dirname || exit 1
+			fi
+		done
+	done
+fi
+
+echo "Removing temporary files..."
+rm -rf $TMP_DIR
+
+exit 0

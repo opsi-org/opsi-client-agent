@@ -1,0 +1,57 @@
+#!/bin/bash
+#
+# preinst script
+# This script executes before that package will be unpacked from its archive file.
+#
+# The following environment variables can be used to obtain information about the current installation:
+#   PRODUCT_ID: id of the current product
+#   CLIENT_DATA_DIR: directory where client data will be installed
+#
+
+TMP_DIR=${CLIENT_DATA_DIR}/../${PRODUCT_ID}.tmp
+
+if [ -d $TMP_DIR ]; then
+	echo "Temporary directory $TMP_DIR already exist, aborting!" 1>&2
+	exit 1
+fi
+
+[ ! -d $CLIENT_DATA_DIR ] && mkdir $CLIENT_DATA_DIR
+mkdir $TMP_DIR
+
+# removed for 4.0.7.23 (do 12.10.2017)
+#if [ -d $CLIENT_DATA_DIR ]; then
+#	echo "Saving previous files..."
+#	# removed for 4.0.7.23 (do 12.10.2017)
+#	#for fn in files/opsi/cfg/config.ini files/opsi/dist/opsiclientd/opsiclientd.conf files/opsi/dist/notifier/event.bmp files/opsi/dist/notifier/action.bmp files/opsi/opsi-winst/winstskin/bg.png; do
+#	for fn in files/opsi/dist/notifier/event.bmp files/opsi/dist/notifier/action.bmp files/opsi/opsi-winst/winstskin/bg.png; do
+#		for path in $CLIENT_DATA_DIR/$fn; do
+#			if [ -e $path ]; then
+#				# File exists
+#				changed="false"
+#				if [ -e $path.template ]; then
+#					# Template file exists
+#					diff $path $path.template >/dev/null || changed="true"
+#					[ "$changed" = "true" ] && echo "File $path was changed after last installation"
+#				fi
+#				if [ "$changed" = "true" ]; then
+#					echo "   moving $path to $TMP_DIR"
+#					mv $path $TMP_DIR/ || exit 1
+#				fi
+#			fi
+#		done
+#	done
+#fi
+
+if [ -d $CLIENT_DATA_DIR ]; then
+	echo "Saving previous directories..."
+	for dirname in files/opsi/custom; do
+		for path in $CLIENT_DATA_DIR/$dirname; do
+			if [ -e $path ]; then
+				echo "   moving $path to $TMP_DIR"
+				mv $path $TMP_DIR/ || exit 1
+			fi
+		done
+	done
+fi
+
+exit 0
