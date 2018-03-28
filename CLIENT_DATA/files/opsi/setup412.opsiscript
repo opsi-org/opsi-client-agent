@@ -1529,6 +1529,8 @@ else
 	set $INST_ResultList$ = shellCall('sc qfailure "opsiclientd"')
 endif
 
+set $INST_ExitCode$ = shellCall('net stop opsiclientdguard')
+set $INST_ExitCode$ = shellCall('"'+$INST_BaseDir$+'\opsiclientdguard\opsiclientdguard.exe" --uninstall')
 set $INST_ExitCode$ = shellCall('"'+$INST_BaseDir$+'\opsiclientdguard\opsiclientdguard.exe" --install')
 if $INST_ExitCode$ = "0"
 	comment "opsiclientdguard successful installed"
@@ -2829,7 +2831,8 @@ copy -sc "%SCRIPTPATH%\$OCD_DIST_DIR$\*.*" "$INST_BaseDir$\"
 [Files_copy_opsinotifier]
 ;copy -sVc "%SCRIPTPATH%\$OCD_notifier_dir$\*.*" "$INST_BaseDir$\"
 ; do not use -V while dist contains old notifier because they seem to be younger
-copy -sc "%SCRIPTPATH%\$OCD_notifier_dir$\*.*" "$INST_BaseDir$\"
+copy -c "%SCRIPTPATH%\$OCD_notifier_dir$\notifier.exe" "$INST_BaseDir$\"
+copy -c "%SCRIPTPATH%\$OCD_notifier_dir$\notifier.d\*.*" "$INST_NotifierDir$\"
 
 [Files_copy_opsiclientd_exe]
 copy -Vc "%SCRIPTPATH%\$OCD_DIST_DIR$\opsiclientd.exe" "$INST_BaseDir$\"

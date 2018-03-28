@@ -124,7 +124,11 @@ opsi-client-agent (4.1.0.0-1) stable; urgency=low
 
   * added opsiclientdguard service
   * upgrade to opsi-winst 4.12.0.15
-  * fork setup scripts by winst version
+  (* fork setup scripts by winst version)
+  * temporary setup script is setup412.opsiscript (change also in postinst.d 50_oca)
+  * notifier upgrade to 4.1.0.0
+  * notifier configuration now in opsi-notifier/notifier.d
+  * systray upgrade 4.1.0.0
 
 -- Detlef Oertel <d.oertel@uib.de>  Fri,  16 Mar 2018:15:00:00 +0200
 
