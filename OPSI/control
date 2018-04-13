@@ -1,5 +1,5 @@
 [Package]
-version: 1
+version: 2
 depends: 
 
 [Product]
@@ -12,7 +12,7 @@ version: 4.1.0.0
 priority: 95
 licenseRequired: False
 productClasses: 
-setupScript: files\opsi\setup412.opsiscript
+setupScript: files\opsi\setup411.opsiscript
 uninstallScript: files\opsi\uninst\uninstall.opsiscript
 updateScript: files\opsi\config.opsiscript
 alwaysScript: 
@@ -123,12 +123,14 @@ default: ["productname : request"]
 opsi-client-agent (4.1.0.0-1) stable; urgency=low
 
   * added opsiclientdguard service
-  * upgrade to opsi-winst 4.12.0.15
-  (* fork setup scripts by winst version)
-  * temporary setup script is setup412.opsiscript (change also in postinst.d 50_oca)
+  * upgrade to opsi-winst 4.12.0.16
+  * setup script is setup411.opsiscript (change also in postinst.d 50_oca)
+  * fork setup scripts by winst version >= 4.12.0.16 calls setup412.opsiscript
   * notifier upgrade to 4.1.0.0
   * notifier configuration now in opsi-notifier/notifier.d
   * systray upgrade 4.1.0.0
+  * update to openssl-1.0.2o
+  * kiosk upgrade 4.1.0.0
 
 -- Detlef Oertel <d.oertel@uib.de>  Fri,  16 Mar 2018:15:00:00 +0200
 
