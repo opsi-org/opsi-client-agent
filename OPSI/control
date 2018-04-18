@@ -1,5 +1,5 @@
 [Package]
-version: 2
+version: 3
 depends: 
 
 [Product]
@@ -12,7 +12,7 @@ version: 4.1.0.0
 priority: 95
 licenseRequired: False
 productClasses: 
-setupScript: files\opsi\setup411.opsiscript
+setupScript: files\opsi\setup.opsiscript
 uninstallScript: files\opsi\uninst\uninstall.opsiscript
 updateScript: files\opsi\config.opsiscript
 alwaysScript: 
@@ -120,7 +120,15 @@ values: ["productid : request", "productname : request", "productname productver
 default: ["productname : request"]
 
 [Changelog]
-opsi-client-agent (4.1.0.0-1) stable; urgency=low
+opsi-client-agent (4.1.0.0-3) stable; urgency=low
+
+  * setup411.opsiscript renamed to setup.opsiscript
+  * setup script is setup.opsiscript (change also in postinst.d 50_oca)
+  * change a lot of files back from DOS to unix lineendings
+
+-- Detlef Oertel <d.oertel@uib.de>  Wed,  18 Apr 2018:15:00:00 +0200
+
+opsi-client-agent (4.1.0.0-2) stable; urgency=low
 
   * added opsiclientdguard service
   * upgrade to opsi-winst 4.12.0.16
