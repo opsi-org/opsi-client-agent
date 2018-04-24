@@ -8,7 +8,7 @@ encoding=utf8
 requiredWinstVersion >= "4.11.4.12"
 ScriptErrorMessages = False
 
-if CompareDotSeparatedNumbers("%WinstVersion%",">=","4.12.0.16")
+if CompareDotSeparatedNumbers("%WinstVersion%",">=","4.12.0.17")
 	if fileexists("%ScriptPath%\setup412.opsiscript")
 		comment "Start new setupscript ..."
 		sub "%ScriptPath%\setup412.opsiscript"

@@ -1,5 +1,5 @@
 [Package]
-version: 3
+version: 4
 depends: 
 
 [Product]
@@ -120,6 +120,13 @@ values: ["productid : request", "productname : request", "productname productver
 default: ["productname : request"]
 
 [Changelog]
+opsi-client-agent (4.1.0.0-4) stable; urgency=low
+
+  * fix integration of opsiclientdguard
+  * upgrade to opsi-winst 4.12.0.17
+
+-- Detlef Oertel <d.oertel@uib.de>  Fri,  20 Apr 2018:15:00:00 +0200
+
 opsi-client-agent (4.1.0.0-3) stable; urgency=low
 
   * setup411.opsiscript renamed to setup.opsiscript
