@@ -1,5 +1,5 @@
 [Package]
-version: 4
+version: 5
 depends: 
 
 [Product]
@@ -120,6 +120,13 @@ values: ["productid : request", "productname : request", "productname productver
 default: ["productname : request"]
 
 [Changelog]
+opsi-client-agent (4.1.0.0-5) stable; urgency=low
+
+  * setup412: fix in deffunc opsiservice_authenticated
+
+-- Detlef Oertel <d.oertel@uib.de>  Fri,  27 Apr 2018:15:00:00 +0200
+
+
 opsi-client-agent (4.1.0.0-4) stable; urgency=low
 
   * fix integration of opsiclientdguard
