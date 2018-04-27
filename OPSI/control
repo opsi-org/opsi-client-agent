@@ -123,6 +123,7 @@ default: ["productname : request"]
 opsi-client-agent (4.1.0.0-5) stable; urgency=low
 
   * setup412: fix in deffunc opsiservice_authenticated
+  * fix opsi-seploy-client-agent
 
 -- Detlef Oertel <d.oertel@uib.de>  Fri,  27 Apr 2018:15:00:00 +0200
 
