@@ -1,5 +1,5 @@
 [Package]
-version: 5
+version: 6
 depends: 
 
 [Product]
@@ -120,6 +120,13 @@ values: ["productid : request", "productname : request", "productname productver
 default: ["productname : request"]
 
 [Changelog]
+opsi-client-agent (4.1.0.0-6) stable; urgency=low
+
+  * opsi-deploy-client-agent: using SMB3 as max protocol
+  * upgrade to opsi-winst 4.12.0.18 (do 7.5.2018)
+
+ -- Mathias Radtke <m.radtke@uib.de> Fri, 04 May 2018 10:52:00 +0200
+
 opsi-client-agent (4.1.0.0-5) stable; urgency=low
 
   * setup412: fix in deffunc opsiservice_authenticated
