@@ -1,5 +1,5 @@
 [Package]
-version: 7
+version: 8
 depends: 
 
 [Product]
@@ -120,6 +120,12 @@ values: ["productid : request", "productname : request", "productname productver
 default: ["productname : request"]
 
 [Changelog]
+opsi-client-agent (4.1.0.0-8) stable; urgency=low
+
+  * upgrade to opsi-winst 4.12.0.21
+
+-- Detlef Oertel <d.oertel@uib.de>  Wed,  23 May 2018:15:00:00 +0200
+
 opsi-client-agent (4.1.0.0-7) stable; urgency=low
 
   * upgrade to opsi-winst 4.12.0.20
