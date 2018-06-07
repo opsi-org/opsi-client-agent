@@ -719,9 +719,15 @@ deffunc oca_create_client() : void
 	set $INST_Authenticated$ = opsiservice_authenticated("","","","false")
 	set $INST_userIsAdmin$ = opsiservice_UserIsAdmin()
 	if ($INST_Authenticated$ = "false") or ($INST_userIsAdmin$ = "false")
-		comment "was not authenticated or not admin-> retry scripted login by default user/password"
+		comment "was not authenticated or not admin-> retry scripted login by fqdn/hostkey"
 		comment "Try to open new network connection"
 		set $INST_Authenticated$ = opsiservice_authenticated($INST_ClientId$,$SHI_pckey$,$OCD_config_service.url$,"false")
+		set $INST_userIsAdmin$ = opsiservice_UserIsAdmin()
+	endif
+	if ($INST_Authenticated$ = "false") or ($INST_userIsAdmin$ = "false")
+		comment "was not authenticated or not admin-> retry scripted login by user/password from config.ini"
+		comment "Try to open new network connection"
+		set $INST_Authenticated$ = opsiservice_authenticated($INST_Service_User$,$Inst_Service_Password$,$OCD_config_service.url$,"false")
 		set $INST_userIsAdmin$ = opsiservice_UserIsAdmin()
 	endif
 	if ($INST_Authenticated$ = "false") or ($INST_userIsAdmin$ = "false")
@@ -923,7 +929,7 @@ deffunc oca_copy_files() : void
 	Files_copy_opsinotifier
 	
 	
-	;comment "unzip opsicleintd.exe ... (W8.1 + 10 workaround)"
+	;comment "unzip opsiclientd.exe ... (W8.1 + 10 workaround)"
 	;Files_copy_opsiclientd_exe2
 	comment "Update SSL DLLs from opsi-script to opsiclientd"
 	if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") >= "0"
@@ -978,7 +984,7 @@ deffunc oca_copy_files() : void
 	
 	comment "copy files for install_on_shutdown"
 	Files_install_on_shutdown_copy_files
-	
+	Files_copy_ssl_to_on_shutdown
 	comment "end copy files"
 	; ----------------------------------------------------------------
 	[Files_del_loginblocker_log]
@@ -1026,6 +1032,10 @@ deffunc oca_copy_files() : void
 	[Files_copy_ssl_to_py2exe]
 	copy -Vc "%SCRIPTPATH%\openssl\libeay32.dll" "$INST_BaseDir$\lib"
 	copy -Vc "%SCRIPTPATH%\openssl\ssleay32.dll" "$INST_BaseDir$\lib"
+	
+	[Files_copy_ssl_to_on_shutdown]
+	copy -Vc "%SCRIPTPATH%\openssl\libeay32.dll" "$INST_BaseDir$\on_shutdown"
+	copy -Vc "%SCRIPTPATH%\openssl\ssleay32.dll" "$INST_BaseDir$\on_shutdown"
 
 	[Files_copy_custom_opsiclientd]
 	copy -sc "%SCRIPTPATH%\custom\notifier\*.*" "$INST_NotifierDir$"
@@ -1529,6 +1539,9 @@ deffunc oca_clean_up() : void
 	if fileExists("c:\tmp\opsi")
 		Files_Delete_ctmpopsi
 	endif
+	if fileExists("%opsiTmpDir%\opsi")
+		Files_Delete_opsitmpopsi
+	endif
 	if fileExists("c:\tmp\opsi-client-agent")
 		Files_Delete_ctmpopsi-client-agent
 	endif
@@ -1559,6 +1572,9 @@ deffunc oca_clean_up() : void
 	
 	[Files_Delete_ctmpopsi]
 	del -sfc "c:\tmp\opsi\"
+	
+	[Files_Delete_opsitmpopsi]
+	del -sfc "%opsiTmpDir%\opsi\"
 	
 	[Files_Delete_ctmpssl]
 	del -sfc "C:\tmp\ssl_tmp\"

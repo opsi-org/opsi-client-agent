@@ -1,5 +1,5 @@
 [Package]
-version: 8
+version: 9
 depends: 
 
 [Product]
@@ -120,6 +120,14 @@ values: ["productid : request", "productname : request", "productname productver
 default: ["productname : request"]
 
 [Changelog]
+opsi-client-agent (4.1.0.0-9) stable; urgency=low
+
+  * fix missing opsiclientd_eventstarter.exe
+  * fix in deffunc oca_create_client(): try user/pass from config.ini
+  * fix in oca_clean_up(): cleanup "%opsiTmpDir%\opsi"
+
+-- Detlef Oertel <d.oertel@uib.de>  Thu,  07 Jun 2018:15:00:00 +0200
+
 opsi-client-agent (4.1.0.0-8) stable; urgency=low
 
   * upgrade to opsi-winst 4.12.0.21
