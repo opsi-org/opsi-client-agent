@@ -1,4 +1,13 @@
 [Changelog]
+opsi-client-agent (4.1.0.0-11) stable; urgency=low
+
+  * setup412: oca_create_client(): no scripted login by fqdn/hostkey
+  * setup412: oca_write_configuration() : set rigts to c:\opsi.org\applog c:\opsi.org\usertemp
+  * setup412: oca_clean_up() more code and dir cleanup
+  * service_setup.cmd: create and use powershell script to start opsi-script elevated ....
+
+-- Detlef Oertel <d.oertel@uib.de>  Mon,  08 Jun 2018:15:00:00 +0200
+
 opsi-client-agent (4.1.0.0-10) stable; urgency=low
 
   * changelog moved from control to changelog.txt

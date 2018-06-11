@@ -718,12 +718,12 @@ deffunc oca_create_client() : void
 	set $INST_userIsAdmin$ = "false"
 	set $INST_Authenticated$ = opsiservice_authenticated("","","","false")
 	set $INST_userIsAdmin$ = opsiservice_UserIsAdmin()
-	if ($INST_Authenticated$ = "false") or ($INST_userIsAdmin$ = "false")
-		comment "was not authenticated or not admin-> retry scripted login by fqdn/hostkey"
-		comment "Try to open new network connection"
-		set $INST_Authenticated$ = opsiservice_authenticated($INST_ClientId$,$SHI_pckey$,$OCD_config_service.url$,"false")
-		set $INST_userIsAdmin$ = opsiservice_UserIsAdmin()
-	endif
+	;if ($INST_Authenticated$ = "false") or ($INST_userIsAdmin$ = "false")
+	;	comment "was not authenticated or not admin-> retry scripted login by fqdn/hostkey"
+	;	comment "Try to open new network connection"
+	;	set $INST_Authenticated$ = opsiservice_authenticated($INST_ClientId$,$SHI_pckey$,$OCD_config_service.url$,"false")
+	;	set $INST_userIsAdmin$ = opsiservice_UserIsAdmin()
+	;endif
 	if ($INST_Authenticated$ = "false") or ($INST_userIsAdmin$ = "false")
 		comment "was not authenticated or not admin-> retry scripted login by user/password from config.ini"
 		comment "Try to open new network connection"
@@ -1136,7 +1136,8 @@ deffunc oca_write_configuration() : void
 	endif
 	comment "Open c:\tmp worldwide writable"
 	Files_create_ctmp
-	DosInAnIcon_open_ctmp
+	set $lockdir$ = "c:\tmp"
+	DosInAnIcon_open_dir
 	comment "create c:\opsi.org"
 	Files_create_c_opsiorg
 	comment "lock c:\opsi.org -> for administrators only"
@@ -1153,6 +1154,10 @@ deffunc oca_write_configuration() : void
 	DosInAnIcon_lock_lockdir
 	set $lockdir$ = $OCD_OpsiVarDir$+"\data"
 	DosInAnIcon_lock_lockdir
+	set $lockdir$ = $OCD_OpsiVarDir$+"\applog"
+	DosInAnIcon_open_dir
+	set $lockdir$ = $OCD_OpsiVarDir$+"\usertemp"
+	DosInAnIcon_open_dir
 	
 	; Patch #1237 (https://forum.opsi.org/viewtopic.php?f=7&t=6764#p29403)
 	opsiservicecall_setGeneralConfigValue_clientconfig_configserver_url
@@ -1306,22 +1311,23 @@ deffunc oca_write_configuration() : void
 	[Files_create_ctmp]
 	CheckTargetPath = "c:\tmp"
 	
-	[DosInAnIcon_open_ctmp]
+	[DosInAnIcon_open_dir]
 	rem C:\utils\xcacls c:\tmp /T /C /G ADMINISTRATOREN:F "ERSTELLER-BESITZER":F JEDER:R HAUPTBENUTZER:F SYSTEM:F /Y
 	rem show setacl-version
 	rem "$INST_SetAclDir$\setacl.exe" -help 
 	rem this should work not only on german systems
-	rem open c:\tmp for everyone
-	"$INST_SetAclDir$\setacl.exe" -on "c:\tmp" -ot file -actn setprot -op "dacl:np;sacl:nc" -rec cont_obj -actn setowner -ownr "n:S-1-1-0;s:y" -actn ace -ace "n:S-1-1-0;p:full;s:y"
-	rem "$INST_SetAclDir$\setacl.exe" -on "c:\tmp" -ot file -actn trustee -trst n1:S-1-5-32-545;s1:y;ta:remtrst;w:dacl"
+	rem open "$lockdir$" for everyone
+	"$INST_SetAclDir$\setacl.exe" -on "$lockdir$" -ot file -actn setprot -op "dacl:np;sacl:nc" -rec cont_obj -actn setowner -ownr "n:S-1-1-0;s:y" -actn ace -ace "n:S-1-1-0;p:full;s:y"
+	rem "$INST_SetAclDir$\setacl.exe" -on "$lockdir$" -ot file -actn trustee -trst n1:S-1-5-32-545;s1:y;ta:remtrst;w:dacl"
 	rem show the resulting acl
-	"$INST_SetAclDir$\setacl.exe" -on "c:\tmp" -ot file -actn list -lst "s:b"
+	"$INST_SetAclDir$\setacl.exe" -on "$lockdir$" -ot file -actn list -lst "s:b"
 	
 	[Files_create_c_opsiorg]
 	CheckTargetPath = "$OCD_OpsiVarDir$"
 	CheckTargetPath = "$OCD_OpsiVarDir$\log"
 	CheckTargetPath = "$OCD_OpsiVarDir$\applog"
 	CheckTargetPath = "$OCD_OpsiVarDir$\tmp"
+	CheckTargetPath = "$OCD_OpsiVarDir$\usertmp"
 	CheckTargetPath = "$OCD_OpsiVarDir$\cache"
 	CheckTargetPath = "$OCD_OpsiVarDir$\opsiclientd"
 	CheckTargetPath = "$OCD_OpsiVarDir$\data"
@@ -1536,55 +1542,49 @@ endfunc
 
 
 deffunc oca_clean_up() : void
+
+DefVar $cleandir$
+
 	if fileExists("c:\tmp\opsi")
-		Files_Delete_ctmpopsi
+		set $cleandir$ = "c:\tmp\opsi\"
+		Files_Delete_cleandir
 	endif
 	if fileExists("%opsiTmpDir%\opsi")
-		Files_Delete_opsitmpopsi
+		set $cleandir$ = "%opsiTmpDir%\opsi\"
+		Files_Delete_cleandir
+	endif
+	if fileExists("c:\opsi.org\usertemp\opsi")
+		set $cleandir$ = "c:\opsi.org\usertemp\opsi\"
+		Files_Delete_cleandir
 	endif
 	if fileExists("c:\tmp\opsi-client-agent")
-		Files_Delete_ctmpopsi-client-agent
+		set $cleandir$ = "c:\tmp\opsi-client-agent\"
+		Files_Delete_cleandir
 	endif
 	if fileExists("c:\tmp\python")
-		Files_Delete_ctmppython
+		set $cleandir$ = "c:\tmp\python\"
+		Files_Delete_cleandir
 	endif
 	Files_del_utils
 	if FileExists("%ProgramFilesDir%\opsi.org\preloginloader\")
-		Files_Delete_PLG_BaseDir
+		set $cleandir$ = "%ProgramFilesDir%\opsi.org\preloginloader\"
+		Files_Delete_cleandir
 	endif
 	if fileExists("c:\tmp\ssl_tmp")
-		Files_Delete_ctmpssl
+		set $cleandir$ = "c:\tmp\ssl_tmp\"
+		Files_Delete_cleandir
 	endif
 	
 	Files_redist_cleanup_c
-	if CompareDotSeparatedNumbers("%WinstVersion%","4.11.4.3") >= "0"
-		comment "checking if there is a drive d: ..."
-		if isDriveReady("d:")
-			Files_redist_cleanup_d
-		endif
-	else
-		if fileExists("d:\vcredist.bmp")
-			Files_redist_cleanup_d
-		endif
+	comment "checking if there is a drive d: ..."
+	if isDriveReady("d:")
+		Files_redist_cleanup_d
 	endif
 	
 	;***********************
 	
-	[Files_Delete_ctmpopsi]
-	del -sfc "c:\tmp\opsi\"
-	
-	[Files_Delete_opsitmpopsi]
-	del -sfc "%opsiTmpDir%\opsi\"
-	
-	[Files_Delete_ctmpssl]
-	del -sfc "C:\tmp\ssl_tmp\"
-	
-	[Files_Delete_ctmppython]
-	del -sfc "c:\tmp\python\"
-	
-	[Files_Delete_ctmpopsi-client-agent]
-	del -sfc "c:\tmp\opsi-client-agent\"
-	
+	[Files_Delete_cleandir]
+	del -sfc "$cleandir$"
 	
 	[Files_redist_cleanup_c]
 	delete -fc c:\eula*.*
@@ -1602,9 +1602,6 @@ deffunc oca_clean_up() : void
 	del -fc d:\.rnd
 	del -fc d:\globdata.ini
 	
-	[Files_Delete_PLG_BaseDir]
-	del -sfc "%ProgramFilesDir%\opsi.org\preloginloader\"
-
 endfunc
 ; oca_clean_up
 ; ####################################################################
