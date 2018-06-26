@@ -424,16 +424,9 @@ class WindowsDeployThread(DeployThread):
 					config=configIniName
 				)
 				execute(cmd)
-				
-				logger.notice(u"Create opsi log directory c:\opsi.org\log")
-				try:
-					cmd = u'cmd.exe /C "if not exist c:\opsi.org\log ( mkdir c:\opsi.org\log )"'
-					winexe(cmd, self.networkAddress, self.username, self.password)
-				except Exception as error:
-					logger.error(error)
 
 				logger.notice(u"Installing opsi-client-agent")
-				cmd = u'c:\\tmp\\opsi-client-agent_inst\\files\\opsi\\opsi-winst\\winst32.exe /batch c:\\tmp\\opsi-client-agent_inst\\files\\opsi\\setup.ins c:\\opsi.org\\log\\opsi-client-agent.log /PARAMETER REMOTEDEPLOY'
+				cmd = u'c:\\tmp\\opsi-client-agent_inst\\files\\opsi\\opsi-winst\\winst32.exe /batch c:\\tmp\\opsi-client-agent_inst\\files\\opsi\\setup.ins c:\\tmp\\opsi-client-agent.log /PARAMETER REMOTEDEPLOY'
 				for trynum in (1, 2):
 					try:
 						winexe(cmd, self.networkAddress, self.username, self.password)
