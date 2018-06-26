@@ -5,7 +5,8 @@
 
 
 encoding=utf8
-
+; ####################################################################
+; ####################################################################
 deffunc opsiservice_authenticated($user$ : string, $pass$ : string, $url$ : string, $interactive$ : string) : string
 	markErrorNumber
 	if ($interactive$ = "true") and not($url$ = "")
@@ -297,7 +298,7 @@ deffunc oca_read_configuration() : void
 		if $INST_Authenticated$ = "false"
 			comment "was not authenticated -> retry scripted login by client ID and hostkey"
 			comment "Try to open new network connection"
-			set $INST_Authenticated$ = opsiservicecall_authenticated($INST_ClientId$,$SHI_pckey$,$OCD_config_service.url$,"false")
+			set $INST_Authenticated$ = opsiservice_authenticated($INST_ClientId$,$SHI_pckey$,$OCD_config_service.url$,"false")
 			if $INST_Authenticated$ = "false"
 				comment "scripted login by client id / hostkey failed -> we don't retry "
 				comment "giving up"
@@ -1977,4 +1978,6 @@ deffunc oca_set_installation_status() : void
 endfunc
 ; oca_set_installation_status
 ; ####################################################################
+; ####################################################################
+
 

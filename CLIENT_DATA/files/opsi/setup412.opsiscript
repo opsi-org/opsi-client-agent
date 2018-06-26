@@ -232,7 +232,1996 @@ DefStringlist $pocList$
 
 Set $LogDir$ = "%opsiLogDir%"
 
-importlib "%scriptpath%\ocalib.opsiscript"
+;importlib "%scriptpath%\ocalib.opsiscript"
+
+; ####################################################################
+; ####################################################################
+deffunc opsiservice_authenticated($user$ : string, $pass$ : string, $url$ : string, $interactive$ : string) : string
+	markErrorNumber
+	if ($interactive$ = "true") and not($url$ = "")
+		comment "we try interactive"
+		opsiservicecall_check_authenticated /interactive /serviceurl $url$
+	else
+		if not($user$ = "") and not($pass$ = "") and not($url$ = "")
+			comment "we try new credentials"
+			opsiservicecall_check_authenticated /username $user$ /password $pass$ /serviceurl $url$
+			
+		else
+			comment "we try existing connection"
+			opsiservicecall_check_authenticated
+		endif
+	endif
+	set $result$ = "true"
+	if errorsOccuredSinceMark > 0
+		set $result$ = "false"
+	endif
+	;---------------------------
+	[opsiservicecall_check_authenticated]
+	"method": "authenticated"
+	"params": [
+						]
+endfunc
+; opsiservice_authenticated
+; ####################################################################
+
+deffunc opsiservice_UserIsAdmin() : string
+	DefStringlist $list$
+	
+	set $result$ = "false"
+	markErrorNumber
+	Set $list$ = getReturnListFromSection('opsiservicecall_UserIsAdmin')
+	if errorsOccuredSinceMark = 0
+		if takeString(0,$list$) = "true"
+			set $result$ = "true"
+		endif
+	endif
+	
+	; -----------------------------------------------------------------
+	[opsiservicecall_userIsAdmin]
+	"method": "userIsAdmin"
+	"params": [
+						]
+endfunc
+; opsiservice_UserIsAdmin
+; ####################################################################
+
+
+deffunc oca_shutdown_starter_fix() : void
+	comment "Check for initial shutdown_starter fix ...."
+	comment "Do we run in shutdown - mode ...."
+	set $resultlist$ = GetProcessList
+	set $resultstr$ = takeFirstStringContaining($resultlist$,"opsiclientd_event_starter.exe")
+	if not ($resultstr$ = "")
+		comment "on_shutdown is running we - look if we need to fix the event starter before install ..."
+		set $fix_shutdown_starter$ = "false"
+		if fileexists32($INST_BaseDir$+"\on_shutdown\opsiclientd_event_starter.exe")
+			set $resultlist$ = getFileInfoMap($INST_BaseDir$+"\on_shutdown\opsiclientd_event_starter.exe")
+			if "4.0.7.0" = getValue("FileVersion", $resultlist$)
+				set $fix_shutdown_starter$ = "true"
+				LogWarning "Fix for opsiclientd_event_starter.exe needed. Wrong version in: "+$INST_BaseDir$+"\on_shutdown\opsiclientd_event_starter.exe"
+			endif
+		endif
+		if $fix_shutdown_starter$ = "true"
+			Files_install_on_shutdown_copy_files
+			comment "we ignore allow_reboot because we are in shutdown mode"
+			ExitWindows /ImmediateReboot
+		else
+			comment "No fix for opsiclientd_shutdown_starter.exe needed - going on"
+		endif
+	else
+		comment "We do not run in shutdown - mode ...."
+	endif
+
+	;----------------------------------------------------------------------------------------------
+	[Files_install_on_shutdown_copy_files]
+	copy -Vc "%SCRIPTPATH%\on_shutdown\*.*" "$INST_BaseDir$\on_shutdown"
+
+endfunc
+; oca_shutdown_starter_fix
+; ####################################################################
+
+	
+deffunc oca_read_configuration() : void
+	comment "get installed gina"
+	set $INST_AktGina$ = GetRegistryValue("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon", "GinaDLL")
+	
+	comment "get nextgina to chain"
+	set $INST_gina_to_chain$ = GetRegistryValue("HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\opsi-client-agent","NextGina")
+	
+	if $INST_gina_to_chain$ = ""
+		comment "no nextGina entry at opsi-client-agent - let us look at the old preloginloader key"
+		set $INST_gina_to_chain$ = GetRegistryValue("HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\preloginloader","NextGina")
+	endif
+	
+	if $INST_gina_to_chain$ = ""
+		comment "no new opsigina installed - let us look for opsi pgina installation"
+		set $INST_gina_to_chain$ = GetRegistryValue("HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\preloginloader","pathMSGina")
+	endif
+	
+	if $INST_gina_to_chain$ = ""
+		comment "no new opsi pgina installed - let us look for legacy opsi installation"
+		set $INST_old_reg_gina_installed$ = GetRegistryValue("HKEY_LOCAL_MACHINE\SOFTWARE\pGina\Opsi","Installed")
+		if $INST_old_reg_gina_installed$ = "1"
+			set $INST_gina_to_chain$ = GetRegistryValue("HKEY_LOCAL_MACHINE\SOFTWARE\pGina","pathMSGina")
+		endif
+	endif
+	
+	if ($INST_gina_to_chain$ = "") and ("64 Bit System" = $INST_SystemType$)
+		comment "perhaps opsi-client-agent previously installed into wrong registry tree with 32-bit settings"
+		set $INST_gina_to_chain$ = GetRegistryValue("HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\opsi-client-agent","NextGina","32bit")
+	endif
+	
+	
+	if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") < "0"
+		if ($INST_AktGina$ = "")
+			comment "opsigina seems not be installed and we are on a fresh XP"
+			set $INST_gina_to_chain$ = "msgina.dll"
+		else
+			if ($INST_gina_to_chain$ = "")
+				comment "opsigina seems not be installed and there is active gina"
+				set $INST_gina_to_chain$ = $INST_AktGina$
+			else
+				if NOT ( $INST_gina_to_chain$ = $INST_AktGina$ )
+					comment "WARNING: opsigina seems installed and there is active gina different from opsi.org\opsi-client-agent] NextGina"
+					LogWarning "opsigina seems installed and there is active gina different from opsi.org\opsi-client-agent] NextGina"
+					set $INST_gina_to_chain$ = $INST_AktGina$
+				else
+					comment "opsigina seems be installed and so don't change the gina to chain"
+				endif
+			endif
+		endif
+		if strPos($INST_gina_to_chain$, "'") = "1"
+			comment "Path to gina is quoted with single marks - we need double marks to avoid syntax errors"
+			set $INST_gina_to_chain$ = unquote($INST_gina_to_chain$,"'")
+			set $INST_gina_to_chain$ = '"'+ $INST_gina_to_chain$ + '"'
+		endif
+	endif ; winxp / win2k
+	Set $GEN_bootmode$    	 = GetValueFromInifile($INST_cfgini$, "general", "bootmode", $GEN_bootmode$)
+	
+	comment "Getting dns domain from config file"
+	Set $INST_DnsDomainName$ = GetValueFromInifile($INST_cfgini$, "general", "dnsdomain", $INST_DnsDomainName$)
+	comment "Getting dns domain from custom config file"
+	Set $INST_DnsDomainName$ = GetValueFromInifile($INST_custom_Cfgini$, "general", "dnsdomain", $INST_DnsDomainName$)
+	
+	if ($INST_DnsDomainName$ = "")
+		comment "Failed to get dns from config file, trying dns domain from wmic"
+		Set $INST_ResultList$ = shellcall('wmic path win32_NetworkAdapterConfiguration get DnsDomain /value | findstr "=."')
+		Set $INST_DnsDomainName$ = TakeString(1,splitString(TakeString(0,$INST_ResultList$),"="))
+	endif
+	
+	; dont log the pckey
+	;SetLogLevel=$INST_PasswdLogLevel$
+	Set $SHI_pckey$ = asConfidential(GetValueFromInifile($INST_cfgini$, "shareinfo", "pckey", ""))
+	; start logging again
+	;SetLogLevel=$INST_DefaultLoglevel$
+	
+	comment "Getting values from from config file"
+	Set $OCD_global.log_level$ 		    = GetValueFromInifile($INST_cfgini$, "opsiclientd", "global.log_level", $OCD_global.log_level$)
+	Set $OCD_config_service.url$ 		    = GetValueFromInifile($INST_cfgini$, "opsiclientd", "config_service.url", $OCD_config_service.url$)
+	Set $OCD_config_service.connection_timeout$ = GetValueFromInifile($INST_cfgini$, "opsiclientd", "config_service.connection_timeout", $OCD_config_service.connection_timeout$)
+	Set $OCD_control_server.port$ 		    = GetValueFromInifile($INST_cfgini$, "opsiclientd", "control_server.port", $OCD_control_server.port$)
+	Set $OCD_notification_server.port$ 	    = GetValueFromInifile($INST_cfgini$, "opsiclientd", "notification_server.port", $OCD_notification_server.port$)
+	Set $OCD_open_firewall_for_control_server$  = GetValueFromInifile($INST_cfgini$, "opsiclientd", "open_firewall_for_control_server", $OCD_open_firewall_for_control_server$)
+	Set $OLB_LogLevel$ 			    = GetValueFromInifile($INST_cfgini$, "opsiLoginBlocker", "LogLevel", $OLB_LogLevel$)
+	Set $OLB_LoginBlockerStart$          	    = GetValueFromInifile($INST_cfgini$, "opsiLoginBlocker", "LoginBlockerStart", $OLB_LoginBlockerStart$)
+	Set $OLB_LoginBlockerTimeoutConnect$	    = GetValueFromInifile($INST_cfgini$, "opsiLoginBlocker", "LoginBlockerTimeoutConnect", $OLB_LoginBlockerTimeoutConnect$)
+	
+	comment "Getting values (overwrite)from from custom config file"
+	Set $OCD_global.log_level$ 		    = GetValueFromInifile($INST_custom_Cfgini$, "opsiclientd", "global.log_level", $OCD_global.log_level$)
+	Set $OCD_config_service.url$ 		    = GetValueFromInifile($INST_custom_Cfgini$, "opsiclientd", "config_service.url", $OCD_config_service.url$)
+	Set $OCD_config_service.connection_timeout$ = GetValueFromInifile($INST_custom_Cfgini$, "opsiclientd", "config_service.connection_timeout", $OCD_config_service.connection_timeout$)
+	Set $OCD_control_server.port$ 		    = GetValueFromInifile($INST_custom_Cfgini$, "opsiclientd", "control_server.port", $OCD_control_server.port$)
+	Set $OCD_notification_server.port$ 	    = GetValueFromInifile($INST_custom_Cfgini$, "opsiclientd", "notification_server.port", $OCD_notification_server.port$)
+	Set $OCD_open_firewall_for_control_server$  = GetValueFromInifile($INST_custom_Cfgini$, "opsiclientd", "open_firewall_for_control_server", $OCD_open_firewall_for_control_server$)
+	Set $OLB_LogLevel$ 			    = GetValueFromInifile($INST_custom_Cfgini$, "opsiLoginBlocker", "LogLevel", $OLB_LogLevel$)
+	Set $OLB_LoginBlockerStart$          	    = GetValueFromInifile($INST_custom_Cfgini$, "opsiLoginBlocker", "LoginBlockerStart", $OLB_LoginBlockerStart$)
+	Set $OLB_LoginBlockerTimeoutConnect$	    = GetValueFromInifile($INST_custom_Cfgini$, "opsiLoginBlocker", "LoginBlockerTimeoutConnect", $OLB_LoginBlockerTimeoutConnect$)
+	
+	; Patch #1237 (https://forum.opsi.org/viewtopic.php?f=7&t=6764#p29403)
+	if contains( $OCD_config_service.url$, "," )
+		Set $OCD_POSSIBLE_config_service.urls$ = splitString( $OCD_config_service.url$, "," )
+		for %possible_config_service_url% in $OCD_POSSIBLE_config_service.urls$ do oca_test_config_service_url("%possible_config_service_url%", $OCD_WORKING_config_service.url$)
+		Set $OCD_config_service.url$ = $OCD_WORKING_config_service.url$
+	endif
+	
+	; change value given by config.ini only if property present
+	if GetProductProperty ("LoginBlockerStart","") = "on"
+		Set $OLB_LoginBlockerStart$ = "1"
+	endif
+	if GetProductProperty ("LoginBlockerStart","") = "off"
+		Set $OLB_LoginBlockerStart$ = "0"
+	endif
+	
+	comment "Getting values from from config file"
+	Set $INST_Service_User$          	= GetValueFromInifile($INST_cfgini$, "installation", "service_user", $INST_Service_User$)
+	Set $INST_Service_Password$      	= asConfidential(GetValueFromInifile($INST_cfgini$, "installation", "service_password", $INST_Service_Password$))
+	Set $INST_service_hidden_password$      	= GetValueFromInifile($INST_cfgini$, "installation", "service_hidden_password", $INST_service_hidden_password$)
+	
+	comment "Getting values (overwrite)from from custom config file"
+	Set $INST_Service_User$          	= GetValueFromInifile($INST_custom_Cfgini$, "installation", "service_user", $INST_Service_User$)
+	Set $INST_Service_Password$      	= asConfidential(GetValueFromInifile($INST_custom_Cfgini$, "installation", "service_password", $INST_Service_Password$))
+	Set $INST_service_hidden_password$      	= GetValueFromInifile($INST_custom_Cfgini$, "installation", "service_hidden_password", $INST_service_hidden_password$)
+	
+	if not ($INST_service_hidden_password$ = "")
+		;SetLogLevel=$INST_PasswdLogLevel$
+		Set $INST_Service_Password$ = asConfidential(base64DecodeStr($INST_service_hidden_password$))
+		;SetLogLevel=$INST_DefaultLoglevel$
+	endif
+	
+	; ******* sysconfini wird bei PXE-basierter Grundinstallation vom Bootimage angelegt.
+	if (FileExists ($INST_sysconfini$))
+		DefVar $DepotUrl$
+		Set $INST_NetBootProductname$ = GetValueFromInifile($INST_sysconfini$, "general", "productid", $INST_NetBootProductname$)
+		Set $INST_pcname$             = GetValueFromInifile($INST_sysconfini$, "general", "pcname", $INST_pcname$)
+		Set $INST_DnsDomainName$      = GetValueFromInifile($INST_sysconfini$, "general", "dnsdomain", $INST_DnsDomainName$)
+		Set $DepotUrl$                = GetValueFromInifile($INST_sysconfini$, "general", "depoturl", $DepotUrl$)
+		set $INST_DepotServer$ = takeString(2,splitString($DepotUrl$,"/"))
+	endif
+	
+	if $INST_pcname$ = ""
+		set $INST_pcname$ = %pcname%
+		comment "This is normally the hostname but some times it is the FQDN - so we have to get the hostname from the fqdn"
+		set $INST_pcname$ = takeString(0,splitstring($INST_pcname$,"."))
+	endif
+	Set $INST_pcname$ = lower($INST_pcname$)
+	Set $INST_pcname$ = stringReplace($INST_pcname$,"_","-")
+	if not ($INST_DnsDomainName$ = "")
+		Set $INST_ClientId$ = $INST_pcname$ + "." + $INST_DnsDomainName$
+	endif
+	
+	if $GEN_bootmode$ = ""
+		Set $GEN_bootmode$ = "BKSTD"
+	endif
+	
+	if $INST_Modus$ = "INSTALL"
+		if $INST_SubModus$ = "BOOTIMAGE"
+			Set $GEN_bootmode$    = "REINS"
+		endif ; BOOTIMAGE
+	
+		if $INST_SubModus$ = "CREATE_CLIENT"
+			oca_create_client()
+		endif ; CREATE_CLIENT
+	endif ; INSTALL  
+	
+	if (($SHI_pckey$ = "") or ($SHI_pckey$ = "#@PCKEY#"))
+		; dont log the pckey
+		;SetLogLevel=$INST_PasswdLogLevel$
+		if FileExists ($INST_OpsiclientdConf$)
+			Set $SHI_pckey$       = asConfidential(GetvalueFromInifile($INST_OpsiclientdConf$, "global", "opsi_host_key", $SHI_pckey$))
+			Set $INST_ClientId$   = GetvalueFromInifile($INST_OpsiclientdConf$, "global", "host_id", $INST_ClientId$)
+			Set $INST_pcname$     = TakeString(0,SplitString($INST_ClientId$,"."))
+		else
+			if FileExists ("%ProgramFilesDir%\opsi.org\preloginloader\opsiclientd\opsiclientd.conf")
+				Set $SHI_pckey$       = asConfidential(GetvalueFromInifile("%ProgramFilesDir%\opsi.org\preloginloader\opsiclientd\opsiclientd.conf", "global", "opsi_host_key", $SHI_pckey$))
+				Set $INST_ClientId$   = GetvalueFromInifile("%ProgramFilesDir%\opsi.org\preloginloader\opsiclientd\opsiclientd.conf", "global", "host_id", $INST_ClientId$)
+				Set $INST_pcname$     = TakeString(0,SplitString($INST_ClientId$,"."))
+			else
+				if FileExists ($INST_BaseDir$+"\cfg\locked.cfg")
+					Set $SHI_pckey$       = asConfidential(GetvalueFromInifile($INST_BaseDir$+"\cfg\locked.cfg", "shareinfo", "pckey", $SHI_pckey$))
+				else
+					if FileExists ("%ProgramFilesDir%\opsi.org\preloginloader\cfg\locked.cfg")
+						Set $SHI_pckey$       = asConfidential(GetvalueFromInifile("%ProgramFilesDir%\opsi.org\preloginloader\cfg\locked.cfg", "shareinfo", "pckey", $SHI_pckey$))
+					else
+						;SetLogLevel=$INST_DefaultLoglevel$
+						logError "pckey not found - please reinstall opsi-client-agent"
+						isFatalError
+					endif
+				endif
+			endif
+		endif
+		; start logging again
+		;SetLogLevel=$INST_DefaultLoglevel$
+	endif
+		
+	if $INST_MAC$ = ""
+		set $INST_MAC$ = oca_try_to_get_my_mac()
+	endif
+	
+	if ($INST_DepotServer$ = "")
+		oca_get_depot_netbiosname()
+	endif
+	
+	if $INST_MODUS$ = "INSTALL"
+		comment "Connect to service if not connected yet...."
+		set $INST_Authenticated$ = opsiservice_authenticated("","","","false")
+		if $INST_Authenticated$ = "false"
+			comment "was not authenticated -> retry scripted login by client ID and hostkey"
+			comment "Try to open new network connection"
+			set $INST_Authenticated$ = opsiservice_authenticated($INST_ClientId$,$SHI_pckey$,$OCD_config_service.url$,"false")
+			if $INST_Authenticated$ = "false"
+				comment "scripted login by client id / hostkey failed -> we don't retry "
+				comment "giving up"
+			else
+					comment "now authenticated "
+			endif
+		endif
+		if ($INST_Authenticated$ = "true") 
+			LoadProductProperties $INST_ClientId$ "opsi-client-agent"
+		endif
+	endif ; INSTALL
+	
+	comment "get user which should mount the depot share from service"
+	markErrorNumber
+	Set $INST_ServiceResult$ = getReturnListFromSection('opsiservicecall_getGeneralConfigValue_depotuser')
+	if errorsOccuredSinceMark > 0
+		comment "Servicall failed - retry ..."
+		sleepseconds 2
+		markErrorNumber
+		Set $INST_ServiceResult$ = getReturnListFromSection('opsiservicecall_getGeneralConfigValue_depotuser')
+		if errorsOccuredSinceMark > 0
+			comment "Servicall failed - giving up -using default ..."
+		endif
+	endif
+	if errorsOccuredSinceMark = 0
+		set $INST_tmpstr$ = takestring(0, $INST_ServiceResult$)
+		if not ("" = $INST_tmpstr$)
+			Set $OCD_depot_server__username$ = $INST_tmpstr$
+		endif
+	endif
+	
+	set $INST_ResultList2$ = createStringList("Dhcp","Dnscache")
+	set $INST_ResultList$ = GetProductPropertyList("depends_on_service",$INST_ResultList2$)
+	comment " get list of all services ..."
+	set $INST_FullServicelist$ = shellCall("%System%\sc queryex type= service state= all")
+	set $INST_FullServicelist$ = getListContaining($INST_FullServicelist$,"SERVICE_NAME")
+	set $OCD_depServicelist$ = emptyList($OCD_depServicelist$)
+	comment "check if requested services are existing ...."
+	for %servicestr% in $INST_ResultList$ do oca_check_services("%servicestr%", $INST_FullServicelist$, $OCD_depServicelist$)
+	if count($OCD_depServicelist$) INT> "0"
+		set $OCD_depServices$ = composeString($OCD_depServicelist$,"|")
+	endif
+	
+	
+	comment "Handle setup_after_install ..."
+	comment " using 4 argument GetProductPropertyList"
+	set $INST_ResultList$ = GetProductPropertyList("setup_after_install",$INST_ResultList2$,$INST_ClientId$,"opsi-client-agent")
+	
+	if count($INST_ResultList$) > "0"
+		for %product4setup% in $INST_ResultList$ do opsiServiceCall_setActionRequest
+	endif
+	
+	; show what we have
+	comment "$INST_AllowReboot$ -> "+               $INST_AllowReboot$
+	comment "$INST_BaseDir$ -> "+                   $INST_BaseDir$
+	comment "$INST_Cfgini$ -> "+                    $INST_Cfgini$
+	comment "$INST_custom_Cfgini$ -> "+             $INST_custom_Cfgini$
+	comment "$INST_ClientExists$ -> "+              $INST_ClientExists$
+	comment "$INST_ClientId$ -> "+                  $INST_ClientId$
+	comment "$INST_ComputerName$ -> "+              $INST_ComputerName$
+	comment "$INST_Debug$ -> "+                     $INST_Debug$
+	comment "$INST_DepotServer$ -> "+               $INST_DepotServer$
+	comment "$INST_DnsDomainName$ -> "+             $INST_DnsDomainName$
+	comment "$INST_IPAddress$ -> "+                 $INST_IPAddress$
+	comment "$INST_ImmediateRebootFlag$ -> "+       $INST_ImmediateRebootFlag$
+	comment "$INST_MAC$ -> "+                       $INST_MAC$
+	comment "$INST_MinorOS$ -> "+                   $INST_MinorOS$
+	comment "$INST_Modus$ -> "+                     $INST_Modus$
+	comment "$INST_NetBootProductname$ -> "+        $INST_NetBootProductname$
+	comment "$INST_NicIndex$ -> "+                  $INST_NicIndex$
+	comment "$INST_NotifierDir$ -> "+               $INST_NotifierDir$
+	comment "$INST_NTVersion$ -> "+                 $INST_NTVersion$
+	comment "$INST_ProductType$ -> "+               $INST_ProductType$
+	comment "$INST_OS$ -> "+                        $INST_OS$
+	comment "$INST_OpensslConfigFile$ -> "+         $INST_OpensslConfigFile$
+	comment "$INST_OpensslBaseDir$ -> "+            $INST_OpensslBaseDir$
+	comment "$INST_OpsiClientdCertificateFile$ -> "+$INST_OpsiClientdCertificateFile$
+	comment "$INST_OpsiclientdDir$ -> "+            $INST_OpsiclientdDir$
+	comment "$INST_OpsiclientdConf$ -> "+           $INST_OpsiclientdConf$
+	comment "$INST_OpsiclientdRPCDir$ -> "+         $INST_OpsiclientdRPCDir$
+	comment "$INST_ActionProcessorStarterDir$ -> "+ $INST_ActionProcessorStarterDir$
+	comment "$INST_Paramstr$ -> "+                  $INST_Paramstr$
+	comment "$INST_Pcname$ -> "+                    $INST_Pcname$
+	comment "$INST_RebootFlag$ -> "+                $INST_RebootFlag$
+	comment "$INST_Result$ -> "+                    $INST_Result$
+	comment "$INST_SYSTEMDRIVE$ -> "+               $INST_SYSTEMDRIVE$
+	comment "$INST_SYSTEMROOT$ -> "+                $INST_SYSTEMROOT$
+	comment "$INST_SYSTEMSYS$ -> "+                 $INST_SYSTEMSYS$
+	comment "$INST_ServiceName$ -> "+               $INST_ServiceName$
+	comment "$INST_Service_User$ -> "+              $INST_Service_User$
+	comment "$INST_service_hidden_password$ -> "+   $INST_service_hidden_password$
+	comment "$INST_Service_Password$ -> "+          $INST_Service_Password$
+	comment "$INST_pcDescription$ -> "+             $INST_pcDescription$
+	comment "$INST_pcNotes$ -> "+                   $INST_pcNotes$
+	
+	comment "$INST_ShortServiceUrl$ -> "+           $INST_ShortServiceUrl$
+	comment "$INST_SubModus$ -> "+                  $INST_SubModus$
+	comment "$INST_Sysconfini$ -> "+                $INST_Sysconfini$
+	comment "$INST_SystemType$ -> "+                $INST_SystemType$
+	comment "$INST_WinstDir$ -> "+                  $INST_WinstDir$
+	comment "$INST_WinstRegKey$ -> "+               $INST_WinstRegKey$
+	comment "$INST_AktGina$ -> "+                   $INST_AktGina$
+	comment "$INST_gina_to_chain$ -> "+             $INST_gina_to_chain$
+	
+	comment "$INST_vcredistx86_installed$ -> "+     $INST_vcredistx86_installed$
+	;comment "$INST_uac_level$ -> "+                 $INST_uac_level$
+	;comment "$INST_create_software_on_demand_menue_entry$ -> "+  $INST_create_software_on_demand_menue_entry$
+	
+	
+	;******** Sektion general **********      
+	
+	comment "$GEN_bootmode$ -> "+                   $GEN_bootmode$
+	
+	;******** Sektion shareinfo **********         
+	if  ($INST_debug$ = "on")
+		comment "$SHI_pckey$ -> "+$SHI_pckey$
+	endif
+	
+	;******** Sektion opsiclientd **********     
+	
+	comment "$OCD_global.log_level$ -> "+                   $OCD_global.log_level$
+	comment "$OCD_config_service.url$ -> "+                 $OCD_config_service.url$
+	comment "$OCD_config_service.connection_timeout$ -> "+  $OCD_config_service.connection_timeout$
+	comment "$OCD_control_server.port$ -> "+                $OCD_control_server.port$
+	comment "$OCD_open_firewall_for_control_server$ -> "+   $OCD_open_firewall_for_control_server$
+	comment "$OCD_notification_server.port$ -> "+           $OCD_notification_server.port$
+	comment "$OCD_depot_server__username$ -> "+             $OCD_depot_server__username$
+	comment "$OCD_depServices$ -> "+                        $OCD_depServices$
+	
+	;******** Sektion opsiLoginBlocker **********   
+	;comment "$OLB_ServiceConnectionTimeout$ -> "+           $OLB_ServiceConnectionTimeout$
+	comment "$OLB_LogLevel$ -> "+                           $OLB_LogLevel$
+	comment "$OLB_LoginBlockerStart$ -> "+                  $OLB_LoginBlockerStart$
+	comment "$OLB_LoginBlockerTimeoutConnect$ -> "+         $OLB_LoginBlockerTimeoutConnect$
+	;comment "$OLB_LoginBlockerTimeoutInstall$ -> "+         $OLB_LoginBlockerTimeoutInstall$
+	comment "$OLB_opsiServiceType$ -> "+                    $OLB_opsiServiceType$
+	
+	;******** Sektion prelogin **********
+	comment "$PLG_UtilsDir$ -> "+                           $PLG_UtilsDir$
+	
+	;******** Sektion on_shutdown **********
+	;comment "$on_shutdown_install$ -> "+                    $on_shutdown_install$
+	;comment "$on_shutdown_install_set_policy$ -> "+         $on_shutdown_install_set_policy$
+	
+	;*********************************************************************
+	; ---------------------------------------------------------------------
+	[opsiServiceCall_setActionRequest]
+	"method": "setProductActionRequestWithDependencies"
+	"params": [
+	           "%product4setup%",
+	           "$INST_ClientId$",
+	           "setup"
+	          ]
+
+	[opsiservicecall_getGeneralConfigValue_depotuser]
+	"method": "getGeneralConfigValue"
+	"params": [
+						"clientconfig.depot.user",
+						"$INST_ClientId$"
+						]
+
+endfunc
+; oca_read_configuration
+; ####################################################################
+
+
+deffunc oca_check_services($srv_str$ : string, val $full_srv_list$ : stringlist, ref $dep_srv_list$ : stringlist) : void
+	comment "starting oca_check_services with: "+$srv_str$
+	if "" = takeFirstStringContaining($full_srv_list$,$srv_str$)
+		logwarning "Requested service:"+$srv_str$+" not found. - will be ignored."
+	else
+		comment "Requested service: "+$srv_str$+" found. - will be used."
+		set $dep_srv_list$ = addtolist($dep_srv_list$, $srv_str$)
+	endif
+	comment "finished oca_check_services with: "+$srv_str$
+endfunc
+; oca_check_services
+; ####################################################################
+
+	
+deffunc oca_create_client() : void
+	if ($OCD_config_service.url$ = "")
+		set $OCD_config_service.url$ = "https://<opsiserver>:4447"
+	endif
+
+	comment "Connect to service....."
+	comment "Connect to service if not connected yet...."
+	set $INST_userIsAdmin$ = "false"
+	set $INST_Authenticated$ = opsiservice_authenticated("","","","false")
+	set $INST_userIsAdmin$ = opsiservice_UserIsAdmin()
+	;if ($INST_Authenticated$ = "false") or ($INST_userIsAdmin$ = "false")
+	;	comment "was not authenticated or not admin-> retry scripted login by fqdn/hostkey"
+	;	comment "Try to open new network connection"
+	;	set $INST_Authenticated$ = opsiservice_authenticated($INST_ClientId$,$SHI_pckey$,$OCD_config_service.url$,"false")
+	;	set $INST_userIsAdmin$ = opsiservice_UserIsAdmin()
+	;endif
+	if ($INST_Authenticated$ = "false") or ($INST_userIsAdmin$ = "false")
+		comment "was not authenticated or not admin-> retry scripted login by user/password from config.ini"
+		comment "Try to open new network connection"
+		set $INST_Authenticated$ = opsiservice_authenticated($INST_Service_User$,$Inst_Service_Password$,$OCD_config_service.url$,"false")
+		set $INST_userIsAdmin$ = opsiservice_UserIsAdmin()
+	endif
+	if ($INST_Authenticated$ = "false") or ($INST_userIsAdmin$ = "false")
+		comment "was not authenticated as admin-> retry interactive"
+		set $INST_Authenticated$ = opsiservice_authenticated("","",$OCD_config_service.url$,"true")
+		set $INST_userIsAdmin$ = opsiservice_UserIsAdmin()
+	endif
+	if ($INST_Authenticated$ = "false") or ($INST_userIsAdmin$ = "false")
+		comment "was not authenticated as admin-> giving up"
+		if $INST_Authenticated$ = "true"
+			LogWarning "We are authenticated but no admin login"
+			LogWarning "Authenitcated user: " + $INST_Service_User$ + " is not a opsiadmin"
+			comment "We go on and will see if this user has the credentials to create a client"
+		else 
+			logerror "We are not authenticated"
+			logerror "No admin login"
+			pause "Error: No admin login - exiting"
+			isFatalError
+		endif
+	endif
+	LoadProductProperties $INST_ClientId$ "opsi-client-agent"
+	
+
+	comment "get MAC and IP for Service connection"
+	set $INST_MAC$ = oca_try_to_get_my_mac()
+	
+	if ($INST_DnsDomainName$ = "") and ($INST_userIsAdmin$ = "true")
+		comment "*** Get domain ***"
+		Set $INST_ServiceResult$ = getReturnListFromSection('opsiservicecall_getDomain')
+		Set $INST_DnsDomainName$ = takestring(0, $INST_ServiceResult$)
+	endif
+	
+	comment "*** does the client exist? ***"
+	Set $INST_pcname$ = lower($INST_pcname$)
+	Set $INST_ClientId$ = $INST_pcname$ + "." + $INST_DnsDomainName$
+	
+	if (($SHI_pckey$ = "") or ($SHI_pckey$ = "#@PCKEY#"))
+		; dont log the pckey
+		;SetLogLevel=$INST_PasswdLogLevel$
+		set $SHI_pckey$ = asConfidential(createNewOpsiHostKey)
+		;SetLogLevel=$INST_DefaultLoglevel$
+	endif
+	
+	if ($INST_userIsAdmin$ = "true")
+		if ("" = takeFirstStringContaining(getReturnListFromSection('opsiservicecall_host_getIdents_for_clientId'), $INST_ClientId$))
+			 comment "*** Create client ***"
+			 Set $INST_ServiceResult$ = getReturnListFromSection('opsiservicecall_createClient')
+		else
+			SetLogLevel=$INST_PasswdLogLevel$
+			Set $INST_ServiceResult$ = getReturnListFromSection('opsiservicecall_getOpsiHostKey')
+			Set $SHI_pckey$ = takestring(0, $INST_ServiceResult$)
+			SetLogLevel=$INST_DefaultLoglevel$
+		endif
+	else
+		comment "*** Create client ***"
+		Set $INST_ServiceResult$ = getReturnListFromSection('opsiservicecall_createClient')
+	endif
+	
+	if not ($INST_userIsAdmin$ = "true")
+		;  4.0.4.2-1 after creation use host/key autheticated service:
+		Set $INST_ServiceResult$ = getReturnListFromSection('opsiservicecall_close_session')
+		comment "after creation use host/key autheticated service"
+		comment "Try to open new network connection"
+		set $INST_Authenticated$ = opsiservice_authenticated($INST_ClientId$,$SHI_pckey$,$OCD_config_service.url$,"false")
+		if $INST_Authenticated$ = "false"
+			isFatalError
+		else
+			comment "now authenticated "
+			LoadProductProperties $INST_ClientId$ "opsi-client-agent"
+		endif
+	endif
+	
+	; *** Get active service url ***
+	Set $INST_ServiceResult$ = getReturnListFromSection('opsiservicecall_getNetworkconfig_hash')
+	set $OCD_config_service.url$ = takestring(1, splitString(takeFirstStringContaining($INST_ServiceResult$,"nextBootServiceURL"), '='))
+	
+	; Patch #1237 (https://forum.opsi.org/viewtopic.php?f=7&t=6764#p29403)
+	if contains( $OCD_config_service.url$, "," )
+		Set $OCD_POSSIBLE_config_service.urls$ = splitString( $OCD_config_service.url$, "," )
+		for %possible_config_service_url% in $OCD_POSSIBLE_config_service.urls$ do oca_test_config_service_url("%possible_config_service_url%", $OCD_WORKING_config_service.url$)
+		Set $OCD_config_service.url$ = $OCD_WORKING_config_service.url$
+	endif
+	
+	
+	if $OCD_config_service.url$ = ""
+		comment "Getting values from from config file"
+		Set $OCD_config_service.url$ = GetvalueFromInifile($INST_cfgini$, "opsiclientd", "config_service.url", "")
+		comment "Getting values (overwrite)from from custom config file"
+		Set $OCD_config_service.url$ = GetvalueFromInifile($INST_custom_Cfgini$, "opsiclientd", "config_service.url", $OCD_config_service.url$)
+		; Patch #1237 (https://forum.opsi.org/viewtopic.php?f=7&t=6764#p29403)
+		if contains( $OCD_config_service.url$, "," )
+			Set $OCD_POSSIBLE_config_service.urls$ = splitString( $OCD_config_service.url$, "," )
+			for %possible_config_service_url% in $OCD_POSSIBLE_config_service.urls$ do oca_test_config_service_url("%possible_config_service_url%", $OCD_WORKING_config_service.url$)
+			Set $OCD_config_service.url$ = $OCD_WORKING_config_service.url$
+		endif
+		
+	endif
+	;------------------------------------------------------------------------------
+	[opsiservicecall_getDomain]
+	"method": "getDomain"
+	"params": [
+						]
+
+	[opsiservicecall_host_getIdents_for_clientId]
+	"method": "host_getIdents"
+	"params": [
+						'[]',
+						'{"id":"$INST_ClientId$"}',
+			]
+
+	[opsiservicecall_createClient]
+	"method": "host_createOpsiClient"
+	"params": [
+						"$INST_ClientId$",
+						"$SHI_pckey$",
+						"$INST_pcDescription$",
+						"$INST_pcNotes$",
+						"$INST_MAC$"
+						"$INST_IPAddress$",
+						]
+
+	[opsiservicecall_getOpsiHostKey]
+	"method": "getOpsiHostKey"
+	"params": [
+						"$INST_ClientId$"
+						]
+
+	[opsiservicecall_close_session]
+	"method": "backend_exit"
+	"params": [
+						]
+
+	[opsiservicecall_getNetworkConfig_hash]
+	"method": "getNetworkConfig_hash"
+	"params": [
+						"$INST_ClientId$"
+						]
+
+endfunc
+; oca_create_client
+; ####################################################################
+
+deffunc oca_copy_files() : void
+
+	comment "Stop_Preloginloader_Service"
+	shellcall('net stop preloginloader')
+	Registry_DeletePreloginloader
+	Files_del_loginblocker_log
+	
+	if ($INST_Modus$ = "INSTALL")
+		comment "clean all up"
+		if FileExists($INST_BaseDir$+"\")
+			comment "Stopping and removing existing services...."
+			comment "Stop_opsiclientd_Service"
+			shellCall('net stop opsiclientd')
+			comment "unregister_opsiclientd_service"
+			shellcall('"'+$INST_BaseDir$+'\opsiclientd.exe" -remove')
+			Registry_DeleteOpsiclientd
+			comment "Deleting old files...."
+			Files_Delete_OCA_BaseDir
+		endif
+	endif ; INSTALL
+	markErrorNumber
+	Files_copy_winst
+	Files_copy_uninst
+	Files_copy_custom
+	if errorsOccuredSinceMark > 0
+		comment "copy failed - let us abort"
+		logerror "Copy of files are failed -exiting"
+		if $INST_SubModus$="CREATE_CLIENT"
+			pause "Error: Copy of files are failed - Did you run this script with elevated rights 'as administrator' - aborting"
+		endif
+		isFatalError
+	endif
+	
+	if ($INST_SystemType$ = "64 Bit System") and (CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") < "0")
+		comment "we need vc_redist X64 at xp64 and 2003x64 to run the loginblocker"
+		Winbatch_vc_redist_exe_64
+		;Sub_check_exitcode
+		comment "Test for installation success via exit code"
+		set $INST_ExitCode$ = getLastExitCode
+		if not (($INST_ExitCode$ = "0") or ($INST_ExitCode$ = "1603"))
+			comment "installation seems to be failed - lets try with msi"
+			Winbatch_vc_redist_msi_64
+			;Sub_check_exitcode
+		endif
+	endif
+	
+	comment "try to kill opsibinaries before installing them"
+	KillTask "notifier.exe"
+	KillTask "opsiclientd_rpc.exe"
+	
+	comment "install openssl ...."
+	Files_indy_OpenSSL
+	comment "installing opsiclientd py2exe files and required libraries"
+	Files_copy_py2exe
+	
+	comment "copy lazarus based notifier over old pythen version"
+	Files_copy_opsinotifier
+	
+	
+	;comment "unzip opsiclientd.exe ... (W8.1 + 10 workaround)"
+	;Files_copy_opsiclientd_exe2
+	comment "Update SSL DLLs from opsi-script to opsiclientd"
+	if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") >= "0"
+		Files_copy_ssl_to_py2exe
+	endif
+	comment "copy custom files for opsiclientd (notifier, opsiclientd.conf, ..)"
+	Files_copy_custom_opsiclientd
+	; http://indy.fulgan.com/SSL/
+	;Files_copy_shining_light_OpenSSL_exe
+	;http://innounp.sourceforge.net/
+	;DosInAnIcon_shining_light_OpenSSL_unpack
+	;Files_copy_shining_light_OpenSSL_files
+	;Registry_shining_light_OpenSSL
+	;Registry_shining_light_OpenSSL_uninstall
+	if (FileExists($INST_BaseDir$+"\utils") or FileExists($INST_BaseDir$+"\prelogin"))
+		comment "removing detected old prelogin files..."
+		shellcall('net stop preloginloader')
+		Registry_DeletePreloginloader
+		Files_del_utils
+		Files_del_prelogin
+	endif
+	
+	comment "copying loginblocker"
+	if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") >= "0"
+		comment "we are on vista or above "
+		if ($INST_SystemType$ = "64 Bit System")
+			Files_copy_vista_loginblocker_64 /Sysnative
+		else
+			Files_copy_vista_loginblocker_32
+			Files_del_cmd64
+		endif ; 32/64
+	endif ; nt6
+	
+	if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") < "0"
+		if ($INST_SystemType$ = "64 Bit System")
+			Files_copy_xp_loginblocker_64
+		else
+			if CompareDotSeparatedNumbers($INST_NTVersion$,"5.0") = "0"
+				Files_copy_xp_loginblocker_win2k
+				;Set $INST_SetAclDir$ = $INST_OpsiUtilitiesdDir$ + "\SetACL 2.2.0\SetACL 2.2.0\Command line version\x86"
+				Set $INST_SetAclDir$ = $INST_OpsiUtilitiesdDir$ 
+				;Set $INST_SetAclDir$ = $INST_OpsiUtilitiesdDir$ + "\SetACL 2.1.1\SetACL 2.1.1\Command line version\x86"
+			else
+				Files_copy_xp_loginblocker_32
+			endif
+			Files_del_cmd64
+		endif
+	endif
+	
+	comment "copy files opsiclientdguard"
+	Files_opsiclientdguard
+	
+	comment "copy files for install_on_shutdown"
+	Files_install_on_shutdown_copy_files
+	Files_copy_ssl_to_on_shutdown
+	comment "end copy files"
+	; ----------------------------------------------------------------
+	[Files_del_loginblocker_log]
+	del -fc c:\opsi.org\log\opsi_loginblocker.txt
+	del -fc c:\opsi.org\log\opsiclientd_timeout.txt
+
+	[Registry_DeleteOpsiclientd]
+	DeleteKey [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\opsiclientd]
+
+	[Files_Delete_OCA_BaseDir]
+	del -sfc "$INST_BaseDir$\"
+
+	[Files_copy_winst]
+	; do not use -V because it leads to broken winst on downgrade
+	copy -sc "%SCRIPTPATH%\opsi-winst\*.*" "$INST_WinstDir$"
+	copy -sVc "%SCRIPTPATH%\utilities\*.*" "$INST_BaseDir$\utilities\"
+	copy -sc "%SCRIPTPATH%\images\*.*" "$INST_BaseDir$\images\"
+	
+	[Files_copy_uninst]
+	copy -sVc "%SCRIPTPATH%\uninst\*.*" "$INST_BaseDir$\uninst\"
+	
+	[Files_copy_custom]
+	copy -sc "%SCRIPTPATH%\custom\winstskin\*.*" "$INST_BaseDir$\custom\winstskin"
+	copy -c "%SCRIPTPATH%\custom\config.ini" "$INST_BaseDir$\custom\"
+	copy -sc "%SCRIPTPATH%\custom\opsiclientkioskskin\*.*" "$INST_BaseDir$\custom\opsiclientkioskskin"
+
+	[Winbatch_vc_redist_exe_64]
+	"%ScriptPath%\vcredistx64\vcredist_x64.exe" /Q
+
+	[Winbatch_vc_redist_msi_64]
+	msiexec /i "%ScriptPath%\vcredistx64\VC_RED.MSI" /qb-! /l*v "%opsiLogDir%\vcredist_x64_msi.log" ALLUSERS=1
+
+	[Files_indy_OpenSSL]
+	copy -sVc "%SCRIPTPATH%\openssl\*.*" "$INST_OpensslBaseDir$\"
+
+	[Files_copy_py2exe]
+	copy -sc "%SCRIPTPATH%\$OCD_DIST_DIR$\*.*" "$INST_BaseDir$\"
+
+	[Files_copy_opsinotifier]
+	;copy -sVc "%SCRIPTPATH%\$OCD_notifier_dir$\*.*" "$INST_BaseDir$\"
+	; do not use -V while dist contains old notifier because they seem to be younger
+	copy -c "%SCRIPTPATH%\$OCD_notifier_dir$\notifier.exe" "$INST_BaseDir$\"
+	copy -c "%SCRIPTPATH%\$OCD_notifier_dir$\notifier.d\*.*" "$INST_NotifierDir$\"
+
+	[Files_copy_ssl_to_py2exe]
+	copy -Vc "%SCRIPTPATH%\openssl\libeay32.dll" "$INST_BaseDir$\lib"
+	copy -Vc "%SCRIPTPATH%\openssl\ssleay32.dll" "$INST_BaseDir$\lib"
+	
+	[Files_copy_ssl_to_on_shutdown]
+	copy -Vc "%SCRIPTPATH%\openssl\libeay32.dll" "$INST_BaseDir$\on_shutdown"
+	copy -Vc "%SCRIPTPATH%\openssl\ssleay32.dll" "$INST_BaseDir$\on_shutdown"
+
+	[Files_copy_custom_opsiclientd]
+	copy -sc "%SCRIPTPATH%\custom\notifier\*.*" "$INST_NotifierDir$"
+	copy -c "%SCRIPTPATH%\custom\opsiclientd.conf" "$INST_OpsiclientdDir$"
+
+	[Registry_DeletePreloginloader]
+	DeleteKey [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\PreLoginLoader]
+
+	[Files_del_utils]
+	del -sfc "$INST_BaseDir$\utils\"
+
+	[Files_del_prelogin]
+	del -sfc "$INST_BaseDir$\prelogin\"
+
+	[Files_copy_vista_loginblocker_32]
+	copy -Vc "%SCRIPTPATH%\opsiloginblocker\32bit\*.dll" "%SYSTEM%"
+
+	[Files_copy_vista_loginblocker_64]
+	copy -Vc "%SCRIPTPATH%\opsiloginblocker\64bit\*.dll" "%SYSTEM%"
+
+	[Files_copy_xp_loginblocker_win2k]
+	copy -Vc "%SCRIPTPATH%\opsigina\32bit\opsigina.dll" "$INST_BaseDir$\opsigina\"
+
+	[Files_copy_xp_loginblocker_64]
+	copy -Vc "%SCRIPTPATH%\opsigina\64bit\opsigina.dll" "$INST_BaseDir$\opsigina\"
+
+	[Files_copy_xp_loginblocker_32]
+	copy -Vc "%SCRIPTPATH%\opsigina\32bit\opsigina.dll" "$INST_BaseDir$\opsigina\"
+
+	[Files_del_cmd64]
+	del -fc "%SYSTEMROOT%\cmd64.exe"
+
+	[Files_opsiclientdguard]
+	copy -Vc "%SCRIPTPATH%\opsiclientdguard\*.*" "$INST_BaseDir$\opsiclientdguard\"
+
+	[Files_install_on_shutdown_copy_files]
+	copy -Vc "%SCRIPTPATH%\on_shutdown\*.*" "$INST_BaseDir$\on_shutdown"
+
+endfunc
+; copy_oca_files
+; ####################################################################
+
+deffunc oca_write_configuration() : void
+
+	if $INST_Modus$ = "INSTALL"
+		Registry_SetGeneralEntries
+		if ($INST_debug$ = "on") 
+			Files_save_config_for_debug
+		endif 
+		
+		;if $INST_MinorOS$ = "WinXP"
+		if ($INST_NTVersion$ = "5.1") or ($INST_NTVersion$ = "5.2")
+			if $INST_AktGina$ = ""
+				Registry_SetRemoveMsginaOnDeinst
+			endif
+		endif ; winxp
+	endif ; INSTALL  
+	
+	;*********************************************************
+	comment "configurations we do also at update mode"
+	;*********************************************************
+	comment "uninstall registry entries"
+	Registry_SetUninstallEntries
+	comment "standard registry entries"
+	Registry_SetGeneralEntries
+	comment "add registry key for shutdown requests"
+	Registry_add_shutdown_key
+	comment "make all depotshares trusted for the 32 Bit opsi-client-agent"
+	comment "get all depot servers :"
+	if ($INST_SubModus$ = "BOOTIMAGE") or ($INST_SubModus$ = "CONFIG_INI")
+		Set $INST_ServiceResult$ = getReturnListFromSection('opsiservicecall_getDepotshares /username $INST_ClientId$ /password $SHI_pckey$ /serviceurl $OCD_config_service.url$')
+	else
+		Set $INST_ServiceResult$ = getReturnListFromSection('opsiservicecall_getDepotshares')
+	endif 
+	comment " take the string :"
+	set $INST_Result$ = takeString(0, $INST_ServiceResult$)
+	comment " remove trailing brackets and quote :"
+	set $INST_Result$ = takeString(0, splitstring($INST_Result$,'"]'))
+	comment " remove heading brackets and quote :"
+	set $INST_Result$ = takeString(1, splitstring($INST_Result$,'["'))
+	comment " split servers in to list :"
+	set $INST_ResultList$ = splitstring($INST_Result$,'","')
+	comment "write all depots to the registry :"
+	for %depotId% in $INST_ResultList$ do Registry_hklm_set_depotshare_trusted
+	for %depotId% in $INST_ResultList$ do Registry_hklm_set_depotshare_trusted /Sysnative
+	comment "get netbiosnames from depots :"
+	comment "first clear the resultlist:"
+	set $INST_ResultList2$ = getsubList(0:0,$INST_ResultList2$)
+	; this is a dirty hack. It is used until we can ask host_getObjects with filter
+	; so we assume, that the first part of the fqdn is identical with the netbiosname
+	for %depotId% in $INST_ResultList$ do set $INST_ResultList2$ = addtolist($INST_ResultList2$, takeString(0,splitString("%depotId%",".")))
+	for %depotId% in $INST_ResultList2$ do Registry_hklm_set_depotshare_trusted
+	for %depotId% in $INST_ResultList2$ do Registry_hklm_set_depotshare_trusted /Sysnative
+	
+	comment "tell server my mac address"
+	if not ($INST_MAC$ = "")
+		opsiservicecall_setMacAddress
+	endif
+	comment "Open c:\tmp worldwide writable"
+	Files_create_ctmp
+	set $lockdir$ = "c:\tmp"
+	DosInAnIcon_open_dir
+	comment "create c:\opsi.org"
+	Files_create_c_opsiorg
+	comment "lock c:\opsi.org -> for administrators only"
+	;DosInAnIcon_lock_c_opsiorg
+	set $lockdir$ = $OCD_OpsiVarDir$+"\log"
+	DosInAnIcon_lock_lockdir
+	set $lockdir$ = $OCD_OpsiVarDir$+"\opsiclientd"
+	DosInAnIcon_lock_lockdir
+	set $lockdir$ = $OCD_OpsiVarDir$+"\tmp"
+	DosInAnIcon_lock_lockdir
+	set $lockdir$ = $OCD_OpsiVarDir$+"\log"
+	DosInAnIcon_lock_lockdir
+	set $lockdir$ = $OCD_OpsiVarDir$+"\cache"
+	DosInAnIcon_lock_lockdir
+	set $lockdir$ = $OCD_OpsiVarDir$+"\data"
+	DosInAnIcon_lock_lockdir
+	set $lockdir$ = $OCD_OpsiVarDir$+"\applog"
+	DosInAnIcon_open_dir
+	set $lockdir$ = $OCD_OpsiVarDir$+"\usertemp"
+	DosInAnIcon_open_dir
+	
+	; Patch #1237 (https://forum.opsi.org/viewtopic.php?f=7&t=6764#p29403)
+	opsiservicecall_setGeneralConfigValue_clientconfig_configserver_url
+	Set $OCD_config_service.url$ = stringReplace( $OCD_config_service.url$, "/rpc", "" )
+	comment "$OCD_config_service.url$ = " + $OCD_config_service.url$
+	
+	Patches_opsiclientd_conf_rest $INST_OpsiclientdConf$ /encoding "utf8" 
+	
+	if not (($SHI_pckey$ = "") or ($SHI_pckey$ = "#@PCKEY#"))
+		comment "dont log the pckey"
+		Patches_opsiclientd_conf_key $INST_OpsiclientdConf$ /encoding "utf8" 
+	endif
+	Patches_opsiclientd_cnf $INST_opensslConfigFile$
+	DosInAnIcon_generate_opsiclientdCertificate
+	comment "First try to install service ...."
+	DosInAnIcon_opsiclientd_register_service_exe
+	shellCall('"'+$INST_BaseDir$+'\opsiclientd.exe" -auto -install')
+	if not ("0" = getlastexitcode)
+		logerror "opsiclientd_register_service failed"
+	endif
+	comment "set start to auto (2) if it was deactivated (4)"
+	Registry_ActivateOpsiclientd
+	if $OCD_open_firewall_for_control_server$ = "1"
+		if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") >= "0"
+			DosInAnIcon_open_firewall_for_control_server_nt6
+		else
+			DosInAnIcon_open_firewall_for_control_server
+		endif
+	else
+		if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") >= "0"
+			DosInAnIcon_close_firewall_for_control_server_nt6
+		else
+			DosInAnIcon_close_firewall_for_control_server
+		endif
+	endif
+	comment "disable Data Execution Prevention (DEP) for opsiclientd.exe"
+	comment "This should be prevent problems on win2003"
+	comment "wmic_get_os_DataExecutionPrevention_SupportPolicy"
+	shellCall('wmic os get DataExecutionPrevention_SupportPolicy')
+	Registry_disable_dep_opsiclientd /Sysnative
+	comment "make opsiclientd depending on dhcp and dnscache services"
+	Registry_opsiclientd_Service_depend_dhcp_dns
+	comment "Configure opsiclientd service restarts after failure"
+	; https://stackoverflow.com/questions/42620216/how-to-install-a-windows-service-with-first-failure-set-to-restart-the-servic
+	; https://technet.microsoft.com/de-de/library/cc742019(v=ws.10).aspx
+	set $INST_ExitCode$ = shellCall('sc failure "opsiclientd" reset= 0 actions= restart/10000/restart/20000/restart/60000')
+	if not($INST_ExitCode$ = "0")
+		LogError "Failed to configure opsiclientd service restarts after failure"
+	endif
+	shellCall('sc qfailure "opsiclientd"')
+	
+	set $INST_ExitCode$ = shellCall('net stop opsiclientdguard')
+	set $INST_ExitCode$ = shellCall('"'+$INST_BaseDir$+'\opsiclientdguard\opsiclientdguard.exe" --uninstall')
+	set $INST_ExitCode$ = shellCall('"'+$INST_BaseDir$+'\opsiclientdguard\opsiclientdguard.exe" --install')
+	if $INST_ExitCode$ = "0"
+		comment "opsiclientdguard successful installed"
+	else
+		LogError "opsiclientdguard installtion failed"
+	endif	
+	
+	
+	if CompareDotSeparatedNumbers($INST_NTVersion$,">=","6.0")
+		if $OLB_LoginBlockerStart$ = "1"
+			Registry_vista_loginblocker /Sysnative
+		else
+			Registry_vista_del_loginblocker /Sysnative
+		endif
+	endif ; win vista
+	
+	;if ($INST_MinorOS$ = "WinXP") or ($INST_MinorOS$ = "Win2k")
+	if CompareDotSeparatedNumbers($INST_NTVersion$,"<","6.0")
+		if $OLB_LoginBlockerStart$ = "1"
+			Registry_opsigina_opsi_Config /Sysnative
+			Registry_set_loginblocker_start /Sysnative
+		else
+			Registry_set_loginblocker_start /Sysnative
+		endif ; loginblocker start
+		if ($INST_SystemType$ = "64 Bit System")
+			winbatch_test_opsigina_64
+		else
+			winbatch_test_opsigina_32
+		endif
+		set $INST_ExitCode$ = getLastExitCode
+		if $INST_ExitCode$ = "0"
+			comment "opsigina test passed - install it"
+			Registry_opsigina_winlogon_Config /Sysnative
+		else
+			LogError "opsigina test failed, so we don't install it. Test Exitcode was: " + $INST_ExitCode$
+		endif
+	endif ; winXP
+	
+	comment "protect opsi-clientagent against non administrative manipulations"
+	DosInAnIcon_lock_opsiclientagent
+	
+	comment "*.opsiscript should be opend by winst32.exe"
+	Registry_open_opsiscript /sysnative
+	;-----------------------------------------------------------
+	[Registry_SetGeneralEntries]
+	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\general]
+	Set "opsiconf"=REG_DWORD:1
+	Set "configlocal"=REG_DWORD:0
+	Set "bootmode" = "$GEN_bootmode$"
+
+	[Files_save_config_for_debug]
+	copy -c "%ScriptPath%\cfg\*.*"       "%opsiLogDir%\cfg"
+
+	[Registry_SetRemoveMsginaOnDeinst]
+	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\preloginloader]
+	Set "RemoveMsginaOnDeinst"=REG_DWORD:1 
+	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\opsi-client-agent]
+	Set "RemoveMsginaOnDeinst"=REG_DWORD:1 
+	
+	[Registry_SetUninstallEntries]
+	deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\opsi-preloginloader]
+	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\opsi-client-agent]
+	set "DisplayName" = "opsi-client-agent"
+	set "DisplayVersion" = "$ProductVersion$"
+	set "DisplayIcon" = "$INST_WinstDir$\winst32.exe"
+	set "DisplayPublisher" = "uib gmbh, Mainz, Germany"
+	set "UninstallString" = '"$INST_WinstDir$\winst32.exe" /batch "$INST_BaseDir$\uninst\uninstall.opsiscript" "%opsiLogDir%\deinstall_opsi-client-agent.log" /PARAMETER DEINSTALL'
+	set "URLInfoAbout" = "http://opsi.org"
+	set "HelpLink" = "http://www.opsi.org/support/"
+	
+	[Registry_add_shutdown_key]
+	openKey [$INST_WinstRegKey$]
+	add "ShutdownRequested" = REG_DWORD:0
+	
+	[opsiservicecall_getDepotshares]
+	"method": "host_getIdents"
+	"params": [
+						'[]',
+						'{"type":"OpsiDepotserver"}',
+			]	  
+	
+	[Registry_hklm_set_depotshare_trusted]
+	openkey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\Domains\%depotId%] 
+	set "file"=reg_dword:0x00000001 
+	openkey [HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap]
+	set "AutoDetect"=reg_dword:0x00000000 
+	set "IntranetName"=reg_dword:0x00000001 
+	set "ProxyByPass"=reg_dword:0x00000001 
+	set "UNCAsIntranet"=reg_dword:0x00000001 
+	
+	[opsiservicecall_setMacAddress]
+	"method": "setMacAddress"
+	"params": [
+						"$INST_ClientId$",
+						"$INST_MAC$"
+			]	  
+	
+	[Files_create_ctmp]
+	CheckTargetPath = "c:\tmp"
+	
+	[DosInAnIcon_open_dir]
+	rem C:\utils\xcacls c:\tmp /T /C /G ADMINISTRATOREN:F "ERSTELLER-BESITZER":F JEDER:R HAUPTBENUTZER:F SYSTEM:F /Y
+	rem show setacl-version
+	rem "$INST_SetAclDir$\setacl.exe" -help 
+	rem this should work not only on german systems
+	rem open "$lockdir$" for everyone
+	"$INST_SetAclDir$\setacl.exe" -on "$lockdir$" -ot file -actn setprot -op "dacl:np;sacl:nc" -rec cont_obj -actn setowner -ownr "n:S-1-1-0;s:y" -actn ace -ace "n:S-1-1-0;p:full;s:y"
+	rem "$INST_SetAclDir$\setacl.exe" -on "$lockdir$" -ot file -actn trustee -trst n1:S-1-5-32-545;s1:y;ta:remtrst;w:dacl"
+	rem show the resulting acl
+	"$INST_SetAclDir$\setacl.exe" -on "$lockdir$" -ot file -actn list -lst "s:b"
+	
+	[Files_create_c_opsiorg]
+	CheckTargetPath = "$OCD_OpsiVarDir$"
+	CheckTargetPath = "$OCD_OpsiVarDir$\log"
+	CheckTargetPath = "$OCD_OpsiVarDir$\applog"
+	CheckTargetPath = "$OCD_OpsiVarDir$\tmp"
+	CheckTargetPath = "$OCD_OpsiVarDir$\usertmp"
+	CheckTargetPath = "$OCD_OpsiVarDir$\cache"
+	CheckTargetPath = "$OCD_OpsiVarDir$\opsiclientd"
+	CheckTargetPath = "$OCD_OpsiVarDir$\data"
+	
+	[DosInAnIcon_lock_lockdir]
+	rem this should work not only on german systems
+	rem make the dacl not inherited
+	"$INST_SetAclDir$\setacl.exe" -on "$lockdir$" -ot file -actn clear -actn setprot -op "dacl:p_c;sacl:nc"
+	rem "$INST_SetAclDir$\setacl.exe" -on "$lockdir$" -ot file -actn setprot -op "dacl:so;sacl:nc" -rec cont_obj -actn setowner -ownr "n:S-1-5-32-544;s:y" -actn ace -ace "n:S-1-5-32-544;p:full;s:y"
+	rem remove users from dacl
+	"$INST_SetAclDir$\setacl.exe" -on "$lockdir$" -ot file -actn trustee -trst n1:S-1-5-32-545;s1:y;ta:remtrst;w:dacl"
+	rem remove power users from dacl
+	"$INST_SetAclDir$\setacl.exe" -on "$lockdir$" -ot file -actn trustee -trst n1:S-1-5-32-547;s1:y;ta:remtrst;w:dacl"
+	rem Propagation of inherited permissions is enabled for all sub-objects whose permissons are also reset, resulting in only the specified permissions being active for a whole directory tree.
+	"$INST_SetAclDir$\setacl.exe" -on "$lockdir$" -ot file -actn ace -ace "n:S-1-5-32-544;p:full;s:y" -actn clear -clr "dacl,sacl" -actn rstchldrn -rst "dacl,sacl"
+	rem show the resulting acl
+	"$INST_SetAclDir$\setacl.exe" -on "$lockdir$" -ot file -actn list -lst "f:own;w:d,s,o,g;i:y;s:b"
+	
+	; Patch #1237 (https://forum.opsi.org/viewtopic.php?f=7&t=6764#p29403)
+	
+	[opsiservicecall_setGeneralConfigValue_clientconfig_configserver_url]
+	"method": "setGeneralConfigValue"
+	"params": [
+						"clientconfig.configserver.url",
+						"$OCD_config_service.url$"
+						"$INST_ClientId$"
+						]
+	
+	[Patches_opsiclientd_conf_key]
+	Set [global] opsi_host_key=$SHI_pckey$
+	Set [global] host_id=$INST_ClientId$
+	
+	[Patches_opsiclientd_cnf]
+	Add [req] default_bits = 1024
+	Add [req] encrypt_key = yes
+	Add [req] distinguished_name = req_dn
+	Add [req] x509_extensions = cert_type
+	Add [req] prompt = no
+	Add [req_dn] C = DE
+	Add [req_dn] ST = RP
+	Add [req_dn] L = Mainz
+	Add [req_dn] O = UIB
+	Add [req_dn] OU = -
+	Set [req_dn] CN = $INST_ClientId$
+	Add [req_dn] emailAddress = info@uib.de
+	Add [cert_type] nsCertType = server
+	
+	[Patches_opsiclientd_conf_rest]
+	Set [config_service] url=$OCD_config_service.url$/rpc
+	Set [config_service] connection_timeout=$OCD_config_service.connection_timeout$
+	Set [control_server] port=$OCD_control_server.port$
+	Set [notification_server] port=$OCD_notification_server.port$
+	Set [global] log_level=$OCD_global.log_level$
+	Set [depot_server] username=$OCD_depot_server__username$
+
+	
+	[DosInAnIcon_generate_opsiclientdCertificate]
+	;"%ProgramFilesDir%\OpenSSL\bin\openssl" req -new -x509 -days 1000 -nodes -config "$INST_opensslConfigFile$" -out "$INST_opsiclientdCertificateFile$" -keyout "$INST_opsiclientdCertificateFile$"
+	;"$INST_OpensslBaseDir$\bin\openssl" req -new -x509 -days 1000 -nodes -config "$INST_opensslConfigFile$" -out "$INST_opsiclientdCertificateFile$" -keyout "$INST_opsiclientdCertificateFile$"
+	"$INST_OpensslBaseDir$\openssl" req -new -x509 -days 1000 -nodes -config "$INST_opensslConfigFile$" -out "$INST_opsiclientdCertificateFile$" -keyout "$INST_opsiclientdCertificateFile$"
+	exit %ERRORLEVEL%
+	
+	[Registry_ActivateOpsiclientd]
+	OpenKey [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\opsiclientd]
+	Set "Start" = REG_DWORD:2
+	set "ImagePath" = REG_EXPAND_SZ:'"$INST_BaseDir$\opsiclientd.exe"'
+	
+	[DosInAnIcon_open_firewall_for_control_server]
+	netsh firewall add portopening protocol = TCP port = $OCD_control_server.port$ name = opsiclientd-control-port
+	
+	[DosInAnIcon_close_firewall_for_control_server]
+	netsh firewall delete portopening protocol = TCP port = $OCD_control_server.port$
+	
+	[DosInAnIcon_open_firewall_for_control_server_nt6]
+	rem netsh firewall add portopening protocol = TCP port = $OCD_control_server.port$ name = opsiclientd-control-port
+	netsh advfirewall firewall delete rule name="opsiclientd-control-port"
+	netsh advfirewall firewall add rule name="opsiclientd-control-port" dir=in action=allow protocol=TCP localport=$OCD_control_server.port$
+	
+	[DosInAnIcon_close_firewall_for_control_server_nt6]
+	rem netsh firewall delete portopening protocol = TCP port = $OCD_control_server.port$
+	netsh advfirewall firewall delete rule name="opsiclientd-control-port"
+	
+	[Registry_disable_dep_opsiclientd]
+	OpenKey [HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers]
+	set "%ProgramFilesDir%\opsi.org\opsi-client-agent\opsiclientd.exe" = "DisableNXShowUI"
+	
+	[Registry_opsiclientd_Service_depend_dhcp_dns]
+	OpenKey [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\opsiclientd]
+	Set "DependOnService" = REG_MULTI_SZ:"$OCD_depServices$"
+	
+	[Registry_vista_loginblocker]
+	;openkey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Providers\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
+	;set ""="OpsiLoginBlocker"
+	openkey [HKEY_CLASSES_ROOT\CLSID\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
+	set ""="OpsiLoginBlocker"
+	openkey [HKEY_CLASSES_ROOT\CLSID\{d2028e19-82fe-44c6-ad64-51497c97a02a}\InprocServer32]
+	set ""="OpsiLoginBlocker.dll"
+	set "ThreadingModel"="Apartment"
+	openkey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Provider Filters\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
+	set ""="OpsiLoginBlocker"
+	set "LoginBlockerStart"=reg_dword:0x00000001
+	set "LoginBlockerTimeoutConnect"=reg_dword:$OLB_LoginBlockerTimeoutConnect$
+	set "LoginBlockerLogLevel"=reg_dword:$OLB_LogLevel$
+	set "LoginBlockerLogDir"="%opsiLogDir%"
+	
+	[Registry_vista_del_loginblocker]
+	deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Providers\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
+	deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Provider Filters\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
+	deletekey [HKEY_CLASSES_ROOT\CLSID\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
+	
+	[Registry_opsigina_opsi_Config]
+	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\preloginloader]
+	Set "NextGina" = '$INST_gina_to_chain$'
+	set "LoginBlockerLogLevel" = REG_DWORD:$OLB_LogLevel$
+	Set "LoginBlockerTimeoutConnect" = REG_DWORD:$OLB_LoginBlockerTimeoutConnect$
+	Set "opsiServiceType"            = REG_DWORD:$OLB_opsiServiceType$
+	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\opsi-client-agent]
+	Set "NextGina" = '$INST_gina_to_chain$'
+	set "LoginBlockerLogLevel" = REG_DWORD:$OLB_LogLevel$
+	Set "LoginBlockerTimeoutConnect" = REG_DWORD:$OLB_LoginBlockerTimeoutConnect$
+	Set "opsiServiceType"            = REG_DWORD:$OLB_opsiServiceType$
+	
+	[Registry_opsigina_winlogon_Config]
+	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon]
+	Set "GinaDLL" = "%ProgramFilesDir%\opsi.org\opsi-client-agent\opsigina\opsigina.dll"
+	set "DisableCAD" = REG_DWORD:0
+	
+	[Registry_set_loginblocker_start]
+	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\preloginloader]
+	Set "LoginBlockerStart" = REG_DWORD:$OLB_LoginBlockerStart$
+	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\opsi-client-agent]
+	Set "LoginBlockerStart" = REG_DWORD:$OLB_LoginBlockerStart$
+	
+	[winbatch_test_opsigina_64]
+	"%SCRIPTPATH%\opsigina\test\64bit\opsiginatest.exe" --testdll="$INST_BaseDir$\opsigina\opsigina.dll"
+	
+	[winbatch_test_opsigina_32]
+	"%SCRIPTPATH%\opsigina\test\32bit\opsiginatest.exe" --testdll="$INST_BaseDir$\opsigina\opsigina.dll"
+	
+	[DosInAnIcon_lock_opsiclientagent]
+	rem see http://setacl.sourceforge.net/
+	
+	
+	rem set rights for the base dir
+	rem make the dacl not inherited
+	"$INST_SetAclDir$\setacl.exe" -on "$INST_BaseDir$" -ot file -actn clear -actn setprot -op "dacl:p_c;sacl:nc" -rec cont_obj
+	rem "$INST_SetAclDir$\setacl.exe" -on "$INST_BaseDir$" -ot file -actn setprot -op "dacl:so;sacl:nc" -rec cont_obj -actn setowner -ownr "n:S-1-5-32-544;s:y" -actn ace -ace "n:S-1-5-32-544;p:full;s:y"
+	rem remove users from dacl
+	"$INST_SetAclDir$\setacl.exe" -on "$INST_BaseDir$" -ot file -actn trustee -trst n1:S-1-5-32-545;s1:y;ta:remtrst;w:dacl"
+	rem remove power users from dacl
+	"$INST_SetAclDir$\setacl.exe" -on "$INST_BaseDir$" -ot file -actn trustee -trst n1:S-1-5-32-547;s1:y;ta:remtrst;w:dacl"
+	rem Propagation of inherited permissions is enabled for all sub-objects whose permissons are also reset, resulting in only the specified permissions being active for a whole directory tree.
+	rem set the complete dir full access for admin and (read and execute) only for user
+	"$INST_SetAclDir$\setacl.exe" -on "$INST_BaseDir$" -ot file -actn ace -ace "n:S-1-5-32-544;p:full;s:y" -ace "n:S-1-5-32-545;p:read;s:y" -actn clear -clr "dacl,sacl" -actn rstchldrn -rst "dacl,sacl"
+	
+	rem revoke users access for configuration file (opsi-hostkey)
+	rem make the dacl not inherited
+	"$INST_SetAclDir$\setacl.exe" -on "$INST_OpsiclientdDir$" -ot file -actn clear -actn setprot -op "dacl:p_c;sacl:nc"
+	"$INST_SetAclDir$\setacl.exe" -on "$INST_OpsiclientdDir$" -ot file -actn trustee -trst n1:S-1-5-32-545;s1:y;ta:remtrst;w:dacl"
+	rem "$INST_SetAclDir$\setacl.exe" -on "$INST_OpsiclientdDir$" -ot file -actn ace -ace "n:S-1-5-32-544;p:full;s:y" -actn clear -clr "dacl,sacl" -actn rstchldrn -rst "dacl,sacl"
+	
+	rem revoke users access for uninst
+	rem make the dacl not inherited
+	"$INST_SetAclDir$\setacl.exe" -on "$INST_BaseDir$\uninst" -ot file -actn clear -actn setprot -op "dacl:p_c;sacl:nc"
+	"$INST_SetAclDir$\setacl.exe" -on "$INST_BaseDir$\uninst" -ot file -actn trustee -trst n1:S-1-5-32-545;s1:y;ta:remtrst;w:dacl"
+	rem "$INST_SetAclDir$\setacl.exe" -on "$INST_BaseDir$\uninst" -ot file -actn ace -ace "n:S-1-5-32-544;p:full;s:y" -actn clear -clr "dacl,sacl" -actn rstchldrn -rst "dacl,sacl"
+	
+	rem revoke users access for utilities
+	rem make the dacl not inherited
+	"$INST_SetAclDir$\setacl.exe" -on "$INST_BaseDir$\utilities" -ot file -actn clear -actn setprot -op "dacl:p_c;sacl:nc"
+	"$INST_SetAclDir$\setacl.exe" -on "$INST_BaseDir$\utilities" -ot file -actn trustee -trst n1:S-1-5-32-545;s1:y;ta:remtrst;w:dacl"
+	rem "$INST_SetAclDir$\setacl.exe" -on "$INST_BaseDir$\utilities" -ot file -actn ace -ace "n:S-1-5-32-544;p:full;s:y" -actn clear -clr "dacl,sacl" -actn rstchldrn -rst "dacl,sacl"
+	
+	
+	rem grant user execute to the winst directory
+	rem make the dacl not inherited
+	"$INST_SetAclDir$\setacl.exe" -on "$INST_WinstDir$" -ot file -actn clear -actn setprot -op "dacl:p_c;sacl:nc" -rec cont_obj
+	rem therefore remove users from dacl
+	"$INST_SetAclDir$\setacl.exe" -on "$INST_WinstDir$" -ot file -actn trustee -trst n1:S-1-5-32-545;s1:y;ta:remtrst;w:dacl"
+	rem therefore set new rights
+	"$INST_SetAclDir$\setacl.exe" -on "$INST_WinstDir$" -ot file -actn ace -ace "n:S-1-5-32-544;p:full;s:y" -ace "n:S-1-5-32-545;p:read_ex;s:y" -actn clear -clr "dacl,sacl" -actn rstchldrn -rst "dacl,sacl"
+	
+	rem grant user execute to the opsiclientdkiosk directory see subconfig.opsiscript
+	rem rem make the dacl not inherited
+	rem "$INST_SetAclDir$\setacl.exe" -on "$INST_BaseDir$\opsiclientkiosk" -ot file -actn clear -actn setprot -op "dacl:p_c;sacl:nc" -rec cont_obj
+	rem rem therefore remove users from dacl
+	rem "$INST_SetAclDir$\setacl.exe" -on "$INST_BaseDir$\opsiclientkiosk" -ot file -actn trustee -trst n1:S-1-5-32-545;s1:y;ta:remtrst;w:dacl"
+	rem rem therefore set new rights
+	rem "$INST_SetAclDir$\setacl.exe" -on "$INST_BaseDir$\opsiclientkiosk" -ot file -actn ace -ace "n:S-1-5-32-544;p:full;s:y" -ace "n:S-1-5-32-545;p:read_ex;s:y" -actn clear -clr "dacl,sacl" -actn rstchldrn -rst "dacl,sacl"
+	rem 
+	rem show the resulting acl
+	"$INST_SetAclDir$\setacl.exe" -on "$INST_BaseDir$" -ot file -actn list -lst "f:own;w:d,s,o,g;i:y;s:b"
+	"$INST_SetAclDir$\setacl.exe" -on "$INST_OpsiclientdDir$" -ot file -actn list -lst "f:own;w:d,s,o,g;i:y;s:b"
+	"$INST_SetAclDir$\setacl.exe" -on "$INST_WinstDir$" -ot file -actn list -lst "f:own;w:d,s,o,g;i:y;s:b"
+	
+	[Registry_open_opsiscript]
+	openkey [HKEY_CLASSES_ROOT\.opsiscript]
+	set "" = 'OpsiOrg.opsi-script.opsiscript'
+	openkey [HKEY_CLASSES_ROOT\OpsiOrg.opsi-script.opsiscript]
+	set "" = 'opsi-script command file'
+	openkey [HKEY_CLASSES_ROOT\OpsiOrg.opsi-script.opsiscript\DefaultIcon]
+	set "" = '%ProgramFiles32Dir%\opsi.org\opsi-client-agent\images\opsi.ico'
+	openkey [HKEY_CLASSES_ROOT\OpsiOrg.opsi-script.opsiscript\Shell\Open]
+	set "Icon" = '%ProgramFiles32Dir%\opsi.org\opsi-client-agent\images\opsi.ico'
+	openkey [HKEY_CLASSES_ROOT\OpsiOrg.opsi-script.opsiscript\Shell\Open\Command]
+	set "" = '"%ProgramFiles32Dir%\opsi.org\opsi-client-agent\opsi-winst\winst32.exe" "%1"'
+	
+	
+endfunc 
+; oca_write_configuration
+;#############################################################################
+
+
+deffunc oca_clean_up() : void
+
+DefVar $cleandir$
+
+	if fileExists("c:\tmp\opsi")
+		set $cleandir$ = "c:\tmp\opsi\"
+		Files_Delete_cleandir
+	endif
+	if fileExists("%opsiTmpDir%\opsi")
+		set $cleandir$ = "%opsiTmpDir%\opsi\"
+		Files_Delete_cleandir
+	endif
+	if fileExists("c:\opsi.org\usertemp\opsi")
+		set $cleandir$ = "c:\opsi.org\usertemp\opsi\"
+		Files_Delete_cleandir
+	endif
+	if fileExists("c:\tmp\opsi-client-agent")
+		set $cleandir$ = "c:\tmp\opsi-client-agent\"
+		Files_Delete_cleandir
+	endif
+	if fileExists("c:\tmp\python")
+		set $cleandir$ = "c:\tmp\python\"
+		Files_Delete_cleandir
+	endif
+	Files_del_utils
+	if FileExists("%ProgramFilesDir%\opsi.org\preloginloader\")
+		set $cleandir$ = "%ProgramFilesDir%\opsi.org\preloginloader\"
+		Files_Delete_cleandir
+	endif
+	if fileExists("c:\tmp\ssl_tmp")
+		set $cleandir$ = "c:\tmp\ssl_tmp\"
+		Files_Delete_cleandir
+	endif
+	
+	Files_redist_cleanup_c
+	comment "checking if there is a drive d: ..."
+	if isDriveReady("d:")
+		Files_redist_cleanup_d
+	endif
+	
+	;***********************
+	
+	[Files_Delete_cleandir]
+	del -sfc "$cleandir$"
+	
+	[Files_redist_cleanup_c]
+	delete -fc c:\eula*.*
+	delete -fc c:\install*.*
+	delete -fc c:\vc_red.*
+	del -fc c:\vcredist.bmp
+	del -fc c:\.rnd
+	del -fc c:\globdata.ini
+	
+	[Files_redist_cleanup_d]
+	delete -fc d:\eula*.*
+	delete -fc d:\install*.*
+	delete -fc d:\vc_red.*
+	del -fc d:\vcredist.bmp
+	del -fc d:\.rnd
+	del -fc d:\globdata.ini
+	
+endfunc
+; oca_clean_up
+; ####################################################################
+
+
+deffunc oca_restore_productOnClient() : void
+	if fileExists("%opsiTmpDir%\productOnClients.json")
+		comment "Found WIM-Capture meta data file. Try to rename it ...."
+		Files_rename_poc
+		if not(fileExists("%opsiTmpDir%\restored_productOnClients.json"))
+			LogError "Renaming of productOnClients.json failed. So we do not change any opsi meta data."
+			set $INST_ErrorList$ = addtolist($INST_ErrorList$, "Error in sub_restore_productOnClient: Renaming of productOnClients.json failed. So we do not change any opsi meta data.")
+		else
+			;if fileExists("%opsiTmpDir%\switch_existing_products_to_setup.txt")
+			opsiservicecall_setOption_addConfigStateDefaults_true
+			comment "get configState capture.switch_installed_products_to_setup"
+			Set $resultlist$ = getReturnListFromSection('opsiservicecall_get_configState_switch_installed_products_to_setup')
+			Set $ArrayStr$ = takestring(0, $resultlist$)
+			set $objectStr$ = jsonAsArrayGetElementByIndex($ArrayStr$,"0")
+			Set $ArrayStr$ = jsonAsObjectGetValueByKey($objectStr$,"values")
+			set $resultstr$ = jsonAsArrayGetElementByIndex($ArrayStr$,"0")
+			if lower($resultstr$) = "true"
+				comment "get configState capture.do_not_change_setup_requests"
+				Set $resultlist$ = getReturnListFromSection('opsiservicecall_get_configState_do_not_change_setup_requests')
+				Set $ArrayStr$ = takestring(0, $resultlist$)
+				set $objectStr$ = jsonAsArrayGetElementByIndex($ArrayStr$,"0")
+				Set $ArrayStr$ = jsonAsObjectGetValueByKey($objectStr$,"values")
+				set $do_not_change_setup_requests$ = lower(jsonAsArrayGetElementByIndex($ArrayStr$,"0"))
+				comment "Mode: switch_installed_products_to_setup=true"
+				if $do_not_change_setup_requests$ = "true"
+					comment "Mode: do_not_change_setup_requests=true"
+				else
+					comment "Mode: do_not_change_setup_requests=false"
+				endif
+				Message "Restore opsi meta data from capturimage ..."
+				comment "first get productId list from all existing poc to productIdInstalledList..."
+				if $do_not_change_setup_requests$ = "true"
+					comment "next get productId list from all setup poc to productIdSetupList..."
+				endif
+				comment "than restore captured backup data from file..."
+				comment "than remove retored productIds from actual productIdInstalledList..."
+				comment "than set for all in actual productIdInstalledList action request setup ..."
+				if $do_not_change_setup_requests$ = "true"
+					comment "than set for all in actual productIdSetupList action request setup ..."
+				endif
+				comment "Remove POC for oli-sysprep and opsi-wim-capture..."
+				
+				comment "load data from web service (installed) to $productIdInstalledList$..."
+				markErrorNumber
+				comment "load data from web service (installed)..."
+				set $resultlist$ = getReturnListFromSection("opsiServiceCall_get_productOnClient_installed_objects")
+				Set $ArrayStr$ = takestring(0, $resultlist$)
+				if not(jsonIsValid($ArrayStr$))
+					LogError "got no valid json from Service"
+					;isFatalError
+					set $INST_ErrorList$ = addtolist($INST_ErrorList$, " Error in sub_restore_productOnClient, switch_installed_products_to_setup=true: got no valid json from Service" )
+				endif
+				if not(jsonIsArray($ArrayStr$))
+					LogError "got no json Array from Service"
+					;isFatalError
+					set $INST_ErrorList$ = addtolist($INST_ErrorList$, " Error in sub_restore_productOnClient, switch_installed_products_to_setup=true: got no json Array from Service" )
+				endif
+				comment "extract productIds ..."
+				comment "clean target list"
+				set $productIdInstalledList$ = emptylist($productIdInstalledList$)
+				set $pocList$ = emptylist($pocList$)
+				comment "get stringlist "
+				if jsonAsArrayCountElements($ArrayStr$) > "0"
+					set $pocList$ = jsonAsArrayToStringList($ArrayStr$)
+					for %aktpoc% in $pocList$ do set $productIdInstalledList$ = addToList($productIdInstalledList$,jsonAsObjectGetValueByKey('%aktpoc%', "productId" ))
+					comment "These produtIds will be set to setup again after restore of backuped meta data"
+				endif
+				
+				if $do_not_change_setup_requests$ = "true"
+					comment "load data from web service (setup)..."
+					set $resultlist$ = getReturnListFromSection("opsiServiceCall_get_productOnClient_setup_objects")
+					Set $ArrayStr$ = takestring(0, $resultlist$)
+					if not(jsonIsValid($ArrayStr$))
+						LogError "got no valid json from Service"
+						;isFatalError
+						set $INST_ErrorList$ = addtolist($INST_ErrorList$, " Error in sub_restore_productOnClient, switch_installed_products_to_setup=true: got no valid json from Service" )
+					endif
+					if not(jsonIsArray($ArrayStr$))
+						LogError "got no json Array from Service"
+						;isFatalError
+						set $INST_ErrorList$ = addtolist($INST_ErrorList$, " Error in sub_restore_productOnClient, switch_installed_products_to_setup=true: got no json Array from Service" )
+					endif
+					comment "extract productIds ..."
+					comment "clean target list"
+					set $productIdSetupList$ = emptylist($productIdSetupList$)
+					set $pocList$ = emptylist($pocList$)
+					comment "get stringlist "
+					if jsonAsArrayCountElements($ArrayStr$) > "0"
+						set $pocList$ = jsonAsArrayToStringList($ArrayStr$)
+						for %aktpoc% in $pocList$ do set $productIdSetupList$ = addToList($productIdSetupList$,jsonAsObjectGetValueByKey('%aktpoc%', "productId" ))
+						comment "These produtIds will be set to setup again after restore of backuped meta data"
+					endif
+					comment "---------------------------"
+					comment "load data from web service (once)..."
+					set $resultlist$ = getReturnListFromSection("opsiServiceCall_get_productOnClient_once_objects")
+					Set $ArrayStr$ = takestring(0, $resultlist$)
+					if not(jsonIsValid($ArrayStr$))
+						LogError "got no valid json from Service"
+						;isFatalError
+						set $INST_ErrorList$ = addtolist($INST_ErrorList$, " Error in sub_restore_productOnClient, switch_installed_products_to_setup=true: got no valid json from Service" )
+					endif
+					if not(jsonIsArray($ArrayStr$))
+						LogError "got no json Array from Service"
+						;isFatalError
+						set $INST_ErrorList$ = addtolist($INST_ErrorList$, " Error in sub_restore_productOnClient, switch_installed_products_to_setup=true: got no json Array from Service" )
+					endif
+					comment "extract productIds ..."
+					comment "clean target list"
+					set $productIdOnceList$ = emptylist($productIdOnceList$)
+					set $pocList$ = emptylist($pocList$)
+					comment "get stringlist "
+					if jsonAsArrayCountElements($ArrayStr$) > "0"
+						set $pocList$ = jsonAsArrayToStringList($ArrayStr$)
+						for %aktpoc% in $pocList$ do set $productIdOnceList$ = addToList($productIdOnceList$,jsonAsObjectGetValueByKey('%aktpoc%', "productId" ))
+						comment "These produtIds will be set to once again after restore of backuped meta data"
+					endif
+				endif
+				
+				Message "Restore productOnClient from file ..."
+				comment " get Restore data from file ..."
+				Set $ArrayStr$ = strLoadTextFile("%opsiTmpDir%\restored_productOnClients.json")
+				if not(jsonIsValid($ArrayStr$))
+					LogError "got no valid json from file"
+					;isFatalError
+					set $INST_ErrorList$ = addtolist($INST_ErrorList$, " Error in sub_restore_productOnClient, switch_installed_products_to_setup=true: got no valid json from file" )
+				endif
+				if not(jsonIsArray($ArrayStr$))
+					LogError "got no json Array from file"
+					;isFatalError
+					set $INST_ErrorList$ = addtolist($INST_ErrorList$, " Error in sub_restore_productOnClient, switch_installed_products_to_setup=true: got no json Array from file" )
+				endif
+				comment "get list from array"
+				set $pocList$ = jsonAsArrayToStringList($ArrayStr$)
+				set $productIdList$ = emptylist($productIdList$)
+				comment "get stringlist "
+				for %aktpoc% in $pocList$ do set $productIdList$ = addToList($productIdList$,jsonAsObjectGetValueByKey('%aktpoc%', "productId" ))
+				comment "loop over list"
+				if CompareDotSeparatedNumbers("%WinstVersion%",">=","4.11.6.5")
+					for %pocindex% = "0" to calculate(count($pocList$)+"-1") do sub_set_clientid_in_poclist2
+				else
+					; old opsi-script
+					for %pocindex% = "0" to calculate(count($pocList$)+"-1") do sub_set_clientid_in_poclist
+				endif
+				comment "convert modified list to json array"
+				set $ArrayStr$ = jsonStringListToJsonArray($pocList$)
+				if not(jsonIsValid($ArrayStr$))
+					LogError "got no valid json "
+					;isFatalError
+					set $INST_ErrorList$ = addtolist($INST_ErrorList$, " Error in sub_restore_productOnClient, switch_installed_products_to_setup=true: got no json Array after handlinge" )
+				endif
+				if not(jsonIsArray($ArrayStr$))
+					LogError "got no json Array "
+					;isFatalError
+					set $INST_ErrorList$ = addtolist($INST_ErrorList$, " Error in sub_restore_productOnClient, switch_installed_products_to_setup=true: got no json Array after handlinge" )
+				endif
+				if errorsOccuredSinceMark = 0
+					markErrorNumber
+					comment "write back " + jsonAsArrayCountElements($ArrayStr$)+ " objects"
+					opsiServiceCall_updatePOC
+					
+					comment "remove restored productIds from actual productIdInstalledList..."
+					for %aktpid% in $productIdList$ do set $productIdInstalledList$ = removeFromListByMatch('%aktpid%',$productIdInstalledList$)
+					
+					if errorsOccuredSinceMark = 0
+						;comment "No Errors - we can now delete the original data file ..."
+						;Files_rename_poc
+						comment "No Errors - we can now switch to BKSTD mode ..."
+						Set $GEN_bootmode$    = "BKSTD"
+						Registry_SetGeneralEntries
+						
+						comment "restore installed to  setup..."
+						if count($productIdInstalledList$) > "0"
+							for %aktProductId% in $productIdInstalledList$ do opsiServiceCall_set_setup
+						endif
+						
+						if $do_not_change_setup_requests$ = "true"
+							comment "restore old setup to setup..."
+							if count($productIdSetupList$) > "0"
+								for %aktProductId% in $productIdSetupList$ do opsiServiceCall_set_setup
+							endif
+							comment "restore old once to once..."
+							if count($productIdOnceList$) > "0"
+								for %aktProductId% in $productIdOnceList$ do opsiServiceCall_set_once
+							endif
+						endif
+					else
+						LogError "Error while write back product On Client from captured image ..."
+						;isFatalError 
+						set $INST_ErrorList$ = addtolist($INST_ErrorList$, " Error in sub_restore_productOnClient, switch_installed_products_to_setup=true: Error while write back product On Client from captured image ..." )
+					endif ; errors
+				else
+					LogError "Error while handling product On Client from captured image ..."
+					;isFatalError 
+					set $INST_ErrorList$ = addtolist($INST_ErrorList$, " Error in sub_restore_productOnClient, switch_installed_products_to_setup=true: Error while handling product On Client from captured image ..." )
+				endif ; errors
+				set $productIdList$ = createStringList('opsi-local-image-sysprep','opsi-wim-capture')
+				for %aktProductId% in $productIdList$ do opsiServiceCall_del_productOnClient
+			else ; no switch_existing_products_to_setup
+				comment "Mode: switch_installed_products_to_setup=false"
+				Message "Restore opsi meta data from capturimage ..."
+				comment "first delete actual data and than restore backup data ..."
+				comment "Do not delete action request setup..."
+				comment "load data from web service (no action)..."
+
+				set $resultlist$ = getReturnListFromSection("opsiServiceCall_get_productOnClient_noaction_objects")
+				Set $ArrayStr$ = takestring(0, $resultlist$)
+				if not(jsonIsValid($ArrayStr$))
+					LogError "got no valid json from Service"
+					;isFatalError
+					set $INST_ErrorList$ = addtolist($INST_ErrorList$, " Error in sub_restore_productOnClient, switch_installed_products_to_setup=false: got no valid json from Service1" )
+				endif
+				if not(jsonIsArray($ArrayStr$))
+					LogError "got no json Array from Service"
+					;isFatalError
+					set $INST_ErrorList$ = addtolist($INST_ErrorList$, " Error in sub_restore_productOnClient, switch_installed_products_to_setup=false: got no json Array from Service1" )
+				endif
+				comment "extract productIds ..."
+				comment "clean target list"
+				set $productIdList$ = emptylist($productIdList$)
+				comment "get stringlist "
+				if jsonAsArrayCountElements($ArrayStr$) = "0" 
+					set $pocList$ = emptylist($pocList$)
+				else
+					set $pocList$ = jsonAsArrayToStringList($ArrayStr$)
+				endif
+				for %aktpoc% in $pocList$ do sub_fill_product_ids
+				for %aktProductId% in $productIdList$ do opsiServiceCall_del_productOnClient
+				
+				markErrorNumber
+				comment "load data from web service (actionrequest setup)..."
+				set $resultlist$ = getReturnListFromSection("opsiServiceCall_get_productOnClient_setup_objects")
+				Set $ArrayStr$ = takestring(0, $resultlist$)
+				if not(jsonIsValid($ArrayStr$))
+					LogError "got no valid json from Service"
+					;isFatalError
+					set $INST_ErrorList$ = addtolist($INST_ErrorList$, " Error in sub_restore_productOnClient, switch_installed_products_to_setup=false: got no valid json from Service2" )
+				endif
+				if not(jsonIsArray($ArrayStr$))
+					LogError "got no json Array from Service"
+					;isFatalError
+					set $INST_ErrorList$ = addtolist($INST_ErrorList$, " Error in sub_restore_productOnClient, switch_installed_products_to_setup=false: got no json Array from Service2" )
+				endif
+				comment "extract productIds ..."
+				comment "clean target list"
+				set $productIdList$ = emptylist($productIdList$)
+				comment "get stringlist "
+				if jsonAsArrayCountElements($ArrayStr$) = "0" 
+					set $pocList$ = emptylist($pocList$)
+				else
+					set $pocList$ = jsonAsArrayToStringList($ArrayStr$)
+				endif
+					
+				for %aktpoc% in $pocList$ do set $productIdList$ = addToList($productIdList$,jsonAsObjectGetValueByKey('%aktpoc%', "productId" ))
+				comment "Action requests (setup) will be set again after restore of backuped meta data"
+				comment "---------------------------"
+				comment "load data from web service (actionrequest once)..."
+				set $resultlist$ = getReturnListFromSection("opsiServiceCall_get_productOnClient_once_objects")
+				Set $ArrayStr$ = takestring(0, $resultlist$)
+				if not(jsonIsValid($ArrayStr$))
+					LogError "got no valid json from Service"
+					;isFatalError
+					set $INST_ErrorList$ = addtolist($INST_ErrorList$, " Error in sub_restore_productOnClient, switch_installed_products_to_setup=false: got no valid json from Service2" )
+				endif
+				if not(jsonIsArray($ArrayStr$))
+					LogError "got no json Array from Service"
+					;isFatalError
+					set $INST_ErrorList$ = addtolist($INST_ErrorList$, " Error in sub_restore_productOnClient, switch_installed_products_to_setup=false: got no json Array from Service2" )
+				endif
+				comment "extract productIds ..."
+				comment "clean target list"
+				set $productIdOnceList$ = emptylist($productIdOnceList$)
+				comment "get stringlist "
+				if jsonAsArrayCountElements($ArrayStr$) = "0" 
+					set $pocList$ = emptylist($pocList$)
+				else
+					set $pocList$ = jsonAsArrayToStringList($ArrayStr$)
+				endif
+					
+				for %aktpoc% in $pocList$ do set $productIdOnceList$ = addToList($productIdOnceList$,jsonAsObjectGetValueByKey('%aktpoc%', "productId" ))
+				comment "Action requests (once) will be set again after restore of backuped meta data"
+				comment "---------------------------"
+				Message "Restore productOnClient from file ..."
+				comment " get Restore data from file ..."
+				Set $ArrayStr$ = strLoadTextFile("%opsiTmpDir%\restored_productOnClients.json")
+				if not(jsonIsValid($ArrayStr$))
+					LogError "got no valid json from file"
+					;isFatalError
+					set $INST_ErrorList$ = addtolist($INST_ErrorList$, " Error in sub_restore_productOnClient, switch_installed_products_to_setup=false: got no valid json from file" )
+				endif
+				if not(jsonIsArray($ArrayStr$))
+					LogError "got no json Array from file"
+					;isFatalError
+					set $INST_ErrorList$ = addtolist($INST_ErrorList$, " Error in sub_restore_productOnClient, switch_installed_products_to_setup=false: got no json Array from file" )
+				endif
+				
+				comment "get list from array"
+				set $pocList$ = jsonAsArrayToStringList($ArrayStr$)
+				comment "loop over list"
+				if CompareDotSeparatedNumbers("%WinstVersion%",">=","4.11.6.5")
+					for %pocindex% = "0" to calculate(count($pocList$)+"-1") do sub_set_clientid_in_poclist2
+				else
+					; old opsi-script
+					for %pocindex% = "0" to calculate(count($pocList$)+"-1") do sub_set_clientid_in_poclist
+				endif
+				comment "convert modified list to json array"
+				set $ArrayStr$ = jsonStringListToJsonArray($pocList$)
+					;set $ArrayStr$ = unquote2($ArrayStr$,"[]")
+				if errorsOccuredSinceMark = 0
+					markErrorNumber
+					comment "write back"
+					opsiServiceCall_updatePOC
+					
+					if errorsOccuredSinceMark = 0
+						;comment "No Errors - we can now delete the original data file ..."
+						;Files_rename_poc
+						comment "No Errors - we can now switch to BKSTD mode ..."
+						Set $GEN_bootmode$    = "BKSTD"
+						Registry_SetGeneralEntries
+						comment "restore actionrequest setup..."
+						if count($productIdList$) > "0"
+							for %aktProductId% in $productIdList$ do opsiServiceCall_set_setup
+						endif
+						comment "restore actionrequest once..."
+						if count($productIdOnceList$) > "0"
+							for %aktProductId% in $productIdOnceList$ do opsiServiceCall_set_once
+						endif
+					else
+						LogError "Error while write back product On Client from captured image ..."
+						;isFatalError 
+						set $INST_ErrorList$ = addtolist($INST_ErrorList$, " Error in sub_restore_productOnClient, switch_installed_products_to_setup=false: Error while write back product On Client from captured image ..." )
+					endif ; errors
+				else
+					LogError "Error while handling product On Client from captured image ..."
+					;isFatalError 
+					set $INST_ErrorList$ = addtolist($INST_ErrorList$, " Error in sub_restore_productOnClient, switch_installed_products_to_setup=false: Error while handling product On Client from captured image ..." )
+				endif ; errors
+				set $productIdList$ = createStringList('opsi-local-image-sysprep','opsi-wim-capture')
+				for %aktProductId% in $productIdList$ do opsiServiceCall_del_productOnClient
+			endif ; switch_existing_products_to_setup
+		endif ; renamed successfully	
+	endif ; file exists
+	
+	; end sub_restore_productOnClient
+	; ------------------------------------------------------------
+	[Registry_SetGeneralEntries]
+	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\general]
+	Set "opsiconf"=REG_DWORD:1
+	Set "configlocal"=REG_DWORD:0
+	Set "bootmode" = "$GEN_bootmode$"
+	
+	[Files_rename_poc]
+	del -fc "%opsiTmpDir%\restored_productOnClients.json"
+	rename -c "%opsiTmpDir%\productOnClients.json" "%opsiTmpDir%\restored_productOnClients.json"
+	
+	[opsiservicecall_setOption_addConfigStateDefaults_true]
+	"method": "backend_setOptions"
+	"params": [
+		'{"addConfigStateDefaults":true}'
+	]
+	
+	[opsiservicecall_get_configState_switch_installed_products_to_setup]
+	"method": "configState_getObjects"
+	"params": [
+		'[]',
+		'{"configId":"clientconfig.capture.switch_installed_products_to_setup","objectId":"$INST_ClientId$"}',
+	]
+	
+	[opsiservicecall_get_configState_do_not_change_setup_requests]
+	"method": "configState_getObjects"
+	"params": [
+		'[]',
+		'{"configId":"clientconfig.capture.do_not_change_setup_requests","objectId":"$INST_ClientId$"}',
+	]
+	
+	[opsiServiceCall_get_productOnClient_installed_objects]
+	"method": "productOnClient_getObjects"
+	"params": [
+						"[]",
+						'{"clientId":"$INST_ClientId$","productType":"LocalbootProduct","installationStatus":"installed"}',
+						]
+	
+	[opsiServiceCall_get_productOnClient_setup_objects]
+	"method": "productOnClient_getObjects"
+	"params": [
+						"[]",
+						'{"clientId":"$INST_ClientId$","productType":"LocalbootProduct","actionRequest":"setup"}',
+						]
+	
+	[opsiServiceCall_get_productOnClient_once_objects]
+	"method": "productOnClient_getObjects"
+	"params": [
+						"[]",
+						'{"clientId":"$INST_ClientId$","productType":"LocalbootProduct","actionRequest":"once"}',
+						]
+	
+	[sub_set_clientid_in_poclist]
+	comment "get object from array"
+	set $objectStr$ = takeString("%pocindex%",$poclist$)
+	comment "handle ident: get old clientId"
+	set $oldclientId$ = jsonAsObjectGetValueByKey($objectStr$, "clientId")
+	comment "handle ident: get old ident"
+	set $identstr$ = jsonAsObjectGetValueByKey($objectStr$, "ident")
+	comment "handle ident: replace clientId in ident"
+	set $identstr$ = stringReplace($identstr$, $oldclientId$, $INST_ClientId$)
+	comment "handle ident: write back modified ident"
+	set $objectStr$ = jsonAsObjectSetStringtypeValueByKey($objectStr$, "ident",$identstr$)
+	comment "replace clientId at clientId"
+	set $objectStr$ = jsonAsObjectSetStringtypeValueByKey($objectStr$, "clientId",$INST_ClientId$)
+	comment "write modified object back to array"
+	set $poclist$ = setStringInListAtIndex($objectStr$,$poclist$,"%pocindex%")
+	
+	[sub_set_clientid_in_poclist2]
+	comment "get object from array"
+	set $objectStr$ = takeString("%pocindex%",$poclist$)
+	comment "handle ident: remove it"
+	set $objectStr$ = jsonAsObjectDeleteByKey($objectStr$, "ident")
+	comment "replace clientId at clientId"
+	set $objectStr$ = jsonAsObjectSetStringtypeValueByKey($objectStr$, "clientId",$INST_ClientId$)
+	comment "write modified object back to array"
+	set $poclist$ = setStringInListAtIndex($objectStr$,$poclist$,"%pocindex%")
+	
+	
+	[opsiServiceCall_updatePOC]
+	"method": "productOnClient_updateObjects"
+	"params": [
+						'$ArrayStr$'
+						]
+	
+	;[opsiServiceCall_set_productOnClient]
+	;"method": "productOnClient_createObjects"
+	;"params": [
+	;					'$objectStr$',
+	;					]
+	
+	[opsiServiceCall_set_setup]
+	"method": "setProductActionRequestWithDependencies"
+	"params": [
+						'%aktProductId%',
+						'$INST_ClientId$',
+						'setup',
+						]
+	
+	[opsiServiceCall_set_once]
+	"method": "setProductActionRequestWithDependencies"
+	"params": [
+						'%aktProductId%',
+						'$INST_ClientId$',
+						'once',
+						]
+	
+	[sub_fill_product_ids]
+	set $objectstr$ = '%aktpoc%'
+	set $pid$ = jsonAsObjectGetValueByKey($objectstr$, "productId" )
+	set $productIdList$ = addToList($productIdList$,$pid$)
+	
+	[opsiServiceCall_del_productOnClient]
+	"method": "productOnClient_delete"
+	"params": [
+						'%aktProductId%',
+						'$INST_ClientId$',
+						]
+	
+	[opsiServiceCall_get_productOnClient_noaction_objects]
+	"method": "productOnClient_getObjects"
+	"params": [
+						"[]",
+						'{"clientId":"$INST_ClientId$","productType":"LocalbootProduct","actionRequest":"none"}',
+						]
+
+endfunc
+; end sub_restore_productOnClient
+; ###################################################################################
+
+
+deffunc oca_try_to_get_my_mac() : string
+	Set $INST_ShortServiceUrl$ = takestring(1, splitString($OCD_config_service.url$,"//"))
+	set $INST_ConfigServerIP$ = takestring(0, splitString($INST_ShortServiceUrl$,":"))
+	set $INST_ConfigServerPort$ = takestring(1, splitString($INST_ShortServiceUrl$,":"))
+	comment "we need a IP-Number and at this time $INST_ConfigServerIP$ may also be a IP-Name"
+	if CompareDotSeparatedNumbers("%WinstVersion%","4.11.3.2") >= "0"
+		set $INST_ConfigServerIP$ = GetIpByName($INST_ConfigServerIP$)
+	else
+		Set $INST_ServiceResult$ = shellCall('"%ScriptPath%\gethostbyname\get_host_by_name.exe" '+$INST_ConfigServerIP$)
+		if "Error" = takestring(0, splitStringOnWhitespace(takestring(0,$INST_ServiceResult$)))
+			LogWarning "MAC Address could not detected because config server could not resolved"
+		else
+			set $INST_ConfigServerIP$ = takestring(0,$INST_ServiceResult$)
+		endif
+	endif
+	if not ($INST_ConfigServerIP$ = "")
+		set $INST_ShortServiceUrl$ = $INST_ConfigServerIP$+":"+$INST_ConfigServerPort$
+		comment "let us try to guess the ip number by getbestinterface windows api ..."
+		set $INST_IPAddress$ = GetMyIpByTarget($INST_ConfigServerIP$)
+		if $INST_IPAddress$ = ""
+			LogWarning "failed to get own IP number - giving up to get mac"
+		else
+			set $INST_ServiceResult$ = ShellCall('"%System%\sc" query Winmgmt')
+			if ("" = takeFirstStringContaining($INST_ServiceResult$,"RUNNING")) and (GetMsVersionInfo >= "5.1")
+				LogWarning "WMI service not running - giving up to get mac"
+			else
+				comment "WMI is running or we are at win2k and we only hope that it is running"
+				set $INST_ServiceResult$ = ShellCall("%ScriptPath%\ip2mac\ip2mac.exe")
+				set $result$ = lower(takestring(1, splitStringOnWhiteSpace(takeFirstStringContaining($INST_ServiceResult$,$INST_IPAddress$))))
+				if $result$ = ""
+					LogWarning "no MAC found"
+				endif
+			endif
+		endif
+	endif
+endfunc
+; oca_try_to_get_my_mac
+; ####################################################################
+
+deffunc oca_get_depot_netbiosname() : void
+	set $INST_Authenticated$ = "false"
+	markErrorNumber
+	opsiservicecall_authenticated 
+	if errorsOccuredSinceMark > 0
+		comment "was not authenticated -> retry scripted login by default user/password"
+		markErrorNumber
+		SetLogLevel=$INST_PasswdLogLevel$
+		opsiservicecall_authenticated /username $INST_ClientId$ /password $SHI_pckey$ /serviceurl $OCD_config_service.url$
+		if errorsOccuredSinceMark > 0
+			markErrorNumber
+			comment "scripted login by client id / hostkey failed -> retry with config ini values"
+			opsiservicecall_authenticated /username $INST_Service_User$ /password $INST_Service_Password$ /serviceurl $OCD_config_service.url$
+		else
+				comment "now authenticated "
+				set $INST_Authenticated$ = "true"
+		endif
+		SetLogLevel=$INST_DefaultLoglevel$
+		if errorsOccuredSinceMark > 0
+			comment "scripted login by default user/password and client id / hostkey failed -> we don't retry interactive"
+			comment "giving up"
+		else
+				comment "now authenticated "
+				set $INST_Authenticated$ = "true"
+		endif
+	else
+		comment "was authenticated "
+		set $INST_Authenticated$ = "true"
+	endif 
+	
+	if $INST_Authenticated$ = "true"
+		Set $INST_ServiceResult$ = getReturnListFromSection('opsiservicecall_getNetworkConfig_hash')
+		set $INST_DepotServer$ = takeString(2,splitString(takeFirstStringContaining($INST_ServiceResult$, "depotUrl="),"/"))
+		if CompareDotSeparatedNumbers("%WinstVersion%","4.11.5.8")>="0"
+			LoadProductProperties $INST_ClientId$ "opsi-client-agent"
+		endif
+	endif
+	; -----------------------------------------------------------------------
+	[opsiservicecall_getNetworkConfig_hash]
+	"method": "getNetworkConfig_hash"
+	"params": [
+						"$INST_ClientId$"
+						]
+
+endfunc
+; oca_get_depot_netbiosname
+; ####################################################################
+
+deffunc oca_test_config_service_url($possible_config_service_url$ : string, ref $OCD_WORKING_config_service.url$ : string) : void
+comment "testing " + trim("%possible_config_service_url%")
+
+Set $OCD_TEST_URL_IP$ = stringReplace( trim( takeString(1, splitString( trim($possible_config_service_url$), ":") ) ), "/", "" )
+	comment "IP to check:" + $OCD_TEST_URL_IP$
+	set $OCD_PING_RESULT$ = shellcall('ping -4 -n 3 '+$OCD_TEST_URL_IP$)
+	if $OCD_PING_RESULT$ = "0"
+		Set $OCD_WORKING_config_service.url$ = trim($possible_config_service_url$)
+	endif
+endfunc
+; oca_test_config_service_url
+; ####################################################################
+
+
+deffunc oca_set_installation_status() : void
+	if $INST_SubModus$ = "BOOTIMAGE"
+		opsiservicecall_setNetbootInstallationStatus /username $INST_ClientId$ /password $SHI_pckey$ /serviceurl $OCD_config_service.url$
+	endif 
+	comment "update productOnClient for the opsi-client-agent ...."
+	opsiservicecall_setOpsiclientagentInstallationStatus_unknown
+	opsiservicecall_setOpsiclientagentInstallationStatus_installed
+	opsiservicecall_setOpsiWinstInstallationStatus_installed
+	;----------------------------------------------------------------------
+	[opsiservicecall_setOpsiclientagentInstallationStatus_unknown]
+	"method": "setProductInstallationStatus"
+	"params": [
+						"opsi-client-agent",
+						"$INST_ClientId$",
+						"unknown"
+						]
+	
+	[opsiservicecall_setOpsiclientagentInstallationStatus_installed]
+	"method": "setProductInstallationStatus"
+	"params": [
+						"opsi-client-agent",
+						"$INST_ClientId$",
+						"installed"
+						]
+						
+	
+	[opsiservicecall_setOpsiWinstInstallationStatus_installed]
+	"method": "setProductInstallationStatus"
+	"params": [
+						"opsi-winst",
+						"$INST_ClientId$",
+						"installed"
+						]
+						
+
+endfunc
+; oca_set_installation_status
+; ####################################################################
+; ####################################################################
+
 
 
 ;******** sections end **********
