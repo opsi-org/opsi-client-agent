@@ -1,5 +1,5 @@
 [Package]
-version: 11
+version: 12
 depends: 
 
 [Product]
@@ -79,6 +79,15 @@ editable: True
 description: For opsiclientd startup Error (1053) "The service did not respond to the start or control request in a timely fashion." set this to 60000 or more. Timeout in milliseconds; Sets ServicesPipeTimeout in HKLM\SYSTEM\CurrentControlSet\Control
 values: ["120000", "200000", "30000", "60000", "90000", "delete", "nochange"]
 default: ["nochange"]
+
+[ProductProperty]
+type: unicode
+name: kiosk_startmenue_folder
+multivalue: False
+editable: True
+description: The Start Menu folder for the Client Kiosk (software on demand)
+values: ["opsi.org"]
+default: ["opsi.org"]
 
 [ProductProperty]
 type: unicode

@@ -1,4 +1,11 @@
 [Changelog]
+opsi-client-agent (4.1.0.0-12) stable; urgency=low
+
+  * editable start menue folder for kiosk
+
+-- Rupert Roeder <r.roeder@uib.de>  Thu,  14 Jun 2018:15:00:00 +0200
+
+[Changelog]
 opsi-client-agent (4.1.0.0-11) stable; urgency=low
 
   * setup412: oca_create_client(): no scripted login by fqdn/hostkey

@@ -22,13 +22,17 @@ DefStringList $on_shutdown_configStates$
 DefStringList $on_shutdown_keylist$
 
 DefVar $INST_create_software_on_demand_menue_entry$
+DefVar $kiosk_startmenue_folder$
 DefVar $kiosk_startmenue_entry$
 DefVar $existing_kiosk_startmenue_entry$
+DefVar $existing_kiosk_startmenue_folder$
 DefVar $kiosk_desktop_icon$
 DefVar $kiosk_iconfile$
 set $INST_create_software_on_demand_menue_entry$ = "true"
 ; property not existing
 ;set $INST_create_software_on_demand_menue_entry$ = GetProductProperty ("create_software_on_demand_menue_entry", $INST_create_software_on_demand_menue_entry$)
+
+set $kiosk_startmenue_folder$ = GetProductProperty ("kiosk_startmenue_folder", "opsi.org")
 set $kiosk_startmenue_entry$ = GetProductProperty ("kiosk_startmenue_entry", "software on demand")
 set $kiosk_desktop_icon$ = GetProductProperty ("kiosk_desktop_icon", "false")
 set $kiosk_iconfile$ = ""
@@ -147,6 +151,10 @@ else
 endif	;on_shutdown_install=on
 
 set $existing_kiosk_startmenue_entry$ = GetRegistryStringValue32 ("[HKLM\software\opsi.org\opsikioskclient] link_entry")
+set $existing_kiosk_startmenue_folder$ = GetRegistryStringValue32 ("[HKLM\software\opsi.org\opsikioskclient] folder_entry")
+if $existing_kiosk_startmenue_folder$ = ""
+	set $existing_kiosk_startmenue_folder$ = "opsi.org"
+endif
 if $INST_create_software_on_demand_menue_entry$ = "true"
 	if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") >= "0"
 		comment "Kiosk mode on NT6"
@@ -160,6 +168,7 @@ if $INST_create_software_on_demand_menue_entry$ = "true"
 			endif
 			DosInAnIcon_lock_opsikiosk
 			Registry_remember_link_entry
+			LinkFolder_uninstall_softwareOnDemand
 			LinkFolder_install_softwareOnDemand
 			if $kiosk_desktop_icon$ = "true"
 				LinkFolder_uninstall_softwareOnDemand_desktop
@@ -353,7 +362,7 @@ del -sfc "$INST_BaseDir$\opsiclientkiosk\"
 
 [LinkFolder_install_softwareOnDemand]
 set_basefolder common_programs
-set_subfolder opsi.org
+set_subfolder $kiosk_startmenue_folder$ 
 
 set_link
 	name: "$kiosk_startmenue_entry$"
@@ -378,9 +387,15 @@ set_basefolder common_desktopdirectory
 set_subfolder ""
 delete_element "$existing_kiosk_startmenue_entry$"
 
+[LinkFolder_uninstall_softwareOnDemand]
+set_basefolder common_programs
+set_subfolder $existing_kiosk_startmenue_folder$ 
+delete_element "$existing_kiosk_startmenue_entry$"
+
 [Registry_remember_link_entry]
 openkey [HKLM\software\opsi.org\opsikioskclient]
 set "link_entry" = "$kiosk_startmenue_entry$"
+set "folder_entry" = "$kiosk_startmenue_folder$"
 
 [LinkFolder_install_softwareOnDemand_nt5]
 set_basefolder common_programs
