@@ -1,4 +1,24 @@
 [Changelog]
+opsi-client-agent (4.1.0.0-14) stable; urgency=low
+
+  * update to notifier 4.1.0.1: No High DPI Support foe Win7 (did not work correctly)
+  * update to opsiscript 4.2.0.23: No High DPI Support foe Win7 (did not work correctly)
+
+-- Detlef Oertel <d.oertel@uib.de>  Thu,  12 Jul 2018:15:00:00 +0200
+
+opsi-client-agent (4.1.0.0-13) stable; urgency=low
+
+  * service_setup_nt5.cmd: old service_setup.cmd for NT5 which have to be started elevated
+
+-- Detlef Oertel <d.oertel@uib.de>  Tue,  10 Jul 2018:15:00:00 +0200
+
+opsi-client-agent (4.1.0.0-12) stable; urgency=low
+
+  * editable start menue folder for kiosk
+
+-- Rupert Roeder <r.roeder@uib.de>  Thu,  14 Jun 2018:15:00:00 +0200
+
+
 opsi-client-agent (4.1.0.0-11) stable; urgency=low
 
   * setup412: oca_create_client(): no scripted login by fqdn/hostkey
