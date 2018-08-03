@@ -360,14 +360,17 @@ DeleteVar "GinaDLL"
 ; ******************** end loginblockers sections *****************************************
 ; ******************** service sections*****************************************
 [DosInAnIcon_StopService]
+net stop opsiclientdguard
 net stop opsiclientd
 
 ; ******************** opsiclientd sections *****************************************
 [DosInAnIcon_opsiclientd_unregister_service]
 "$INST_BaseDir$\opsiclientd.exe" -remove
+"$INST_BaseDir$\opsiclientdguard\opsiclientdguard.exe" --uninstall
 
 [DosInAnIcon_opsiclientd_register_service]
 "$INST_BaseDir$\opsiclientd.exe" -auto -install
+"$INST_BaseDir$\opsiclientdguard\opsiclientdguard.exe"  --install
 
 [Registry_DeleteOpsiclientd]
 DeleteKey [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\opsiclientd]
@@ -379,9 +382,17 @@ OpenKey [HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\opsiclientd]
 Set "Start" = REG_DWORD:4
 OpenKey [HKEY_LOCAL_MACHINE\SYSTEM\ControlSet002\Services\opsiclientd]
 Set "Start" = REG_DWORD:4
+OpenKey [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\opsiclientdguard]
+Set "Start" = REG_DWORD:4
+OpenKey [HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\opsiclientdguard]
+Set "Start" = REG_DWORD:4
+OpenKey [HKEY_LOCAL_MACHINE\SYSTEM\ControlSet002\Services\opsiclientdguard]
+Set "Start" = REG_DWORD:4
 
 [Registry_ActivateOpsiclientd]
 OpenKey [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\opsiclientd]
+Set "Start" = REG_DWORD:2
+OpenKey [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\opsiclientdguard]
 Set "Start" = REG_DWORD:2
 
 [DosInAnIcon_close_firewall_for_control_server]

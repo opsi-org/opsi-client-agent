@@ -1,4 +1,22 @@
 [Changelog]
+
+opsi-client-agent (4.1.0.0-16) stable; urgency=low
+
+  * update to opsi-notifier  4.1.0.3
+      * try to make memo transparent
+  * add opsiclientdguard to uninstall
+
+-- Detlef Oertel <d.oertel@uib.de>  Fri, 03 Aug 2018:15:00:00 +0200
+
+opsi-client-agent (4.1.0.0-15) stable; urgency=low
+
+  * update to opsi-notifier  4.1.0.2
+    * try to handle method choicesChanged
+    * if no Option('i', 'idevent') is given use name of skin for name of log
+    * use memo for 'labelMessage'
+
+-- Detlef Oertel <d.oertel@uib.de>  Fri, 27 Jul 2018:15:00:00 +0200
+
 opsi-client-agent (4.1.0.0-14) stable; urgency=low
 
   * update to notifier 4.1.0.1: No High DPI Support foe Win7 (did not work correctly)
