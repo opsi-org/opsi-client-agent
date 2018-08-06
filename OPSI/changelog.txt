@@ -1,5 +1,12 @@
 [Changelog]
 
+opsi-client-agent (4.1.0.0-17) stable; urgency=low
+
+  * subconfig.opsiscript: more readable interpretation of opsiservicecall_get_configState_software-on-demand.active
+  * subconfig.opsiscript: LinkFolder_uninstall_softwareOnDemand: marker for #3624
+
+-- Detlef Oertel <d.oertel@uib.de>  Mon, 06 Aug 2018:15:00:00 +0200
+
 opsi-client-agent (4.1.0.0-16) stable; urgency=low
 
   * update to opsi-notifier  4.1.0.3

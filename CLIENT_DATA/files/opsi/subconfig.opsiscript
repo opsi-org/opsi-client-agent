@@ -155,12 +155,17 @@ set $existing_kiosk_startmenue_folder$ = GetRegistryStringValue32 ("[HKLM\softwa
 if $existing_kiosk_startmenue_folder$ = ""
 	set $existing_kiosk_startmenue_folder$ = "opsi.org"
 endif
+opsiservicecall_setOption_addConfigStateDefaults_true
+Set $resultlist$ = getReturnListFromSection('opsiservicecall_get_configState_software-on-demand.active')
+Set $ArrayStr$ = takestring(0, $resultlist$)
+set $objectStr$ = jsonAsArrayGetElementByIndex($ArrayStr$,"0")
+Set $ArrayStr$ = jsonAsObjectGetValueByKey($objectStr$,"values")
+set $kiosk_active$ = jsonAsArrayGetElementByIndex($ArrayStr$,"0")
 if $INST_create_software_on_demand_menue_entry$ = "true"
 	if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") >= "0"
 		comment "Kiosk mode on NT6"
-		opsiservicecall_setOption_addConfigStateDefaults_true
-		Set $INST_ResultList$ = getReturnListFromSection('opsiservicecall_get_configState_software-on-demand.active')
-		if (TakeString(0,SplitString(TakeString(1,SplitString(TakeString(0,$INST_ResultList$), '"values":[')), ']')) = "true")
+		if $kiosk_active$ = "true"
+		;if (TakeString(0,SplitString(TakeString(1,SplitString(TakeString(0,$INST_ResultList$), '"values":[')), ']')) = "true")
 			Files_del_kiosk_client
 			Files_copy_kiosk_client
 			if fileexists($INST_BaseDir$+"\custom\opsiclientkioskskin\kiosk.ico")
@@ -182,8 +187,9 @@ if $INST_create_software_on_demand_menue_entry$ = "true"
 	else
 		comment "Kiosk mode on NT5"
 		opsiservicecall_setOption_addConfigStateDefaults_true
-		Set $INST_ResultList$ = getReturnListFromSection('opsiservicecall_get_configState_software-on-demand.active')
-		if (TakeString(0,SplitString(TakeString(1,SplitString(TakeString(0,$INST_ResultList$), '"values":[')), ']')) = "true")
+		;Set $INST_ResultList$ = getReturnListFromSection('opsiservicecall_get_configState_software-on-demand.active')
+		;if (TakeString(0,SplitString(TakeString(1,SplitString(TakeString(0,$INST_ResultList$), '"values":[')), ']')) = "true")
+		if $kiosk_active$ = "true"
 			LinkFolder_install_softwareOnDemand_nt5
 		else
 			LinkFolder_uninstall_softwareOnDemand
@@ -389,6 +395,7 @@ delete_element "$existing_kiosk_startmenue_entry$"
 
 [LinkFolder_uninstall_softwareOnDemand]
 set_basefolder common_programs
+; this will create empty opsi.org - see #3624
 set_subfolder $existing_kiosk_startmenue_folder$ 
 delete_element "$existing_kiosk_startmenue_entry$"
 

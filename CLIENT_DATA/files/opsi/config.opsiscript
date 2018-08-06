@@ -25,9 +25,13 @@ DefVar $packageversion$
 DefVar $installedpackage$
 DefVar $resultstr$
 DefVar $INST_ClientId$
+DefVar $ArrayStr$
+DefVar $objectStr$
+DefVar $kiosk_active$
 
 
 DefStringlist $INST_ResultList$
+DefStringlist $ResultList$
 
 
 set $INST_OS$ = GetOS
