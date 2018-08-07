@@ -27,7 +27,7 @@ DefVar $resultstr$
 DefVar $INST_ClientId$
 DefVar $ArrayStr$
 DefVar $objectStr$
-DefVar $kiosk_active$
+
 
 
 DefStringlist $INST_ResultList$

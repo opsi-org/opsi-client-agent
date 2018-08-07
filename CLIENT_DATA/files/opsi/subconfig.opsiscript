@@ -28,6 +28,8 @@ DefVar $existing_kiosk_startmenue_entry$
 DefVar $existing_kiosk_startmenue_folder$
 DefVar $kiosk_desktop_icon$
 DefVar $kiosk_iconfile$
+DefVar $kiosk_active$
+
 set $INST_create_software_on_demand_menue_entry$ = "true"
 ; property not existing
 ;set $INST_create_software_on_demand_menue_entry$ = GetProductProperty ("create_software_on_demand_menue_entry", $INST_create_software_on_demand_menue_entry$)
@@ -161,6 +163,7 @@ Set $ArrayStr$ = takestring(0, $resultlist$)
 set $objectStr$ = jsonAsArrayGetElementByIndex($ArrayStr$,"0")
 Set $ArrayStr$ = jsonAsObjectGetValueByKey($objectStr$,"values")
 set $kiosk_active$ = jsonAsArrayGetElementByIndex($ArrayStr$,"0")
+;comment "$kiosk_active$ = "+$kiosk_active$
 if $INST_create_software_on_demand_menue_entry$ = "true"
 	if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") >= "0"
 		comment "Kiosk mode on NT6"
