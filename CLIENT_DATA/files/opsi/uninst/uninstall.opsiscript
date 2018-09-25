@@ -423,6 +423,8 @@ deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org]
 
 [Registry_del_uninstall]
 deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\opsi-client-agent]
+openkey [HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run]
+DeleteVar "opsi_systray_start"
 
 [DosInAnIcon_RemovePcpatchAccount]
 net user pcpatch /DELETE
