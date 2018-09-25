@@ -1405,7 +1405,7 @@ deffunc oca_restore_productOnClient() : void
 				if $do_not_change_setup_requests$ = "true"
 					comment "than set for all in actual productIdSetupList action request setup ..."
 				endif
-				comment "Remove POC for oli-sysprep and opsi-wim-capture..."
+				comment "Remove POC for opsi-local-image-wim-capture,oli-sysprep and opsi-wim-capture..."
 				
 				comment "load data from web service (installed) to $productIdInstalledList$..."
 				markErrorNumber
@@ -1560,7 +1560,7 @@ deffunc oca_restore_productOnClient() : void
 					;isFatalError 
 					set $INST_ErrorList$ = addtolist($INST_ErrorList$, " Error in sub_restore_productOnClient, switch_installed_products_to_setup=true: Error while handling product On Client from captured image ..." )
 				endif ; errors
-				set $productIdList$ = createStringList('opsi-local-image-sysprep','opsi-wim-capture')
+				set $productIdList$ = createStringList('opsi-local-image-wim-capture','opsi-local-image-sysprep','opsi-wim-capture')
 				for %aktProductId% in $productIdList$ do opsiServiceCall_del_productOnClient
 			else ; no switch_existing_products_to_setup
 				comment "Mode: switch_installed_products_to_setup=false"
@@ -1701,7 +1701,7 @@ deffunc oca_restore_productOnClient() : void
 					;isFatalError 
 					set $INST_ErrorList$ = addtolist($INST_ErrorList$, " Error in sub_restore_productOnClient, switch_installed_products_to_setup=false: Error while handling product On Client from captured image ..." )
 				endif ; errors
-				set $productIdList$ = createStringList('opsi-local-image-sysprep','opsi-wim-capture')
+				set $productIdList$ = createStringList('opsi-local-image-wim-capture','opsi-local-image-sysprep','opsi-wim-capture')
 				for %aktProductId% in $productIdList$ do opsiServiceCall_del_productOnClient
 			endif ; switch_existing_products_to_setup
 		endif ; renamed successfully	
