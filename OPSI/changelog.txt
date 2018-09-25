@@ -1,4 +1,41 @@
 [Changelog]
+
+opsi-client-agent (4.1.0.0-19) stable; urgency=low
+
+  * fixes #3630 opsi-local-image-wim-capture bleibt auf setup stehen 
+
+-- Bardo Wolf <b.wolf@uib.de>  Thu, 09 Aug 2018:15:00:00 +0200  
+
+opsi-client-agent (4.1.0.0-18) stable; urgency=low
+
+  * opsiclientd 4.0.93
+
+-- Erol Ueluekmen <e.ueluekmen@uib.de>  Mon, 08 Aug 2018:15:00:00 +0200
+
+opsi-client-agent (4.1.0.0-17) stable; urgency=low
+
+  * subconfig.opsiscript: more readable interpretation of opsiservicecall_get_configState_software-on-demand.active
+  * subconfig.opsiscript: LinkFolder_uninstall_softwareOnDemand: marker for #3624
+
+-- Detlef Oertel <d.oertel@uib.de>  Mon, 06 Aug 2018:15:00:00 +0200
+
+opsi-client-agent (4.1.0.0-16) stable; urgency=low
+
+  * update to opsi-notifier  4.1.0.3
+      * try to make memo transparent
+  * add opsiclientdguard to uninstall
+
+-- Detlef Oertel <d.oertel@uib.de>  Fri, 03 Aug 2018:15:00:00 +0200
+
+opsi-client-agent (4.1.0.0-15) stable; urgency=low
+
+  * update to opsi-notifier  4.1.0.2
+    * try to handle method choicesChanged
+    * if no Option('i', 'idevent') is given use name of skin for name of log
+    * use memo for 'labelMessage'
+
+-- Detlef Oertel <d.oertel@uib.de>  Fri, 27 Jul 2018:15:00:00 +0200
+
 opsi-client-agent (4.1.0.0-14) stable; urgency=low
 
   * update to notifier 4.1.0.1: No High DPI Support foe Win7 (did not work correctly)
