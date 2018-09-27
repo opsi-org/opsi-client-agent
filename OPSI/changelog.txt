@@ -1,4 +1,17 @@
 [Changelog]
+opsi-client-agent (4.1.0.0-21) stable; urgency=low
+
+  * opsi_client_systray  4.1.0.1: fix logging to c:\opsi.org\applog    
+  * opsiclientkiosk  4.1.0.1: fix logging to c:\opsi.org\applog
+  * update to opsi-winst/opsi-script 4.12.0.28
+
+-- Detlef Oertel <d.oertel@uib.de>  Tue, 25 Aug 2018:15:00:00 +0200
+
+opsi-client-agent (4.1.0.0-20) stable; urgency=low
+
+  * fixes #3649 uninstall dont remove [HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Run]"opsi_systray_start"
+  
+-- Bardo Wolf <b.wolf@uib.de>  Mon, 20 Aug 2018:15:00:00 +0200  
 
 opsi-client-agent (4.1.0.0-19) stable; urgency=low
 
