@@ -58,6 +58,16 @@ DefStringList $on_shutdown_keylist$
 
 ;******** sections end **********
 
+DefVar $INST_create_software_on_demand_menue_entry$
+DefVar $kiosk_startmenue_folder$
+DefVar $kiosk_startmenue_entry$
+DefVar $existing_kiosk_startmenue_entry$
+DefVar $existing_kiosk_startmenue_folder$
+DefVar $kiosk_desktop_icon$
+DefVar $kiosk_iconfile$
+DefVar $kiosk_active$
+
+
 
 
 Set $INST_BaseDir$   = "%ProgramFilesDir%\opsi.org\opsi-client-agent"
@@ -254,11 +264,29 @@ else
 				killtask "notifier.exe"
 				DosInAnIcon_StopService
 				DosInAnIcon_opsiclientd_unregister_service
+				
+				; uninstall start menue and desktop entries
+				set $kiosk_startmenue_folder$ = GetProductProperty ("kiosk_startmenue_folder", "opsi.org")
+				set $kiosk_startmenue_entry$ = GetProductProperty ("kiosk_startmenue_entry", "software on demand")
+				set $kiosk_desktop_icon$ = GetProductProperty ("kiosk_desktop_icon", "false")
+				set $kiosk_iconfile$ = ""
+				set $existing_kiosk_startmenue_entry$ = GetRegistryStringValue32 ("[HKLM\software\opsi.org\opsikioskclient] link_entry")
+				set $existing_kiosk_startmenue_folder$ = GetRegistryStringValue32 ("[HKLM\software\opsi.org\opsikioskclient] folder_entry")
+				if $existing_kiosk_startmenue_folder$ = ""
+					set $existing_kiosk_startmenue_folder$ = $kiosk_startmenue_folder$
+				endif
+				if $existing_kiosk_startmenue_entry$ = ""
+					set $existing_kiosk_startmenue_entry$ = $kiosk_startmenue_entry$
+				endif
+				LinkFolder_uninstall_softwareOnDemand
+				LinkFolder_uninstall_softwareOnDemand_desktop
+				
 				if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") >= "0"
 					Registry_vista_del_loginblocker /Sysnative
 					DosInAnIcon_close_firewall_for_control_server_nt6
 				endif
 
+				; xp
 				if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") < "0"
 					DosInAnIcon_close_firewall_for_control_server
 					Set $OLB_LoginBlockerStart$ = "0"
@@ -423,6 +451,8 @@ deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org]
 
 [Registry_del_uninstall]
 deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\opsi-client-agent]
+openkey [HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run]
+DeleteVar "opsi_systray_start"
 
 [DosInAnIcon_RemovePcpatchAccount]
 net user pcpatch /DELETE
@@ -474,7 +504,16 @@ del -fc "c:\tmp\opsigina.dll"
 
 
 ; ******************** End Install helpers sections *****************************************
+[LinkFolder_uninstall_softwareOnDemand_desktop]
+set_basefolder common_desktopdirectory
+set_subfolder ""
+delete_element "$existing_kiosk_startmenue_entry$"
 
+[LinkFolder_uninstall_softwareOnDemand]
+set_basefolder common_programs
+; this will (perhaps) create empty opsi.org - see #3624
+set_subfolder $existing_kiosk_startmenue_folder$ 
+delete_element "$existing_kiosk_startmenue_entry$"
 
 
 

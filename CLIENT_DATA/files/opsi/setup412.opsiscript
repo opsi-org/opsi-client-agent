@@ -1079,7 +1079,8 @@ endfunc
 ; ####################################################################
 
 deffunc oca_write_configuration() : void
-
+	
+	Message "Configuration"
 	if $INST_Modus$ = "INSTALL"
 		Registry_SetGeneralEntries
 		if ($INST_debug$ = "on") 
@@ -1097,6 +1098,7 @@ deffunc oca_write_configuration() : void
 	;*********************************************************
 	comment "configurations we do also at update mode"
 	;*********************************************************
+	Message "Configuration: General"
 	comment "uninstall registry entries"
 	Registry_SetUninstallEntries
 	comment "standard registry entries"
@@ -1130,10 +1132,13 @@ deffunc oca_write_configuration() : void
 	for %depotId% in $INST_ResultList2$ do Registry_hklm_set_depotshare_trusted
 	for %depotId% in $INST_ResultList2$ do Registry_hklm_set_depotshare_trusted /Sysnative
 	
+	Message "Configuration: MAC-Address"
 	comment "tell server my mac address"
 	if not ($INST_MAC$ = "")
 		opsiservicecall_setMacAddress
 	endif
+	
+	Message "Configuration: c:\opsi.org"
 	comment "Open c:\tmp worldwide writable"
 	Files_create_ctmp
 	set $lockdir$ = "c:\tmp"
@@ -1159,6 +1164,7 @@ deffunc oca_write_configuration() : void
 	set $lockdir$ = $OCD_OpsiVarDir$+"\usertemp"
 	DosInAnIcon_open_dir
 	
+	Message "Configuration: opsiclientd"
 	; Patch #1237 (https://forum.opsi.org/viewtopic.php?f=7&t=6764#p29403)
 	opsiservicecall_setGeneralConfigValue_clientconfig_configserver_url
 	Set $OCD_config_service.url$ = stringReplace( $OCD_config_service.url$, "/rpc", "" )
@@ -1209,16 +1215,17 @@ deffunc oca_write_configuration() : void
 	endif
 	shellCall('sc qfailure "opsiclientd"')
 	
+	Message "Configuration: opsiclientdguard"
 	set $INST_ExitCode$ = shellCall('net stop opsiclientdguard')
 	set $INST_ExitCode$ = shellCall('"'+$INST_BaseDir$+'\opsiclientdguard\opsiclientdguard.exe" --uninstall')
 	set $INST_ExitCode$ = shellCall('"'+$INST_BaseDir$+'\opsiclientdguard\opsiclientdguard.exe" --install')
 	if $INST_ExitCode$ = "0"
 		comment "opsiclientdguard successful installed"
 	else
-		LogError "opsiclientdguard installtion failed"
+		LogError "opsiclientdguard installation failed"
 	endif	
 	
-	
+	Message "Configuration: Login blocker"
 	if CompareDotSeparatedNumbers($INST_NTVersion$,">=","6.0")
 		if $OLB_LoginBlockerStart$ = "1"
 			Registry_vista_loginblocker /Sysnative
@@ -2405,9 +2412,25 @@ Set $INST_SystemType$ = GetSystemType
 set $INST_Resultlist$ = getMSVersionMap
 set $INST_ProductType$ = getValue("product_type_nr",$INST_Resultlist$)
 set $INST_vcredistx86_installed$ = "false"
+if GetRegistryStringValue("[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{9BE518E6-ECC6-35A9-88E4-87755C07200F}] DisplayVersion") = "9.0.30729.6161"
+   comment "vcredistx86 Version 9.0.30729.6161 is installed"
+   set $INST_vcredistx86_installed$ = "true"
+endif
 if GetRegistryStringValue("[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{1F1C2DFC-2D24-3E06-BCB8-725134ADF989}] DisplayVersion") = "9.0.30729.4148"
 	comment "vcredistx86 Version 9.0.30729.4148 is installed"
 	set $INST_vcredistx86_installed$ = "true"
+endif
+if GetRegistryStringValue("[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{9A25302D-30C0-39D9-BD6F-21E6EC160475}] DisplayVersion") = "9.0.30729"
+   comment "vcredistx86 Version 9.0.30729 is installed"
+   set $INST_vcredistx86_installed$ = "true"
+endif   
+if GetRegistryStringValue("[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{5DA8F6CD-C70E-39D8-8430-3D9808D6BD17}] DisplayVersion") = "9.0.30411"
+   comment "vcredistx86 Version 9.0.30411 is installed"
+   set $INST_vcredistx86_installed$ = "true"
+endif   
+if GetRegistryStringValue("[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{E503B4BF-F7BB-3D5F-8BC8-F694B1CFF942}] DisplayVersion") = "9.0.21022.218"
+   comment "vcredistx86 Version 9.0.21022.218 is installed"
+   set $INST_vcredistx86_installed$ = "true"
 endif
 if GetRegistryStringValue("[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{FF66E9F6-83E7-3A3E-AF14-8DE9A809A6A4}] DisplayVersion") = "9.0.21022"
 	comment "vcredistx86 Version 9.0.21022 is installed"
