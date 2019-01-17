@@ -8,6 +8,7 @@ encoding=utf8
 ;[Actions]
 requiredWinstVersion >= "4.12.0.13"
 ScriptErrorMessages = False
+AutoActivityDisplay = True
 
 Message=opsi-client-agent installation
 ShowBitmap "%scriptpath%\uninst\opsi.png" "opsi-client-agent"
@@ -91,7 +92,7 @@ DefVar $INST_pcNotes$
 DefVar $INST_userIsAdmin$
 DefVar $INST_product4setup$
 
-
+DefVar $goon$
 
 
 DefVar $INST_SearchKey$
@@ -718,34 +719,39 @@ deffunc oca_create_client() : void
 	set $INST_userIsAdmin$ = "false"
 	set $INST_Authenticated$ = opsiservice_authenticated("","","","false")
 	set $INST_userIsAdmin$ = opsiservice_UserIsAdmin()
-	;if ($INST_Authenticated$ = "false") or ($INST_userIsAdmin$ = "false")
-	;	comment "was not authenticated or not admin-> retry scripted login by fqdn/hostkey"
-	;	comment "Try to open new network connection"
-	;	set $INST_Authenticated$ = opsiservice_authenticated($INST_ClientId$,$SHI_pckey$,$OCD_config_service.url$,"false")
-	;	set $INST_userIsAdmin$ = opsiservice_UserIsAdmin()
-	;endif
 	if ($INST_Authenticated$ = "false") or ($INST_userIsAdmin$ = "false")
 		comment "was not authenticated or not admin-> retry scripted login by user/password from config.ini"
 		comment "Try to open new network connection"
 		set $INST_Authenticated$ = opsiservice_authenticated($INST_Service_User$,$Inst_Service_Password$,$OCD_config_service.url$,"false")
 		set $INST_userIsAdmin$ = opsiservice_UserIsAdmin()
 	endif
-	if ($INST_Authenticated$ = "false") or ($INST_userIsAdmin$ = "false")
-		comment "was not authenticated as admin-> retry interactive"
+	; according to Ticket uib#2014010810000019 / uib#2019010910000053
+	; we allow nonadmin login here and hope that the user has the credential to create a client
+	; acl.conf: host_createOpsiClient  : sys_group(opsiadmin); opsi_depotserver; opsi_client; sys_user(<my_special_user>)
+	if ($INST_Authenticated$ = "true")
+		; here we need a method to test if the user may call host_createOpsiClient, 
+		; but at the moment we do not have this - Feature #3885
+		set $goon$ = "true"
+	else
+		set $goon$ = "false"
+	endif
+	if ($goon$ = "false") 
+		comment "was not authenticated -> retry interactive"
 		set $INST_Authenticated$ = opsiservice_authenticated("","",$OCD_config_service.url$,"true")
 		set $INST_userIsAdmin$ = opsiservice_UserIsAdmin()
 	endif
-	if ($INST_Authenticated$ = "false") or ($INST_userIsAdmin$ = "false")
-		comment "was not authenticated as admin-> giving up"
-		if $INST_Authenticated$ = "true"
+	if ($INST_Authenticated$ = "false")
+		comment "was not authenticated -> giving up"
+		logerror "We are not authenticated"
+		;pause "Error: No login - exiting"
+		isFatalError "not authenticated"
+	else
+		if $INST_userIsAdmin$ = "false"
 			LogWarning "We are authenticated but no admin login"
 			LogWarning "Authenitcated user: " + $INST_Service_User$ + " is not a opsiadmin"
-			comment "We go on and will see if this user has the credentials to create a client"
+			LogWarning "We go on and will see if this user has the credentials to create a client"
 		else 
-			logerror "We are not authenticated"
-			logerror "No admin login"
-			pause "Error: No admin login - exiting"
-			isFatalError
+			comment "We are authenticated as opsiadmin - fine"
 		endif
 	endif
 	LoadProductProperties $INST_ClientId$ "opsi-client-agent"
@@ -766,9 +772,7 @@ deffunc oca_create_client() : void
 	
 	if (($SHI_pckey$ = "") or ($SHI_pckey$ = "#@PCKEY#"))
 		; dont log the pckey
-		;SetLogLevel=$INST_PasswdLogLevel$
 		set $SHI_pckey$ = asConfidential(createNewOpsiHostKey)
-		;SetLogLevel=$INST_DefaultLoglevel$
 	endif
 	
 	if ($INST_userIsAdmin$ = "true")
@@ -778,12 +782,18 @@ deffunc oca_create_client() : void
 		else
 			SetLogLevel=$INST_PasswdLogLevel$
 			Set $INST_ServiceResult$ = getReturnListFromSection('opsiservicecall_getOpsiHostKey')
-			Set $SHI_pckey$ = takestring(0, $INST_ServiceResult$)
+			Set $SHI_pckey$ = asConfidential(takestring(0, $INST_ServiceResult$))
 			SetLogLevel=$INST_DefaultLoglevel$
 		endif
 	else
 		comment "*** Create client ***"
+		markErrorNumber
 		Set $INST_ServiceResult$ = getReturnListFromSection('opsiservicecall_createClient')
+		if errorsOccuredSinceMark = 0
+			comment "Successful created client"
+		else
+			logerror "Failed to create client"
+		endif
 	endif
 	
 	if not ($INST_userIsAdmin$ = "true")
