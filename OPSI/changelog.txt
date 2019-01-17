@@ -1,4 +1,10 @@
 [Changelog]
+opsi-client-agent (4.1.0.0-26) stable; urgency=low
+
+  * temporary go back to opsiclientd 4.0.94
+
+-- Detlef Oertel <d.oertel@uib.de>  Thu, 17 Jan 2019:15:00:00 +0200
+
 opsi-client-agent (4.1.0.0-25) stable; urgency=low
 
   * opsiclientd 4.1.1
