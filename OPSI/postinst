@@ -9,12 +9,12 @@
 #   DEPOT_ID
 #   PRODUCT_VERSION
 #   PACKAGE_VERSION
+
 echo [${PRODUCT_ID}]  > $CLIENT_DATA_DIR/files/opsi/product.ini
 echo ProductVersion=${PRODUCT_VERSION}-${PACKAGE_VERSION} >> $CLIENT_DATA_DIR/files/opsi/product.ini
 
 chmod u+x $CLIENT_DATA_DIR/utils/set_ip_in_inifile
 chmod u+x $CLIENT_DATA_DIR/utils/patch_config_file.py
-chmod u+x $CLIENT_DATA_DIR/winexe*
 chmod u+x $CLIENT_DATA_DIR/opsi-deploy-client-agent
 
 # for backward compatibiliy: create a setup.ins:
