@@ -1,4 +1,35 @@
 [Changelog]
+opsi-client-agent (4.1.0.0-30) stable; urgency=low
+
+  * Cleanup in OPSI/postinst.
+
+-- Niko Wenselowski <n.wenselowski@uib.de>  Wed, 29 May 2019 17:03:25 +0200
+
+opsi-client-agent (4.1.0.0-29) stable; urgency=low
+
+  * opsi-script 4.12.1.2
+
+-- Detlef Oertel <d.oertel@uib.de>  Fri, 26 Apr 2019:15:00:00 +0200
+
+opsi-client-agent (4.1.0.0-28) stable; urgency=low
+
+  * opsiclientd 4.0.96
+
+-- Erol Ueluekmen <e.ueluekmen@uib.de>  Thu, 18 Apr 2019:01:44:00 +0200
+
+opsi-client-agent (4.1.0.0-27) stable; urgency=low
+
+  * opsiclientd 4.0.95
+  * fixed opsi-deploy-client-agent
+
+-- Detlef Oertel <d.oertel@uib.de>  Thu, 17 Jan 2019:15:00:00 +0200
+
+opsi-client-agent (4.1.0.0-26) stable; urgency=low
+
+  * temporary go back to opsiclientd 4.0.94
+
+-- Detlef Oertel <d.oertel@uib.de>  Thu, 17 Jan 2019:15:00:00 +0200
+
 opsi-client-agent (4.1.0.0-25) stable; urgency=low
 
   * opsiclientd 4.1.1
