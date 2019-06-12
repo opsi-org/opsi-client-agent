@@ -1,4 +1,19 @@
 [Changelog]
+opsi-client-agent (4.1.0.0-32) stable; urgency=low
+
+  * opsi-script 4.12.1.5
+  * setup412: new local funstion oca_is_my_mac_cable($INST_MAC$)
+  * setup412: oca_write_configuration()(): do only write back cable ethernet MAC
+
+-- Detlef Oertel <d.oertel@uib.de>  Wed, 12 Jun 2019:15:00:00 +0200
+
+opsi-client-agent (4.1.0.0-31) stable; urgency=low
+
+  * opsi-script 4.12.1.4
+  * setup412: oca_read_configuration(): no loop on services if depends_on_service is empty
+
+-- Detlef Oertel <d.oertel@uib.de>  Fri, 26 Apr 2019:15:00:00 +0200
+
 opsi-client-agent (4.1.0.0-30) stable; urgency=low
 
   * Cleanup in OPSI/postinst.
