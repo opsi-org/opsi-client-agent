@@ -1,4 +1,10 @@
 [Changelog]
+opsi-client-agent (4.1.0.0-33) stable; urgency=low
+
+  * opsiclientd 4.0.97
+
+-- Erol Ueluekmen <e.ueluekmen@uib.de>  Wed, 12 Jun 2019:15:00:00 +0200
+
 opsi-client-agent (4.1.0.0-32) stable; urgency=low
 
   * opsi-script 4.12.1.5
