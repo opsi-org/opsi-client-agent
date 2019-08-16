@@ -3,7 +3,7 @@
 
 # This tool is part of the desktop management solution opsi
 # (open pc server integration) http://www.opsi.org
-# Copyright (C) 2007-2017 uib GmbH <info@uib.de>
+# Copyright (C) 2007-2019 uib GmbH <info@uib.de>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -32,6 +32,7 @@ installed via opsi.
 
 from __future__ import print_function
 
+import argparse
 import getpass
 import os
 import re
@@ -52,16 +53,19 @@ from OPSI.Util import randomString
 from OPSI.Util.File import IniFile
 
 try:
-	import argparse
-except ImportError:
-	from OPSI.Util import argparse
-
-try:
 	import paramiko
+	AUTO_ADD_POLICY = paramiko.AutoAddPolicy
+	WARNING_POLICY = paramiko.WarningPolicy
+	REJECT_POLICY = paramiko.RejectPolicy
 except ImportError:
 	paramiko = None
+	AUTO_ADD_POLICY = None
+	WARNING_POLICY = None
+	REJECT_POLICY = None
 
-__version__ = '4.0.7.5'
+__version__ = '4.1.0.5'
+
+SKIP_MARKER = 'clientskipped'
 
 
 logger = Logger()
@@ -79,9 +83,12 @@ def winexe(cmd, host, username, password):
 
 	try:
 		executable = which('winexe')
-	except Exception as error:
-		logger.info('Getting winexe installed on system failed ({0}) Using local.'.format(error))
-		executable = './winexe'
+	except Exception:
+		logger.critical(
+			"Unable to find 'winexe'. Please install 'opsi-windows-support' "
+			"through your operating systems package manager!"
+		)
+		raise RuntimeError("Missing 'winexe'")
 
 	try:
 		logger.info('Winexe Version: {0}'.format(''.join(execute('{winexe} -V'.format(winexe=executable)))))
@@ -112,6 +119,9 @@ class DeployThread(threading.Thread):
 				depot=None, group=None):
 
 		threading.Thread.__init__(self)
+
+		self.success = False
+
 		self.host = host
 		self.backend = backend
 		self.username = username
@@ -446,13 +456,16 @@ class WindowsDeployThread(DeployThread):
 					logger.error(error)
 
 			logger.notice(u"opsi-client-agent successfully installed on {0!r}".format(hostId))
+			self.success = True
 			self._setOpsiClientAgentToInstalled(hostId)
 			self._finaliseInstallation()
 		except SkipClientException:
 			logger.notice(u"Skipping host {0!r}".format(hostId))
+			self.success = SKIP_MARKER
 			return
 		except Exception as error:
 			logger.error(u"Deployment to {0!r} failed: {1}".format(self.host, error))
+			self.success = False
 			if self._clientCreatedByScript and hostObj and not self.keepClientOnFailure:
 				self._removeHostFromBackend(hostObj)
 
@@ -648,12 +661,15 @@ class WindowsDeployThread(DeployThread):
 					time.sleep(2)
 
 			logger.notice(u"opsi-client-agent successfully installed on {0!r}".format(hostId))
+			self.success = True
 			self._setOpsiClientAgentToInstalled(hostId)
 			self._finaliseInstallation()
 		except SkipClientException:
 			logger.notice(u"Skipping host {0!r}".format(hostId))
+			self.success = SKIP_MARKER
 			return
 		except Exception as error:
+			self.success = False
 			logger.error(u"Deployment to {0!r} failed: {1}".format(self.host, error))
 			if self._clientCreatedByScript and hostObj and not self.keepClientOnFailure:
 				self._removeHostFromBackend(hostObj)
@@ -684,7 +700,7 @@ class LinuxDeployThread(DeployThread):
 		deploymentMethod="hostname", stopOnPingFailure=True,
 		skipExistingClient=False, mountWithSmbclient=True,
 		keepClientOnFailure=False, additionalClientSettings=None,
-		depot=None, group=None):
+		depot=None, group=None, sshPolicy=WARNING_POLICY):
 
 		DeployThread.__init__(self, host, backend, username, password, shutdown,
 		reboot, startService, deploymentMethod, stopOnPingFailure,
@@ -692,6 +708,7 @@ class LinuxDeployThread(DeployThread):
 		additionalClientSettings, depot, group)
 
 		self._sshConnection = None
+		self._sshPolicy = sshPolicy
 
 	def run(self):
 		self._installWithSSH()
@@ -746,10 +763,23 @@ class LinuxDeployThread(DeployThread):
 				self._executeViaSSH("chmod +x {0}".format(opsiscript))
 
 				installCommand = "{0} -batch /tmp/opsi-linux-client-agent/files/opsi/setup.opsiscript /var/log/opsi-client-agent/opsi-script/opsi-client-agent.log -PARAMETER REMOTEDEPLOY".format(opsiscript)
-				if self.username != 'root':
-					installCommand = "sudo {command}".format(command=installCommand)
-				logger.notice('Running installation script...')
-				self._executeViaSSH(installCommand)
+				nonrootExecution = self.username != 'root'
+				if nonrootExecution:
+					credentialsfile = os.path.join(remoteFolder, '.credentials')
+					self._executeViaSSH("touch {credfile}".format(credfile=credentialsfile))
+					self._executeViaSSH("chmod 600 {credfile}".format(credfile=credentialsfile))
+					self._executeViaSSH("echo '{password}' > {credfile}".format(password=self.password, credfile=credentialsfile))
+					self._executeViaSSH('echo "\n" >> {credfile}'.format(password=self.password, credfile=credentialsfile))
+					installCommand = "sudo --stdin -- {command} < {credfile}".format(command=installCommand, credfile=credentialsfile)
+
+				try:
+					logger.notice('Running installation script...')
+					self._executeViaSSH(installCommand)
+				except Exception:
+					if nonrootExecution:
+						self._executeViaSSH("rm -f {credfile}".format(credfile=credentialsfile))
+
+					raise
 
 				logger.debug("Testing if folder was created...")
 				self._executeViaSSH("test -d /etc/opsi-client-agent/")
@@ -769,13 +799,16 @@ class LinuxDeployThread(DeployThread):
 					logger.error(error)
 
 			logger.notice(u"opsi-linux-client-agent successfully installed on {0!r}".format(hostId))
+			self.success = True
 			self._setOpsiClientAgentToInstalled(hostId)
 			self._finaliseInstallation()
 		except SkipClientException:
 			logger.notice(u"Skipping host {0!r}".format(hostId))
+			self.success = SKIP_MARKER
 			return
 		except (Exception, paramiko.SSHException) as error:
 			logger.error(u"Deployment to {0!r} failed: {1}".format(self.host, error))
+			self.success = False
 			if 'Incompatible ssh peer (no acceptable kex algorithm)' in forceUnicode(error):
 				logger.error('Please install paramiko v1.15.1 or newer.')
 
@@ -835,7 +868,7 @@ class LinuxDeployThread(DeployThread):
 
 		self._sshConnection = paramiko.SSHClient()
 		self._sshConnection.load_system_host_keys()
-		self._sshConnection.set_missing_host_key_policy(paramiko.WarningPolicy())
+		self._sshConnection.set_missing_host_key_policy(self._sshPolicy())
 
 		logger.debug("Connecting via SSH...")
 		self._sshConnection.connect(
@@ -968,6 +1001,18 @@ def main(argv):
 						dest="stopOnPingFailure", default=True,
 						action="store_false",
 						help=u"try installation even if ping fails")
+	if deployLinux:
+		sshPolicyGroup = parser.add_mutually_exclusive_group()
+		sshPolicyGroup.add_argument('--ssh-hostkey-add', dest="sshHostkeyPolicy",
+									const=AUTO_ADD_POLICY, action="store_const",
+									help=u"Automatically add unknown SSH hostkeys.")
+		sshPolicyGroup.add_argument('--ssh-hostkey-reject', dest="sshHostkeyPolicy",
+									const=REJECT_POLICY, action="store_const",
+									help=u"Reject unknown SSH hostkeys.")
+		sshPolicyGroup.add_argument('--ssh-hostkey-warn', dest="sshHostkeyPolicy",
+									const=WARNING_POLICY, action="store_const",
+									help=u"Warn when encountering unknown SSH hostkeys. (Default)")
+
 	postInstallationAction = parser.add_mutually_exclusive_group()
 	postInstallationAction.add_argument('--reboot', '-r',
 										dest="reboot", default=False,
@@ -978,9 +1023,13 @@ def main(argv):
 										action="store_true",
 										help=u"shutdown computer after installation")
 	postInstallationAction.add_argument('--start-opsiclientd', '-o',
-										dest="startService", default=False,
+										dest="startService", default=True,
 										action="store_true",
-										help=u"start opsiclientd service after installation")
+										help=u"Start opsiclientd service after installation (default).")
+	postInstallationAction.add_argument('--no-start-opsiclientd',
+										dest="startService",
+										action="store_false",
+										help=u"Do not start opsiclientd service after installation.")
 	parser.add_argument('--hosts-from-file', '-f',
 						dest="hostFile", default=None,
 						help=(
@@ -1165,16 +1214,39 @@ def main(argv):
 		except KeyError:
 			pass
 
+		if deployLinux:
+			clientConfig["sshPolicy"] = args.sshHostkeyPolicy or WARNING_POLICY
+
 		thread = deploymentClass(**clientConfig)
 
 		thread.start()
 		runningThreads.append(thread)
 		time.sleep(0.5)
 
+	fails = 0
+	skips = 0
 	for thread in runningThreads:
 		if thread.isAlive():
 			thread.join()
 
+		if thread.success == SKIP_MARKER:
+			skips += 1
+		elif not thread.success:
+			fails += 1
+
+	total = len(runningThreads)
+	success = total - fails - skips
+
+	logger.notice("{}/{} deployments successfully", success, total)
+	if skips:
+		logger.notice("{}/{} deployments skipped", skips, total)
+	if fails:
+		logger.warning("{}/{} deployments failed", fails, total)
+
+	if fails:
+		return 1
+	else:
+		return 0
 
 if __name__ == "__main__":
 	logger.setConsoleLevel(LOG_WARNING)
@@ -1182,9 +1254,11 @@ if __name__ == "__main__":
 
 	try:
 		os.chdir(os.path.dirname(os.path.abspath(__file__)))
-		main(sys.argv[1:])
+		exitCode = main(sys.argv[1:])
 	except Exception as error:
 		logger.setConsoleLevel(LOG_ERROR)
 		logger.logException(error)
 		print(u"ERROR: {0}".format(forceUnicode(error)), file=sys.stderr)
 		raise error
+
+	sys.exit(exitCode)

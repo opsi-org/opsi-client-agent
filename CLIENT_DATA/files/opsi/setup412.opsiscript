@@ -41,6 +41,7 @@ DefVar $INST_ExitCode$
 DefVar $INST_IPAddress$
 DefVar $INST_ImmediateRebootFlag$
 DefVar $INST_MAC$
+DefVar $INST_MAC_is_cable$
 DefVar $INST_MinorOS$
 DefVar $INST_NTVersion$
 DefVar $INST_Modus$
@@ -518,6 +519,11 @@ deffunc oca_read_configuration() : void
 		set $INST_MAC$ = oca_try_to_get_my_mac()
 	endif
 	
+	if not($INST_MAC$ = "")
+		set $INST_MAC_is_cable$ = oca_is_my_mac_cable($INST_MAC$)
+	endif
+	
+	
 	if ($INST_DepotServer$ = "")
 		oca_get_depot_netbiosname()
 	endif
@@ -562,14 +568,18 @@ deffunc oca_read_configuration() : void
 	
 	set $INST_ResultList2$ = createStringList("Dhcp","Dnscache")
 	set $INST_ResultList$ = GetProductPropertyList("depends_on_service",$INST_ResultList2$)
-	comment " get list of all services ..."
-	set $INST_FullServicelist$ = shellCall("%System%\sc queryex type= service state= all")
-	set $INST_FullServicelist$ = getListContaining($INST_FullServicelist$,"SERVICE_NAME")
-	set $OCD_depServicelist$ = emptyList($OCD_depServicelist$)
-	comment "check if requested services are existing ...."
-	for %servicestr% in $INST_ResultList$ do oca_check_services("%servicestr%", $INST_FullServicelist$, $OCD_depServicelist$)
-	if count($OCD_depServicelist$) INT> "0"
-		set $OCD_depServices$ = composeString($OCD_depServicelist$,"|")
+	if count($INST_ResultList$) INT> "0"
+		comment " get list of all services ..."
+		set $INST_FullServicelist$ = shellCall("%System%\sc queryex type= service state= all")
+		set $INST_FullServicelist$ = getListContaining($INST_FullServicelist$,"SERVICE_NAME")
+		set $OCD_depServicelist$ = emptyList($OCD_depServicelist$)
+		comment "check if requested services are existing ...."
+		for %servicestr% in $INST_ResultList$ do oca_check_services("%servicestr%", $INST_FullServicelist$, $OCD_depServicelist$)
+		if count($OCD_depServicelist$) INT> "0"
+			set $OCD_depServices$ = composeString($OCD_depServicelist$,"|")
+		endif
+	else
+		comment "No services to check..."
 	endif
 	
 	
@@ -1143,8 +1153,8 @@ deffunc oca_write_configuration() : void
 	for %depotId% in $INST_ResultList2$ do Registry_hklm_set_depotshare_trusted /Sysnative
 	
 	Message "Configuration: MAC-Address"
-	comment "tell server my mac address"
-	if not ($INST_MAC$ = "")
+	comment "tell server my mac address but only if cable ethernet MAC"
+	if not ($INST_MAC$ = "") and ($INST_MAC_is_cable$ = "true")
 		opsiservicecall_setMacAddress
 	endif
 	
@@ -2135,6 +2145,43 @@ deffunc oca_try_to_get_my_mac() : string
 	endif
 endfunc
 ; oca_try_to_get_my_mac
+; ####################################################################
+
+deffunc oca_is_my_mac_cable($mymac$ : string) : string
+	DefVar $IFName$
+	DefVar $pscommand$
+	DefVar $exitcode$
+	DefStringlist $resultlist$
+	
+	set $result$ = "False"
+	if CompareDotSeparatedNumbers(GetMsVersionInfo,">=","10.0")
+		if contains($mymac$,":")
+			set $mymac$ = stringReplace($mymac$, ":", "-")
+		endif
+		set $pscommand$ = 'get-netadapter | Where-Object { $_.MacAddress -eq "'+$mymac$+'" }  | select -expandproperty Name'
+		set $resultlist$ = powershellcall($pscommand$)
+		if count($resultlist$) > "0"
+			set $IFName$ = takeString(0,$resultlist$)
+			if contains($IFName$, "Ethernet")
+				set $result$ = "True"
+			endif
+		endif
+	else
+		set $exitcode$ = shellCall('sc query wlansvc | findstr "RUNNING"')
+		if $exitcode$ = "0"
+			; wlansvc service seems to be running
+			set $exitcode$ = shellCall('netsh wlan show interfaces | findstr "'+$mymac$+'"')
+			if not($exitcode$ = "0")
+				comment " we found no wlan interface with the given mac, so we assume it is cable"
+				set $result$ = "True"
+			endif
+		else
+			comment "we have no running service wlansvc, so we assume that there is no wlan interface"
+			set $result$ = "True"
+		endif
+	endif
+endfunc
+; oca_is_my_mac_cable
 ; ####################################################################
 
 deffunc oca_get_depot_netbiosname() : void
