@@ -3,7 +3,6 @@
 import argparse
 import os
 import socket
-import sys
 
 from OPSI.Backend.BackendManager import BackendManager
 
