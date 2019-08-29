@@ -1,18 +1,30 @@
 #!/usr/bin/python
 
+import argparse
 import os
 import socket
 import sys
 
 from OPSI.Backend.BackendManager import BackendManager
 
+__version__ = '1'
+
+
+def parseCommandline():
+	parser = argparse.ArgumentParser(description="Some opsi script.")
+	parser.add_argument("--version", "-V", action='version', version=__version__)
+
+	parser.add_argument('filename', help='Config file to patch.')
+
+	args = parser.parse_args()
+
+	return args
+
+
 try:
+	args = parseCommandline()
+	configFile = args.filename
 
-	if (len(sys.argv) < 2) or not sys.argv[1]:
-		print >> sys.stderr, u"Usage: %s <config file to patch>" % sys.argv[0]
-		raise Exception(u"No config file given")
-
-	configFile = sys.argv[1]
 	if not os.path.exists(configFile):
 		raise Exception(u"Config file '%s' not found" % configFile)
 
