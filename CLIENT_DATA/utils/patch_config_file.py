@@ -26,7 +26,6 @@ def main():
 	if len(parts) < 2:
 		raise ValueError("Not a fqdn: %s" % depotServerFqdn)
 
-	configServerIds = []
 	with BackendManager() as b:
 		configServerIds = b.host_getIdents(type='OpsiConfigserver')
 
