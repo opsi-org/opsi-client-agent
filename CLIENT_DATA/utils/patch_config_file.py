@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+from __future__ import print_function
+
 import argparse
 import os
 import socket
@@ -42,13 +44,13 @@ def main():
 		if not configServerIds:
 			raise Exception(u"Failed to get configserver")
 		configServerId = configServerIds[0]
-		print u"Configserver id       : %s" % configServerId
+		print(u"Configserver id       : %s" % configServerId)
 
 		configServerIp = socket.gethostbyname(configServerId)
 		if not configServerIp:
 			raise Exception(u"Failed to get ip of configserver '%s'" % configServerId)
 
-		print u"Configserver ip       : %s" % configServerIp
+		print(u"Configserver ip       : %s" % configServerIp)
 
 		configs = b.config_getObjects(id='clientconfig.configserver.url')
 		if configs:
@@ -64,12 +66,12 @@ def main():
 			configurl = "https://" + configServerIp + ":4447"
 
 	depotServerHostname = parts[0]
-	print u"Depotserver hostname  : %s" % depotServerHostname
+	print(u"Depotserver hostname  : %s" % depotServerHostname)
 
 	dnsDomain = '.'.join(parts[1:])
-	print u"DNS domain            : %s" % dnsDomain
+	print(u"DNS domain            : %s" % dnsDomain)
 
-	print u"Patching config file '%s'" % configFile
+	print(u"Patching config file '%s'" % configFile)
 
 	def replacePlaceholders(line):
 		line = line.replace('<dnsdomain>', dnsDomain)
@@ -83,7 +85,7 @@ def main():
 
 	with open(configFile, 'w') as f:
 		f.writelines(lines)
-	print u"Config file '%s' patched" % configFile
+	print(u"Config file '%s' patched" % configFile)
 
 
 if __name__ == '__main__':
