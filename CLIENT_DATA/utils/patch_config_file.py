@@ -11,17 +11,6 @@ from OPSI.Backend.BackendManager import BackendManager
 __version__ = '1'
 
 
-def parseCommandline():
-	parser = argparse.ArgumentParser(description="Some opsi script.")
-	parser.add_argument("--version", "-V", action='version', version=__version__)
-
-	parser.add_argument('filename', help='Config file to patch.')
-
-	args = parser.parse_args()
-
-	return args
-
-
 def main():
 	args = parseCommandline()
 	configFile = args.filename
@@ -72,6 +61,17 @@ def main():
 	print(u"DNS domain            : %s" % dnsDomain)
 
 	patchConfigFile(configFile, dnsDomain, configServerId, depotServerHostname, configurl)
+
+
+def parseCommandline():
+	parser = argparse.ArgumentParser(description="Some opsi script.")
+	parser.add_argument("--version", "-V", action='version', version=__version__)
+
+	parser.add_argument('filename', help='Config file to patch.')
+
+	args = parser.parse_args()
+
+	return args
 
 
 def patchConfigFile(filename, dnsDomain, configServerIp, depotServerHostname, configurl):
