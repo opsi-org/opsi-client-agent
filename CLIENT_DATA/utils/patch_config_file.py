@@ -18,14 +18,6 @@ def main():
 	if not os.path.exists(configFile):
 		raise OSError(u"Config file '%s' not found" % configFile)
 
-	depotServerFqdn = socket.getfqdn()
-	if not depotServerFqdn:
-		raise RuntimeError(u"Failed to get fqdn of depotserver")
-
-	parts = depotServerFqdn.split('.')
-	if len(parts) < 2:
-		raise ValueError("Not a fqdn: %s" % depotServerFqdn)
-
 	with BackendManager() as b:
 		try:
 			configServerId = b.host_getIdents(type='OpsiConfigserver')[0]
@@ -52,10 +44,8 @@ def main():
 		else:
 			configurl = "https://" + configServerIp + ":4447"
 
-	depotServerHostname = parts[0]
+	depotServerHostname, dnsDomain = readHostnameAndDomain()
 	print(u"Depotserver hostname  : %s" % depotServerHostname)
-
-	dnsDomain = '.'.join(parts[1:])
 	print(u"DNS domain            : %s" % dnsDomain)
 
 	patchConfigFile(configFile, dnsDomain, configServerId, depotServerHostname, configurl)
@@ -70,6 +60,21 @@ def parseCommandline():
 	args = parser.parse_args()
 
 	return args
+
+
+def readHostnameAndDomain():
+	fqdn = socket.getfqdn()
+	if not fqdn:
+		raise RuntimeError(u"Failed to get fqdn of depotserver")
+
+	parts = fqdn.split('.')
+	if len(parts) < 2:
+		raise ValueError("Not a fqdn: %s" % fqdn)
+
+	hostname = parts.pop(0)
+	domain = '.'.join(parts)
+
+	return hostname, domain
 
 
 def patchConfigFile(filename, dnsDomain, configServerIp, depotServerHostname, configurl):
