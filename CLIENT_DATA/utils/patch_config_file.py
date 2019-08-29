@@ -37,7 +37,6 @@ def main():
 		raise ValueError("Not a fqdn: %s" % depotServerFqdn)
 
 	configServerIds = []
-	clientServiceType = None
 	b = BackendManager(
 		dispatchConfigFile = u'/etc/opsi/backendManager/dispatch.conf',
 		backendConfigDir   = u'/etc/opsi/backends',
@@ -74,7 +73,6 @@ def main():
 
 	dnsDomain = '.'.join(parts[1:])
 	print u"DNS domain            : %s" % dnsDomain
-	print u"Client servicetype    : %s" % clientServiceType
 
 	try:
 		b.exit()
