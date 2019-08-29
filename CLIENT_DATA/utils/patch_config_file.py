@@ -4,8 +4,9 @@ import os
 import socket
 import sys
 
+from OPSI.Backend.BackendManager import BackendManager
+
 try:
-	from OPSI.Backend.BackendManager import *
 
 	if (len(sys.argv) < 2) or not sys.argv[1]:
 		print >> sys.stderr, u"Usage: %s <config file to patch>" % sys.argv[0]
