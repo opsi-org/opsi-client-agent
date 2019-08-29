@@ -38,7 +38,7 @@ def main():
 
 	configServerIds = []
 	with BackendManager() as b:
-		configServerIds = b.host_getIdents(type = 'OpsiConfigserver')
+		configServerIds = b.host_getIdents(type='OpsiConfigserver')
 
 		if not configServerIds:
 			raise Exception(u"Failed to get configserver")
@@ -51,7 +51,7 @@ def main():
 
 		print u"Configserver ip       : %s" % configServerIp
 
-		configs = b.config_getObjects(id = 'clientconfig.configserver.url')
+		configs = b.config_getObjects(id='clientconfig.configserver.url')
 		if configs:
 		# Patch #1237 (https://forum.opsi.org/viewtopic.php?f=7&t=6764#p29403)
 			configurl = ""
