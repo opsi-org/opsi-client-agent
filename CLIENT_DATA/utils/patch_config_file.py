@@ -18,9 +18,9 @@ def main():
 	if not os.path.exists(configFile):
 		raise OSError(u"Config file '%s' not found" % configFile)
 
-	with BackendManager() as b:
+	with BackendManager() as backend:
 		try:
-			configServerId = b.host_getIdents(type='OpsiConfigserver')[0]
+			configServerId = backend.host_getIdents(type='OpsiConfigserver')[0]
 		except IndexError:
 			raise RuntimeError(u"Failed to get configserver")
 		print(u"Configserver id       : %s" % configServerId)
@@ -31,7 +31,7 @@ def main():
 
 		print(u"Configserver ip       : %s" % configServerIp)
 
-		configs = b.config_getObjects(id='clientconfig.configserver.url')
+		configs = backend.config_getObjects(id='clientconfig.configserver.url')
 		if configs:
 			# Patch #1237 (https://forum.opsi.org/viewtopic.php?f=7&t=6764#p29403)
 			configurl = ""
