@@ -30,11 +30,11 @@ def main():
 
 	depotServerFqdn = socket.getfqdn()
 	if not depotServerFqdn:
-		raise Exception(u"Failed to get fqdn of depotserver")
+		raise RuntimeError(u"Failed to get fqdn of depotserver")
 
 	parts = depotServerFqdn.split('.')
-	if not (len(parts) >= 3):
-		raise Exception("Not a fqdn: %s" % depotServerFqdn)
+	if len(parts) < 2:
+		raise ValueError("Not a fqdn: %s" % depotServerFqdn)
 
 	configServerIds = []
 	clientServiceType = None
