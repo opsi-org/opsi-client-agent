@@ -30,12 +30,12 @@ def main():
 		try:
 			configServerId = b.host_getIdents(type='OpsiConfigserver')[0]
 		except IndexError:
-			raise Exception(u"Failed to get configserver")
+			raise RuntimeError(u"Failed to get configserver")
 		print(u"Configserver id       : %s" % configServerId)
 
 		configServerIp = socket.gethostbyname(configServerId)
 		if not configServerIp:
-			raise Exception(u"Failed to get ip of configserver '%s'" % configServerId)
+			raise RuntimeError(u"Failed to get ip of configserver '%s'" % configServerId)
 
 		print(u"Configserver ip       : %s" % configServerIp)
 
