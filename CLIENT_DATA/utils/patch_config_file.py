@@ -71,7 +71,11 @@ def main():
 	dnsDomain = '.'.join(parts[1:])
 	print(u"DNS domain            : %s" % dnsDomain)
 
-	print(u"Patching config file '%s'" % configFile)
+	patchConfigFile(configFile, dnsDomain, configServerId, depotServerHostname, configurl)
+
+
+def patchConfigFile(filename, dnsDomain, configServerIp, depotServerHostname, configurl):
+	print(u"Patching config file '%s'" % filename)
 
 	def replacePlaceholders(line):
 		line = line.replace('<dnsdomain>', dnsDomain)
@@ -80,12 +84,12 @@ def main():
 		line = line.replace('<configserverurl>', configurl)
 		return line
 
-	with open(configFile, 'r') as f:
+	with open(filename, 'r') as f:
 		lines = [replacePlaceholders(line) for line in f]
 
-	with open(configFile, 'w') as f:
+	with open(filename, 'w') as f:
 		f.writelines(lines)
-	print(u"Config file '%s' patched" % configFile)
+	print(u"Config file '%s' patched" % filename)
 
 
 if __name__ == '__main__':
