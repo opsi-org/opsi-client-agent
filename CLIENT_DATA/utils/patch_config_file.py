@@ -37,47 +37,38 @@ def main():
 		raise ValueError("Not a fqdn: %s" % depotServerFqdn)
 
 	configServerIds = []
-	b = BackendManager(
-		dispatchConfigFile = u'/etc/opsi/backendManager/dispatch.conf',
-		backendConfigDir   = u'/etc/opsi/backends',
-		extend             = True
-	)
-	configServerIds = b.host_getIdents(type = 'OpsiConfigserver')
+	with BackendManager() as b:
+		configServerIds = b.host_getIdents(type = 'OpsiConfigserver')
 
-	if not configServerIds:
-		raise Exception(u"Failed to get configserver")
-	configServerId = configServerIds[0]
-	print u"Configserver id       : %s" % configServerId
+		if not configServerIds:
+			raise Exception(u"Failed to get configserver")
+		configServerId = configServerIds[0]
+		print u"Configserver id       : %s" % configServerId
 
-	configServerIp = socket.gethostbyname(configServerId)
-	if not configServerIp:
-		raise Exception(u"Failed to get ip of configserver '%s'" % configServerId)
+		configServerIp = socket.gethostbyname(configServerId)
+		if not configServerIp:
+			raise Exception(u"Failed to get ip of configserver '%s'" % configServerId)
 
-	print u"Configserver ip       : %s" % configServerIp
+		print u"Configserver ip       : %s" % configServerIp
 
-	configs = b.config_getObjects(id = 'clientconfig.configserver.url')
-	if configs:
-	# Patch #1237 (https://forum.opsi.org/viewtopic.php?f=7&t=6764#p29403)
-		configurl = ""
-		for url in configs[0].defaultValues:
-			if url.endswith("/rpc"):
-				url = url[:-4]
-			configurl += url
-			configurl += ", "
-		configurl = configurl[:-2]
-	else:
-		configurl = "https://" + configServerIp + ":4447"
+		configs = b.config_getObjects(id = 'clientconfig.configserver.url')
+		if configs:
+		# Patch #1237 (https://forum.opsi.org/viewtopic.php?f=7&t=6764#p29403)
+			configurl = ""
+			for url in configs[0].defaultValues:
+				if url.endswith("/rpc"):
+					url = url[:-4]
+				configurl += url
+				configurl += ", "
+			configurl = configurl[:-2]
+		else:
+			configurl = "https://" + configServerIp + ":4447"
 
 	depotServerHostname = parts[0]
 	print u"Depotserver hostname  : %s" % depotServerHostname
 
 	dnsDomain = '.'.join(parts[1:])
 	print u"DNS domain            : %s" % dnsDomain
-
-	try:
-		b.exit()
-	except:
-		b.backend_exit()
 
 	print u"Patching config file '%s'" % configFile
 	lines = []
