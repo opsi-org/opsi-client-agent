@@ -21,7 +21,7 @@ def parseCommandline():
 	return args
 
 
-try:
+def main():
 	args = parseCommandline()
 	configFile = args.filename
 
@@ -96,8 +96,6 @@ try:
 	f.close()
 	print u"Config file '%s' patched" % configFile
 
-except Exception, e:
-	print >> sys.stderr, e
-	sys.exit(1)
 
-sys.exit(0)
+if __name__ == '__main__':
+	main()
