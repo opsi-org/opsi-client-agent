@@ -26,7 +26,7 @@ try:
 	configFile = args.filename
 
 	if not os.path.exists(configFile):
-		raise Exception(u"Config file '%s' not found" % configFile)
+		raise OSError(u"Config file '%s' not found" % configFile)
 
 	depotServerFqdn = socket.getfqdn()
 	if not depotServerFqdn:
