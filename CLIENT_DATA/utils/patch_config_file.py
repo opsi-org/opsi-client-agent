@@ -52,7 +52,7 @@ def main():
 
 		configs = b.config_getObjects(id='clientconfig.configserver.url')
 		if configs:
-		# Patch #1237 (https://forum.opsi.org/viewtopic.php?f=7&t=6764#p29403)
+			# Patch #1237 (https://forum.opsi.org/viewtopic.php?f=7&t=6764#p29403)
 			configurl = ""
 			for url in configs[0].defaultValues:
 				if url.endswith("/rpc"):
