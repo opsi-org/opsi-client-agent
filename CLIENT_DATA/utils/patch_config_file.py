@@ -72,17 +72,16 @@ def main():
 
 	print u"Patching config file '%s'" % configFile
 	lines = []
-	f = open(configFile, 'r')
-	for line in f.readlines():
-		line = line.replace('<dnsdomain>',     dnsDomain)
-		line = line.replace('<tftpserver>',    configServerIp)
-		line = line.replace('<servername>',    depotServerHostname)
-		line = line.replace('<configserverurl>', configurl)
-		lines.append(line)
-	f.close()
-	f = open(configFile, 'w')
-	f.writelines(lines)
-	f.close()
+	with open(configFile, 'r') as f:
+		for line in f.readlines():
+			line = line.replace('<dnsdomain>', dnsDomain)
+			line = line.replace('<tftpserver>', configServerIp)
+			line = line.replace('<servername>', depotServerHostname)
+			line = line.replace('<configserverurl>', configurl)
+			lines.append(line)
+
+	with open(configFile, 'w') as f:
+		f.writelines(lines)
 	print u"Config file '%s' patched" % configFile
 
 
