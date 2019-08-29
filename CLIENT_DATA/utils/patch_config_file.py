@@ -27,11 +27,10 @@ def main():
 		raise ValueError("Not a fqdn: %s" % depotServerFqdn)
 
 	with BackendManager() as b:
-		configServerIds = b.host_getIdents(type='OpsiConfigserver')
-
-		if not configServerIds:
+		try:
+			configServerId = b.host_getIdents(type='OpsiConfigserver')[0]
+		except IndexError:
 			raise Exception(u"Failed to get configserver")
-		configServerId = configServerIds[0]
 		print(u"Configserver id       : %s" % configServerId)
 
 		configServerIp = socket.gethostbyname(configServerId)
