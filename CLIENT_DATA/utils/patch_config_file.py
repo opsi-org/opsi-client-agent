@@ -71,14 +71,16 @@ def main():
 	print u"DNS domain            : %s" % dnsDomain
 
 	print u"Patching config file '%s'" % configFile
-	lines = []
+
+	def replacePlaceholders(line):
+		line = line.replace('<dnsdomain>', dnsDomain)
+		line = line.replace('<tftpserver>', configServerIp)
+		line = line.replace('<servername>', depotServerHostname)
+		line = line.replace('<configserverurl>', configurl)
+		return line
+
 	with open(configFile, 'r') as f:
-		for line in f.readlines():
-			line = line.replace('<dnsdomain>', dnsDomain)
-			line = line.replace('<tftpserver>', configServerIp)
-			line = line.replace('<servername>', depotServerHostname)
-			line = line.replace('<configserverurl>', configurl)
-			lines.append(line)
+		lines = [replacePlaceholders(line) for line in f]
 
 	with open(configFile, 'w') as f:
 		f.writelines(lines)
