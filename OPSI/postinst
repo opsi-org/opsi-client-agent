@@ -26,7 +26,6 @@ echo [${PRODUCT_ID}]  > $CLIENT_DATA_DIR/files/opsi/product.ini
 echo ProductVersion=${PRODUCT_VERSION}-${PACKAGE_VERSION} >> $CLIENT_DATA_DIR/files/opsi/product.ini
 
 chmod u+x $CLIENT_DATA_DIR/utils/set_ip_in_inifile
-chmod u+x $CLIENT_DATA_DIR/utils/patch_config_file.py
 chmod u+x $CLIENT_DATA_DIR/opsi-deploy-client-agent
 
 # for backward compatibiliy: create a setup.ins:
@@ -34,7 +33,21 @@ cd $CLIENT_DATA_DIR/files/opsi
 ln setup.opsiscript setup.ins
 
 echo "Patching server information ..."
-$CLIENT_DATA_DIR/utils/patch_config_file.py $CLIENT_DATA_DIR/files/opsi/cfg/config.ini || exit 1
+PATCH_CONFIG_SCRIPT="$CLIENT_DATA_DIR/utils/patch_config_file.py"
+CONFIG_FILE="$CLIENT_DATA_DIR/files/opsi/cfg/config.ini"
+
+set +e
+python3 -c "import OPSI"
+ret=$?
+set -e
+if [ $ret -eq 0 ]; then
+	# Python 3 - opsi 4.2 or later
+	python3 $PATCH_CONFIG_SCRIPT $CONFIG_FILE
+
+else
+	# Python 2 - opsi 4.1
+	python $PATCH_CONFIG_SCRIPT $CONFIG_FILE
+fi
 
 TMP_DIR=${CLIENT_DATA_DIR}/../${PRODUCT_ID}.tmp
 if [ ! -d $TMP_DIR ]; then
