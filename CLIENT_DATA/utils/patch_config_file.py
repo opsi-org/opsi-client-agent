@@ -1,7 +1,10 @@
 #!/usr/bin/python
 
+import os
+import socket
+import sys
+
 try:
-	import sys, socket, os, re
 	from OPSI.Backend.BackendManager import *
 
 	if (len(sys.argv) < 2) or not sys.argv[1]:
