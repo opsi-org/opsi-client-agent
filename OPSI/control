@@ -1,5 +1,5 @@
 [Package]
-version: 36
+version: 37
 depends: 
 
 [Product]
@@ -133,4 +133,10 @@ type: bool
 name: update_mac_address_on_normal_setup
 description: true=MAC Address from the Network Interface that communicates with opsi will be send to the opsi-server if it do not look like a wifi interface. false=Never send MAC but in install mode
 default: True
+
+[ProductProperty]
+type: bool
+name: alternative_loginblocker_dll
+description: Install a alternative version of the loginblocker Dll
+default: False
 

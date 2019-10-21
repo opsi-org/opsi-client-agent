@@ -1,4 +1,12 @@
 [Changelog]
+opsi-client-agent (4.1.0.0-37) experimental; urgency=low
+
+  * new property: alternative_loginblocker_dll
+     false=new version (83 von 10.2019) true=old version (1.2.1.0 von 8.2016)
+     default=false
+
+-- Detlef Oertel <d.oertel@uib.de>  Mon, 21 Aug 2019:15:00:00 +0200
+
 opsi-client-agent (4.1.0.0-36) experimental; urgency=low
 
   * new property: update_mac_address_on_normal_setup
