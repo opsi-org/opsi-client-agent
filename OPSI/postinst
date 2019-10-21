@@ -22,6 +22,16 @@ else
   echo "config ${CHECKCONFIG} already exists"
 fi
 
+CHECKCONFIG="software-on-demand.admin-mode"
+CHECKSTRING="{\"id\":\"${CHECKCONFIG}\"}"
+ANSWERARRAY=`opsi-admin -dS method config_getObjects '[]' ${CHECKSTRING}`
+if [ "${EMPTYARRAY}" == "${ANSWERARRAY}" ] ; then
+  echo "config ${CHECKCONFIG} does not exists - creating"
+  opsi-admin -d method config_createBool "${CHECKCONFIG}" "${CHECKCONFIG}" "true"
+else
+  echo "config ${CHECKCONFIG} already exists"
+fi
+
 echo [${PRODUCT_ID}]  > $CLIENT_DATA_DIR/files/opsi/product.ini
 echo ProductVersion=${PRODUCT_VERSION}-${PACKAGE_VERSION} >> $CLIENT_DATA_DIR/files/opsi/product.ini
 
@@ -57,7 +67,7 @@ fi
 
 if [ -d $TMP_DIR ]; then
 	echo 'Restoring previous directories...'
-	for dirname in files/opsi/custom; do
+	for dirname in files/opsi/custom files/opsi/opsiclientkiosk/ock_custom; do
 		for path in $TMP_DIR/`basename $dirname`; do
 			if [ -d $path ]; then
 				test -e $CLIENT_DATA_DIR/$dirname && rm -rf $CLIENT_DATA_DIR/$dirname

@@ -152,6 +152,7 @@ else
 	
 endif	;on_shutdown_install=on
 
+;******** Sektion kiosk **********
 set $existing_kiosk_startmenue_entry$ = GetRegistryStringValue32 ("[HKLM\software\opsi.org\opsikioskclient] link_entry")
 set $existing_kiosk_startmenue_folder$ = GetRegistryStringValue32 ("[HKLM\software\opsi.org\opsikioskclient] folder_entry")
 if $existing_kiosk_startmenue_folder$ = ""
@@ -203,6 +204,8 @@ else
 	LinkFolder_uninstall_softwareOnDemand_desktop
 	Files_del_kiosk_client
 endif
+
+;******** Sektion systray **********
 
 comment "install and configure sytray"
 if ($systray_install$ = "true")

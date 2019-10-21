@@ -44,7 +44,7 @@ mkdir $TMP_DIR
 
 if [ -d $CLIENT_DATA_DIR ]; then
 	echo "Saving previous directories..."
-	for dirname in files/opsi/custom; do
+	for dirname in files/opsi/custom files/opsi/opsiclientkiosk/ock_custom; do
 		for path in $CLIENT_DATA_DIR/$dirname; do
 			if [ -e $path ]; then
 				echo "   moving $path to $TMP_DIR"
