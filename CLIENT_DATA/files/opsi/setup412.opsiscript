@@ -94,6 +94,7 @@ DefVar $INST_userIsAdmin$
 DefVar $INST_product4setup$
 
 DefVar $goon$
+DefVar $update_mac_address_on_normal_setup$
 
 
 DefVar $INST_SearchKey$
@@ -522,6 +523,8 @@ deffunc oca_read_configuration() : void
 	if not($INST_MAC$ = "")
 		set $INST_MAC_is_cable$ = oca_is_my_mac_cable($INST_MAC$)
 	endif
+	
+	set $update_mac_address_on_normal_setup$ = GetProductProperty("update_mac_address_on_normal_setup","true")
 	
 	
 	if ($INST_DepotServer$ = "")
@@ -1153,9 +1156,11 @@ deffunc oca_write_configuration() : void
 	for %depotId% in $INST_ResultList2$ do Registry_hklm_set_depotshare_trusted /Sysnative
 	
 	Message "Configuration: MAC-Address"
-	comment "tell server my mac address but only if cable ethernet MAC"
-	if not ($INST_MAC$ = "") and ($INST_MAC_is_cable$ = "true")
-		opsiservicecall_setMacAddress
+	if ($update_mac_address_on_normal_setup$ = "true") or ($INST_Modus$ = "INSTALL")
+		comment "tell server my mac address but only if cable ethernet MAC"
+		if not ($INST_MAC$ = "") and ($INST_MAC_is_cable$ = "true")
+			opsiservicecall_setMacAddress
+		endif
 	endif
 	
 	Message "Configuration: c:\opsi.org"

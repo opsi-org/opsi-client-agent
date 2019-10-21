@@ -1,4 +1,19 @@
 [Changelog]
+opsi-client-agent (4.1.0.0-36) experimental; urgency=low
+
+  * new property: update_mac_address_on_normal_setup
+     true=MAC Address from the Network Interface that communicates with opsi will be send to the opsi-server if it do not look like a wifi interface. 
+     false=Never send MAC but in install mode
+  * patch_config_file.py now works with opsi 4.2.
+
+-- Detlef Oertel <d.oertel@uib.de>  Fri, 16 Aug 2019:15:00:00 +0200
+
+opsi-client-agent (4.1.0.0-35) experimental; urgency=low
+
+  * new opsiclientd with working window
+
+-- Detlef Oertel <d.oertel@uib.de>  Fri, 16 Aug 2019:15:00:00 +0200
+
 opsi-client-agent (4.1.0.0-34) stable; urgency=low
 
   * switch back to opsiclientd 4.0.96
