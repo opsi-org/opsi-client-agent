@@ -53,10 +53,12 @@ set -e
 if [ $ret -eq 0 ]; then
 	# Python 3 - opsi 4.2 or later
 	python3 $PATCH_CONFIG_SCRIPT $CONFIG_FILE
-
 else
 	# Python 2 - opsi 4.1
 	python $PATCH_CONFIG_SCRIPT $CONFIG_FILE
+
+	# opsi-deploy-client-agent should use Python 2
+	sed --in-place "s_/usr/bin/python3_/usr/bin/python_" "$CLIENT_DATA_DIR/opsi-deploy-client-agent"
 fi
 
 TMP_DIR=${CLIENT_DATA_DIR}/../${PRODUCT_ID}.tmp
