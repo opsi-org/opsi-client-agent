@@ -1,11 +1,22 @@
-[Changelog]
+﻿[Changelog]
+opsi-client-agent (4.1.0.0-38) experimental; urgency=low
+
+ * update to opsi-script 4.12.3.1
+ * opsi-deploy-client-agent: compatible with opsi 4.1 and 4.2
+
+ -- Niko Wenselowski <n.wenselowski@uib.de>  Mon, 18 Nov 2019 18:42:44 +0200
+
 opsi-client-agent (4.1.0.0-37) experimental; urgency=low
 
-  * new property: alternative_loginblocker_dll
+  * new property: legacy_loginblocker_dll
      false=new version (83 von 10.2019) true=old version (1.2.1.0 von 8.2016)
      default=false
+  * opsiclientd 4.0.98
+  * service_setup.cmd (nt6): additional '-wait' in call of opsi-script (do 5.11.19)
+  * update to opsi-script 4.12.3 (do 5.11.19)
+  * update openssl to 1.0.2t (do 7.11.19)
 
--- Detlef Oertel <d.oertel@uib.de>  Mon, 21 Aug 2019:15:00:00 +0200
+-- Erol Ueluekmen <e.ueluekmen@uib.de>  Mon, 28 Oct 2019:22:00:00 +0200
 
 opsi-client-agent (4.1.0.0-36) experimental; urgency=low
 

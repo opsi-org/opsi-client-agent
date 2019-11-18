@@ -1,5 +1,5 @@
 [Package]
-version: 37
+version: 38
 depends: 
 
 [Product]
@@ -136,7 +136,7 @@ default: True
 
 [ProductProperty]
 type: bool
-name: alternative_loginblocker_dll
-description: Install a alternative version of the loginblocker Dll
+name: legacy_loginblocker_dll
+description: Install an older version of the loginblocker Dll
 default: False
 
