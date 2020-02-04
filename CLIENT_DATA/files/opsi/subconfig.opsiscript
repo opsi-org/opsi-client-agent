@@ -63,6 +63,7 @@ Set $on_shutdown_install$ = GetProductProperty("on_shutdown_install", "off")
 Set $on_shutdown_install_set_policy$ = GetProductProperty("on_shutdown_install_set_policy", "on")
 
 ;******** Sektion on_shutdown **********
+Message "opsi-client-agent configuration: on_shutdown"
 comment "$on_shutdown_install$ -> "+                    $on_shutdown_install$
 comment "$on_shutdown_install_set_policy$ -> "+         $on_shutdown_install_set_policy$
 comment "$INST_create_software_on_demand_menue_entry$ -> "+  $INST_create_software_on_demand_menue_entry$
@@ -153,6 +154,7 @@ else
 endif	;on_shutdown_install=on
 
 ;******** Sektion kiosk **********
+Message "opsi-client-agent configuration: kiosk"
 set $existing_kiosk_startmenue_entry$ = GetRegistryStringValue32 ("[HKLM\software\opsi.org\opsikioskclient] link_entry")
 set $existing_kiosk_startmenue_folder$ = GetRegistryStringValue32 ("[HKLM\software\opsi.org\opsikioskclient] folder_entry")
 if $existing_kiosk_startmenue_folder$ = ""
@@ -206,7 +208,7 @@ else
 endif
 
 ;******** Sektion systray **********
-
+Message "opsi-client-agent configuration: systray"
 comment "install and configure sytray"
 if ($systray_install$ = "true")
 	Files_del_systray
@@ -365,7 +367,8 @@ endif
 ]
 
 [Files_copy_kiosk_client]
-copy -sc "%scriptpath%\opsiclientkiosk\*.*" "$INST_BaseDir$\opsiclientkiosk\"
+copy -sc "%scriptpath%\opsiclientkiosk\files_to_copy\*.*" "$INST_BaseDir$\opsiclientkiosk\"
+unzipfile "%scriptpath%\opsiclientkiosk\Collection64x64.zip" "$INST_BaseDir$\opsiclientkiosk\default\product_icons\"
 copy -sc "%SCRIPTPATH%\custom\opsiclientkioskskin\*.*" "$INST_BaseDir$\custom\opsiclientkioskskin"
 
 

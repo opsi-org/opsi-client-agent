@@ -2647,6 +2647,7 @@ if fileexists("%ScriptPath%\custom\custom.opsiscript")
 	comment "Start the custom sub file ..."
 	sub "%ScriptPath%\custom\custom.opsiscript"
 endif
+Message "opsi-client-agent configuration"
 sub "%scriptpath%\subconfig.opsiscript"
 noUpdateScript
 
