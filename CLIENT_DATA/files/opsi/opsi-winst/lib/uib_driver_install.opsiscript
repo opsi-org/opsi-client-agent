@@ -95,3 +95,33 @@ Deffunc install_driver_recursive_from_dir($driverdir$ : string, ref $errorstring
 endfunc
 
 ; ###################################################################################################
+
+
+Deffunc setFirewallExceptionsTcpUdp4product4profile($rulename$ : string, $fwprofile$ : string, $path2product$ : string) : void
+
+	; is profile valid , default = any
+	If not(($fwprofile$ = 'domain') or ($fwprofile$ = 'public') or ($fwprofile$ = 'private') or ($fwprofile$ = 'any') or ($fwprofile$ = ''))
+		isFatalError "firewall wrong profile"
+	else
+		if $fwprofile$ = ''
+			set $fwprofile$ = 'any'
+		endif
+	endif
+	
+	; is path valid
+	if not(fileexists($path2product$))
+		isFatalError "firewall no valid path"
+	endif
+	
+	Comment "Configuring Firewall for Firewall profile: "+$fwprofile$
+	; TCP:
+	set $exitcode$= shellCall('netsh advfirewall firewall add rule name="'+$ProductId$+'" action=allow dir=in protocol=tcp profile='+$fwprofile$+' program="'+$path2product$+'"')
+	if not($exitcode$ = "0")
+		isFatalError "firewall failed"
+	endif
+	; UDP:
+	set $exitcode$= shellCall('netsh advfirewall firewall add rule name="'+$ProductId$+'" action=allow dir=in protocol=udp profile='+$fwprofile$+' program="'+$path2product$+'"')
+	if not($exitcode$ = "0")
+		isFatalError "firewall failed"
+	endif
+endfunc

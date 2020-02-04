@@ -206,12 +206,12 @@ deffunc oca_read_configuration() : void
 	comment "Getting values from from config file"
 	Set $INST_Service_User$          	= GetValueFromInifile($INST_cfgini$, "installation", "service_user", $INST_Service_User$)
 	Set $INST_Service_Password$      	= asConfidential(GetValueFromInifile($INST_cfgini$, "installation", "service_password", $INST_Service_Password$))
-	Set $INST_service_hidden_password$      	= GetValueFromInifile($INST_cfgini$, "installation", "service_hidden_password", $INST_service_hidden_password$)
+	Set $INST_service_hidden_password$      	= asConfidential(GetValueFromInifile($INST_cfgini$, "installation", "service_hidden_password", $INST_service_hidden_password$))
 	
 	comment "Getting values (overwrite)from from custom config file"
 	Set $INST_Service_User$          	= GetValueFromInifile($INST_custom_Cfgini$, "installation", "service_user", $INST_Service_User$)
 	Set $INST_Service_Password$      	= asConfidential(GetValueFromInifile($INST_custom_Cfgini$, "installation", "service_password", $INST_Service_Password$))
-	Set $INST_service_hidden_password$      	= GetValueFromInifile($INST_custom_Cfgini$, "installation", "service_hidden_password", $INST_service_hidden_password$)
+	Set $INST_service_hidden_password$      	= asConfidential(GetValueFromInifile($INST_custom_Cfgini$, "installation", "service_hidden_password", $INST_service_hidden_password$))
 	
 	if not ($INST_service_hidden_password$ = "")
 		;SetLogLevel=$INST_PasswdLogLevel$

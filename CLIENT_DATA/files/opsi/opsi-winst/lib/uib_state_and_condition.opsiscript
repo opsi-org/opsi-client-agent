@@ -93,3 +93,118 @@ deffunc isdotnet_3_5_installed() : string
 	
 endfunc
 
+;################################################################################################
+Deffunc getOpsiNetworkMedium() : string
+	DefVar $cable_ip$
+	DefVar $wifi_ip$
+	DefVar $command$
+	DefVar $cablemac$
+	DefVar $wifimac$
+	DefVar $mymac$
+	DefVar $resultstr$
+	DefVar $myip$
+	DefVar $ifindex$
+	
+	Defstringlist $resultlist$
+
+
+	set $result$ = 'unknown'
+	set $myip$ = getMyIpByTarget(GetIpByName("%opsiServer%"))
+	comment 'myip is: '+$myip$
+	
+	Message "Bestimme Kabel MAC ..."
+	set $cablemac$ = ""
+	set $command$ = Escapestring: powershell.exe "Get-Netadapter -Name 'Ethernet*' | select -expandproperty MacAddress"
+	set $resultlist$ = shellCall($command$)
+	if count($resultlist$) int> "0"
+		set $cablemac$ = takestring("0", $resultlist$)
+	endif
+	comment 'cablemac is: '+$cablemac$
+	
+	
+	Message "Bestimme Kabel IP ..."
+	set $cable_ip$ = ""
+	set $command$ = Escapestring: powershell.exe "Get-Netadapter -Name 'Ethernet*' | select -expandproperty InterfaceIndex"
+	set $resultlist$ = shellCall($command$)
+	
+	
+	
+	if count($resultlist$) int> "0"
+		set $ifindex$ = takestring("0", $resultlist$)
+		if not ($ifindex$ = "")
+			set $resultlist$ = getListFromWMI("","Win32_NetworkAdapterConfiguration",createStringList("ipaddress"),"where InterfaceIndex="+$ifindex$)
+			set $cable_ip$ = getvalue("ipaddress",$resultlist$)
+			if contains($cable_ip$,'ungültig')
+				LogError "Interner Fehler: Bitte Log senden"
+				set $cable_ip$ = ""
+			else
+				if $cable_ip$ = "<null>"
+					set $cable_ip$ = ""
+				endif
+				if not($cable_ip$ = "") 
+					set $cable_ip$ = unquote2($cable_ip$,"[]")
+					set $cable_ip$ = takestring("0", splitstring($cable_ip$,","))
+					if not(isValidIP4($cable_ip$))
+						LogError "Gefundene IP-Adresse: "+$cable_ip$+" ist nicht gültig!"
+						set $cable_ip$ = ""
+					else
+						if $cable_ip$ = $myip$
+							set $result$ = 'cable'
+						endif
+					endif
+				endif
+			endif
+		endif
+	endif
+	comment 'cable_ip is: '+$cable_ip$
+	comment 'medium is: '+$return$
+	
+	if $result$ = 'unknown'
+	
+		Message "Bestimme WLAN MAC ..."
+		set $wifimac$ = ""
+		set $command$ = Escapestring: powershell.exe "Get-Netadapter -Name 'WLAN*' | select -expandproperty MacAddress"
+		set $resultlist$ = shellCall($command$)
+		if count($resultlist$) int> "0"
+			set $wifimac$ = takestring("0", $resultlist$)
+		endif
+		comment 'wifimac is: '+$wifimac$
+		
+		
+		Message "Bestimme WLAN IP ..."
+		set $wifi_ip$ = ""
+		set $command$ = Escapestring: powershell.exe "Get-Netadapter -Name 'WLAN*' | select -expandproperty InterfaceIndex"
+		set $resultlist$ = shellCall($command$)
+		
+		if count($resultlist$) int> "0"
+			set $ifindex$ = takestring("0", $resultlist$)
+			if not ($ifindex$ = "")
+				set $resultlist$ = getListFromWMI("","Win32_NetworkAdapterConfiguration",createStringList("ipaddress"),"where InterfaceIndex="+$ifindex$)
+				set $wifi_ip$ = getvalue("ipaddress",$resultlist$)
+				if contains($wifi_ip$,'ungültig')
+					LogError "Interner Fehler: Bitte Log senden"
+					set $wifi_ip$ = ""
+				else
+					if $wifi_ip$ = "<null>"
+						set $wifi_ip$ = ""
+					endif
+					if not($wifi_ip$ = "") 
+						set $wifi_ip$ = unquote2($wifi_ip$,"[]")
+						set $wifi_ip$ = takestring("0", splitstring($wifi_ip$,","))
+						if not(isValidIP4($wifi_ip$))
+							LogError "Gefundene IP-Adresse: "+$wifi_ip$+" ist nicht gültig!"
+							set $wifi_ip$ = ""
+						else
+							if $wifi_ip$ = $myip$
+								set $result$ = 'wifi'
+							endif
+						endif
+					endif
+				endif
+			endif
+		endif
+		comment 'wifi_ip is: '+$wifi_ip$
+	endif
+endfunc
+
+;################################################################################################

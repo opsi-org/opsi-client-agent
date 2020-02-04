@@ -46,10 +46,10 @@ echo $osargs1 = "/batch","c:\opsi.org\usertmp\opsi\setup.opsiscript","c:\opsi.or
 echo $osargs2 = "/batch","c:\opsi.org\usertmp\opsi\setup.opsiscript","c:\opsi.org\log\opsi-client-agent.log","/PARAMETER INSTALL:CREATE_CLIENT:NOREBOOT" >> c:\opsi.org\usertmp\ocasub.ps1
 if %1!==/noreboot! goto noreboot
 if %2!==/noreboot! goto noreboot
-echo start-process -FilePath $opsiscript -argumentlist $osargs1  -verb runas >> c:\opsi.org\usertmp\ocasub.ps1
+echo start-process -FilePath $opsiscript -argumentlist $osargs1  -verb runas -Wait >> c:\opsi.org\usertmp\ocasub.ps1
 goto :endwinst
 :noreboot
-echo start-process -FilePath $opsiscript -argumentlist $osargs2  -verb runas >> c:\opsi.org\usertmp\ocasub.ps1
+echo start-process -FilePath $opsiscript -argumentlist $osargs2  -verb runas -Wait >> c:\opsi.org\usertmp\ocasub.ps1
 :endwinst
 powershell -ExecutionPolicy Bypass -File c:\opsi.org\usertmp\ocasub.ps1
 

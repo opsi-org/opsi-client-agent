@@ -145,7 +145,7 @@ DefVar $OLB_LoginBlockerTimeoutConnect$
 ;DefVar $OLB_LoginBlockerTimeoutInstall$
 ;opsiServiceType=0 (default), 1 (prelogin.exe/pcptch.exe), 2 (opsiclientd)
 DefVar $OLB_opsiServiceType$
-DefVar $OLB_alternative_loginblocker_dll$
+DefVar $OLB_legacy_loginblocker_dll$
 
 
 ;******** Sektion preloginloader **********
@@ -422,7 +422,7 @@ deffunc oca_read_configuration() : void
 	Set $OLB_LoginBlockerStart$          	    = GetValueFromInifile($INST_custom_Cfgini$, "opsiLoginBlocker", "LoginBlockerStart", $OLB_LoginBlockerStart$)
 	Set $OLB_LoginBlockerTimeoutConnect$	    = GetValueFromInifile($INST_custom_Cfgini$, "opsiLoginBlocker", "LoginBlockerTimeoutConnect", $OLB_LoginBlockerTimeoutConnect$)
 	
-	Set $OLB_alternative_loginblocker_dll$ = GetProductProperty("alternative_loginblocker_dll","false")
+	Set $OLB_legacy_loginblocker_dll$ = GetProductProperty("legacy_loginblocker_dll","false")
 	
 	; Patch #1237 (https://forum.opsi.org/viewtopic.php?f=7&t=6764#p29403)
 	if contains( $OCD_config_service.url$, "," )
@@ -442,12 +442,12 @@ deffunc oca_read_configuration() : void
 	comment "Getting values from from config file"
 	Set $INST_Service_User$          	= GetValueFromInifile($INST_cfgini$, "installation", "service_user", $INST_Service_User$)
 	Set $INST_Service_Password$      	= asConfidential(GetValueFromInifile($INST_cfgini$, "installation", "service_password", $INST_Service_Password$))
-	Set $INST_service_hidden_password$      	= GetValueFromInifile($INST_cfgini$, "installation", "service_hidden_password", $INST_service_hidden_password$)
+	Set $INST_service_hidden_password$      	= asConfidential(GetValueFromInifile($INST_cfgini$, "installation", "service_hidden_password", $INST_service_hidden_password$))
 	
 	comment "Getting values (overwrite)from from custom config file"
 	Set $INST_Service_User$          	= GetValueFromInifile($INST_custom_Cfgini$, "installation", "service_user", $INST_Service_User$)
 	Set $INST_Service_Password$      	= asConfidential(GetValueFromInifile($INST_custom_Cfgini$, "installation", "service_password", $INST_Service_Password$))
-	Set $INST_service_hidden_password$      	= GetValueFromInifile($INST_custom_Cfgini$, "installation", "service_hidden_password", $INST_service_hidden_password$)
+	Set $INST_service_hidden_password$      	= asConfidential(GetValueFromInifile($INST_custom_Cfgini$, "installation", "service_hidden_password", $INST_service_hidden_password$))
 	
 	if not ($INST_service_hidden_password$ = "")
 		;SetLogLevel=$INST_PasswdLogLevel$
@@ -982,7 +982,7 @@ deffunc oca_copy_files() : void
 	comment "copying loginblocker"
 	if CompareDotSeparatedNumbers($INST_NTVersion$,">=","6.0")
 		comment "we are on nt6 or above "
-		if $OLB_alternative_loginblocker_dll$ = "false"
+		if $OLB_legacy_loginblocker_dll$ = "false"
 			if ($INST_SystemType$ = "64 Bit System")
 				Files_copy_nt6_loginblocker_64 /Sysnative
 			else
@@ -991,9 +991,9 @@ deffunc oca_copy_files() : void
 			endif ; 32/64
 		else
 			if ($INST_SystemType$ = "64 Bit System")
-				Files_copy_nt6_alternative_loginblocker_64 /Sysnative
+				Files_copy_nt6_legacy_loginblocker_64 /Sysnative
 			else
-				Files_copy_nt6_alternative_loginblocker_32
+				Files_copy_nt6_legacy_loginblocker_32
 				Files_del_cmd64
 			endif ; 32/64
 		endif
@@ -1093,10 +1093,10 @@ deffunc oca_copy_files() : void
 	copy -Vc "%SCRIPTPATH%\opsiloginblocker\64bit\*.dll" "%SYSTEM%"
 	
 	[Files_copy_nt6_alternative_loginblocker_32]
-	copy -Vc "%SCRIPTPATH%\opsiloginblocker\alternative\32bit\*.dll" "%SYSTEM%"
+	copy -Vc "%SCRIPTPATH%\opsiloginblocker\legacy\32bit\*.dll" "%SYSTEM%"
 
 	[Files_copy_nt6_alternative_loginblocker_64]
-	copy -Vc "%SCRIPTPATH%\opsiloginblocker\alternative\64bit\*.dll" "%SYSTEM%"
+	copy -Vc "%SCRIPTPATH%\opsiloginblocker\legacy\64bit\*.dll" "%SYSTEM%"
 
 	[Files_copy_xp_loginblocker_win2k]
 	copy -Vc "%SCRIPTPATH%\opsigina\32bit\opsigina.dll" "$INST_BaseDir$\opsigina\"
