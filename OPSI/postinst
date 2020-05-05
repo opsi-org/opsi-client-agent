@@ -27,7 +27,7 @@ CHECKSTRING="{\"id\":\"${CHECKCONFIG}\"}"
 ANSWERARRAY=`opsi-admin -dS method config_getObjects '[]' ${CHECKSTRING}`
 if [ "${EMPTYARRAY}" == "${ANSWERARRAY}" ] ; then
   echo "config ${CHECKCONFIG} does not exists - creating"
-  opsi-admin -d method config_createBool "${CHECKCONFIG}" "${CHECKCONFIG}" "true"
+  opsi-admin -d method config_createBool "${CHECKCONFIG}" "${CHECKCONFIG}" "false"
 else
   echo "config ${CHECKCONFIG} already exists"
 fi

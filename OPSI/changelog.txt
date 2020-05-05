@@ -1,16 +1,34 @@
 ﻿[Changelog]
+opsi-client-agent (4.1.0.0-42) experimental; urgency=low
+
+  * update to opsiclientd : ????????
+
+-- Detlef Oertel <d.oertel@uib.de>  Thu  09 Apr 2020:15:00:00 +0200
+
+opsi-client-agent (4.1.0.0-41) experimental; urgency=low
+
+  * update to opsi-client-systray 4.1.1.0
+    * change to synapse
+    * no backend_exit
+  * update for win10 to opsiclientd : 4.0.100
+  * requires opsi-script 4.12.0.17
+
+-- Detlef Oertel <d.oertel@uib.de>  Mo, 06 Apr 2020:15:00:00 +0200
+
 opsi-client-agent (4.1.0.0-40) experimental; urgency=low
 
- * copy kiosk icons via zip
+  * update to opsiclientkiosk 4.1.1.2: fixed that last product was not within the sqlite database
+  * edit postinst: set config "software-on-demand.admin-mode" to false by default (e.g. if not existing)
+  * copy kiosk icons via zip (Detlef Oertel, Tue, 04 Feb 2020)
 
--- Detlef Oertel <d.oertel@uib.de>  Tue, 04 Feb 2019:15:00:00 +0200
+-- Jan Werner <j.werner@uib.de>  Mon, 7 Feb 2020:12:04:00 +0200
 
 opsi-client-agent (4.1.0.0-39) experimental; urgency=low
 
  * handle service_hidden_password also as confidential
  * update opsiclientd to 4.0.99
 
--- Detlef Oertel <d.oertel@uib.de>  Mo, 20 Jan 2019:15:00:00 +0200
+-- Detlef Oertel <d.oertel@uib.de>  Mo, 20 Jan 2020:15:00:00 +0200
 
 opsi-client-agent (4.1.0.0-38) experimental; urgency=low
 
