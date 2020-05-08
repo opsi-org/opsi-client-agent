@@ -1,5 +1,5 @@
 [Package]
-version: 24
+version: 36
 depends: 
 
 [Product]
@@ -127,4 +127,10 @@ editable: False
 description: Format of action request notification
 values: ["productid : request", "productname : request", "productname productversion : request"]
 default: ["productname : request"]
+
+[ProductProperty]
+type: bool
+name: update_mac_address_on_normal_setup
+description: true=MAC Address from the Network Interface that communicates with opsi will be send to the opsi-server if it do not look like a wifi interface. false=Never send MAC but in install mode
+default: True
 

@@ -1,10 +1,91 @@
 [Changelog]
+opsi-client-agent (4.1.0.0-36) experimental; urgency=low
+
+  * new property: update_mac_address_on_normal_setup
+     true=MAC Address from the Network Interface that communicates with opsi will be send to the opsi-server if it do not look like a wifi interface. 
+     false=Never send MAC but in install mode
+  * patch_config_file.py now works with opsi 4.2.
+
+-- Detlef Oertel <d.oertel@uib.de>  Fri, 16 Aug 2019:15:00:00 +0200
+
+opsi-client-agent (4.1.0.0-35) experimental; urgency=low
+
+  * new opsiclientd with working window
+
+-- Detlef Oertel <d.oertel@uib.de>  Fri, 16 Aug 2019:15:00:00 +0200
+
+opsi-client-agent (4.1.0.0-34) stable; urgency=low
+
+  * switch back to opsiclientd 4.0.96
+  * update to opsikioskclient 4.1.1.0 (jw)
+
+-- Detlef Oertel <d.oertel@uib.de>  Mon, 12 Aug 2019:15:00:00 +0200
+
+opsi-client-agent (4.1.0.0-33) stable; urgency=low
+
+  * opsiclientd 4.0.97
+
+-- Erol Ueluekmen <e.ueluekmen@uib.de>  Wed, 12 Jun 2019:15:00:00 +0200
+
+opsi-client-agent (4.1.0.0-32) stable; urgency=low
+
+  * opsi-script 4.12.1.5
+  * setup412: new local funstion oca_is_my_mac_cable($INST_MAC$)
+  * setup412: oca_write_configuration()(): do only write back cable ethernet MAC
+
+-- Detlef Oertel <d.oertel@uib.de>  Wed, 12 Jun 2019:15:00:00 +0200
+
+opsi-client-agent (4.1.0.0-31) stable; urgency=low
+
+  * opsi-script 4.12.1.4
+  * setup412: oca_read_configuration(): no loop on services if depends_on_service is empty
+
+-- Detlef Oertel <d.oertel@uib.de>  Fri, 26 Apr 2019:15:00:00 +0200
+
+opsi-client-agent (4.1.0.0-30) stable; urgency=low
+
+  * Cleanup in OPSI/postinst.
+
+-- Niko Wenselowski <n.wenselowski@uib.de>  Wed, 29 May 2019 17:03:25 +0200
+
+opsi-client-agent (4.1.0.0-29) stable; urgency=low
+
+  * opsi-script 4.12.1.2
+
+-- Detlef Oertel <d.oertel@uib.de>  Fri, 26 Apr 2019:15:00:00 +0200
+
+opsi-client-agent (4.1.0.0-28) stable; urgency=low
+
+  * opsiclientd 4.0.96
+
+-- Erol Ueluekmen <e.ueluekmen@uib.de>  Thu, 18 Apr 2019:01:44:00 +0200
+
+opsi-client-agent (4.1.0.0-27) stable; urgency=low
+
+  * opsiclientd 4.0.95
+  * fixed opsi-deploy-client-agent
+
+-- Detlef Oertel <d.oertel@uib.de>  Thu, 17 Jan 2019:15:00:00 +0200
+
+opsi-client-agent (4.1.0.0-26) stable; urgency=low
+
+  * temporary go back to opsiclientd 4.0.94
+
+-- Detlef Oertel <d.oertel@uib.de>  Thu, 17 Jan 2019:15:00:00 +0200
+
+
+opsi-client-agent (4.1.0.0-25) stable; urgency=low
+
+  * opsiclientd 4.1.1
+  * setup412: allow non admin login (uib#2014010810000019 / uib#2019010910000053) (do 17.1.2019)
+
+-- Erol Ueluekmen <e.ueluekmen@uib.de>  Wed, 16 Jan 2018:10:25:00 +0200
+
 opsi-client-agent (4.1.0.0-24) stable; urgency=low
 
   * opsiclientd 4.0.94: win10 fix.
 
 -- Erol Ueluekmen <e.ueluekmen@uib.de>  Wed, 05 Dec 2018:10:25:00 +0200
-
 
 opsi-client-agent (4.1.0.0-23) stable; urgency=low
 

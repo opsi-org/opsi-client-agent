@@ -8,6 +8,7 @@ encoding=utf8
 ;[Actions]
 requiredWinstVersion >= "4.12.0.13"
 ScriptErrorMessages = False
+AutoActivityDisplay = True
 
 Message=opsi-client-agent installation
 ShowBitmap "%scriptpath%\uninst\opsi.png" "opsi-client-agent"
@@ -40,6 +41,7 @@ DefVar $INST_ExitCode$
 DefVar $INST_IPAddress$
 DefVar $INST_ImmediateRebootFlag$
 DefVar $INST_MAC$
+DefVar $INST_MAC_is_cable$
 DefVar $INST_MinorOS$
 DefVar $INST_NTVersion$
 DefVar $INST_Modus$
@@ -91,7 +93,8 @@ DefVar $INST_pcNotes$
 DefVar $INST_userIsAdmin$
 DefVar $INST_product4setup$
 
-
+DefVar $goon$
+DefVar $update_mac_address_on_normal_setup$
 
 
 DefVar $INST_SearchKey$
@@ -517,6 +520,13 @@ deffunc oca_read_configuration() : void
 		set $INST_MAC$ = oca_try_to_get_my_mac()
 	endif
 	
+	if not($INST_MAC$ = "")
+		set $INST_MAC_is_cable$ = oca_is_my_mac_cable($INST_MAC$)
+	endif
+	
+	set $update_mac_address_on_normal_setup$ = GetProductProperty("update_mac_address_on_normal_setup","true")
+	
+	
 	if ($INST_DepotServer$ = "")
 		oca_get_depot_netbiosname()
 	endif
@@ -561,14 +571,18 @@ deffunc oca_read_configuration() : void
 	
 	set $INST_ResultList2$ = createStringList("Dhcp","Dnscache")
 	set $INST_ResultList$ = GetProductPropertyList("depends_on_service",$INST_ResultList2$)
-	comment " get list of all services ..."
-	set $INST_FullServicelist$ = shellCall("%System%\sc queryex type= service state= all")
-	set $INST_FullServicelist$ = getListContaining($INST_FullServicelist$,"SERVICE_NAME")
-	set $OCD_depServicelist$ = emptyList($OCD_depServicelist$)
-	comment "check if requested services are existing ...."
-	for %servicestr% in $INST_ResultList$ do oca_check_services("%servicestr%", $INST_FullServicelist$, $OCD_depServicelist$)
-	if count($OCD_depServicelist$) INT> "0"
-		set $OCD_depServices$ = composeString($OCD_depServicelist$,"|")
+	if count($INST_ResultList$) INT> "0"
+		comment " get list of all services ..."
+		set $INST_FullServicelist$ = shellCall("%System%\sc queryex type= service state= all")
+		set $INST_FullServicelist$ = getListContaining($INST_FullServicelist$,"SERVICE_NAME")
+		set $OCD_depServicelist$ = emptyList($OCD_depServicelist$)
+		comment "check if requested services are existing ...."
+		for %servicestr% in $INST_ResultList$ do oca_check_services("%servicestr%", $INST_FullServicelist$, $OCD_depServicelist$)
+		if count($OCD_depServicelist$) INT> "0"
+			set $OCD_depServices$ = composeString($OCD_depServicelist$,"|")
+		endif
+	else
+		comment "No services to check..."
 	endif
 	
 	
@@ -718,34 +732,39 @@ deffunc oca_create_client() : void
 	set $INST_userIsAdmin$ = "false"
 	set $INST_Authenticated$ = opsiservice_authenticated("","","","false")
 	set $INST_userIsAdmin$ = opsiservice_UserIsAdmin()
-	;if ($INST_Authenticated$ = "false") or ($INST_userIsAdmin$ = "false")
-	;	comment "was not authenticated or not admin-> retry scripted login by fqdn/hostkey"
-	;	comment "Try to open new network connection"
-	;	set $INST_Authenticated$ = opsiservice_authenticated($INST_ClientId$,$SHI_pckey$,$OCD_config_service.url$,"false")
-	;	set $INST_userIsAdmin$ = opsiservice_UserIsAdmin()
-	;endif
 	if ($INST_Authenticated$ = "false") or ($INST_userIsAdmin$ = "false")
 		comment "was not authenticated or not admin-> retry scripted login by user/password from config.ini"
 		comment "Try to open new network connection"
 		set $INST_Authenticated$ = opsiservice_authenticated($INST_Service_User$,$Inst_Service_Password$,$OCD_config_service.url$,"false")
 		set $INST_userIsAdmin$ = opsiservice_UserIsAdmin()
 	endif
-	if ($INST_Authenticated$ = "false") or ($INST_userIsAdmin$ = "false")
-		comment "was not authenticated as admin-> retry interactive"
+	; according to Ticket uib#2014010810000019 / uib#2019010910000053
+	; we allow nonadmin login here and hope that the user has the credential to create a client
+	; acl.conf: host_createOpsiClient  : sys_group(opsiadmin); opsi_depotserver; opsi_client; sys_user(<my_special_user>)
+	if ($INST_Authenticated$ = "true")
+		; here we need a method to test if the user may call host_createOpsiClient, 
+		; but at the moment we do not have this - Feature #3885
+		set $goon$ = "true"
+	else
+		set $goon$ = "false"
+	endif
+	if ($goon$ = "false") 
+		comment "was not authenticated -> retry interactive"
 		set $INST_Authenticated$ = opsiservice_authenticated("","",$OCD_config_service.url$,"true")
 		set $INST_userIsAdmin$ = opsiservice_UserIsAdmin()
 	endif
-	if ($INST_Authenticated$ = "false") or ($INST_userIsAdmin$ = "false")
-		comment "was not authenticated as admin-> giving up"
-		if $INST_Authenticated$ = "true"
+	if ($INST_Authenticated$ = "false")
+		comment "was not authenticated -> giving up"
+		logerror "We are not authenticated"
+		;pause "Error: No login - exiting"
+		isFatalError "not authenticated"
+	else
+		if $INST_userIsAdmin$ = "false"
 			LogWarning "We are authenticated but no admin login"
 			LogWarning "Authenitcated user: " + $INST_Service_User$ + " is not a opsiadmin"
-			comment "We go on and will see if this user has the credentials to create a client"
+			LogWarning "We go on and will see if this user has the credentials to create a client"
 		else 
-			logerror "We are not authenticated"
-			logerror "No admin login"
-			pause "Error: No admin login - exiting"
-			isFatalError
+			comment "We are authenticated as opsiadmin - fine"
 		endif
 	endif
 	LoadProductProperties $INST_ClientId$ "opsi-client-agent"
@@ -766,9 +785,7 @@ deffunc oca_create_client() : void
 	
 	if (($SHI_pckey$ = "") or ($SHI_pckey$ = "#@PCKEY#"))
 		; dont log the pckey
-		;SetLogLevel=$INST_PasswdLogLevel$
 		set $SHI_pckey$ = asConfidential(createNewOpsiHostKey)
-		;SetLogLevel=$INST_DefaultLoglevel$
 	endif
 	
 	if ($INST_userIsAdmin$ = "true")
@@ -778,12 +795,18 @@ deffunc oca_create_client() : void
 		else
 			SetLogLevel=$INST_PasswdLogLevel$
 			Set $INST_ServiceResult$ = getReturnListFromSection('opsiservicecall_getOpsiHostKey')
-			Set $SHI_pckey$ = takestring(0, $INST_ServiceResult$)
+			Set $SHI_pckey$ = asConfidential(takestring(0, $INST_ServiceResult$))
 			SetLogLevel=$INST_DefaultLoglevel$
 		endif
 	else
 		comment "*** Create client ***"
+		markErrorNumber
 		Set $INST_ServiceResult$ = getReturnListFromSection('opsiservicecall_createClient')
+		if errorsOccuredSinceMark = 0
+			comment "Successful created client"
+		else
+			logerror "Failed to create client"
+		endif
 	endif
 	
 	if not ($INST_userIsAdmin$ = "true")
@@ -1133,9 +1156,11 @@ deffunc oca_write_configuration() : void
 	for %depotId% in $INST_ResultList2$ do Registry_hklm_set_depotshare_trusted /Sysnative
 	
 	Message "Configuration: MAC-Address"
-	comment "tell server my mac address"
-	if not ($INST_MAC$ = "")
-		opsiservicecall_setMacAddress
+	if ($update_mac_address_on_normal_setup$ = "true") or ($INST_Modus$ = "INSTALL")
+		comment "tell server my mac address but only if cable ethernet MAC"
+		if not ($INST_MAC$ = "") and ($INST_MAC_is_cable$ = "true")
+			opsiservicecall_setMacAddress
+		endif
 	endif
 	
 	Message "Configuration: c:\opsi.org"
@@ -2125,6 +2150,43 @@ deffunc oca_try_to_get_my_mac() : string
 	endif
 endfunc
 ; oca_try_to_get_my_mac
+; ####################################################################
+
+deffunc oca_is_my_mac_cable($mymac$ : string) : string
+	DefVar $IFName$
+	DefVar $pscommand$
+	DefVar $exitcode$
+	DefStringlist $resultlist$
+	
+	set $result$ = "False"
+	if CompareDotSeparatedNumbers(GetMsVersionInfo,">=","10.0")
+		if contains($mymac$,":")
+			set $mymac$ = stringReplace($mymac$, ":", "-")
+		endif
+		set $pscommand$ = 'get-netadapter | Where-Object { $_.MacAddress -eq "'+$mymac$+'" }  | select -expandproperty Name'
+		set $resultlist$ = powershellcall($pscommand$)
+		if count($resultlist$) > "0"
+			set $IFName$ = takeString(0,$resultlist$)
+			if contains($IFName$, "Ethernet")
+				set $result$ = "True"
+			endif
+		endif
+	else
+		set $exitcode$ = shellCall('sc query wlansvc | findstr "RUNNING"')
+		if $exitcode$ = "0"
+			; wlansvc service seems to be running
+			set $exitcode$ = shellCall('netsh wlan show interfaces | findstr "'+$mymac$+'"')
+			if not($exitcode$ = "0")
+				comment " we found no wlan interface with the given mac, so we assume it is cable"
+				set $result$ = "True"
+			endif
+		else
+			comment "we have no running service wlansvc, so we assume that there is no wlan interface"
+			set $result$ = "True"
+		endif
+	endif
+endfunc
+; oca_is_my_mac_cable
 ; ####################################################################
 
 deffunc oca_get_depot_netbiosname() : void
