@@ -912,9 +912,10 @@ deffunc oca_copy_files() : void
 		if FileExists($OCD_base_dir$+"\")
 			comment "Stopping and removing existing services...."
 			comment "Stop_opsiclientd_Service"
+			shellCall('net stop opsiclientdguard')
 			shellCall('net stop opsiclientd')
 			comment "unregister_opsiclientd_service"
-			shellcall('"'+$OCD_base_dir$+'\opsiclientd.exe" -remove')
+			shellcall('"'+$OCD_base_dir$+'\opsiclientd.exe" remove')
 			Registry_DeleteOpsiclientd
 			comment "Deleting old files...."
 			Files_Delete_OCA_BaseDir
@@ -962,7 +963,7 @@ deffunc oca_copy_files() : void
 	Comment "OCD binary path: " + $OCD_binaryPath$
 	
 	Files_copy_opsiclientd_binaries
-	Files_copy_opsiclientd_static_html
+	Files_copy_opsiclientd_dir
 	
 	comment "copy lazarus based notifier over old pythen version"
 	Files_copy_opsinotifier
@@ -983,12 +984,8 @@ deffunc oca_copy_files() : void
 	;Files_copy_shining_light_OpenSSL_files
 	;Registry_shining_light_OpenSSL
 	;Registry_shining_light_OpenSSL_uninstall
-	if (FileExists($INST_BaseDir$+"\utils") or FileExists($INST_BaseDir$+"\prelogin"))
-		comment "removing detected old prelogin files..."
-		shellcall('net stop preloginloader')
-		Registry_DeletePreloginloader
+	if FileExists($INST_BaseDir$+"\utils") 
 		Files_del_utils
-		Files_del_prelogin
 	endif
 	
 	comment "copying loginblocker"
@@ -1074,8 +1071,9 @@ deffunc oca_copy_files() : void
 	[Files_copy_opsiclientd_binaries]
 	copy -sc "$OCD_binaryPath$" "$OCD_base_dir$"
 	
-	[Files_copy_opsiclientd_static_html]
-	copy -s "%SCRIPTPATH%/opsiclientd/static_html/*.*" "$OCD_static_html_dir$"
+	[Files_copy_opsiclientd_dir]
+	copy -s "%SCRIPTPATH%/opsiclientd/*.*" "$INST_OpsiclientdDir$"
+
 	
 	[Files_copy_opsinotifier]
 	;copy -sVc "%SCRIPTPATH%\$OCD_notifier_dir$\*.*" "$INST_BaseDir$\"
@@ -1241,8 +1239,8 @@ deffunc oca_write_configuration() : void
 	Patches_opsiclientd_cnf $INST_opensslConfigFile$
 	DosInAnIcon_generate_opsiclientdCertificate
 	comment "First try to install service ...."
-	DosInAnIcon_opsiclientd_register_service_exe
-	shellCall('"'+$OCD_base_dir$+'\opsiclientd.exe" -auto -install')
+	;DosInAnIcon_opsiclientd_register_service_exe
+	shellCall('"'+$OCD_base_dir$+'opsiclientd.exe" --startup auto install')
 	if not ("0" = getlastexitcode)
 		logerror "opsiclientd_register_service failed"
 	endif
@@ -1430,7 +1428,7 @@ deffunc oca_write_configuration() : void
 	Set [global] host_id=$INST_ClientId$
 	
 	[Patches_opsiclientd_cnf]
-	Add [req] default_bits = 2024
+	Set [req] default_bits = 2048
 	Add [req] encrypt_key = yes
 	Add [req] distinguished_name = req_dn
 	Add [req] x509_extensions = cert_type
@@ -2269,6 +2267,11 @@ deffunc oca_get_depot_netbiosname() : void
 	"params": [
 						"$INST_ClientId$"
 						]
+						
+	[opsiservicecall_authenticated]
+	"method": "authenticated"
+	"params": [
+						]
 
 endfunc
 ; oca_get_depot_netbiosname
@@ -2433,6 +2436,7 @@ set $OCD_depot_server__username$ = "pcpatch"
 set $OCD_DIST_DIR$ = "dist"
 set $OCD_notifier_dir$ = "opsi-notifier"
 set $OCD_base_dir$ = $INST_BaseDir$+"\lib\"
+set $OCD_static_html_dir$ = $INST_BaseDir$+"\opsiclientd\static_html"
 
 ;******** Sektion prelogin **********
 Set $PLG_UtilsDir$ = $INST_BaseDir$+"\prelogin"
