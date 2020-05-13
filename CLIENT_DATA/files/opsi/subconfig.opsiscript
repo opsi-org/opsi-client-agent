@@ -1,4 +1,4 @@
-
+encoding=utf8
 comment " sub script for configuration on_shutdown and 
 
 ;******** Sektion on_shutdown **********
@@ -72,8 +72,9 @@ comment "$INST_create_software_on_demand_menue_entry$ -> "+  $INST_create_softwa
 comment "configure on_shutdown"
 if ($on_shutdown_install$ = "on")
 	
-	comment "copy files for install_on_shutdown"
-	Files_install_on_shutdown_copy_files
+	; GONE TO deffunc oca_copy_files()
+	;comment "copy files for install_on_shutdown"
+	;Files_install_on_shutdown_copy_files
 	
 	comment "patch local opsiclientd.conf for install_on_shutdown"
 	if CompareDotSeparatedNumbers("%WinstVersion%",">=","4.12.0.10")
@@ -240,12 +241,14 @@ endif
 
 ;;*************************** start on_shutdown sections **************************************
 ;;*******************************************
-[Files_install_on_shutdown_copy_files]
-copy -Vc "%SCRIPTPATH%\on_shutdown\*.*" "$INST_BaseDir$\on_shutdown"
-; removed because opsiclientd_event_starter.exe is not part of dist anymore
-;copy -Vc "%SCRIPTPATH%\$OCD_DIST_DIR$\opsiclientd_shutdown_starter.exe" "$INST_BaseDir$\on_shutdown\"
+
+;[Files_install_on_shutdown_copy_files]
+;copy -Vc "%SCRIPTPATH%\on_shutdown\*.*" "$INST_BaseDir$\on_shutdown"
+;; removed because opsiclientd_event_starter.exe is not part of dist anymore
+;;copy -Vc "%SCRIPTPATH%\$OCD_DIST_DIR$\opsiclientd_shutdown_starter.exe" "$INST_BaseDir$\on_shutdown\"
 
 ;;*******************************************
+
 [Registry_install_on_shutdown_XP]
 OpenKey [$on_shutdown_RegKeyA$]
 set "GPO-ID"		= "LocalGPO"

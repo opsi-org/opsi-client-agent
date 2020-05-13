@@ -12,7 +12,6 @@ AutoActivityDisplay = True
 
 Message=opsi-client-agent installation
 ShowBitmap "%scriptpath%\uninst\opsi.png" "opsi-client-agent"
-comment "We are in setup412"
 
 ; Variables:
 ; Config Variables with prefixes
@@ -309,7 +308,7 @@ deffunc oca_shutdown_starter_fix() : void
 			endif
 		endif
 		if $fix_shutdown_starter$ = "true"
-			Files_install_on_shutdown_copy_files
+			Files_install_on_shutdown_copy_files_fix
 			comment "we ignore allow_reboot because we are in shutdown mode"
 			ExitWindows /ImmediateReboot
 		else
@@ -320,7 +319,7 @@ deffunc oca_shutdown_starter_fix() : void
 	endif
 
 	;----------------------------------------------------------------------------------------------
-	[Files_install_on_shutdown_copy_files]
+	[Files_install_on_shutdown_copy_files_fix]
 	copy -Vc "%SCRIPTPATH%\on_shutdown\*.*" "$INST_BaseDir$\on_shutdown"
 
 endfunc
@@ -952,22 +951,40 @@ deffunc oca_copy_files() : void
 	KillTask "opsiclientd_rpc.exe"
 	
 	comment "install openssl ...."
+	markErrorNumber
 	Files_indy_OpenSSL
+	if errorsOccuredSinceMark > 0
+		LogError "failed to install OpenSSL"
+		Message "failed to install OpenSSL"
+		isFatalError "failed to install OpenSSL"
+	endif
 	;comment "installing opsiclientd py2exe files and required libraries"
 	;Files_copy_py2exe
+	
+	
 	comment "installing opsiclientd pyinstaller files"
 	;Set $OCD_binaryTarfile$ = "opsiclientd_binaries.tar.gz"
 	;Comment "OCD binary tarfile: " + $OCD_binaryTarfile$
 	;Set $OCD_binaryPath$ = "%SCRIPTPATH%/opsiclientd_binaries/" + $OCD_binaryTarfile$
 	Set $OCD_binaryPath$ = "%SCRIPTPATH%/opsiclientd_binaries/opsiclientd/*.*"
 	Comment "OCD binary path: " + $OCD_binaryPath$
-	
+	markErrorNumber
 	Files_copy_opsiclientd_binaries
 	Files_copy_opsiclientd_dir
+	if errorsOccuredSinceMark > 0
+		LogError "failed to install opsiclientd"
+		Message "failed to install opsiclientd"
+		isFatalError "failed to install opsiclientd"
+	endif
 	
 	comment "copy lazarus based notifier over old pythen version"
+	markErrorNumber
 	Files_copy_opsinotifier
-	
+	if errorsOccuredSinceMark > 0
+		LogError "failed to install opsinotifier"
+		Message "failed to install opsinotifier"
+		isFatalError "failed to install opsinotifier"
+	endif
 	
 	;comment "unzip opsiclientd.exe ... (W8.1 + 10 workaround)"
 	;Files_copy_opsiclientd_exe2
@@ -976,7 +993,13 @@ deffunc oca_copy_files() : void
 	;	Files_copy_ssl_to_py2exe
 	;endif
 	comment "copy custom files for opsiclientd (notifier, opsiclientd.conf, ..)"
+	markErrorNumber
 	Files_copy_custom_opsiclientd
+	if errorsOccuredSinceMark > 0
+		LogError "failed to install custom_opsiclientd"
+		Message "failed to install custom_opsiclientd"
+		isFatalError "failed to install custom_opsiclientd"
+	endif
 	; http://indy.fulgan.com/SSL/
 	;Files_copy_shining_light_OpenSSL_exe
 	;http://innounp.sourceforge.net/
@@ -989,6 +1012,7 @@ deffunc oca_copy_files() : void
 	endif
 	
 	comment "copying loginblocker"
+	markErrorNumber
 	if CompareDotSeparatedNumbers($INST_NTVersion$,">=","6.0")
 		comment "we are on nt6 or above "
 		if $OLB_legacy_loginblocker_dll$ = "false"
@@ -1023,14 +1047,33 @@ deffunc oca_copy_files() : void
 			Files_del_cmd64
 		endif
 	endif
+	if errorsOccuredSinceMark > 0
+		LogError "failed to install loginblocker"
+		Message "failed to install loginblocker"
+		isFatalError "failed to install loginblocker"
+	endif
 	
 	comment "copy files opsiclientdguard"
+	markErrorNumber
 	Files_opsiclientdguard
+	if errorsOccuredSinceMark > 0
+		LogError "failed to install opsiclientdguard"
+		Message "failed to install opsiclientdguard"
+		isFatalError "failed to install opsiclientdguard"
+	endif
 	
 	comment "copy files for install_on_shutdown"
+	markErrorNumber
 	Files_install_on_shutdown_copy_files
 	Files_copy_ssl_to_on_shutdown
+	if errorsOccuredSinceMark > 0
+		LogError "failed to install shutdown"
+		Message "failed to install shutdown"
+		isFatalError "failed to install shutdown"
+	endif
+	
 	comment "end copy files"
+	
 	; ----------------------------------------------------------------
 	[Files_del_loginblocker_log]
 	del -fc c:\opsi.org\log\opsi_loginblocker.txt
@@ -1072,7 +1115,8 @@ deffunc oca_copy_files() : void
 	copy -sc "$OCD_binaryPath$" "$OCD_base_dir$"
 	
 	[Files_copy_opsiclientd_dir]
-	copy -s "%SCRIPTPATH%/opsiclientd/*.*" "$INST_OpsiclientdDir$"
+	;copy -s "%SCRIPTPATH%/opsiclientd/*.*" "$INST_OpsiclientdDir$"
+	copy -s "$OCD_base_dir$\opsiclientd_data\*.*" "$INST_OpsiclientdDir$"
 
 	
 	[Files_copy_opsinotifier]
@@ -2346,7 +2390,7 @@ DefVar		     $OCD_DIST_DIR$
 ; static initial values for variables
 ;*********************************************************
 
-Set $INST_Debug$ = "on"
+Set $INST_Debug$ = "off"
 
 if $INST_debug$ = "off"
 	set $INST_DefaultLoglevel$ = "7"
@@ -2435,7 +2479,7 @@ Set $OLB_opsiServiceType$            = "2"
 set $OCD_depot_server__username$ = "pcpatch"
 set $OCD_DIST_DIR$ = "dist"
 set $OCD_notifier_dir$ = "opsi-notifier"
-set $OCD_base_dir$ = $INST_BaseDir$+"\lib\"
+set $OCD_base_dir$ = $INST_BaseDir$+"\opsiclientd_bin\"
 set $OCD_static_html_dir$ = $INST_BaseDir$+"\opsiclientd\static_html"
 
 ;******** Sektion prelogin **********
@@ -2545,26 +2589,26 @@ if CompareDotSeparatedNumbers($INST_NTVersion$,"4.0") <= "0"
 	logError "Installation aborted: wrong OS version: only win2k and above alowed"
 	isFatalError
 endif
-if CompareDotSeparatedNumbers($INST_NTVersion$,"6.1") < "0"
-	set $OCD_DIST_DIR$ = "dist.nt5"
-	logWarning "New opsiclientd will not run under nt5 and nt6.0, you will get the last stable version (4.0.83)"
-endif
+;if CompareDotSeparatedNumbers($INST_NTVersion$,"6.1") < "0"
+;	set $OCD_DIST_DIR$ = "dist.nt5"
+;	logWarning "New opsiclientd will not run under nt5 and nt6.0, you will get the last stable version (4.0.83)"
+;endif
+;
+;Switch $INST_NTVersion$
+;	Case "6.1"
+;		set $OCD_DIST_DIR$ = "dist.win7"
+;	Endcase
+;	Case "6.2"
+;		set $OCD_DIST_DIR$ = "dist.win8"
+;	Endcase
+;	Case "6.3"
+;		set $OCD_DIST_DIR$ = "dist.win81"
+;	Endcase
+;Endswitch
 
-Switch $INST_NTVersion$
-	Case "6.1"
-		set $OCD_DIST_DIR$ = "dist.win7"
-	Endcase
-	Case "6.2"
-		set $OCD_DIST_DIR$ = "dist.win8"
-	Endcase
-	Case "6.3"
-		set $OCD_DIST_DIR$ = "dist.win81"
-	Endcase
-Endswitch
-
-if CompareDotSeparatedNumbers($INST_NTVersion$,"10.0") >= "0"
-	set $OCD_DIST_DIR$ = "dist.win10"
-endif
+;if CompareDotSeparatedNumbers($INST_NTVersion$,"10.0") >= "0"
+;	set $OCD_DIST_DIR$ = "dist.win10"
+;endif
 
 if not (HasMinimumSpace ("%systemdrive%", "10 MB"))
 	logError "Not enough space on drive %systemdrive% (we need 10 MB): Aborting"
