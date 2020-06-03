@@ -10,31 +10,86 @@ encoding=utf8
 ; ###################################################################################################
 
 deffunc isRebootPending() : string
-	;@Description Checks if a Windows needs a reboot
+	;@Description Checks if a Windows  & Linux needs a reboot
 	;@Returns Returns string "true" if reboot is required
 	;@OnError Returns string "false"
 	;@SpecialCase 
 	;@References
 	;@Links https://ilovepowershell.com/2015/09/10/how-to-check-if-a-server-needs-a-reboot/
 	;@Links https://www.windowspro.de/script/ausstehende-reboots-nach-updates-pruefen-powershell-regexe
+	;@Links https://serverfault.com/questions/122178/how-can-i-check-from-the-command-line-if-a-reboot-is-required-on-rhel-or-centos
+	;@Links https://askubuntu.com/questions/164/how-can-i-tell-from-the-command-line-whether-the-machine-requires-a-reboot
+	;@Links https://megamorf.gitlab.io/2019/06/10/check-if-reboot-is-required-after-installing-linux-updates.html
+	;@Links 
+	;@Links 
+	;@Links 
 	;@author detlef oertel
-	;@date 09.07.2019
+	;@date 21.05.2020
 	;@Example [actions]
 	;@Example if stringToBool(isRebootPending())
 	;@Example 	comment "we need a reboot"
 	;@Example else
 	;@Example 	comment "we do not need a reboot"
 	;@Example endif
+	
+	DefVar $OS$
+	DefVar $distroType$
+	DefVar $myCmd$
+	DefVar $exitcode$
+	
+	
+	set $OS$ = GetOS
+	
 
-	set $result$ = "false"
-	if RegKeyExists("HKLM\Software\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootPending")
-		set $result$ = "true"
-	endif
-	if RegKeyExists("HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired")
-		set $result$ = "true"
-	endif
-	if RegVarExists("HKLM\SYSTEM\CurrentControlSet\Control\Session Manager","PendingFileRenameOperations")
-		set $result$ = "true"
+	if $OS$ = "Windows_NT"
+		set $result$ = "false"
+		if RegKeyExists("HKLM\Software\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootPending")
+			set $result$ = "true"
+		endif
+		if RegKeyExists("HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired")
+			set $result$ = "true"
+		endif
+		if RegVarExists("HKLM\SYSTEM\CurrentControlSet\Control\Session Manager","PendingFileRenameOperations")
+			set $result$ = "true"
+		endif
+	else
+		if $OS$ = "LINUX"
+			set $distroType$ =getLinuxDistroType
+			Switch $distroType$
+				Case "debian"
+					if fileExists("/var/run/reboot-required")
+						set $result$ = "true"
+					endif
+				EndCase
+				Case "redhat"
+					set $myCmd$ = takeString(0,shellCall("which(needs-restarting"))
+					if not(fileExists($myCmd$))
+						set $exitcode$ = shellCall("yum -y install yum-utils")
+						if not ($exitcode$ = "0")
+							logError "Failed: 'yum -y install yum-utils' in isRebootPending()"
+						endif
+					endif
+					if fileExists($myCmd$)
+						set $exitcode$ = shellCall($myCmd$+" -r")
+						if $exitcode$ = "1"
+							set $result$ = "true"
+						endif
+					else
+						logError "Failed to call: 'needs-restarting' in isRebootPending()"
+					endif
+				EndCase
+				Case "suse"
+					if fileExists("/boot/do_purge_kernels")
+						set $result$ = "true"
+					endif
+				EndCase
+				DefaultCase
+					logError "Unsupported distro type: "+$distroType$+" in isRebootPending()"
+				EndCase
+			EndSwitch
+		else
+			logError "Unsupported OS: "+$OS$+" in isRebootPending()"
+		endif
 	endif
 endfunc
 
@@ -112,7 +167,7 @@ Deffunc getOpsiNetworkMedium() : string
 	set $myip$ = getMyIpByTarget(GetIpByName("%opsiServer%"))
 	comment 'myip is: '+$myip$
 	
-	Message "Bestimme Kabel MAC ..."
+	Message "Detect cabel MAC ..."
 	set $cablemac$ = ""
 	set $command$ = Escapestring: powershell.exe "Get-Netadapter -Name 'Ethernet*' | select -expandproperty MacAddress"
 	set $resultlist$ = shellCall($command$)
@@ -122,7 +177,7 @@ Deffunc getOpsiNetworkMedium() : string
 	comment 'cablemac is: '+$cablemac$
 	
 	
-	Message "Bestimme Kabel IP ..."
+	Message "Detect cabel IP ..."
 	set $cable_ip$ = ""
 	set $command$ = Escapestring: powershell.exe "Get-Netadapter -Name 'Ethernet*' | select -expandproperty InterfaceIndex"
 	set $resultlist$ = shellCall($command$)
@@ -161,7 +216,7 @@ Deffunc getOpsiNetworkMedium() : string
 	
 	if $result$ = 'unknown'
 	
-		Message "Bestimme WLAN MAC ..."
+		Message "Detect WLAN/WIFI MAC ..."
 		set $wifimac$ = ""
 		set $command$ = Escapestring: powershell.exe "Get-Netadapter -Name 'WLAN*' | select -expandproperty MacAddress"
 		set $resultlist$ = shellCall($command$)
@@ -171,7 +226,7 @@ Deffunc getOpsiNetworkMedium() : string
 		comment 'wifimac is: '+$wifimac$
 		
 		
-		Message "Bestimme WLAN IP ..."
+		Message "Detect WLAN/WIFI IP ..."
 		set $wifi_ip$ = ""
 		set $command$ = Escapestring: powershell.exe "Get-Netadapter -Name 'WLAN*' | select -expandproperty InterfaceIndex"
 		set $resultlist$ = shellCall($command$)
