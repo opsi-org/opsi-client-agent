@@ -10,37 +10,12 @@
 #   PRODUCT_VERSION
 #   PACKAGE_VERSION
 
-#EMPTYARRAY=""
-#
-#CHECKCONFIG="software-on-demand.installation-now-button"
-#CHECKSTRING="{\"id\":\"${CHECKCONFIG}\"}"
-#ANSWERARRAY=`opsi-admin -dS method config_getObjects '[]' ${CHECKSTRING}`
-#if [ "${EMPTYARRAY}" == "${ANSWERARRAY}" ] ; then
-#  echo "config ${CHECKCONFIG} does not exists - creating"
-#  opsi-admin -d method config_createBool "${CHECKCONFIG}" "${CHECKCONFIG}" "true"
-#else
-#  echo "config ${CHECKCONFIG} already exists"
-#fi
-#
-#CHECKCONFIG="software-on-demand.admin-mode"
-#CHECKSTRING="{\"id\":\"${CHECKCONFIG}\"}"
-#ANSWERARRAY=`opsi-admin -dS method config_getObjects '[]' ${CHECKSTRING}`
-#if [ "${EMPTYARRAY}" == "${ANSWERARRAY}" ] ; then
-#  echo "config ${CHECKCONFIG} does not exists - creating"
-#  opsi-admin -d method config_createBool "${CHECKCONFIG}" "${CHECKCONFIG}" "false"
-#else
-#  echo "config ${CHECKCONFIG} already exists"
-#fi
 
 echo [${PRODUCT_ID}]  > $CLIENT_DATA_DIR/files/opsi/product.ini
 echo ProductVersion=${PRODUCT_VERSION}-${PACKAGE_VERSION} >> $CLIENT_DATA_DIR/files/opsi/product.ini
 
 chmod u+x $CLIENT_DATA_DIR/utils/set_ip_in_inifile
 chmod u+x $CLIENT_DATA_DIR/opsi-deploy-client-agent
-
-## for backward compatibiliy: create a setup.ins:
-#cd $CLIENT_DATA_DIR/files/opsi
-#ln setup.opsiscript setup.ins
 
 echo "Patching server information ..."
 PATCH_CONFIG_SCRIPT="$CLIENT_DATA_DIR/utils/patch_config_file.py"

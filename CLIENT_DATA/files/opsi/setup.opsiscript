@@ -1115,9 +1115,11 @@ deffunc oca_copy_files() : void
 	copy -sc "$OCD_binaryPath$" "$OCD_base_dir$"
 	
 	[Files_copy_opsiclientd_dir]
-	;copy -s "%SCRIPTPATH%/opsiclientd/*.*" "$INST_OpsiclientdDir$"
-	copy "$OCD_base_dir$\opsiclientd_data\*.*" "$INST_OpsiclientdDir$"
-	copy "$OCD_base_dir$\opsiclientd_data\static_html\*.*" "$INST_OpsiclientdDir$\static_html\"
+	; remove extend.d as workaround to avoid copy errors while copy *.conf
+	del -fs "$INST_OpsiclientdDir$\extend.d\"
+	copy -s "$OCD_base_dir$\opsiclientd_data\*.*" "$INST_OpsiclientdDir$"
+	;copy "$OCD_base_dir$\opsiclientd_data\*.*" "$INST_OpsiclientdDir$"
+	;copy "$OCD_base_dir$\opsiclientd_data\static_html\*.*" "$INST_OpsiclientdDir$\static_html\"
 	del -fs "$OCD_base_dir$\opsiclientd_data\"
 
 	
