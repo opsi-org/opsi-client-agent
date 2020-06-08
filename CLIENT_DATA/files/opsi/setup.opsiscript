@@ -1365,6 +1365,15 @@ deffunc oca_write_configuration() : void
 	
 	comment "*.opsiscript should be opend by winst32.exe"
 	Registry_open_opsiscript /sysnative
+	
+	if ($INST_Modus$ = "INSTALL")
+		comment "startup opsiclientd in install mode"
+		if FileExists($OCD_base_dir$+"\")
+			comment "Start opsiclientd_Service"
+			shellCall('net start opsiclientdguard')
+			shellCall('net start opsiclientd')
+		endif
+	endif ; INSTALL
 	;-----------------------------------------------------------
 	[Registry_SetGeneralEntries]
 	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\general]
@@ -2638,6 +2647,9 @@ endif
 if count($INST_ParamstrList$) > "1"
 	Set $INST_SubModus$=takestring(1,$INST_ParamstrList$)
 endif
+
+Set $INST_AllowReboot$ = GetProductProperty("allow_reboot", $INST_AllowReboot$)
+
 if count($INST_ParamstrList$) > "2"
 	Set $INST_tmpstr$ = takestring(2,$INST_ParamstrList$)
 	if lower(trim($INST_tmpstr$)) = "noreboot"
@@ -2695,8 +2707,6 @@ if $INST_SubModus$ = "BOOTIMAGE"
 	comment "    opsi-client-agent installation is part of the postinst.d mechanism"
 	comment "    if the machine reboots no script will run after the opsi-client-agent script"
 	Set $INST_AllowReboot$ = "false"
-else
-	Set $INST_AllowReboot$ = GetProductProperty("allow_reboot", $INST_AllowReboot$)
 endif
 
 comment "call function oca_shutdown_starter_fix()"

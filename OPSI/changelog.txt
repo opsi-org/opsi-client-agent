@@ -2,6 +2,8 @@
 opsi-linux-client-agent (4.1.1.0-1) testing; urgency=medium
 
  * switch to opsiclient-pyinstaller
+ * startup opsiclientd in install mode
+ * fix sequence of getting the value of allow_reboot
 
  -- Jan Schneider <j.schneider@uib.de> Fri, 08 May 2020 11:03:00 + 0100
  -- d.oertel <d.oertel@uib.de> Fri, 08 May 2020 15:00:00 + 0100
@@ -10,6 +12,7 @@ opsi-client-agent (4.1.0.0-42) experimental; urgency=low
 
   * update to opsiclientd : ????????
   * update to opsi-script 4.12.3.12
+  * update to opsi-systray 4.1.2.0
 
 -- Detlef Oertel <d.oertel@uib.de>  Thu  09 Apr 2020:15:00:00 +0200
 
