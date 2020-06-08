@@ -1116,7 +1116,9 @@ deffunc oca_copy_files() : void
 	
 	[Files_copy_opsiclientd_dir]
 	;copy -s "%SCRIPTPATH%/opsiclientd/*.*" "$INST_OpsiclientdDir$"
-	copy -s "$OCD_base_dir$\opsiclientd_data\*.*" "$INST_OpsiclientdDir$"
+	copy "$OCD_base_dir$\opsiclientd_data\*.*" "$INST_OpsiclientdDir$"
+	copy "$OCD_base_dir$\opsiclientd_data\static_html\*.*" "$INST_OpsiclientdDir$\static_html\"
+	del -fs "$OCD_base_dir$\opsiclientd_data\"
 
 	
 	[Files_copy_opsinotifier]
