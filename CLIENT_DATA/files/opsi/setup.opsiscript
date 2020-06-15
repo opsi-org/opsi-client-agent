@@ -10,7 +10,7 @@ requiredWinstVersion >= "4.12.0.17"
 ScriptErrorMessages = False
 AutoActivityDisplay = True
 
-Message=opsi-client-agent installation
+Message=opsi-client-agent installation : initialize
 ShowBitmap "%scriptpath%\uninst\opsi.png" "opsi-client-agent"
 
 ; Variables:
@@ -91,6 +91,7 @@ DefVar $INST_pcDescription$
 DefVar $INST_pcNotes$
 DefVar $INST_userIsAdmin$
 DefVar $INST_product4setup$
+;DefVar $INST_msg_prefix$
 
 DefVar $goon$
 DefVar $update_mac_address_on_normal_setup$
@@ -328,6 +329,8 @@ endfunc
 
 	
 deffunc oca_read_configuration() : void
+
+	Message = Read config: gina
 	comment "get installed gina"
 	set $INST_AktGina$ = GetRegistryValue("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon", "GinaDLL")
 	
@@ -382,6 +385,8 @@ deffunc oca_read_configuration() : void
 			set $INST_gina_to_chain$ = '"'+ $INST_gina_to_chain$ + '"'
 		endif
 	endif ; winxp / win2k
+	
+	Message = Read config: general
 	Set $GEN_bootmode$    	 = GetValueFromInifile($INST_cfgini$, "general", "bootmode", $GEN_bootmode$)
 	
 	comment "Getting dns domain from config file"
@@ -488,11 +493,13 @@ deffunc oca_read_configuration() : void
 		endif ; BOOTIMAGE
 	
 		if $INST_SubModus$ = "CREATE_CLIENT"
+			Message = Read config: create client
 			oca_create_client()
 		endif ; CREATE_CLIENT
 	endif ; INSTALL  
 	
 	if (($SHI_pckey$ = "") or ($SHI_pckey$ = "#@PCKEY#"))
+		Message = Read config: key
 		; dont log the pckey
 		;SetLogLevel=$INST_PasswdLogLevel$
 		if FileExists ($INST_OpsiclientdConf$)
@@ -523,10 +530,12 @@ deffunc oca_read_configuration() : void
 	endif
 		
 	if $INST_MAC$ = ""
+		Message = Read config: mac
 		set $INST_MAC$ = oca_try_to_get_my_mac()
 	endif
 	
 	if not($INST_MAC$ = "")
+		Message = Read config: media
 		set $INST_MAC_is_cable$ = oca_is_my_mac_cable($INST_MAC$)
 	endif
 	
@@ -534,10 +543,12 @@ deffunc oca_read_configuration() : void
 	
 	
 	if ($INST_DepotServer$ = "")
+		Message = Read config: depot name
 		oca_get_depot_netbiosname()
 	endif
 	
 	if $INST_MODUS$ = "INSTALL"
+		Message = Read config: connect to service
 		comment "Connect to service if not connected yet...."
 		set $INST_Authenticated$ = opsiservice_authenticated("","","","false")
 		if $INST_Authenticated$ = "false"
@@ -557,6 +568,7 @@ deffunc oca_read_configuration() : void
 	endif ; INSTALL
 	
 	comment "get user which should mount the depot share from service"
+	Message = Read config: depot user
 	markErrorNumber
 	Set $INST_ServiceResult$ = getReturnListFromSection('opsiservicecall_getGeneralConfigValue_depotuser')
 	if errorsOccuredSinceMark > 0
@@ -575,6 +587,7 @@ deffunc oca_read_configuration() : void
 		endif
 	endif
 	
+	Message = Read config: services
 	set $INST_ResultList2$ = createStringList("Dhcp","Dnscache")
 	set $INST_ResultList$ = GetProductPropertyList("depends_on_service",$INST_ResultList2$)
 	if count($INST_ResultList$) INT> "0"
@@ -593,6 +606,7 @@ deffunc oca_read_configuration() : void
 	
 	
 	comment "Handle setup_after_install ..."
+	Message = Read config: setup after
 	comment " using 4 argument GetProductPropertyList"
 	set $INST_ResultList$ = GetProductPropertyList("setup_after_install",$INST_ResultList2$,$INST_ClientId$,"opsi-client-agent")
 	
@@ -600,6 +614,7 @@ deffunc oca_read_configuration() : void
 		for %product4setup% in $INST_ResultList$ do opsiServiceCall_setActionRequest
 	endif
 	
+	Message = Read config: list
 	; show what we have
 	comment "$INST_AllowReboot$ -> "+               $INST_AllowReboot$
 	comment "$INST_BaseDir$ -> "+                   $INST_BaseDir$
@@ -901,6 +916,7 @@ endfunc
 
 deffunc oca_copy_files() : void
 
+	Message = Copy files: prepare
 	comment "Stop_Preloginloader_Service"
 	shellcall('net stop preloginloader')
 	Registry_DeletePreloginloader
@@ -921,6 +937,7 @@ deffunc oca_copy_files() : void
 		endif
 	endif ; INSTALL
 	markErrorNumber
+	Message = Copy files: opsi-script
 	Files_copy_winst
 	Files_copy_uninst
 	Files_copy_custom
@@ -933,6 +950,7 @@ deffunc oca_copy_files() : void
 		isFatalError
 	endif
 	
+	Message = Copy files: vcredist
 	if ($INST_SystemType$ = "64 Bit System") and (CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") < "0")
 		comment "we need vc_redist X64 at xp64 and 2003x64 to run the loginblocker"
 		Winbatch_vc_redist_exe_64
@@ -947,9 +965,10 @@ deffunc oca_copy_files() : void
 	endif
 	
 	comment "try to kill opsibinaries before installing them"
-	KillTask "notifier.exe"
+	KillTask "opsi-notifier.exe"
 	KillTask "opsiclientd_rpc.exe"
 	
+	Message = Copy files: openssl
 	comment "install openssl ...."
 	markErrorNumber
 	Files_indy_OpenSSL
@@ -961,7 +980,7 @@ deffunc oca_copy_files() : void
 	;comment "installing opsiclientd py2exe files and required libraries"
 	;Files_copy_py2exe
 	
-	
+	Message = Copy files: opsiclientd
 	comment "installing opsiclientd pyinstaller files"
 	;Set $OCD_binaryTarfile$ = "opsiclientd_binaries.tar.gz"
 	;Comment "OCD binary tarfile: " + $OCD_binaryTarfile$
@@ -975,15 +994,6 @@ deffunc oca_copy_files() : void
 		LogError "failed to install opsiclientd"
 		Message "failed to install opsiclientd"
 		isFatalError "failed to install opsiclientd"
-	endif
-	
-	comment "copy lazarus based notifier over old pythen version"
-	markErrorNumber
-	Files_copy_opsinotifier
-	if errorsOccuredSinceMark > 0
-		LogError "failed to install opsinotifier"
-		Message "failed to install opsinotifier"
-		isFatalError "failed to install opsinotifier"
 	endif
 	
 	;comment "unzip opsiclientd.exe ... (W8.1 + 10 workaround)"
@@ -1011,6 +1021,27 @@ deffunc oca_copy_files() : void
 		Files_del_utils
 	endif
 	
+	comment "copy files opsiclientdguard"
+	markErrorNumber
+	Files_opsiclientdguard
+	if errorsOccuredSinceMark > 0
+		LogError "failed to install opsiclientdguard"
+		Message "failed to install opsiclientdguard"
+		isFatalError "failed to install opsiclientdguard"
+	endif
+	
+	Message = Copy files: notifier
+	comment "copy lazarus based opsi-notifier over old pythen version"
+	markErrorNumber
+	Files_copy_opsinotifier
+	if errorsOccuredSinceMark > 0
+		LogError "failed to install opsinotifier"
+		Message "failed to install opsinotifier"
+		isFatalError "failed to install opsinotifier"
+	endif
+	
+	
+	Message = Copy files: loginblocker
 	comment "copying loginblocker"
 	markErrorNumber
 	if CompareDotSeparatedNumbers($INST_NTVersion$,">=","6.0")
@@ -1053,15 +1084,7 @@ deffunc oca_copy_files() : void
 		isFatalError "failed to install loginblocker"
 	endif
 	
-	comment "copy files opsiclientdguard"
-	markErrorNumber
-	Files_opsiclientdguard
-	if errorsOccuredSinceMark > 0
-		LogError "failed to install opsiclientdguard"
-		Message "failed to install opsiclientdguard"
-		isFatalError "failed to install opsiclientdguard"
-	endif
-	
+	Message = Copy files: on shutdown
 	comment "copy files for install_on_shutdown"
 	markErrorNumber
 	Files_install_on_shutdown_copy_files
@@ -1126,7 +1149,7 @@ deffunc oca_copy_files() : void
 	[Files_copy_opsinotifier]
 	;copy -sVc "%SCRIPTPATH%\$OCD_notifier_dir$\*.*" "$INST_BaseDir$\"
 	; do not use -V while dist contains old notifier because they seem to be younger
-	copy -c "%SCRIPTPATH%\$OCD_notifier_dir$\notifier.exe" "$INST_BaseDir$\"
+	copy -c "%SCRIPTPATH%\$OCD_notifier_dir$\opsi-notifier.exe" "$INST_BaseDir$\"
 	copy -c "%SCRIPTPATH%\$OCD_notifier_dir$\notifier.d\*.*" "$INST_NotifierDir$\"
 
 	[Files_copy_ssl_to_py2exe]
@@ -2714,6 +2737,7 @@ if $INST_SubModus$ = "BOOTIMAGE"
 endif
 
 comment "call function oca_shutdown_starter_fix()"
+Message = Shutdown_starter fix
 oca_shutdown_starter_fix()
 comment "call function read_oca_configuration()"
 oca_read_configuration()
@@ -2732,6 +2756,7 @@ Message "opsi-client-agent configuration"
 sub "%scriptpath%\subconfig.opsiscript"
 noUpdateScript
 
+Message = Final tasks
 comment "call function oca_restore_productOnClient()"
 oca_restore_productOnClient()
 comment "call function oca_set_installation_status()"
