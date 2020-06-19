@@ -2382,6 +2382,14 @@ deffunc oca_set_installation_status() : void
 	opsiservicecall_setOpsiclientagentInstallationStatus_installed
 	opsiservicecall_setOpsiWinstInstallationStatus_installed
 	;----------------------------------------------------------------------
+	[opsiservicecall_setNetbootInstallationStatus]
+	"method": "setProductInstallationStatus"
+	"params": [
+						"$INST_NetBootProductname$",
+						"$INST_ClientId$",
+						"installed"
+						]
+
 	[opsiservicecall_setOpsiclientagentInstallationStatus_unknown]
 	"method": "setProductInstallationStatus"
 	"params": [
