@@ -528,18 +528,20 @@ deffunc oca_read_configuration() : void
 		; start logging again
 		;SetLogLevel=$INST_DefaultLoglevel$
 	endif
-		
-	if $INST_MAC$ = ""
-		Message = Read config: mac
-		set $INST_MAC$ = oca_try_to_get_my_mac()
-	endif
-	
-	if not($INST_MAC$ = "")
-		Message = Read config: media
-		set $INST_MAC_is_cable$ = oca_is_my_mac_cable($INST_MAC$)
-	endif
 	
 	set $update_mac_address_on_normal_setup$ = GetProductProperty("update_mac_address_on_normal_setup","true")
+	
+	if ($update_mac_address_on_normal_setup$ = "true") or ($INST_Modus$ = "INSTALL")
+		if $INST_MAC$ = ""
+			Message = Read config: mac
+			set $INST_MAC$ = oca_try_to_get_my_mac()
+		endif
+		
+		if not($INST_MAC$ = "")
+			Message = Read config: media
+			set $INST_MAC_is_cable$ = oca_is_my_mac_cable($INST_MAC$)
+		endif
+	endif
 	
 	
 	if ($INST_DepotServer$ = "")
@@ -950,19 +952,19 @@ deffunc oca_copy_files() : void
 		isFatalError
 	endif
 	
-	Message = Copy files: vcredist
-	if ($INST_SystemType$ = "64 Bit System") and (CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") < "0")
-		comment "we need vc_redist X64 at xp64 and 2003x64 to run the loginblocker"
-		Winbatch_vc_redist_exe_64
-		;Sub_check_exitcode
-		comment "Test for installation success via exit code"
-		set $INST_ExitCode$ = getLastExitCode
-		if not (($INST_ExitCode$ = "0") or ($INST_ExitCode$ = "1603"))
-			comment "installation seems to be failed - lets try with msi"
-			Winbatch_vc_redist_msi_64
-			;Sub_check_exitcode
-		endif
-	endif
+	;Message = Copy files: vcredistx64
+	;if ($INST_SystemType$ = "64 Bit System") and (CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") < "0")
+	;	comment "we need vc_redist X64 at xp64 and 2003x64 to run the loginblocker"
+	;	Winbatch_vc_redist_exe_64
+	;	;Sub_check_exitcode
+	;	comment "Test for installation success via exit code"
+	;	set $INST_ExitCode$ = getLastExitCode
+	;	if not (($INST_ExitCode$ = "0") or ($INST_ExitCode$ = "1603"))
+	;		comment "installation seems to be failed - lets try with msi"
+	;		Winbatch_vc_redist_msi_64
+	;		;Sub_check_exitcode
+	;	endif
+	;endif
 	
 	comment "try to kill opsibinaries before installing them"
 	KillTask "opsi-notifier.exe"
@@ -1122,11 +1124,11 @@ deffunc oca_copy_files() : void
 	copy -c "%SCRIPTPATH%\custom\config.ini" "$INST_BaseDir$\custom\"
 	copy -sc "%SCRIPTPATH%\custom\opsiclientkioskskin\*.*" "$INST_BaseDir$\custom\opsiclientkioskskin"
 
-	[Winbatch_vc_redist_exe_64]
-	"%ScriptPath%\vcredistx64\vcredist_x64.exe" /Q
-
-	[Winbatch_vc_redist_msi_64]
-	msiexec /i "%ScriptPath%\vcredistx64\VC_RED.MSI" /qb-! /l*v "%opsiLogDir%\vcredist_x64_msi.log" ALLUSERS=1
+	;[Winbatch_vc_redist_exe_64]
+	;"%ScriptPath%\vcredistx64\vcredist_x64.exe" /Q
+  ;
+	;[Winbatch_vc_redist_msi_64]
+	;msiexec /i "%ScriptPath%\vcredistx64\VC_RED.MSI" /qb-! /l*v "%opsiLogDir%\vcredist_x64_msi.log" ALLUSERS=1
 
 	[Files_indy_OpenSSL]
 	copy -sVc "%SCRIPTPATH%\openssl\*.*" "$INST_OpensslBaseDir$\"
@@ -2653,12 +2655,14 @@ endif
 
 if $INST_vcredistx86_installed$ = "false"
 	comment "vc_redist not found - install it"
-		comment "install via msi"
-		ExecWith_autoit_vc_redist "%SCRIPTPATH%\autoit3.exe" WINST /letThemGo /EscapeStrings
-		Winbatch_vc_redist_msi
-		Sub_check_exitcode
-		killtask "autoit3.exe"
+	comment "install via msi"
+	ExecWith_autoit_vc_redist "%SCRIPTPATH%\autoit3.exe" WINST /letThemGo /EscapeStrings
+	Winbatch_vc_redist_msi
+	Sub_check_exitcode
+	killtask "autoit3.exe"
 endif
+
+shellcall('"%scriptpath%/vcredist2015/vcredist_2015_x86.exe" /install /passive /noreboot')
 
 ;*********************************************************
 comment "set mode"
