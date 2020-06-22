@@ -1294,7 +1294,7 @@ deffunc oca_write_configuration() : void
 	DosInAnIcon_lock_lockdir
 	set $lockdir$ = $OCD_OpsiVarDir$+"\applog"
 	DosInAnIcon_open_dir
-	set $lockdir$ = $OCD_OpsiVarDir$+"\usertemp"
+	set $lockdir$ = $OCD_OpsiVarDir$+"\usertmp"
 	DosInAnIcon_open_dir
 	
 	Message "Configuration: opsiclientd"
