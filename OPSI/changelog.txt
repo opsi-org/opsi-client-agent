@@ -11,6 +11,8 @@ opsi-client-agent (4.1.1.0-1) testing; urgency=medium
  * integrate vcredist2015
  * remove opsi-kiosk from client-agent (is stand alone now)
  * fix c:\opsi.org\usertmp file access rights
+ * update to setacl 3.06
+ * update oca_write_configuration():DosInAnIcon_open_dir by Mathias Knauer
 
  -- Jan Schneider <j.schneider@uib.de> Fri, 08 May 2020 11:03:00 + 0100
  -- d.oertel <d.oertel@uib.de> Fri, 08 May 2020 15:00:00 + 0100

@@ -228,6 +228,7 @@ DefVar $oldclientId$
 DefVar $identstr$
 DefVar $do_not_change_setup_requests$
 DefVar $lockdir$
+DefVar $architecture$
 
 DefStringlist $resultlist$
 DefStringlist $resultlist1$
@@ -1072,7 +1073,7 @@ deffunc oca_copy_files() : void
 			if CompareDotSeparatedNumbers($INST_NTVersion$,"5.0") = "0"
 				Files_copy_xp_loginblocker_win2k
 				;Set $INST_SetAclDir$ = $INST_OpsiUtilitiesdDir$ + "\SetACL 2.2.0\SetACL 2.2.0\Command line version\x86"
-				Set $INST_SetAclDir$ = $INST_OpsiUtilitiesdDir$ 
+				Set $INST_SetAclDir$ = $INST_OpsiUtilitiesdDir$+"\SetACL\32 bit" 
 				;Set $INST_SetAclDir$ = $INST_OpsiUtilitiesdDir$ + "\SetACL 2.1.1\SetACL 2.1.1\Command line version\x86"
 			else
 				Files_copy_xp_loginblocker_32
@@ -1460,17 +1461,39 @@ deffunc oca_write_configuration() : void
 	[Files_create_ctmp]
 	CheckTargetPath = "c:\tmp"
 	
-	[DosInAnIcon_open_dir]
-	rem C:\utils\xcacls c:\tmp /T /C /G ADMINISTRATOREN:F "ERSTELLER-BESITZER":F JEDER:R HAUPTBENUTZER:F SYSTEM:F /Y
-	rem show setacl-version
-	rem "$INST_SetAclDir$\setacl.exe" -help 
-	rem this should work not only on german systems
-	rem open "$lockdir$" for everyone
-	"$INST_SetAclDir$\setacl.exe" -on "$lockdir$" -ot file -actn setprot -op "dacl:np;sacl:nc" -rec cont_obj -actn setowner -ownr "n:S-1-1-0;s:y" -actn ace -ace "n:S-1-1-0;p:full;s:y"
-	rem "$INST_SetAclDir$\setacl.exe" -on "$lockdir$" -ot file -actn trustee -trst n1:S-1-5-32-545;s1:y;ta:remtrst;w:dacl"
-	rem show the resulting acl
-	"$INST_SetAclDir$\setacl.exe" -on "$lockdir$" -ot file -actn list -lst "s:b"
+	;[DosInAnIcon_open_dir]
+	;rem C:\utils\xcacls c:\tmp /T /C /G ADMINISTRATOREN:F "ERSTELLER-BESITZER":F JEDER:R HAUPTBENUTZER:F SYSTEM:F /Y
+	;rem show setacl-version
+	;rem "$INST_SetAclDir$\setacl.exe" -help 
+	;rem this should work not only on german systems
+	;rem open "$lockdir$" for everyone
+	;"$INST_SetAclDir$\setacl.exe" -on "$lockdir$" -ot file -actn setprot -op "dacl:np;sacl:nc" -rec cont_obj -actn setowner -ownr "n:S-1-1-0;s:y" -actn ace -ace "n:S-1-1-0;p:full;s:y"
+	;rem "$INST_SetAclDir$\setacl.exe" -on "$lockdir$" -ot file -actn trustee -trst n1:S-1-5-32-545;s1:y;ta:remtrst;w:dacl"
+	;rem show the resulting acl
+	;"$INST_SetAclDir$\setacl.exe" -on "$lockdir$" -ot file -actn list -lst "s:b"
 	
+	[DosInAnIcon_open_dir]
+	::Set %COMPUTERNAME%\Administrators as owner and inherit to subfolders
+		"$INST_SetAclDir$\setacl.exe" -on $lockdir$ -ot file -actn setprot -op "dacl:np;sacl:nc" -rec cont_obj -actn setowner -ownr "n:S-1-5-32-544;s:y"
+
+	::Remove all permission
+		"$INST_SetAclDir$\setacl.exe" -on $lockdir$ -ot file -actn clear -clr "dacl"
+
+	::Remove all inherited permission
+		"$INST_SetAclDir$\setacl.exe" -on $lockdir$ -ot file -actn setprot -op "dacl:p_nc;sacl:p_nc"
+
+	::Set permissions for %COMPUTERNAME%\Administrators
+		"$INST_SetAclDir$\setacl.exe" -on $lockdir$ -ot file -actn ace -ace "n:S-1-5-32-544;p:full;m:grant"
+
+	::Set permissions for %COMPUTERNAME%\Authenticated Users
+		"$INST_SetAclDir$\setacl.exe" -on $lockdir$ -ot file -actn ace -ace "n:S-1-5-11;p:change;m:grant"
+
+	::Set permissions for %COMPUTERNAME%\Users
+		"$INST_SetAclDir$\setacl.exe" -on $lockdir$ -ot file -actn ace -ace "n:S-1-5-32-545;p:read_ex;m:grant"
+
+	::Set permissions for %COMPUTERNAME%\System
+		"$INST_SetAclDir$\setacl.exe" -on $lockdir$ -ot file -actn ace -ace "n:S-1-5-18;p:full;m:grant"
+
 	[Files_create_c_opsiorg]
 	CheckTargetPath = "$OCD_OpsiVarDir$"
 	CheckTargetPath = "$OCD_OpsiVarDir$\log"
@@ -2474,10 +2497,6 @@ Set $INST_Pcname$ = EnvVar ("COMPUTERNAME")
 Set $INST_RebootFlag$ = ""
 Set $INST_Service_Password$ = "pcpatch"
 Set $INST_Service_User$ = "pcpatch"
-;Set $INST_SetAclDir$ = $INST_OpsiUtilitiesdDir$ + "\SetACL 2.3.0\SetACL 2.3.0\Command line version\x86"
-; The setacl.exe 2.3.0 hangs some times
-Set $INST_SetAclDir$ = $INST_OpsiUtilitiesdDir$
-;Set $INST_SetAclDir$ = $INST_OpsiUtilitiesdDir$ + "\SetACL 2.1.1\SetACL 2.1.1\Command line version\x86"
 Set $INST_Sysconfini$ = "%ScriptPath%\cfg\sysconf.ini"
 Set $INST_WinstDir$   = $INST_BaseDir$+"\opsi-winst"
 Set $INST_WinstRegKey$ = "HKLM\SOFTWARE\opsi.org\winst"
@@ -2603,6 +2622,17 @@ endif
 set $INST_MinorOS$ = GetNTVersion
 set $INST_NTVersion$ = GetMsVersionInfo
 Set $INST_SystemType$ = GetSystemType
+if ($INST_SystemType$ = "64 Bit System")
+	set $architecture$ = "64"
+else
+	set $architecture$ = "32"
+endif
+;Set $INST_SetAclDir$ = $INST_OpsiUtilitiesdDir$ + "\SetACL 2.3.0\SetACL 2.3.0\Command line version\x86"
+; The setacl.exe 2.3.0 hangs some times
+;Set $INST_SetAclDir$ = $INST_OpsiUtilitiesdDir$ + "\SetACL 2.1.1\SetACL 2.1.1\Command line version\x86"
+Set $INST_SetAclDir$ = $INST_OpsiUtilitiesdDir$+"\SetACL\"+$architecture$+" bit"
+
+
 set $INST_Resultlist$ = getMSVersionMap
 set $INST_ProductType$ = getValue("product_type_nr",$INST_Resultlist$)
 set $INST_vcredistx86_installed$ = "false"
