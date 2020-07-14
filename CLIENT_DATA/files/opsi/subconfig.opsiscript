@@ -352,6 +352,15 @@ if GetRegistryStringValueSysNative("["+$on_shutdown_RegKeyA$+"\%s%] GPOName") = 
 	Set $on_shutdown_found$ = "%s%"
 endif
 
+[Registry_set_ServicesPipeTimeout]
+openkey [HKLM\SYSTEM\CurrentControlSet\Control] 
+set "ServicesPipeTimeout" = REG_DWORD:$OCD_services_pipe_timeout$
+
+[Registry_del_ServicesPipeTimeout]
+openkey [HKLM\SYSTEM\CurrentControlSet\Control] 
+del "ServicesPipeTimeout" 
+
+
 
 ;;*******************************************
 ;;************************************** end on_shutdown sections ***************************************************
@@ -434,13 +443,6 @@ endif
 ;delete_subfolder opsi.org
 ;;delete_element "software on demand"
 ;
-;[Registry_del_ServicesPipeTimeout]
-;openkey [HKLM\SYSTEM\CurrentControlSet\Control] 
-;del "ServicesPipeTimeout" 
-;
-;[Registry_set_ServicesPipeTimeout]
-;openkey [HKLM\SYSTEM\CurrentControlSet\Control] 
-;set "ServicesPipeTimeout" = REG_DWORD:$OCD_services_pipe_timeout$
 ;
 ;[DosInAnIcon_lock_opsikiosk]
 ;rem see http://setacl.sourceforge.net/

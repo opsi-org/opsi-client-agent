@@ -95,6 +95,7 @@ DefVar $INST_product4setup$
 
 DefVar $goon$
 DefVar $update_mac_address_on_normal_setup$
+DefVar $start_opsiclientd_guard$
 
 
 DefVar $INST_SearchKey$
@@ -607,6 +608,8 @@ deffunc oca_read_configuration() : void
 		comment "No services to check..."
 	endif
 	
+	set $start_opsiclientd_guard$ = GetProductProperty("start_opsiclientd_guard","true")
+	
 	
 	comment "Handle setup_after_install ..."
 	Message = Read config: setup after
@@ -694,6 +697,7 @@ deffunc oca_read_configuration() : void
 	comment "$OCD_notification_server.port$ -> "+           $OCD_notification_server.port$
 	comment "$OCD_depot_server__username$ -> "+             $OCD_depot_server__username$
 	comment "$OCD_depServices$ -> "+                        $OCD_depServices$
+	comment "$start_opsiclientd_guard$ -> "+                $start_opsiclientd_guard$
 	
 	;******** Sektion opsiLoginBlocker **********   
 	;comment "$OLB_ServiceConnectionTimeout$ -> "+           $OLB_ServiceConnectionTimeout$
@@ -1275,28 +1279,28 @@ deffunc oca_write_configuration() : void
 	Message "Configuration: c:\opsi.org"
 	comment "Open c:\tmp worldwide writable"
 	Files_create_ctmp
-	set $lockdir$ = "c:\tmp"
-	DosInAnIcon_open_dir
+	;set $lockdir$ = "c:\tmp"
+	DosInAnIcon_open_dir_ctmp /showoutput
 	comment "create c:\opsi.org"
 	Files_create_c_opsiorg
 	comment "lock c:\opsi.org -> for administrators only"
 	;DosInAnIcon_lock_c_opsiorg
 	set $lockdir$ = $OCD_OpsiVarDir$+"\log"
-	DosInAnIcon_lock_lockdir
+	DosInAnIcon_lock_lockdir /showoutput
 	set $lockdir$ = $OCD_OpsiVarDir$+"\opsiclientd"
-	DosInAnIcon_lock_lockdir
+	DosInAnIcon_lock_lockdir /showoutput
 	set $lockdir$ = $OCD_OpsiVarDir$+"\tmp"
-	DosInAnIcon_lock_lockdir
+	DosInAnIcon_lock_lockdir /showoutput
 	set $lockdir$ = $OCD_OpsiVarDir$+"\log"
-	DosInAnIcon_lock_lockdir
+	DosInAnIcon_lock_lockdir /showoutput
 	set $lockdir$ = $OCD_OpsiVarDir$+"\cache"
-	DosInAnIcon_lock_lockdir
+	DosInAnIcon_lock_lockdir /showoutput
 	set $lockdir$ = $OCD_OpsiVarDir$+"\data"
-	DosInAnIcon_lock_lockdir
+	DosInAnIcon_lock_lockdir /showoutput
 	set $lockdir$ = $OCD_OpsiVarDir$+"\applog"
-	DosInAnIcon_open_dir
+	DosInAnIcon_open_dir /showoutput
 	set $lockdir$ = $OCD_OpsiVarDir$+"\usertmp"
-	DosInAnIcon_open_dir
+	DosInAnIcon_open_dir /showoutput
 	
 	Message "Configuration: opsiclientd"
 	; Patch #1237 (https://forum.opsi.org/viewtopic.php?f=7&t=6764#p29403)
@@ -1352,12 +1356,14 @@ deffunc oca_write_configuration() : void
 	Message "Configuration: opsiclientdguard"
 	set $INST_ExitCode$ = shellCall('net stop opsiclientdguard')
 	set $INST_ExitCode$ = shellCall('"'+$INST_BaseDir$+'\opsiclientdguard\opsiclientdguard.exe" --uninstall')
-	set $INST_ExitCode$ = shellCall('"'+$INST_BaseDir$+'\opsiclientdguard\opsiclientdguard.exe" --install')
-	if $INST_ExitCode$ = "0"
-		comment "opsiclientdguard successful installed"
-	else
-		LogError "opsiclientdguard installation failed"
-	endif	
+	if $start_opsiclientd_guard$ = "true"
+		set $INST_ExitCode$ = shellCall('"'+$INST_BaseDir$+'\opsiclientdguard\opsiclientdguard.exe" --install')
+		if $INST_ExitCode$ = "0"
+			comment "opsiclientdguard successful installed"
+		else
+			LogError "opsiclientdguard installation failed"
+		endif
+	endif
 	
 	Message "Configuration: Login blocker"
 	if CompareDotSeparatedNumbers($INST_NTVersion$,">=","6.0")
@@ -1461,16 +1467,16 @@ deffunc oca_write_configuration() : void
 	[Files_create_ctmp]
 	CheckTargetPath = "c:\tmp"
 	
-	;[DosInAnIcon_open_dir]
-	;rem C:\utils\xcacls c:\tmp /T /C /G ADMINISTRATOREN:F "ERSTELLER-BESITZER":F JEDER:R HAUPTBENUTZER:F SYSTEM:F /Y
-	;rem show setacl-version
-	;rem "$INST_SetAclDir$\setacl.exe" -help 
-	;rem this should work not only on german systems
-	;rem open "$lockdir$" for everyone
-	;"$INST_SetAclDir$\setacl.exe" -on "$lockdir$" -ot file -actn setprot -op "dacl:np;sacl:nc" -rec cont_obj -actn setowner -ownr "n:S-1-1-0;s:y" -actn ace -ace "n:S-1-1-0;p:full;s:y"
-	;rem "$INST_SetAclDir$\setacl.exe" -on "$lockdir$" -ot file -actn trustee -trst n1:S-1-5-32-545;s1:y;ta:remtrst;w:dacl"
-	;rem show the resulting acl
-	;"$INST_SetAclDir$\setacl.exe" -on "$lockdir$" -ot file -actn list -lst "s:b"
+	[DosInAnIcon_open_dir_ctmp]
+	rem C:\utils\xcacls c:\tmp /T /C /G ADMINISTRATOREN:F "ERSTELLER-BESITZER":F JEDER:R HAUPTBENUTZER:F SYSTEM:F /Y
+	rem show setacl-version
+	rem "$INST_SetAclDir$\setacl.exe" -help 
+	rem this should work not only on german systems
+	rem open "$lockdir$" for everyone
+	"$INST_SetAclDir$\setacl.exe" -on "c:\tmp" -ot file -actn setprot -op "dacl:np;sacl:nc" -rec cont_obj -actn setowner -ownr "n:S-1-1-0;s:y" -actn ace -ace "n:S-1-1-0;p:full;s:y"
+	rem "$INST_SetAclDir$\setacl.exe" -on "c:\tmp" -ot file -actn trustee -trst n1:S-1-5-32-545;s1:y;ta:remtrst;w:dacl"
+	rem show the resulting acl
+	"$INST_SetAclDir$\setacl.exe" -on "c:\tmp" -ot file -actn list -lst "s:b"
 	
 	[DosInAnIcon_open_dir]
 	::Set %COMPUTERNAME%\Administrators as owner and inherit to subfolders
@@ -2258,7 +2264,7 @@ deffunc oca_try_to_get_my_mac() : string
 	set $INST_ConfigServerIP$ = takestring(0, splitString($INST_ShortServiceUrl$,":"))
 	set $INST_ConfigServerPort$ = takestring(1, splitString($INST_ShortServiceUrl$,":"))
 	comment "we need a IP-Number and at this time $INST_ConfigServerIP$ may also be a IP-Name"
-	if CompareDotSeparatedNumbers("%WinstVersion%","4.11.3.2") >= "0"
+	if CompareDotSeparatedNumbers("%WinstVersion%",">=","4.11.3.2")
 		set $INST_ConfigServerIP$ = GetIpByName($INST_ConfigServerIP$)
 	else
 		Set $INST_ServiceResult$ = shellCall('"%ScriptPath%\gethostbyname\get_host_by_name.exe" '+$INST_ConfigServerIP$)
@@ -2276,7 +2282,7 @@ deffunc oca_try_to_get_my_mac() : string
 			LogWarning "failed to get own IP number - giving up to get mac"
 		else
 			set $INST_ServiceResult$ = ShellCall('"%System%\sc" query Winmgmt')
-			if ("" = takeFirstStringContaining($INST_ServiceResult$,"RUNNING")) and (GetMsVersionInfo >= "5.1")
+			if ("" = takeFirstStringContaining($INST_ServiceResult$,"RUNNING")) and CompareDotSeparatedNumbers(GetMsVersionInfo, ">=", "5.1")
 				LogWarning "WMI service not running - giving up to get mac"
 			else
 				comment "WMI is running or we are at win2k and we only hope that it is running"

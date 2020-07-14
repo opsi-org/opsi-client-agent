@@ -116,3 +116,9 @@ name: legacy_loginblocker_dll
 description: Install an older version of the loginblocker Dll
 default: False
 
+[ProductProperty]
+type: bool
+name: start_opsiclientd_guard
+description: Start service opsiclientdguard?
+default: True
+

@@ -1,7 +1,7 @@
 ﻿[Changelog]
 opsi-client-agent (4.1.1.0-1) testing; urgency=medium
 
- * switch to opsiclient-pyinstaller
+ * switch to opsiclientd-pyinstaller
  * startup opsiclientd in install mode
  * fix sequence of getting the value of allow_reboot
  * update to opsi-script 4.12.3.14
@@ -13,6 +13,10 @@ opsi-client-agent (4.1.1.0-1) testing; urgency=medium
  * fix c:\opsi.org\usertmp file access rights
  * update to setacl 3.06
  * update oca_write_configuration():DosInAnIcon_open_dir by Mathias Knauer
+ * simple open of c:\tmp
+ * opsiclientd 4.2 from job 15051 (13.7.2020)
+ * fix Registry_set_ServicesPipeTimeout / Registry_del_ServicesPipeTimeout
+ * new property start_opsiclientd_guard (default=true)
 
  -- Jan Schneider <j.schneider@uib.de> Fri, 08 May 2020 11:03:00 + 0100
  -- d.oertel <d.oertel@uib.de> Fri, 08 May 2020 15:00:00 + 0100
