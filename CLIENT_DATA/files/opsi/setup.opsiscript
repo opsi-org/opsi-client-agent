@@ -1280,27 +1280,27 @@ deffunc oca_write_configuration() : void
 	comment "Open c:\tmp worldwide writable"
 	Files_create_ctmp
 	;set $lockdir$ = "c:\tmp"
-	DosInAnIcon_open_dir_ctmp /showoutput
+	DosInAnIcon_open_dir_ctmp winst /showoutput
 	comment "create c:\opsi.org"
 	Files_create_c_opsiorg
 	comment "lock c:\opsi.org -> for administrators only"
 	;DosInAnIcon_lock_c_opsiorg
 	set $lockdir$ = $OCD_OpsiVarDir$+"\log"
-	DosInAnIcon_lock_lockdir /showoutput
+	DosInAnIcon_lock_lockdir winst /showoutput
 	set $lockdir$ = $OCD_OpsiVarDir$+"\opsiclientd"
-	DosInAnIcon_lock_lockdir /showoutput
+	DosInAnIcon_lock_lockdir winst /showoutput
 	set $lockdir$ = $OCD_OpsiVarDir$+"\tmp"
-	DosInAnIcon_lock_lockdir /showoutput
+	DosInAnIcon_lock_lockdir winst /showoutput
 	set $lockdir$ = $OCD_OpsiVarDir$+"\log"
-	DosInAnIcon_lock_lockdir /showoutput
+	DosInAnIcon_lock_lockdir winst /showoutput
 	set $lockdir$ = $OCD_OpsiVarDir$+"\cache"
-	DosInAnIcon_lock_lockdir /showoutput
+	DosInAnIcon_lock_lockdir winst /showoutput
 	set $lockdir$ = $OCD_OpsiVarDir$+"\data"
-	DosInAnIcon_lock_lockdir /showoutput
+	DosInAnIcon_lock_lockdir winst /showoutput
 	set $lockdir$ = $OCD_OpsiVarDir$+"\applog"
-	DosInAnIcon_open_dir /showoutput
+	DosInAnIcon_open_dir winst /showoutput
 	set $lockdir$ = $OCD_OpsiVarDir$+"\usertmp"
-	DosInAnIcon_open_dir /showoutput
+	DosInAnIcon_open_dir winst /showoutput
 	
 	Message "Configuration: opsiclientd"
 	; Patch #1237 (https://forum.opsi.org/viewtopic.php?f=7&t=6764#p29403)
@@ -1396,6 +1396,7 @@ deffunc oca_write_configuration() : void
 		endif
 	endif ; winXP
 	
+	Message "Configuration: Lock opsi-client-agent"
 	comment "protect opsi-clientagent against non administrative manipulations"
 	DosInAnIcon_lock_opsiclientagent
 	
@@ -1406,7 +1407,9 @@ deffunc oca_write_configuration() : void
 		comment "startup opsiclientd in install mode"
 		if FileExists($OCD_base_dir$+"\")
 			comment "Start opsiclientd_Service"
-			shellCall('net start opsiclientdguard')
+			if $start_opsiclientd_guard$ = "true"
+				shellCall('net start opsiclientdguard')
+			endif
 			shellCall('net start opsiclientd')
 		endif
 	endif ; INSTALL

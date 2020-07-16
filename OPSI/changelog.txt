@@ -7,6 +7,7 @@ opsi-client-agent (4.1.1.0-1) testing; urgency=medium
  * update to opsi-script 4.12.3.14
  * update to opsi-systray 4.1.3.0
  * update to opsi-notifier 4.1.1.0
+ * update to opsiclientdguard 4.0.0.1
  * update to openssl 1.0.2u
  * integrate vcredist2015
  * remove opsi-kiosk from client-agent (is stand alone now)
@@ -14,7 +15,7 @@ opsi-client-agent (4.1.1.0-1) testing; urgency=medium
  * update to setacl 3.06
  * update oca_write_configuration():DosInAnIcon_open_dir by Mathias Knauer
  * simple open of c:\tmp
- * opsiclientd 4.2 from job 15051 (13.7.2020)
+ * opsiclientd 4.2 from job 15193 (15.7.2020)
  * fix Registry_set_ServicesPipeTimeout / Registry_del_ServicesPipeTimeout
  * new property start_opsiclientd_guard (default=true)
 
