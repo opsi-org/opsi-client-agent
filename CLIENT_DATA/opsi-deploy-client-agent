@@ -1,4 +1,4 @@
-#! /usr/bin/python3
+#!/usr/bin/opsi-python
 # -*- coding: utf-8 -*-
 
 # This tool is part of the desktop management solution opsi
