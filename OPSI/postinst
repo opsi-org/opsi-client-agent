@@ -21,19 +21,15 @@ echo "Patching server information ..."
 PATCH_CONFIG_SCRIPT="$CLIENT_DATA_DIR/utils/patch_config_file.py"
 CONFIG_FILE="$CLIENT_DATA_DIR/files/opsi/cfg/config.ini"
 
-set +e
-python3 -c "import OPSI"
-ret=$?
-set -e
-if [ $ret -eq 0 ]; then
-	# Python 3 - opsi 4.2 or later
-	python3 $PATCH_CONFIG_SCRIPT $CONFIG_FILE
+if [ -e /usr/bin/opsi-python ]; then
+	# opsi 4.2 or later
+	/usr/bin/opsi-python $PATCH_CONFIG_SCRIPT $CONFIG_FILE
 else
 	# Python 2 - opsi 4.1
 	python $PATCH_CONFIG_SCRIPT $CONFIG_FILE
 
 	# opsi-deploy-client-agent should use Python 2
-	sed --in-place "s_/usr/bin/python3_/usr/bin/python_" "$CLIENT_DATA_DIR/opsi-deploy-client-agent"
+	sed -i '1c#!/usr/bin/python' "$CLIENT_DATA_DIR/opsi-deploy-client-agent"
 fi
 
 TMP_DIR=${CLIENT_DATA_DIR}/../${PRODUCT_ID}.tmp
