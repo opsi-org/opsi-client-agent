@@ -1279,8 +1279,8 @@ deffunc oca_write_configuration() : void
 	Message "Configuration: c:\opsi.org"
 	comment "Open c:\tmp worldwide writable"
 	Files_create_ctmp
-	;set $lockdir$ = "c:\tmp"
-	DosInAnIcon_open_dir_ctmp winst /showoutput
+	set $lockdir$ = "c:\tmp"
+	DosInAnIcon_open_dir winst /showoutput
 	comment "create c:\opsi.org"
 	Files_create_c_opsiorg
 	comment "lock c:\opsi.org -> for administrators only"
@@ -1398,7 +1398,9 @@ deffunc oca_write_configuration() : void
 	
 	Message "Configuration: Lock opsi-client-agent"
 	comment "protect opsi-clientagent against non administrative manipulations"
-	DosInAnIcon_lock_opsiclientagent
+	;DosInAnIcon_lock_opsiclientagent winst /showoutput
+	set $lockdir$ = $INST_BaseDir$
+	DosInAnIcon_lock_lockdir winst /showoutput
 	
 	comment "*.opsiscript should be opend by winst32.exe"
 	Registry_open_opsiscript /sysnative
