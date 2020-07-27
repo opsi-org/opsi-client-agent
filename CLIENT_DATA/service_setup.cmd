@@ -53,6 +53,9 @@ echo start-process -FilePath $opsiscript -argumentlist $osargs2  -verb runas -Wa
 :endwinst
 powershell -ExecutionPolicy Bypass -File c:\opsi.org\usertmp\ocasub.ps1
 
+echo   Cleanup
+del /q /s /f c:\opsi.org\usertmp\opsi\*.*
+
 if %1!==/u! goto :exit
 if %2!==/u! goto :exit
 

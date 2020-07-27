@@ -1126,7 +1126,8 @@ deffunc oca_copy_files() : void
 	
 	[Files_copy_custom]
 	copy -sc "%SCRIPTPATH%\custom\winstskin\*.*" "$INST_BaseDir$\custom\winstskin"
-	copy -c "%SCRIPTPATH%\custom\config.ini" "$INST_BaseDir$\custom\"
+	; do not copy config.in - may contain confidential data
+	;copy -c "%SCRIPTPATH%\custom\config.ini" "$INST_BaseDir$\custom\"
 	copy -sc "%SCRIPTPATH%\custom\opsiclientkioskskin\*.*" "$INST_BaseDir$\custom\opsiclientkioskskin"
 
 	;[Winbatch_vc_redist_exe_64]
@@ -1221,6 +1222,8 @@ deffunc oca_write_configuration() : void
 		Registry_SetGeneralEntries
 		if ($INST_debug$ = "on") 
 			Files_save_config_for_debug
+		else
+			Files_remove_config_from_debug
 		endif 
 		
 		;if $INST_MinorOS$ = "WinXP"
@@ -1290,8 +1293,6 @@ deffunc oca_write_configuration() : void
 	set $lockdir$ = $OCD_OpsiVarDir$+"\opsiclientd"
 	DosInAnIcon_lock_lockdir winst /showoutput
 	set $lockdir$ = $OCD_OpsiVarDir$+"\tmp"
-	DosInAnIcon_lock_lockdir winst /showoutput
-	set $lockdir$ = $OCD_OpsiVarDir$+"\log"
 	DosInAnIcon_lock_lockdir winst /showoutput
 	set $lockdir$ = $OCD_OpsiVarDir$+"\cache"
 	DosInAnIcon_lock_lockdir winst /showoutput
@@ -1424,6 +1425,9 @@ deffunc oca_write_configuration() : void
 
 	[Files_save_config_for_debug]
 	copy -c "%ScriptPath%\cfg\*.*"       "%opsiLogDir%\cfg"
+	
+	[Files_remove_config_from_debug]
+	del -s -f "%opsiLogDir%\cfg"
 
 	[Registry_SetRemoveMsginaOnDeinst]
 	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\preloginloader]
