@@ -154,20 +154,30 @@ else
 	
 endif	;on_shutdown_install=on
 
-;;******** Sektion kiosk **********
-;Message "opsi-client-agent configuration: kiosk"
-;set $existing_kiosk_startmenue_entry$ = GetRegistryStringValue32 ("[HKLM\software\opsi.org\opsikioskclient] link_entry")
-;set $existing_kiosk_startmenue_folder$ = GetRegistryStringValue32 ("[HKLM\software\opsi.org\opsikioskclient] folder_entry")
-;if $existing_kiosk_startmenue_folder$ = ""
-;	set $existing_kiosk_startmenue_folder$ = "opsi.org"
-;endif
+;******** Sektion kiosk **********
+Message "opsi-client-agent configuration: delete old kiosk"
+set $existing_kiosk_startmenue_entry$ = GetRegistryStringValue32 ("[HKLM\software\opsi.org\opsikioskclient] link_entry")
+set $existing_kiosk_startmenue_folder$ = GetRegistryStringValue32 ("[HKLM\software\opsi.org\opsikioskclient] folder_entry")
+if $existing_kiosk_startmenue_folder$ = ""
+	set $existing_kiosk_startmenue_folder$ = "opsi.org"
+endif
 ;opsiservicecall_setOption_addConfigStateDefaults_true
-;Set $resultlist$ = getReturnListFromSection('opsiservicecall_get_configState_software-on-demand.active')
-;Set $ArrayStr$ = takestring(0, $resultlist$)
-;set $objectStr$ = jsonAsArrayGetElementByIndex($ArrayStr$,"0")
-;Set $ArrayStr$ = jsonAsObjectGetValueByKey($objectStr$,"values")
-;set $kiosk_active$ = jsonAsArrayGetElementByIndex($ArrayStr$,"0")
-;;comment "$kiosk_active$ = "+$kiosk_active$
+Set $resultlist$ = getReturnListFromSection('opsiservicecall_get_configState_software-on-demand.active')
+Set $ArrayStr$ = takestring(0, $resultlist$)
+set $objectStr$ = jsonAsArrayGetElementByIndex($ArrayStr$,"0")
+Set $ArrayStr$ = jsonAsObjectGetValueByKey($objectStr$,"values")
+set $kiosk_active$ = jsonAsArrayGetElementByIndex($ArrayStr$,"0")
+
+LinkFolder_uninstall_softwareOnDemand
+LinkFolder_uninstall_softwareOnDemand_desktop
+Files_del_kiosk_client
+
+if $kiosk_active$ = "true"
+	;comment "Set product opsi-client-kiosk to setup"
+	opsiServiceCall_set_Kiosk_to_setup
+endif
+
+;comment "$kiosk_active$ = "+$kiosk_active$
 ;if $INST_create_software_on_demand_menue_entry$ = "true"
 ;	if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") >= "0"
 ;		comment "Kiosk mode on NT6"
@@ -365,13 +375,19 @@ del "ServicesPipeTimeout"
 ;;*******************************************
 ;;************************************** end on_shutdown sections ***************************************************
 
-;[opsiservicecall_get_configState_software-on-demand.active]
-;"method": "configState_getObjects"
-;"params": [
-;	'[]',
-;	'{"configId":"software-on-demand.active","objectId":"$INST_ClientId$"}',
-;]
-;
+[opsiservicecall_get_configState_software-on-demand.active]
+"method": "configState_getObjects"
+"params": [
+	'[]',
+	'{"configId":"software-on-demand.active","objectId":"$INST_ClientId$"}',
+]
+
+[opsiServiceCall_set_Kiosk_to_setup]
+"method": "setProductActionRequest"
+"params": [
+	'{"productId":"opsi-client-kiosk", "clientId":"$INST_ClientId$", "actionRequest":"setup"}'
+]
+
 ;[opsiservicecall_setOption_addConfigStateDefaults_true]
 ;"method": "backend_setOptions"
 ;"params": [
@@ -384,8 +400,8 @@ del "ServicesPipeTimeout"
 ;copy -sc "%SCRIPTPATH%\custom\opsiclientkioskskin\*.*" "$INST_BaseDir$\custom\opsiclientkioskskin"
 ;
 ;
-;[Files_del_kiosk_client]
-;del -sfc "$INST_BaseDir$\opsiclientkiosk\"
+[Files_del_kiosk_client]
+del -sfc "$INST_BaseDir$\opsiclientkiosk\"
 ;
 ;[LinkFolder_install_softwareOnDemand]
 ;set_basefolder common_programs
@@ -409,16 +425,16 @@ del "ServicesPipeTimeout"
 ;	icon_file: "$kiosk_iconfile$"
 ;end_link
 ;
-;[LinkFolder_uninstall_softwareOnDemand_desktop]
-;set_basefolder common_desktopdirectory
-;set_subfolder ""
-;delete_element "$existing_kiosk_startmenue_entry$"
+[LinkFolder_uninstall_softwareOnDemand_desktop]
+set_basefolder common_desktopdirectory
+set_subfolder ""
+delete_element "$existing_kiosk_startmenue_entry$"
 ;
-;[LinkFolder_uninstall_softwareOnDemand]
-;set_basefolder common_programs
-;; this will create empty opsi.org - see #3624
-;set_subfolder $existing_kiosk_startmenue_folder$ 
-;delete_element "$existing_kiosk_startmenue_entry$"
+[LinkFolder_uninstall_softwareOnDemand]
+set_basefolder common_programs
+; this will create empty opsi.org - see #3624
+set_subfolder $existing_kiosk_startmenue_folder$ 
+delete_element "$existing_kiosk_startmenue_entry$"
 ;
 ;[Registry_remember_link_entry]
 ;openkey [HKLM\software\opsi.org\opsikioskclient]
