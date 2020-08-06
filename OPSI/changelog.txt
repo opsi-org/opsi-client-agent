@@ -1,4 +1,13 @@
 ﻿[Changelog]
+
+opsi-client-agent (4.1.1.0-1) experimental; urgency=medium
+
+* depends now on opsi-client-kiosk (opsi-client-kiosk must be installed on depot first to migrate icons and settings from client-agent)
+* remove old kiosk completely from client-agent folder and system entries on client
+* opsi-client-kiosk is set to setup if software-on-demand.active is true
+
+ -- j.werner <j.werner@uib.de> Thu, 06 Aug 2020 13:49:00 + 0100
+
 opsi-client-agent (4.1.1.0-1) testing; urgency=medium
 
  * switch to opsiclientd-pyinstaller

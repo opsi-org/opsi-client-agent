@@ -22,21 +22,21 @@ DefStringList $on_shutdown_configStates$
 DefStringList $on_shutdown_keylist$
 
 ;DefVar $INST_create_software_on_demand_menue_entry$
-;DefVar $kiosk_startmenue_folder$
-;DefVar $kiosk_startmenue_entry$
-;DefVar $existing_kiosk_startmenue_entry$
-;DefVar $existing_kiosk_startmenue_folder$
-;DefVar $kiosk_desktop_icon$
+DefVar $kiosk_startmenue_folder$
+DefVar $kiosk_startmenue_entry$
+DefVar $existing_kiosk_startmenue_entry$
+DefVar $existing_kiosk_startmenue_folder$
+DefVar $kiosk_desktop_icon$
 ;DefVar $kiosk_iconfile$
-;DefVar $kiosk_active$
+DefVar $kiosk_active$
 
 ;set $INST_create_software_on_demand_menue_entry$ = "true"
 ; property not existing
 ;set $INST_create_software_on_demand_menue_entry$ = GetProductProperty ("create_software_on_demand_menue_entry", $INST_create_software_on_demand_menue_entry$)
 
-;set $kiosk_startmenue_folder$ = GetProductProperty ("kiosk_startmenue_folder", "opsi.org")
-;set $kiosk_startmenue_entry$ = GetProductProperty ("kiosk_startmenue_entry", "software on demand")
-;set $kiosk_desktop_icon$ = GetProductProperty ("kiosk_desktop_icon", "false")
+set $kiosk_startmenue_folder$ = GetProductProperty ("kiosk_startmenue_folder", "opsi.org")
+set $kiosk_startmenue_entry$ = GetProductProperty ("kiosk_startmenue_entry", "software on demand")
+set $kiosk_desktop_icon$ = GetProductProperty ("kiosk_desktop_icon", "false")
 ;set $kiosk_iconfile$ = ""
 
 set $systray_install$ = GetProductProperty ("systray_install", "true")
@@ -168,12 +168,17 @@ set $objectStr$ = jsonAsArrayGetElementByIndex($ArrayStr$,"0")
 Set $ArrayStr$ = jsonAsObjectGetValueByKey($objectStr$,"values")
 set $kiosk_active$ = jsonAsArrayGetElementByIndex($ArrayStr$,"0")
 
+; Uninstall/delete old kiosk entries and folders
 LinkFolder_uninstall_softwareOnDemand
 LinkFolder_uninstall_softwareOnDemand_desktop
 Files_del_kiosk_client
+if RegKeyExists("HKLM\software\opsi.org\opsikioskclient")
+	Registry_delete_oldKioskKeys_from_client_agent
+endif
 
+;if software-on-demand.active = true then set product opsi-client-kiosk to setup
 if $kiosk_active$ = "true"
-	;comment "Set product opsi-client-kiosk to setup"
+	comment "Set product opsi-client-kiosk to setup"
 	opsiServiceCall_set_Kiosk_to_setup
 endif
 
@@ -424,23 +429,28 @@ del -sfc "$INST_BaseDir$\opsiclientkiosk\"
 ;	parameters: "--fqdn=$INST_ClientId$"
 ;	icon_file: "$kiosk_iconfile$"
 ;end_link
-;
+
+; delete kiosk entries
 [LinkFolder_uninstall_softwareOnDemand_desktop]
 set_basefolder common_desktopdirectory
 set_subfolder ""
 delete_element "$existing_kiosk_startmenue_entry$"
-;
+
 [LinkFolder_uninstall_softwareOnDemand]
 set_basefolder common_programs
 ; this will create empty opsi.org - see #3624
 set_subfolder $existing_kiosk_startmenue_folder$ 
 delete_element "$existing_kiosk_startmenue_entry$"
-;
+
+[Registry_delete_oldKioskKeys_from_client_agent]
+DeleteKey [HKLM\software\opsi.org\opsikioskclient]
+
 ;[Registry_remember_link_entry]
 ;openkey [HKLM\software\opsi.org\opsikioskclient]
 ;set "link_entry" = "$kiosk_startmenue_entry$"
 ;set "folder_entry" = "$kiosk_startmenue_folder$"
-;
+;set "desktop_icon" = "$kiosk_desktop_icon$"
+
 ;[LinkFolder_install_softwareOnDemand_nt5]
 ;set_basefolder common_programs
 ;set_subfolder opsi.org

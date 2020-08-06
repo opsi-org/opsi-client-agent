@@ -32,20 +32,20 @@ fi
 
 
 # Handle old opsi-kiosk dirs in client-agent (before 4.1.1.0)
-if [ -d $CLIENT_DATA_DIR ]; then
-	echo "Saving old kiosk directories to new place..."
-	for dirname in files/opsi/opsiclientkiosk/app/ock_custom ; do
-		for path in $CLIENT_DATA_DIR/$dirname; do
-			if [ -e $path ]; then
-				KIOSK_DEPOTDIR=${CLIENT_DATA_DIR}/../opsi-client-kiosk
-				KIOSK_ICONDIR=${KIOSK_DEPOTDIR}/files/app/ock_custom
-				mkdir -p $KIOSK_ICONDIR
-				opsi-set-rights $KIOSK_ICONDIR
-				echo "   moving $path to $KIOSK_ICONDIR"
-				mv ${path}/* $KIOSK_ICONDIR/ || exit 1
-			fi
-		done
-	done
-fi
+#if [ -d $CLIENT_DATA_DIR ]; then
+#	echo "Saving old kiosk directories to new place..."
+#	for dirname in files/opsi/opsiclientkiosk/app/ock_custom ; do
+#		for path in $CLIENT_DATA_DIR/$dirname; do
+#			if [ -e $path ]; then
+#				KIOSK_DEPOTDIR=${CLIENT_DATA_DIR}/../opsi-client-kiosk
+#				KIOSK_ICONDIR=${KIOSK_DEPOTDIR}/files/app/ock_custom
+#				mkdir -p $KIOSK_ICONDIR
+#				opsi-set-rights $KIOSK_ICONDIR
+#				echo "   moving $path to $KIOSK_ICONDIR"
+#				mv ${path}/* $KIOSK_ICONDIR/ || exit 1
+#			fi
+#		done
+#	done
+#fi
 
 exit 0
