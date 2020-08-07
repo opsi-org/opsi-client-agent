@@ -22,11 +22,11 @@ DefStringList $on_shutdown_configStates$
 DefStringList $on_shutdown_keylist$
 
 ;DefVar $INST_create_software_on_demand_menue_entry$
-DefVar $kiosk_startmenue_folder$
-DefVar $kiosk_startmenue_entry$
+;DefVar $kiosk_startmenue_folder$
+;DefVar $kiosk_startmenue_entry$
 DefVar $existing_kiosk_startmenue_entry$
 DefVar $existing_kiosk_startmenue_folder$
-DefVar $kiosk_desktop_icon$
+;DefVar $kiosk_desktop_icon$
 ;DefVar $kiosk_iconfile$
 DefVar $kiosk_active$
 
@@ -34,9 +34,9 @@ DefVar $kiosk_active$
 ; property not existing
 ;set $INST_create_software_on_demand_menue_entry$ = GetProductProperty ("create_software_on_demand_menue_entry", $INST_create_software_on_demand_menue_entry$)
 
-set $kiosk_startmenue_folder$ = GetProductProperty ("kiosk_startmenue_folder", "opsi.org")
-set $kiosk_startmenue_entry$ = GetProductProperty ("kiosk_startmenue_entry", "software on demand")
-set $kiosk_desktop_icon$ = GetProductProperty ("kiosk_desktop_icon", "false")
+;set $kiosk_startmenue_folder$ = GetProductProperty ("kiosk_startmenue_folder", "opsi.org")
+;set $kiosk_startmenue_entry$ = GetProductProperty ("kiosk_startmenue_entry", "software on demand")
+;set $kiosk_desktop_icon$ = GetProductProperty ("kiosk_desktop_icon", "false")
 ;set $kiosk_iconfile$ = ""
 
 set $systray_install$ = GetProductProperty ("systray_install", "true")
@@ -168,7 +168,7 @@ set $objectStr$ = jsonAsArrayGetElementByIndex($ArrayStr$,"0")
 Set $ArrayStr$ = jsonAsObjectGetValueByKey($objectStr$,"values")
 set $kiosk_active$ = jsonAsArrayGetElementByIndex($ArrayStr$,"0")
 
-; Uninstall/delete old kiosk entries and folders
+; Uninstall/delete old kiosk entries, folders on client
 LinkFolder_uninstall_softwareOnDemand
 LinkFolder_uninstall_softwareOnDemand_desktop
 Files_del_kiosk_client
@@ -176,7 +176,12 @@ if RegKeyExists("HKLM\software\opsi.org\opsikioskclient")
 	Registry_delete_oldKioskKeys_from_client_agent
 endif
 
-;if software-on-demand.active = true then set product opsi-client-kiosk to setup
+; delete product properties on server for the client
+opsiServiceCall_delete_kiosk_startmenue_entry
+opsiServiceCall_delete_kiosk_startmenue_folder
+opsiServiceCall_delete_kiosk_desktop_icon
+
+;if software-on-demand.active = true then set product opsi-client-kiosk to setup for tthe client
 if $kiosk_active$ = "true"
 	comment "Set product opsi-client-kiosk to setup"
 	opsiServiceCall_set_Kiosk_to_setup
@@ -390,8 +395,36 @@ del "ServicesPipeTimeout"
 [opsiServiceCall_set_Kiosk_to_setup]
 "method": "setProductActionRequest"
 "params": [
-	'{"productId":"opsi-client-kiosk", "clientId":"$INST_ClientId$", "actionRequest":"setup"}'
+	"opsi-client-kiosk",
+	"$INST_ClientId$", 
+	"setup"
 ]
+
+[opsiServiceCall_delete_kiosk_startmenue_entry]
+"method": "productPropertyState_delete"
+"params": [
+	"$ProductId$",
+	"kiosk_startmenue_entry",
+	"$INST_ClientId$"
+]
+
+[opsiServiceCall_delete_kiosk_startmenue_folder]
+"method": "productPropertyState_delete"
+"params": [
+	"$ProductId$",
+	"kiosk_startmenue_folder",
+	"$INST_ClientId$"
+]
+
+[opsiServiceCall_delete_kiosk_desktop_icon]
+"method": "productPropertyState_delete"
+"params": [
+	"$ProductID$",
+	"kiosk_desktop_icon",
+	"$INST_ClientId$"
+]
+
+
 
 ;[opsiservicecall_setOption_addConfigStateDefaults_true]
 ;"method": "backend_setOptions"

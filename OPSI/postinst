@@ -54,4 +54,8 @@ fi
 echo "Removing temporary files..."
 rm -rf $TMP_DIR
 
+# opsi-admin -d deleteProductPropertyDefinition "${PRODUCT_ID}" "kiosk_startmenue_entry"
+# opsi-admin -d deleteProductPropertyDefinition "${PRODUCT_ID}" "kiosk_startmenue_folder"
+# opsi-admin -d deleteProductPropertyDefinition "${PRODUCT_ID}" "kiosk_desktop_icon"
+
 exit 0
