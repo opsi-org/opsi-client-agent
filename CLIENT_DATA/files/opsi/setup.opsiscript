@@ -245,22 +245,27 @@ Set $LogDir$ = "%opsiLogDir%"
 
 ; ####################################################################
 ; ####################################################################
-deffunc opsiservice_authenticated($user$ : string, $pass$ : string, $url$ : string, $interactive$ : string) : string
+deffunc opsiservice_authenticated($testexisting$ : string,$user$ : string, $pass$ : string, $url$ : string, $interactive$ : string) : string
 	markErrorNumber
+	set $result$ = "false"
 	if ($interactive$ = "true") and not($url$ = "")
 		comment "we try interactive"
+		set $result$ = "true"
 		opsiservicecall_check_authenticated /interactive /serviceurl $url$
 	else
-		if not($user$ = "") and not($pass$ = "") and not($url$ = "")
+		if not($user$ = "") and not($pass$ = "") and not($pass$ = "none") and not($url$ = "")
 			comment "we try new credentials"
+			set $result$ = "true"
 			opsiservicecall_check_authenticated /username $user$ /password $pass$ /serviceurl $url$
-			
 		else
-			comment "we try existing connection"
-			opsiservicecall_check_authenticated
+			if $testexisting$ = "true"
+				comment "we try existing connection"
+				set $result$ = "true"
+				opsiservicecall_check_authenticated
+			endif
 		endif
 	endif
-	set $result$ = "true"
+	
 	if errorsOccuredSinceMark > 0
 		set $result$ = "false"
 	endif
@@ -554,11 +559,11 @@ deffunc oca_read_configuration() : void
 	if $INST_MODUS$ = "INSTALL"
 		Message = Read config: connect to service
 		comment "Connect to service if not connected yet...."
-		set $INST_Authenticated$ = opsiservice_authenticated("","","","false")
+		set $INST_Authenticated$ = opsiservice_authenticated("true","","","","false")
 		if $INST_Authenticated$ = "false"
 			comment "was not authenticated -> retry scripted login by client ID and hostkey"
 			comment "Try to open new network connection"
-			set $INST_Authenticated$ = opsiservice_authenticated($INST_ClientId$,$SHI_pckey$,$OCD_config_service.url$,"false")
+			set $INST_Authenticated$ = opsiservice_authenticated("false",$INST_ClientId$,$SHI_pckey$,$OCD_config_service.url$,"false")
 			if $INST_Authenticated$ = "false"
 				comment "scripted login by client id / hostkey failed -> we don't retry "
 				comment "giving up"
@@ -758,12 +763,12 @@ deffunc oca_create_client() : void
 	comment "Connect to service....."
 	comment "Connect to service if not connected yet...."
 	set $INST_userIsAdmin$ = "false"
-	set $INST_Authenticated$ = opsiservice_authenticated("","","","false")
+	set $INST_Authenticated$ = opsiservice_authenticated("false","","","","false")
 	set $INST_userIsAdmin$ = opsiservice_UserIsAdmin()
 	if ($INST_Authenticated$ = "false") or ($INST_userIsAdmin$ = "false")
 		comment "was not authenticated or not admin-> retry scripted login by user/password from config.ini"
 		comment "Try to open new network connection"
-		set $INST_Authenticated$ = opsiservice_authenticated($INST_Service_User$,$Inst_Service_Password$,$OCD_config_service.url$,"false")
+		set $INST_Authenticated$ = opsiservice_authenticated("false",$INST_Service_User$,$Inst_Service_Password$,$OCD_config_service.url$,"false")
 		set $INST_userIsAdmin$ = opsiservice_UserIsAdmin()
 	endif
 	; according to Ticket uib#2014010810000019 / uib#2019010910000053
@@ -778,7 +783,7 @@ deffunc oca_create_client() : void
 	endif
 	if ($goon$ = "false") 
 		comment "was not authenticated -> retry interactive"
-		set $INST_Authenticated$ = opsiservice_authenticated("","",$OCD_config_service.url$,"true")
+		set $INST_Authenticated$ = opsiservice_authenticated("false","","",$OCD_config_service.url$,"true")
 		set $INST_userIsAdmin$ = opsiservice_UserIsAdmin()
 	endif
 	if ($INST_Authenticated$ = "false")
@@ -842,7 +847,7 @@ deffunc oca_create_client() : void
 		Set $INST_ServiceResult$ = getReturnListFromSection('opsiservicecall_close_session')
 		comment "after creation use host/key autheticated service"
 		comment "Try to open new network connection"
-		set $INST_Authenticated$ = opsiservice_authenticated($INST_ClientId$,$SHI_pckey$,$OCD_config_service.url$,"false")
+		set $INST_Authenticated$ = opsiservice_authenticated("false",$INST_ClientId$,$SHI_pckey$,$OCD_config_service.url$,"false")
 		if $INST_Authenticated$ = "false"
 			isFatalError
 		else

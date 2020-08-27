@@ -1,25 +1,234 @@
 encoding=utf8
-comment " sub script for configuration on_shutdown and 
+comment " sub script for configuration on_shutdown and
+
+deffunc configure_on_shutdown() : void
+	DefVar $on_shutdown_GPOname$
+	DefVar $on_shutdown_active$
+	DefVar $on_shutdown_RegKeyA$
+	DefVar $on_shutdown_RegKeyB$
+	DefVar $on_shutdown_found$
+	DefVar $on_shutdown_last_val$
+	Defvar $on_shutdown_install$
+	DefVar $on_shutdown_install_set_policy$
+	DefVar $on_shutdown_RunScript$
+	
+	DefStringList $on_shutdown_configStates$
+	DefStringList $on_shutdown_keylist$
+	
+	Set $on_shutdown_RegKeyA$ = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts\Shutdown"
+	set $on_shutdown_GPOname$ = "opsi shutdown install policy"
+	
+	
+	comment "read on_shutdown settings"
+	if $INST_SystemType$ = "64 Bit System"
+		set $on_shutdown_RunScript$ = $INST_BaseDir$+"\on_shutdown\doinstall64.cmd"
+	else
+		set $on_shutdown_RunScript$ = $INST_BaseDir$+"\on_shutdown\doinstall32.cmd"
+	endif
+	
+	if CompareDotSeparatedNumbers($INST_NTVersion$,"<","6.0")
+		Set $on_shutdown_RegKeyB$ = "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System\Scripts\Shutdown"
+	else
+		Set $on_shutdown_RegKeyB$ = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Shutdown"
+	endif
+	
+	Set $on_shutdown_install$ = GetProductProperty("on_shutdown_install", "off")
+	Set $on_shutdown_install_set_policy$ = GetProductProperty("on_shutdown_install_set_policy", "on")
+	
+	;******** Sektion on_shutdown **********
+	Message "opsi-client-agent configuration: on_shutdown"
+	comment "$on_shutdown_install$ -> "+                    $on_shutdown_install$
+	comment "$on_shutdown_install_set_policy$ -> "+         $on_shutdown_install_set_policy$
+	comment "$INST_create_software_on_demand_menue_entry$ -> "+  $INST_create_software_on_demand_menue_entry$
+	
+	
+	comment "configure on_shutdown"
+	if ($on_shutdown_install$ = "on")
+		
+		; GONE TO deffunc oca_copy_files()
+		;comment "copy files for install_on_shutdown"
+		;Files_install_on_shutdown_copy_files
+		
+		comment "patch local opsiclientd.conf for install_on_shutdown"
+		if CompareDotSeparatedNumbers("%WinstVersion%",">=","4.12.0.10")
+			Patches_install_on_shutdown_opsiclientd_conf_enable $INST_OpsiclientdConf$ /encoding "utf8"
+		else
+			Patches_install_on_shutdown_opsiclientd_conf_enable $INST_OpsiclientdConf$
+		endif
+		
+		if ($on_shutdown_install_set_policy$ = "on")
+			
+			;************************** Registry patches for shutdown script ***********************************
+			comment "Patch Registry for on_shutdown SCRIPT"
+			if $INST_NTVersion$ = "5.0"
+				;;** Win2k = 5.0
+				LogError "for Win2k install_on_shutdown manual installation with gpedit.msc is available (shutdown script timeout=10 min.)"
+			else
+				Set $on_shutdown_found$ = ""
+				Set $on_shutdown_last_val$ = ""
+				Set $on_shutdown_keylist$ = getRegistryKeyListSysnative($on_shutdown_RegKeyA$)
+				
+				if (count($on_shutdown_keylist$) = "0")
+					comment "no Shutdown Policy entry found - inserting entry 0"
+					Set $on_shutdown_RegKeyA$ = $on_shutdown_RegKeyA$ + "\0"
+					Set $on_shutdown_RegKeyB$ = $on_shutdown_RegKeyB$ + "\0"
+				else
+					comment "Shutdown Policy entries found - searching for opsi shutdown script entry"
+					Set $on_shutdown_found$ = ""
+					Set $on_shutdown_last_val$ = ""
+					for %s% in $on_shutdown_keylist$ do sub_on_shutdown_find_regkey
+					if ($on_shutdown_found$ = "")
+						comment "no opsi shutdown script entry found - on_shutdown_last_val="+$on_shutdown_last_val$"+" - appending new entry"
+						Set $on_shutdown_RegKeyA$ = $on_shutdown_RegKeyA$ + "\"+calculate($on_shutdown_last_val$+"+1")
+						Set $on_shutdown_RegKeyB$ = $on_shutdown_RegKeyB$ + "\"+calculate($on_shutdown_last_val$+"+1")
+					else
+						comment "opsi shutdown script entry found - reusing entry No "+ $on_shutdown_found$
+						Set $on_shutdown_RegKeyA$ = $on_shutdown_RegKeyA$ + "\"+$on_shutdown_found$
+						Set $on_shutdown_RegKeyB$ = $on_shutdown_RegKeyB$ + "\"+$on_shutdown_found$
+					endif
+				endif
+				
+				if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") < "0"
+					Registry_install_on_shutdown_XP /sysnative
+				else
+					Registry_install_on_shutdown_WIN7 /sysnative
+				endif
+			endif
+			
+		endif	;on_shutdown_install_set_policy=on
+		
+	else
+		
+		comment "patch local opsiclientd.conf install_on_shutdown=false"
+		if CompareDotSeparatedNumbers("%WinstVersion%",">=","4.12.0.10")
+			Patches_install_on_shutdown_opsiclientd_conf_disable $INST_OpsiclientdConf$ /encoding "utf8"
+		else
+			Patches_install_on_shutdown_opsiclientd_conf_disable $INST_OpsiclientdConf$
+		endif
+		
+		Set $on_shutdown_keylist$ = getRegistryKeyListSysnative($on_shutdown_RegKeyA$)
+		
+		if (count($on_shutdown_keylist$) = "0")
+			comment "no opsi shutdown script entry found - nothing to remove"
+		else
+			comment "Shutdown Policy entries found - searching for opsi shutdown script entry"
+			Set $on_shutdown_found$ = ""
+			Set $on_shutdown_last_val$ = ""
+			for %s% in $on_shutdown_keylist$ do sub_on_shutdown_find_regkey
+			if ($on_shutdown_found$ = "")
+				comment "no opsi shutdown script entry found - nothing to remove"
+			else
+				comment "opsi shutdown script entry found - removing entry"
+				Set $on_shutdown_RegKeyA$ = $on_shutdown_RegKeyA$ + "\"+$on_shutdown_found$
+				Set $on_shutdown_RegKeyB$ = $on_shutdown_RegKeyB$ + "\"+$on_shutdown_found$
+				Registry_install_on_shutdown_delete /sysnative
+			endif
+		endif
+		
+	endif	;on_shutdown_install=on
+	
+	[Registry_install_on_shutdown_XP]
+	OpenKey [$on_shutdown_RegKeyA$]
+	set "GPO-ID"		= "LocalGPO"
+	set "SOM-ID"		= "Local"
+	set "FileSysPath" = "C:\WINDOWS\System32\GroupPolicy\Machine"
+	set "DisplayName" = "$on_shutdown_GPOname$"
+	set "GPOName"	  = "$on_shutdown_GPOname$"
+	
+	OpenKey [$on_shutdown_RegKeyA$\0]
+	set "Script"	  = "$on_shutdown_RunScript$"
+	set "Parameters" = ""
+	;set "ExecTime"	= REG_BINARY:00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
+	
+	OpenKey [$on_shutdown_RegKeyB$]
+	set "GPO-ID"		= "LocalGPO"
+	set "SOM-ID"		= "Local"
+	set "FileSysPath" = "C:\WINDOWS\System32\GroupPolicy\Machine"
+	set "DisplayName" = "$on_shutdown_GPOname$"
+	set "GPOName"	  = "$on_shutdown_GPOname$"
+	
+	OpenKey [$on_shutdown_RegKeyB$\0]
+	set "Script"	  = "$on_shutdown_RunScript$"
+	set "Parameters" = ""
+	;set "ExecTime"	= REG_BINARY:00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
+	
+	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\policies\system]
+	set "shutdownwithoutlogon" = REG_DWORD:00000001
+	set "HideShutdownScripts"  = REG_DWORD:00000001
+	set "MaxGPOScriptWait"	  = REG_DWORD:00000000
+	
+	
+	;;*******************************************
+	[Registry_install_on_shutdown_WIN7]
+	OpenKey [$on_shutdown_RegKeyA$]
+	set "GPO-ID"		  = "LocalGPO"
+	set "SOM-ID"		  = "Local"
+	set "FileSysPath"	= "C:\Windows\System32\GroupPolicy\Machine"
+	set "DisplayName"	= "$on_shutdown_GPOname$"
+	set "GPOName"		 = "$on_shutdown_GPOname$"
+	set "PSScriptOrder" = REG_DWORD:00000001
+	
+	OpenKey [$on_shutdown_RegKeyA$\0]
+	set "Script"	  = "$on_shutdown_RunScript$"
+	set "Parameters" = ""
+	;set "ExecTime"	= REG_BINARY:00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
+	set "ErrorCode"  = REG_DWORD:00000000
+	
+	
+	OpenKey [$on_shutdown_RegKeyB$]
+	set "GPO-ID"		  = "LocalGPO"
+	set "SOM-ID"		  = "Local"
+	set "FileSysPath"	= "C:\Windows\System32\GroupPolicy\Machine"
+	set "DisplayName"	= "$on_shutdown_GPOname$"
+	set "GPOName"		 = "$on_shutdown_GPOname$"
+	set "PSScriptOrder" = REG_DWORD:00000001
+	
+	OpenKey [$on_shutdown_RegKeyB$\0]
+	set "Script"		 = "$on_shutdown_RunScript$"
+	set "Parameters"	= ""
+	set "IsPowershell" = REG_DWORD:00000000
+	;set "ExecTime"	  = REG_BINARY:00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
+	
+	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System]
+	set "MaxGPOScriptWait"	  = REG_DWORD:00000000
+	set "shutdownwithoutlogon" = REG_DWORD:00000001
+	
+	;;*******************************************
+	
+	[Registry_install_on_shutdown_delete]
+	DeleteKey [$on_shutdown_RegKeyA$]
+	DeleteKey [$on_shutdown_RegKeyB$]
+	
+	;;*******************************************
+	
+	
+	[Patches_install_on_shutdown_opsiclientd_conf_enable]
+	set [event_on_shutdown] active = true
+	
+	;;*******************************************
+	
+	[Patches_install_on_shutdown_opsiclientd_conf_disable]
+	set [event_on_shutdown] active = false
+	
+	;;*******************************************
+	
+	[sub_on_shutdown_find_regkey]
+	Set $on_shutdown_last_val$ = "%s%"
+	if GetRegistryStringValueSysNative("["+$on_shutdown_RegKeyA$+"\%s%] GPOName") = $on_shutdown_GPOname$
+		Set $on_shutdown_found$ = "%s%"
+	endif
+	
+endfunc
 
 ;******** Sektion on_shutdown **********
-DefVar $on_shutdown_GPOname$
-DefVar $on_shutdown_active$
-DefVar $on_shutdown_RegKeyA$
-DefVar $on_shutdown_RegKeyB$
-DefVar $on_shutdown_found$
-DefVar $on_shutdown_last_val$
-Defvar $on_shutdown_install$
-DefVar $on_shutdown_install_set_policy$
-DefVar $on_shutdown_RunScript$
 
 DefVar $systray_install$
 DefVar $systray_check_interval$
 DefVar $systray_notifyformat$
+DefVar $installState$
 
 DefVar $OCD_services_pipe_timeout$
 
-DefStringList $on_shutdown_configStates$
-DefStringList $on_shutdown_keylist$
 
 ;DefVar $INST_create_software_on_demand_menue_entry$
 ;DefVar $kiosk_startmenue_folder$
@@ -43,116 +252,9 @@ set $systray_install$ = GetProductProperty ("systray_install", "true")
 set $systray_check_interval$ = GetProductProperty ("systray_check_interval", "60")
 set $systray_notifyformat$ = GetProductProperty ("systray_request_notify_format", "productname : request")
 
-Set $on_shutdown_RegKeyA$ = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts\Shutdown"
-set $on_shutdown_GPOname$ = "opsi shutdown install policy"
-
-
-comment "read on_shutdown settings"
-if $INST_SystemType$ = "64 Bit System"
-	set $on_shutdown_RunScript$ = $INST_BaseDir$+"\on_shutdown\doinstall64.cmd"
-else
-	set $on_shutdown_RunScript$ = $INST_BaseDir$+"\on_shutdown\doinstall32.cmd"
-endif
-if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") < "0"
-	Set $on_shutdown_RegKeyB$ = "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System\Scripts\Shutdown"
-else
-	Set $on_shutdown_RegKeyB$ = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Shutdown"
-endif
-
-Set $on_shutdown_install$ = GetProductProperty("on_shutdown_install", "off")
-Set $on_shutdown_install_set_policy$ = GetProductProperty("on_shutdown_install_set_policy", "on")
-
 ;******** Sektion on_shutdown **********
-Message "opsi-client-agent configuration: on_shutdown"
-comment "$on_shutdown_install$ -> "+                    $on_shutdown_install$
-comment "$on_shutdown_install_set_policy$ -> "+         $on_shutdown_install_set_policy$
-comment "$INST_create_software_on_demand_menue_entry$ -> "+  $INST_create_software_on_demand_menue_entry$
 
-
-comment "configure on_shutdown"
-if ($on_shutdown_install$ = "on")
-	
-	; GONE TO deffunc oca_copy_files()
-	;comment "copy files for install_on_shutdown"
-	;Files_install_on_shutdown_copy_files
-	
-	comment "patch local opsiclientd.conf for install_on_shutdown"
-	if CompareDotSeparatedNumbers("%WinstVersion%",">=","4.12.0.10")
-		Patches_install_on_shutdown_opsiclientd_conf_enable $INST_OpsiclientdConf$ /encoding "utf8" 
-	else
-		Patches_install_on_shutdown_opsiclientd_conf_enable $INST_OpsiclientdConf$
-	endif
-	
-	if ($on_shutdown_install_set_policy$ = "on")
-
-		;************************** Registry patches for shutdown script ***********************************
-		comment "Patch Registry for on_shutdown SCRIPT"
-		if $INST_NTVersion$ = "5.0"
-			;;** Win2k = 5.0
-			LogError "for Win2k install_on_shutdown manual installation with gpedit.msc is available (shutdown script timeout=10 min.)"	
-		else	
-			Set $on_shutdown_found$ = ""
-			Set $on_shutdown_last_val$ = ""
-			Set $on_shutdown_keylist$ = getRegistryKeyListSysnative($on_shutdown_RegKeyA$)
-			
-			if (count($on_shutdown_keylist$) = "0")
-				comment "no Shutdown Policy entry found - inserting entry 0"
-				Set $on_shutdown_RegKeyA$ = $on_shutdown_RegKeyA$ + "\0"
-				Set $on_shutdown_RegKeyB$ = $on_shutdown_RegKeyB$ + "\0"
-			else
-				comment "Shutdown Policy entries found - searching for opsi shutdown script entry"
-				Set $on_shutdown_found$ = ""
-				Set $on_shutdown_last_val$ = ""
-				for %s% in $on_shutdown_keylist$ do sub_on_shutdown_find_regkey
-				if ($on_shutdown_found$ = "")
-					comment "no opsi shutdown script entry found - on_shutdown_last_val="+$on_shutdown_last_val$"+" - appending new entry"
-					Set $on_shutdown_RegKeyA$ = $on_shutdown_RegKeyA$ + "\"+calculate($on_shutdown_last_val$+"+1")
-					Set $on_shutdown_RegKeyB$ = $on_shutdown_RegKeyB$ + "\"+calculate($on_shutdown_last_val$+"+1")
-				else
-					comment "opsi shutdown script entry found - reusing entry No "+ $on_shutdown_found$
-					Set $on_shutdown_RegKeyA$ = $on_shutdown_RegKeyA$ + "\"+$on_shutdown_found$
-					Set $on_shutdown_RegKeyB$ = $on_shutdown_RegKeyB$ + "\"+$on_shutdown_found$
-				endif
-			endif
-			
-			if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") < "0"	
-				Registry_install_on_shutdown_XP /sysnative
-			else
-				Registry_install_on_shutdown_WIN7 /sysnative
-			endif
-		endif
-		
-	endif	;on_shutdown_install_set_policy=on
-	
-else
-
-	comment "patch local opsiclientd.conf install_on_shutdown=false"
-	if CompareDotSeparatedNumbers("%WinstVersion%",">=","4.12.0.10")
-		Patches_install_on_shutdown_opsiclientd_conf_disable $INST_OpsiclientdConf$ /encoding "utf8" 
-	else
-		Patches_install_on_shutdown_opsiclientd_conf_disable $INST_OpsiclientdConf$
-	endif
-	
-	Set $on_shutdown_keylist$ = getRegistryKeyListSysnative($on_shutdown_RegKeyA$)
-	
-	if (count($on_shutdown_keylist$) = "0")
-		comment "no opsi shutdown script entry found - nothing to remove"
-	else
-		comment "Shutdown Policy entries found - searching for opsi shutdown script entry"
-		Set $on_shutdown_found$ = ""
-		Set $on_shutdown_last_val$ = ""
-		for %s% in $on_shutdown_keylist$ do sub_on_shutdown_find_regkey
-		if ($on_shutdown_found$ = "")
-			comment "no opsi shutdown script entry found - nothing to remove"
-		else
-			comment "opsi shutdown script entry found - removing entry"
-			Set $on_shutdown_RegKeyA$ = $on_shutdown_RegKeyA$ + "\"+$on_shutdown_found$
-			Set $on_shutdown_RegKeyB$ = $on_shutdown_RegKeyB$ + "\"+$on_shutdown_found$ 
-			Registry_install_on_shutdown_delete /sysnative
-		endif
-	endif
-	
-endif	;on_shutdown_install=on
+configure_on_shutdown()
 
 ;******** Sektion kiosk **********
 Message "opsi-client-agent configuration: delete old kiosk"
@@ -183,8 +285,14 @@ opsiServiceCall_delete_kiosk_desktop_icon
 
 ;if software-on-demand.active = true then set product opsi-client-kiosk to setup for tthe client
 if $kiosk_active$ = "true"
-	comment "Set product opsi-client-kiosk to setup"
-	opsiServiceCall_set_Kiosk_to_setup
+	Set $resultlist$ = getReturnListFromSection('opsiservicecall_poc_kiosk_getObjects')
+	Set $ArrayStr$ = takestring(0, $resultlist$)
+	set $objectStr$ = jsonAsArrayGetElementByIndex($ArrayStr$,"0")
+	Set $installState$ = jsonAsObjectGetValueByKey($objectStr$,"installationStatus")
+	if not($installState$ = "installed")
+		comment "Set product opsi-client-kiosk to setup"
+		opsiServiceCall_set_Kiosk_to_setup
+	endif
 endif
 
 ;comment "$kiosk_active$ = "+$kiosk_active$
@@ -269,108 +377,6 @@ endif
 
 ;;*******************************************
 
-[Registry_install_on_shutdown_XP]
-OpenKey [$on_shutdown_RegKeyA$]
-set "GPO-ID"		= "LocalGPO"
-set "SOM-ID"		= "Local"
-set "FileSysPath" = "C:\WINDOWS\System32\GroupPolicy\Machine"
-set "DisplayName" = "$on_shutdown_GPOname$"
-set "GPOName"	  = "$on_shutdown_GPOname$"
-
-OpenKey [$on_shutdown_RegKeyA$\0]
-set "Script"	  = "$on_shutdown_RunScript$"
-set "Parameters" = ""
-;set "ExecTime"	= REG_BINARY:00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
-
-OpenKey [$on_shutdown_RegKeyB$]
-set "GPO-ID"		= "LocalGPO"
-set "SOM-ID"		= "Local"
-set "FileSysPath" = "C:\WINDOWS\System32\GroupPolicy\Machine"
-set "DisplayName" = "$on_shutdown_GPOname$"
-set "GPOName"	  = "$on_shutdown_GPOname$"
-
-OpenKey [$on_shutdown_RegKeyB$\0]
-set "Script"	  = "$on_shutdown_RunScript$"
-set "Parameters" = ""
-;set "ExecTime"	= REG_BINARY:00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
-
-OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\policies\system]
-set "shutdownwithoutlogon" = REG_DWORD:00000001
-set "HideShutdownScripts"  = REG_DWORD:00000001
-set "MaxGPOScriptWait"	  = REG_DWORD:00000000
-
-
-;;*******************************************
-[Registry_install_on_shutdown_WIN7]
-OpenKey [$on_shutdown_RegKeyA$]
-set "GPO-ID"		  = "LocalGPO"
-set "SOM-ID"		  = "Local"
-set "FileSysPath"	= "C:\Windows\System32\GroupPolicy\Machine"
-set "DisplayName"	= "$on_shutdown_GPOname$"
-set "GPOName"		 = "$on_shutdown_GPOname$"
-set "PSScriptOrder" = REG_DWORD:00000001
-
-OpenKey [$on_shutdown_RegKeyA$\0]
-set "Script"	  = "$on_shutdown_RunScript$"
-set "Parameters" = ""
-;set "ExecTime"	= REG_BINARY:00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
-set "ErrorCode"  = REG_DWORD:00000000
-
-
-OpenKey [$on_shutdown_RegKeyB$]
-set "GPO-ID"		  = "LocalGPO"
-set "SOM-ID"		  = "Local"
-set "FileSysPath"	= "C:\Windows\System32\GroupPolicy\Machine"
-set "DisplayName"	= "$on_shutdown_GPOname$"
-set "GPOName"		 = "$on_shutdown_GPOname$"
-set "PSScriptOrder" = REG_DWORD:00000001
-
-OpenKey [$on_shutdown_RegKeyB$\0]
-set "Script"		 = "$on_shutdown_RunScript$"
-set "Parameters"	= ""
-set "IsPowershell" = REG_DWORD:00000000
-;set "ExecTime"	  = REG_BINARY:00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
-
-OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System]
-set "MaxGPOScriptWait"	  = REG_DWORD:00000000
-set "shutdownwithoutlogon" = REG_DWORD:00000001
-
-;;*******************************************
-
-[Registry_install_on_shutdown_delete]
-DeleteKey [$on_shutdown_RegKeyA$]
-DeleteKey [$on_shutdown_RegKeyB$]
-
-;;*******************************************
-
-
-[Patches_install_on_shutdown_opsiclientd_conf_enable]
-;set [event_gui_startup{installation_pending}] name = gui_startup
-;set [event_gui_startup{installation_pending}] active = true
-
-;set [event_on_shutdown] super = default
-;set [event_on_shutdown] type = custom
-;set [event_on_shutdown] name = on_shutdown
-set [event_on_shutdown] active = true
-
-;set [event_on_shutdown{installation_pending}] name = on_shutdown
-;set [event_on_shutdown{installation_pending}] active = false
-
-;set [precondition_installation_pending] installation_pending = true
-
-
-;;*******************************************
-
-[Patches_install_on_shutdown_opsiclientd_conf_disable]
-set [event_on_shutdown] active = false
-
-;;*******************************************
-
-[sub_on_shutdown_find_regkey]
-Set $on_shutdown_last_val$ = "%s%"
-if GetRegistryStringValueSysNative("["+$on_shutdown_RegKeyA$+"\%s%] GPOName") = $on_shutdown_GPOname$
-	Set $on_shutdown_found$ = "%s%"
-endif
 
 [Registry_set_ServicesPipeTimeout]
 openkey [HKLM\SYSTEM\CurrentControlSet\Control] 
@@ -392,6 +398,13 @@ del "ServicesPipeTimeout"
 	'{"configId":"software-on-demand.active","objectId":"$INST_ClientId$"}',
 ]
 
+[opsiservicecall_poc_kiosk_getObjects]
+"method": "productOnClient_getObjects"
+"params": [
+	'[]',
+	'{"productId":"opsi-client-kiosk","clientId":"$INST_ClientId$"}',
+]
+
 [opsiServiceCall_set_Kiosk_to_setup]
 "method": "setProductActionRequest"
 "params": [
@@ -403,7 +416,7 @@ del "ServicesPipeTimeout"
 [opsiServiceCall_delete_kiosk_startmenue_entry]
 "method": "productPropertyState_delete"
 "params": [
-	"$ProductId$",
+	"opsi-client-agent",
 	"kiosk_startmenue_entry",
 	"$INST_ClientId$"
 ]
@@ -411,7 +424,7 @@ del "ServicesPipeTimeout"
 [opsiServiceCall_delete_kiosk_startmenue_folder]
 "method": "productPropertyState_delete"
 "params": [
-	"$ProductId$",
+	"opsi-client-agent",
 	"kiosk_startmenue_folder",
 	"$INST_ClientId$"
 ]
@@ -419,7 +432,7 @@ del "ServicesPipeTimeout"
 [opsiServiceCall_delete_kiosk_desktop_icon]
 "method": "productPropertyState_delete"
 "params": [
-	"$ProductID$",
+	"opsi-client-agent",
 	"kiosk_desktop_icon",
 	"$INST_ClientId$"
 ]

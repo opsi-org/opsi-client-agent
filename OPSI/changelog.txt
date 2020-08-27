@@ -1,36 +1,42 @@
 ﻿[Changelog]
 
-opsi-client-agent (4.1.1.0-1) experimental; urgency=medium
+opsi-client-agent (4.1.1.0-2) experimental; urgency=medium
 
-* depends now on opsi-client-kiosk (opsi-client-kiosk must be installed on depot first to migrate icons and settings from client-agent)
-* remove old kiosk completely from client-agent folder and system entries on client
-* opsi-client-kiosk is set to setup if software-on-demand.active is true
+ * depends now on opsi-client-kiosk (opsi-client-kiosk must be installed on depot first to migrate icons and settings from client-agent)
+ * remove old kiosk completely from client-agent folder and system entries on client
+ * opsi-client-kiosk is set to setup if software-on-demand.active is true
+ * update to opsi-notifier 4.1.1.2
 
  -- j.werner <j.werner@uib.de> Thu, 06 Aug 2020 13:49:00 + 0100
+ -- d.oertel <d.oertel@uib.de> Wed, 19 Aug 2020 15:00:00 + 0100
 
 opsi-client-agent (4.1.1.0-1) testing; urgency=medium
 
- * switch to opsiclientd-pyinstaller
- * startup opsiclientd in install mode
- * fix sequence of getting the value of allow_reboot
- * update to opsi-script 4.12.3.16
- * update to opsi-systray 4.1.3.0
- * update to opsi-notifier 4.1.1.1
- * update to opsiclientdguard 4.0.0.2
- * update to openssl 1.0.2u
- * integrate vcredist2015
- * remove opsi-kiosk from client-agent (is stand alone now)
- * fix c:\opsi.org\usertmp file access rights
- * update to setacl 3.06
- * update oca_write_configuration():DosInAnIcon_open_dir by Mathias Knauer
- * opsiclientd 4.2  (21.7.2020)
- * fix Registry_set_ServicesPipeTimeout / Registry_del_ServicesPipeTimeout
- * new property start_opsiclientd_guard (default=true)
- * modified patch_config_file.py (get domain from backend)
- * modified opsi-deploy-client-agent for opsi 4.2
- * modified postinst for opsi 4.2
- * remove old debug files (like config.ini) from log dir if $Inst_Debug$="off"
- * preinst: save old kiosk files to new kiosk product
+  * switch to opsiclientd-pyinstaller
+  * startup opsiclientd in install mode
+  * fix sequence of getting the value of allow_reboot
+  * update to opsi-script 4.12.3.16
+  * update to opsi-systray 4.1.3.0
+  * update to opsi-notifier 4.1.1.1
+  * update to opsiclientdguard 4.0.0.2
+  * update to openssl 1.0.2u
+  * integrate vcredist2015
+  * remove opsi-kiosk from client-agent (is stand alone now)
+  * fix c:\opsi.org\usertmp file access rights
+  * update to setacl 3.06
+  * update oca_write_configuration():DosInAnIcon_open_dir by Mathias Knauer
+  * opsiclientd 4.2  (21.7.2020)
+  * fix Registry_set_ServicesPipeTimeout / Registry_del_ServicesPipeTimeout
+  * new property start_opsiclientd_guard (default=true)
+  * modified patch_config_file.py (get domain from backend)
+  * modified opsi-deploy-client-agent for opsi 4.2
+  * modified postinst for opsi 4.2
+  * remove old debug files (like config.ini) from log dir if $Inst_Debug$="off"
+  * preinst: save old kiosk files to new kiosk product
+  * modified function: 
+    deffunc opsiservice_authenticated($testexisting$ : string,$user$ : string, 
+    $pass$ : string, $url$ : string, $interactive$ : string) : string
+  * subconfig: all on_shutdown in one function
 
  -- Jan Schneider <j.schneider@uib.de> Fri, 08 May 2020 11:03:00 + 0100
  -- d.oertel <d.oertel@uib.de> Fri, 08 May 2020 15:00:00 + 0100
