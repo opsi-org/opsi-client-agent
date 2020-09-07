@@ -1,20 +1,5 @@
-##CLIENT_DATA\winexe              #doch nicht notwendig?
-#CLIENT_DATA\files\opsi\deps      # hier ist auch vcredist drin
-#CLIENT_DATA\files\opsi\dist...    # nicht mehr wichtig für 4.2
-#CLIENT_DATA\files\opsi\on_shutdown   # nur opsiclientd-event-starter, rest ist in gitlab
-##CLIENT_DATA\files\opsi\openssl
-#CLIENT_DATA\files\opsi\opsiclientkiosk   # nicht notwendig?
-#CLIENT_DATA\files\opsi\opsigina
-#CLIENT_DATA\files\opsi\OpsiLoginBlocker
-#CLIENT_DATA\files\opsi\opsi-notifier
-#CLIENT_DATA\files\opsi\opsi-systray
-#CLIENT_DATA\files\opsi\opsi-winst
-#CLIENT_DATA\files\opsi\opsiclientdguard
-#CLIENT_DATA\files\opsi\utilities
-#CLIENT_DATA\files\opsi\vcredistx64    # schon wieder vcredist
-
-
 pull-binaries:
+  # opsi client daemon
   - name: opsiclientd
     server-type: binaryindex
     destination: CLIENT_DATA/files/opsi/opsiclientd_binaries
@@ -24,6 +9,7 @@ pull-binaries:
     version: latest
     branch: development
     server-url: http://binaryindex.uib.gmbh
+  # opsi script interpreter
   - name: opsi-winst
     server-type: binaryindex
     destination: CLIENT_DATA/files/opsi/
@@ -33,24 +19,7 @@ pull-binaries:
     version: latest
     branch: development
     server-url: http://binaryindex.uib.gmbh
-  - name: winexe
-    server-type: binaryindex
-    destination: CLIENT_DATA/
-    extract: true
-    post-script: []
-    architecture: windows
-    version: latest
-    branch: development
-    server-url: http://binaryindex.uib.gmbh
-  - name: deps
-    server-type: binaryindex
-    destination: CLIENT_DATA/files/opsi/
-    extract: true
-    post-script: []
-    architecture: windows
-    version: latest
-    branch: development
-    server-url: http://binaryindex.uib.gmbh
+  # opsigina
   - name: opsigina
     server-type: binaryindex
     destination: CLIENT_DATA/files/opsi/
@@ -60,6 +29,7 @@ pull-binaries:
     version: latest
     branch: development
     server-url: http://binaryindex.uib.gmbh
+  # opsi-login-blocker - prevents login during opsi task execution
   - name: opsi-login-blocker
     server-type: binaryindex
     destination: CLIENT_DATA/files/opsi/
@@ -69,6 +39,7 @@ pull-binaries:
     version: latest
     branch: development
     server-url: http://binaryindex.uib.gmbh
+  # opsi-notifier
   - name: opsi-notifier
     server-type: binaryindex
     destination: CLIENT_DATA/files/opsi/
@@ -78,6 +49,7 @@ pull-binaries:
     version: latest
     branch: development
     server-url: http://binaryindex.uib.gmbh
+  # opsi-systray
   - name: opsi-systray
     server-type: binaryindex
     destination: CLIENT_DATA/files/opsi/
@@ -87,6 +59,7 @@ pull-binaries:
     version: latest
     branch: development
     server-url: http://binaryindex.uib.gmbh
+  # opsiclientdguard
   - name: opsiclientdguard
     server-type: binaryindex
     destination: CLIENT_DATA/files/opsi/
@@ -96,6 +69,7 @@ pull-binaries:
     version: latest
     branch: development
     server-url: http://binaryindex.uib.gmbh
+  # opsiclientd-event-starter
   - name: opsiclientd-event-starter
     server-type: binaryindex
     destination: CLIENT_DATA/files/opsi/on_shutdown
@@ -105,6 +79,7 @@ pull-binaries:
     version: latest
     branch: development
     server-url: http://binaryindex.uib.gmbh
+  # utilities: contains setacl (version 2.1.1.0 and 3.0.6.0), getmsversioninfo and shutdown
   - name: utilities
     server-type: binaryindex
     destination: CLIENT_DATA/files/opsi/
@@ -114,20 +89,36 @@ pull-binaries:
     version: latest
     branch: development
     server-url: http://binaryindex.uib.gmbh
+  # Visual C++ redistributable 2008   # not supported anymore, so mirrored on binaryindex
+  - name: vcredist2008
+    server-type: binaryindex
+    destination: CLIENT_DATA/files/opsi/deps
+    extract: true
+    post-script:
+      - mv CLIENT_DATA/files/opsi/deps/vcredist2008/* CLIENT_DATA/files/opsi/deps/
+      - rm -r CLIENT_DATA/files/opsi/deps/vcredist2008
+    architecture: windows
+    version: latest
+    branch: development
+    server-url: http://binaryindex.uib.gmbh
+  # Visual C++ redistributable 2015
   - name: vcredistx64
     server-type: static
-    destination: CLIENT_DATA/files/opsi
+    destination: CLIENT_DATA/files/opsi/vcredist2015/
     extract: false
-    post-script:
-      - mkdir CLIENT_DATA/files/opsi/vcredist2015
-      - mv CLIENT_DATA/files/opsi/vc_redist.x86.exe CLIENT_DATA/files/opsi/vcredist2015/vcredist_2015_x86.exe
+    post-script: []
     file-url: https://aka.ms/vs/16/release/vc_redist.x86.exe
+  # inno unpack utility
+  - name: innounp
+    server-type: static
+    destination: CLIENT_DATA/files/opsi/deps
+    extraction: true
+    post-script: []
+    file-url: https://downloads.sourceforge.net/project/innounp/innounp/innounp%200.35/innounp035.rar
+  # Openssl library and executable
   - name: openssl
     server-type: static
-    destination: CLIENT_DATA/files/opsi
-    extract: false
-    post-script:
-      - mkdir CLIENT_DATA/files/opsi/openssl
-      - unzip CLIENT_DATA/files/opsi/openssl-1.0.2u-x64_86-win64.zip -d CLIENT_DATA/files/opsi/openssl
-      - rm CLIENT_DATA/files/opsi/openssl-1.0.2u-x64_86-win64.zip
+    destination: CLIENT_DATA/files/opsi/openssl
+    extract: true
+    post-script: []
     file-url: https://indy.fulgan.com/SSL/openssl-1.0.2u-x64_86-win64.zip
