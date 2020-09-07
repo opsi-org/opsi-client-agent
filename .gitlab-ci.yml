@@ -17,11 +17,10 @@ stages:
 package:makeopsipackage:
   stage: package
   script:
-    - apt -y install curl
-    - curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3
-    - source $HOME/.poetry/env
-    - poetry run opsi-dev-tool -l debug --binary-pull
     - *install_opsi_utils
+    - wget http://binaryindex.uib.gmbh/development/opsi-dev-tools/linux/opsi-dev-tools_linux_1.0.25~18556.tar.gz
+    - tar -xvf http://binaryindex.uib.gmbh/development/opsi-dev-tools/linux/
+    - opsi-dev-tool -l debug --binary-pull
     - opsi-makepackage
   artifacts:
     name: opsi-client-agent-package
