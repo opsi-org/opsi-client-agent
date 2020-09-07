@@ -34,14 +34,17 @@ pull-binaries:
     branch: development
     server-url: http://binaryindex.uib.gmbh
   - name: winexe
-    server-type: static
-    destination: CLIENT_DATA/
-    extract: false
-    post-script: []
-    file-url: http://obs.uib.local:82/home:/uibmz:/winexe/Debian_10/amd64/winexe_4.8.0.0-15_amd64.deb
-  - name: deps
     server-type: binaryindex
     destination: CLIENT_DATA/
+    extract: true
+    post-script: []
+    architecture: windows
+    version: latest
+    branch: development
+    server-url: http://binaryindex.uib.gmbh
+  - name: deps
+    server-type: binaryindex
+    destination: CLIENT_DATA/files/opsi/
     extract: true
     post-script: []
     architecture: windows
@@ -93,23 +96,6 @@ pull-binaries:
     version: latest
     branch: development
     server-url: http://binaryindex.uib.gmbh
-  - name: vcredistx64
-    server-type: static
-    destination: CLIENT_DATA/files/opsi
-    extract: false
-    post-script:
-      - mkdir CLIENT_DATA/files/opsi/vcredist2015
-      - mv CLIENT_DATA/files/opsi/vc_redist.x86.exe CLIENT_DATA/files/opsi/vcredist2015/vcredist_2015_x86.exe
-    file-url: https://aka.ms/vs/16/release/vc_redist.x86.exe
-  - name: openssl
-    server-type: binaryindex
-    destination: CLIENT_DATA/files/opsi/
-    extract: true
-    post-script: []
-    architecture: windows
-    version: latest
-    branch: development
-    server-url: http://binaryindex.uib.gmbh
   - name: opsiclientd-event-starter
     server-type: binaryindex
     destination: CLIENT_DATA/files/opsi/on_shutdown
@@ -119,3 +105,29 @@ pull-binaries:
     version: latest
     branch: development
     server-url: http://binaryindex.uib.gmbh
+  - name: utilities
+    server-type: binaryindex
+    destination: CLIENT_DATA/files/opsi/
+    extract: true
+    post-script: []
+    architecture: windows
+    version: latest
+    branch: development
+    server-url: http://binaryindex.uib.gmbh
+  - name: vcredistx64
+    server-type: static
+    destination: CLIENT_DATA/files/opsi
+    extract: false
+    post-script:
+      - mkdir CLIENT_DATA/files/opsi/vcredist2015
+      - mv CLIENT_DATA/files/opsi/vc_redist.x86.exe CLIENT_DATA/files/opsi/vcredist2015/vcredist_2015_x86.exe
+    file-url: https://aka.ms/vs/16/release/vc_redist.x86.exe
+  - name: openssl
+    server-type: static
+    destination: CLIENT_DATA/files/opsi
+    extract: false
+    post-script:
+      - mkdir CLIENT_DATA/files/opsi/openssl
+      - unzip CLIENT_DATA/files/opsi/openssl-1.0.2u-x64_86-win64.zip -d CLIENT_DATA/files/opsi/openssl
+      - rm CLIENT_DATA/files/opsi/openssl-1.0.2u-x64_86-win64.zip
+    file-url: https://indy.fulgan.com/SSL/openssl-1.0.2u-x64_86-win64.zip
