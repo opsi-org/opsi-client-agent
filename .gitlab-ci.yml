@@ -20,7 +20,7 @@ package:makeopsipackage:
     - *install_opsi_utils
     - wget http://binaryindex.uib.gmbh/development/opsi-dev-tools/linux/opsi-dev-tools_linux_1.0.25~18556.tar.gz
     - tar -xvf opsi-dev-tools_linux_1.0.25~18556.tar.gz
-    - opsi-dev-tool -l debug --binary-pull
+    - ./opsi-dev-tool -l debug --binary-pull
     - opsi-makepackage
   artifacts:
     name: opsi-client-agent-package
