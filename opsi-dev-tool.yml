@@ -121,4 +121,4 @@ pull-binaries:
     destination: CLIENT_DATA/files/opsi/openssl
     extract: true
     post-script: []
-    file-url: https://indy.fulgan.com/SSL/openssl-1.0.2u-x64_86-win64.zip
+    file-url: http://wiki.overbyte.eu/arch/openssl-1.0.2p-win64.zip
