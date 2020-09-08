@@ -3,11 +3,16 @@ image: python:3.7-stretch
 stages:
   - package
 
+.install_opsi_dev_tools: &install_opsi_dev_tools |
+  apt update
+  apt -y install wget cpio unar
+  wget "$OPSIDEVTOOLS_URL_LINUX" -O opsi-dev-tools.tar.gz
+  tar -xvf opsi-dev-tools.tar.gz
+
 .install_opsi_utils: &install_opsi_utils |
   apt update
-  apt -y install wget zsync librsync-dev cpio unar
-  wget "http://obs.uib.gmbh:82/home:/uibmz:/opsi:/4.2:/experimental/Debian_10/amd64/opsi-utils_4.2.0.27-1_amd64.deb"
-  apt -y install ./opsi-utils_4.2.0.27-1_amd64.deb
+  apt -y install zsync librsync-dev cpio
+  opsi-dev-tool --binary-pull development opsi-utils linux latest ./
   useradd opsiconfd
   groupadd pcpatch
   groupadd opsiadmin
@@ -17,11 +22,10 @@ stages:
 package:makeopsipackage:
   stage: package
   script:
+    - *install_opsi_dev_tools
     - *install_opsi_utils
-    - wget http://binaryindex.uib.gmbh/development/opsi-dev-tools/linux/opsi-dev-tools_linux_1.0.25~18556.tar.gz
-    - tar -xvf opsi-dev-tools_linux_1.0.25~18556.tar.gz
     - ./opsi-dev-tool -l debug --binary-pull
-    - opsi-makepackage
+    - opsi-utils/opsi-makepackage
   artifacts:
     name: opsi-client-agent-package
     paths:
