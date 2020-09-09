@@ -117,8 +117,11 @@ pull-binaries:
     file-url: https://downloads.sourceforge.net/project/innounp/innounp/innounp%200.35/innounp035.rar
   # Openssl library and executable
   - name: openssl
-    server-type: static
+    server-type: binaryindex
     destination: CLIENT_DATA/files/opsi/openssl
     extract: true
     post-script: []
-    file-url: http://wiki.overbyte.eu/arch/openssl-1.0.2p-win64.zip
+    architecture: windows
+    version: 1.0.2
+    branch: development
+    server-url: http://binaryindex.uib.gmbh
