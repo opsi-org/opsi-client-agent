@@ -25,7 +25,7 @@ package:makeopsipackage:
     - *install_opsi_dev_tools
     - *install_opsi_utils
     - ./opsi-dev-tool -l debug --binary-pull
-    - opsi-utils/opsi-makepackage -l debug
+    - opsi-utils/opsi-makepackage -l 7
   artifacts:
     name: opsi-client-agent-package
     paths:
