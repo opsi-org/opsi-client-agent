@@ -12,7 +12,7 @@ stages:
 .install_opsi_utils: &install_opsi_utils |
   apt update
   apt -y install zsync librsync-dev cpio
-  ./opsi-dev-tool --binary-pull development opsi-utils linux latest ./
+  ./opsi-dev-tool --binary-pull development opsi-utils linux 0 ./
   useradd opsiconfd
   groupadd pcpatch
   groupadd opsiadmin
