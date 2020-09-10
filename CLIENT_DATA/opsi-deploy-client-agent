@@ -1179,61 +1179,60 @@ def main(argv):
 	if args.group and not backend.group_getObjects(id=args.group):
 		raise ValueError(u"Group {0} does not exist.".format(args.group))
 
-	runningThreads = []
-	while hosts:
-		while len(runningThreads) >= maxThreads:
-			time.sleep(1)
-			for thread in runningThreads:
-				if thread.isAlive():
-					continue
-				runningThreads.remove(thread)
-				break
-
-		host = hosts.pop()
-
-		clientConfig = {
-			"host": host,
-			"backend": backend,
-			"username": args.username,
-			"password": password,
-			"shutdown": args.shutdown,
-			"reboot": args.reboot,
-			"startService": args.startService,
-			"deploymentMethod": deploymentMethod,
-			"stopOnPingFailure": args.stopOnPingFailure,
-			"skipExistingClient": args.skipExistingClient,
-			"mountWithSmbclient": mountWithSmbclient,
-			"keepClientOnFailure": args.keepClientOnFailure,
-			"depot": args.depot,
-			"group": args.group,
-		}
-
-		try:
-			clientConfig['additionalClientSettings'] = additionalHostInfos[host]
-		except KeyError:
-			pass
-
-		if deployLinux:
-			clientConfig["sshPolicy"] = args.sshHostkeyPolicy or WARNING_POLICY
-
-		thread = deploymentClass(**clientConfig)
-
-		thread.start()
-		runningThreads.append(thread)
-		time.sleep(0.5)
-
+	total = 0
 	fails = 0
 	skips = 0
-	for thread in runningThreads:
-		if thread.isAlive():
-			thread.join()
 
-		if thread.success == SKIP_MARKER:
-			skips += 1
-		elif not thread.success:
-			fails += 1
+	runningThreads = []
+	while hosts or runningThreads:
+		if hosts and len(runningThreads) < maxThreads:
+			# start new thread
+			host = hosts.pop()
 
-	total = len(runningThreads)
+			clientConfig = {
+				"host": host,
+				"backend": backend,
+				"username": args.username,
+				"password": password,
+				"shutdown": args.shutdown,
+				"reboot": args.reboot,
+				"startService": args.startService,
+				"deploymentMethod": deploymentMethod,
+				"stopOnPingFailure": args.stopOnPingFailure,
+				"skipExistingClient": args.skipExistingClient,
+				"mountWithSmbclient": mountWithSmbclient,
+				"keepClientOnFailure": args.keepClientOnFailure,
+				"depot": args.depot,
+				"group": args.group,
+			}
+
+			try:
+				clientConfig['additionalClientSettings'] = additionalHostInfos[host]
+			except KeyError:
+				pass
+
+			if deployLinux:
+				clientConfig["sshPolicy"] = args.sshHostkeyPolicy or WARNING_POLICY
+
+			thread = deploymentClass(**clientConfig)
+			total += 1
+			thread.daemon = True
+			thread.start()
+			runningThreads.append(thread)
+			time.sleep(0.5)
+
+		newRunningThreads = []
+		for thread in runningThreads:
+			if thread.isAlive():
+				newRunningThreads.append(thread)
+			else:
+				if thread.success == SKIP_MARKER:
+					skips += 1
+				elif not thread.success:
+					fails += 1
+		runningThreads = newRunningThreads
+		time.sleep(1)
+	
 	success = total - fails - skips
 
 	logger.notice("%s/%s deployments successfully", success, total)
