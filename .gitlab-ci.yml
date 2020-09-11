@@ -12,7 +12,7 @@ stages:
 .install_opsi_utils: &install_opsi_utils |
   apt update
   apt -y install zsync librsync-dev cpio
-  ./opsi-dev-tool --binary-pull development opsi-utils linux 0 ./
+  ./opsi-dev-tool --binary-pull development opsi-utils linux latest ./
   useradd opsiconfd
   groupadd pcpatch
   groupadd opsiadmin
@@ -25,7 +25,7 @@ package:makeopsipackage:
     - *install_opsi_dev_tools
     - *install_opsi_utils
     - ./opsi-dev-tool -l debug --binary-pull
-    - opsi-utils/opsi-makepackage -l 7
+    - opsi-utils/opsi-makepackage --no-set-rights -l 6
   artifacts:
     name: opsi-client-agent-package
     paths:
