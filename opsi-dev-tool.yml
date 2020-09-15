@@ -5,7 +5,8 @@ pull-binaries:
     destination: CLIENT_DATA/files/opsi/opsiclientd_binaries
     extract: true
     post-script: []
-    architecture: windows
+    os: windows
+    architecture: x86
     version: latest
     branch: development
     server-url: http://binaryindex.uib.gmbh
@@ -15,27 +16,19 @@ pull-binaries:
     destination: CLIENT_DATA/files/opsi/
     extract: true
     post-script: []
-    architecture: windows
+    os: windows
+    architecture: x86
     version: latest
     branch: development
     server-url: http://binaryindex.uib.gmbh
-  # opsi script library
-  - name: opsi-script-lib
-    server-type: binaryindex
-    destination: CLIENT_DATA/files/opsi/opsi-winst/
-    extract: true
-    post-script: []
-    architecture: linux
-    version: latest
-    branch: stable
-    server-url: http://binaryindex.uib.gmbh
-  # opsigina
+  # opsigina - windows login stuff for xp and older
   - name: opsigina
     server-type: binaryindex
     destination: CLIENT_DATA/files/opsi/
     extract: true
     post-script: []
-    architecture: windows
+    os: windows
+    architecture: x86
     version: latest
     branch: development
     server-url: http://binaryindex.uib.gmbh
@@ -45,7 +38,8 @@ pull-binaries:
     destination: CLIENT_DATA/files/opsi/
     extract: true
     post-script: []
-    architecture: windows
+    os: windows
+    architecture: x86
     version: latest
     branch: development
     server-url: http://binaryindex.uib.gmbh
@@ -55,7 +49,8 @@ pull-binaries:
     destination: CLIENT_DATA/files/opsi/
     extract: true
     post-script: []
-    architecture: windows
+    os: windows
+    architecture: x86
     version: latest
     branch: development
     server-url: http://binaryindex.uib.gmbh
@@ -65,7 +60,8 @@ pull-binaries:
     destination: CLIENT_DATA/files/opsi/
     extract: true
     post-script: []
-    architecture: windows
+    os: windows
+    architecture: x86
     version: latest
     branch: development
     server-url: http://binaryindex.uib.gmbh
@@ -75,7 +71,8 @@ pull-binaries:
     destination: CLIENT_DATA/files/opsi/
     extract: true
     post-script: []
-    architecture: windows
+    os: windows
+    architecture: x86
     version: latest
     branch: development
     server-url: http://binaryindex.uib.gmbh
@@ -85,7 +82,8 @@ pull-binaries:
     destination: CLIENT_DATA/files/opsi/on_shutdown
     extract: true
     post-script: []
-    architecture: windows
+    os: windows
+    architecture: x86
     version: latest
     branch: development
     server-url: http://binaryindex.uib.gmbh
@@ -95,7 +93,8 @@ pull-binaries:
     destination: CLIENT_DATA/files/opsi/
     extract: true
     post-script: []
-    architecture: windows
+    os: windows
+    architecture: x86
     version: latest
     branch: development
     server-url: http://binaryindex.uib.gmbh
@@ -107,7 +106,8 @@ pull-binaries:
     post-script:
       - cp -r CLIENT_DATA/files/opsi/deps/vcredist2008/* CLIENT_DATA/files/opsi/deps/
       - rm -r CLIENT_DATA/files/opsi/deps/vcredist2008
-    architecture: windows
+    os: windows
+    architecture: x86
     version: latest
     branch: development
     server-url: http://binaryindex.uib.gmbh
@@ -131,7 +131,8 @@ pull-binaries:
     destination: CLIENT_DATA/files/opsi/openssl
     extract: true
     post-script: []
-    architecture: windows
+    os: windows
+    architecture: x86
     version: 1.0.2
     branch: development
     server-url: http://binaryindex.uib.gmbh
