@@ -997,7 +997,7 @@ deffunc oca_copy_files() : void
 	;Set $OCD_binaryTarfile$ = "opsiclientd_binaries.tar.gz"
 	;Comment "OCD binary tarfile: " + $OCD_binaryTarfile$
 	;Set $OCD_binaryPath$ = "%SCRIPTPATH%/opsiclientd_binaries/" + $OCD_binaryTarfile$
-	Set $OCD_binaryPath$ = "%SCRIPTPATH%/opsiclientd_binaries/opsiclientd/*.*"
+	Set $OCD_binaryPath$ = "%SCRIPTPATH%/opsiclientd_binaries/opsiclientd_windows_x86/*.*"
 	Comment "OCD binary path: " + $OCD_binaryPath$
 	markErrorNumber
 	Files_copy_opsiclientd_binaries

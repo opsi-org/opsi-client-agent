@@ -1,4 +1,11 @@
 ﻿[Changelog]
+opsi-client-agent (4.1.1.1-1) experimental; urgency=medium
+
+ * opsicliend 4.2.0.21 in opsiclientd_windows_x86
+ * update to opsiclientd 4.2.0.25
+ 
+ -- d.oertel <d.oertel@uib.de> Wed, 16 Sep 2020 15:00:00 + 0100
+ -- n.doerrer <n.doerrer@uib.de> Mon, 21 Sep 2020 14:30:00 + 0100
 
 opsi-client-agent (4.1.1.0-2) experimental; urgency=medium
 
