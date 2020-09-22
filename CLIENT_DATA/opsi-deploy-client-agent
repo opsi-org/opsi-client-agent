@@ -437,7 +437,7 @@ class WindowsDeployThread(DeployThread):
 				execute(cmd)
 
 				logger.notice(u"Installing opsi-client-agent")
-				cmd = u'c:\\tmp\\opsi-client-agent_inst\\files\\opsi\\opsi-winst\\winst32.exe /batch c:\\tmp\\opsi-client-agent_inst\\files\\opsi\\setup.ins c:\\tmp\\opsi-client-agent.log /PARAMETER REMOTEDEPLOY'
+				cmd = u'c:\\tmp\\opsi-client-agent_inst\\files\\opsi\\opsi-winst\\winst32.exe /batch c:\\tmp\\opsi-client-agent_inst\\files\\opsi\\setup.opsiscript c:\\tmp\\opsi-client-agent.log /PARAMETER REMOTEDEPLOY'
 				for trynum in (1, 2):
 					try:
 						winexe(cmd, self.networkAddress, self.username, self.password)
@@ -650,7 +650,7 @@ class WindowsDeployThread(DeployThread):
 			logger.notice(u"Installing opsi-client-agent")
 			if not os.path.exists(os.path.join(mountDir, 'tmp')):
 				os.makedirs(os.path.join(mountDir, 'tmp'))
-			cmd = u'c:\\{0}\\files\\opsi\\opsi-winst\\winst32.exe /batch c:\\{0}\\files\\opsi\\setup.ins c:\\tmp\\opsi-client-agent.log /PARAMETER REMOTEDEPLOY'.format(instDirName)
+			cmd = u'c:\\{0}\\files\\opsi\\opsi-winst\\winst32.exe /batch c:\\{0}\\files\\opsi\\setup.opsiscript c:\\tmp\\opsi-client-agent.log /PARAMETER REMOTEDEPLOY'.format(instDirName)
 			for trynum in (1, 2):
 				try:
 					winexe(cmd, self.networkAddress, self.username, self.password)
