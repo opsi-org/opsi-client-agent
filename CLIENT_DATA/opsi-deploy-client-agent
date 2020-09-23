@@ -580,6 +580,10 @@ class WindowsDeployThread(DeployThread):
 					logger.error(u"Failed to shutdown computer: %s", error)
 		elif self.startService:
 			try:
+				winexe(u'net stop opsiclientd', self.networkAddress, self.username, self.password)
+			except Exception as error:
+				logger.debug("Failed to stop opsiclientd on %s: %s", self.networkAddress, error=error)
+			try:
 				winexe(u'net start opsiclientd', self.networkAddress, self.username, self.password)
 			except Exception as error:
 				logger.error("Failed to start opsiclientd on %s: %s", self.networkAddress, error=error)
@@ -933,9 +937,9 @@ class LinuxDeployThread(DeployThread):
 				logger.error(u"Failed to shutdown computer: %s", error)
 		elif self.startService:
 			try:
-				self._executeViaSSH("service opsiclientd start || echo 'Already started.'")
+				self._executeViaSSH("service opsiclientd restart")
 			except Exception as error:
-				logger.error("Failed to start opsiclientd on %s: %s", self.networkAddress, error)
+				logger.error("Failed to restart opsiclientd on %s: %s", self.networkAddress, error)
 
 	def _setOpsiClientAgentToInstalled(self, hostId):
 		poc = ProductOnClient(
