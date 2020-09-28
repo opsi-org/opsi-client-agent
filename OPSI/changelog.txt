@@ -6,7 +6,7 @@ opsi-client-agent (4.1.1.1-2) testing; urgency=low
   * new properties are used to control and speed up the setup of access rights
   * Log setacl actions on loglevel 6
 
--- Detlef Oertel <d.oertel@uib.de>  Wed  25 Aug 2020:15:00:00 +0200
+-- Detlef Oertel <d.oertel@uib.de>  Fri  25 Aug 2020:15:00:00 +0200
 
 opsi-client-agent (4.1.1.1-1) experimental; urgency=medium
 
