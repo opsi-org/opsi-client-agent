@@ -41,10 +41,12 @@ fi
 KIOSK_IN_AGENT_DIR=${CLIENT_DATA_DIR}/files/opsi/opsiclientkiosk
 OCK_DIR=${CLIENT_DATA_DIR}/../opsi-client-kiosk
 
+# Only migrate if kiosk exists in former client-agent 
+# and the kiosk package was not installed on depot before
 if [ -d $KIOSK_IN_AGENT_DIR ] && [ ! -d $OCK_DIR ]; then
 	#opsi-client-kiosk dirs
-	OCK_APP_DIR=${OCKDIR}/files/app
-	OCK_MIGRATION_DIR=${OCKDIR}/migration
+	OCK_APP_DIR=${OCK_DIR}/files/app
+	OCK_MIGRATION_DIR=${OCK_DIR}/migration
 	
 	# possible ock_custom directories in client agent
 	if [ -d ${KIOSK_IN_AGENT_DIR}/app/ock_custom ]; then
@@ -60,8 +62,8 @@ if [ -d $KIOSK_IN_AGENT_DIR ] && [ ! -d $OCK_DIR ]; then
 	# Migrate opsi-client-kiosk properties and ock_custom folder from opsi-client-agent (before 4.1.1.0)
 	# create folders where the migration data and the ock_custom folder should be saved
 	[ ! -d $OCK_DIR ] && mkdir $OCK_DIR
-	[ ! -d $OCK_MIGRATION_DIR ] && mkdir $OCK_MIGRATION_DIR
-	[ ! -d $OCK_APP_DIR ] && mkdir $OCK_APP_DIR
+	[ ! -d $OCK_MIGRATION_DIR ] && mkdir -p $OCK_MIGRATION_DIR
+	[ ! -d $OCK_APP_DIR ] && mkdir -p $OCK_APP_DIR
 	
 	# Handle properties
 	STARTMENUE_ENTRY=`opsi-admin -d method productPropertyState_getObjects '[]' '{"productId":"opsi-client-agent", "propertyId":"kiosk_startmenue_entry"}'`
@@ -86,6 +88,7 @@ if [ -d $KIOSK_IN_AGENT_DIR ] && [ ! -d $OCK_DIR ]; then
 		cp -r --remove-destination $OCK_CUSTOM_IN_AGENT_DIR $OCK_APP_DIR || exit 1
 		#opsi-set-rights $OCK_APP_DIR
 	fi
+	sudo opsi-set-rights $OCK_DIR
 fi
 
 #******************************************

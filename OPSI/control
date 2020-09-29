@@ -1,6 +1,6 @@
 [Package]
-version: 2
-depends: opsi-client-kiosk
+version: 3
+depends: 
 
 [Product]
 type: localboot
