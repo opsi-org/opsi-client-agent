@@ -31,7 +31,71 @@ if [ -d $CLIENT_DATA_DIR ]; then
 fi
 
 
-# Handle old opsi-kiosk dirs in client-agent (before 4.1.1.0)
+#******************************************
+# START opsi-client-kiosk migration 
+#******************************************
+
+# OCK = abbreviation for opsi-client-kiosk
+
+#Set kiosk paths
+KIOSK_IN_AGENT_DIR=${CLIENT_DATA_DIR}/files/opsi/opsiclientkiosk
+OCK_DIR=${CLIENT_DATA_DIR}/../opsi-client-kiosk
+
+# Only migrate if kiosk exists in former client-agent 
+# and the kiosk package was not installed on depot before
+if [ -d $KIOSK_IN_AGENT_DIR ] && [ ! -d $OCK_DIR ]; then
+	#opsi-client-kiosk dirs
+	OCK_APP_DIR=${OCK_DIR}/files/app
+	OCK_MIGRATION_DIR=${OCK_DIR}/migration
+	
+	# possible ock_custom directories in client agent
+	if [ -d ${KIOSK_IN_AGENT_DIR}/app/ock_custom ]; then
+		OCK_CUSTOM_IN_AGENT_DIR=${KIOSK_IN_AGENT_DIR}/app/ock_custom
+	elif [ -d ${KIOSK_IN_AGENT_DIR}/ock_custom ]; then
+		OCK_CUSTOM_IN_AGENT_DIR=${KIOSK_IN_AGENT_DIR}/ock_custom
+	elif [ -d ${KIOSK_IN_AGENT_DIR}/files_to_copy/ock_custom ]; then
+		OCK_CUSTOM_IN_AGENT_DIR=${KIOSK_IN_AGENT_DIR}/files_to_copy/ock_custom
+	else
+		OCK_CUSTOM_IN_AGENT_DIR=""
+	fi
+	
+	# Migrate opsi-client-kiosk properties and ock_custom folder from opsi-client-agent (before 4.1.1.0)
+	# create folders where the migration data and the ock_custom folder should be saved
+	[ ! -d $OCK_DIR ] && mkdir $OCK_DIR
+	[ ! -d $OCK_MIGRATION_DIR ] && mkdir -p $OCK_MIGRATION_DIR
+	[ ! -d $OCK_APP_DIR ] && mkdir -p $OCK_APP_DIR
+	
+	# Handle properties
+	STARTMENUE_ENTRY=`opsi-admin -d method productPropertyState_getObjects '[]' '{"productId":"opsi-client-agent", "propertyId":"kiosk_startmenue_entry"}'`
+	STARTMENUE_ENTRY=`echo $STARTMENUE_ENTRY | sed s/opsi-client-agent/opsi-client-kiosk/g`
+	STARTMENUE_ENTRY=`echo $STARTMENUE_ENTRY | sed s/kiosk_startmenue_entry/startmenue_entry/g`
+	echo $STARTMENUE_ENTRY > ${OCK_MIGRATION_DIR}/startmenue_entry.json 
+	
+	STARTMENUE_FOLDER=`opsi-admin -d method productPropertyState_getObjects '[]' '{"productId":"opsi-client-agent", "propertyId":"kiosk_startmenue_folder"}'`
+	STARTMENUE_FOLDER=`echo $STARTMENUE_FOLDER | sed s/opsi-client-agent/opsi-client-kiosk/g`
+	STARTMENUE_FOLDER=`echo $STARTMENUE_FOLDER | sed s/kiosk_startmenue_folder/startmenue_folder/g`
+	echo $STARTMENUE_FOLDER > ${OCK_MIGRATION_DIR}/startmenue_folder.json
+	
+	DESKTOP_ICON=`opsi-admin -d method productPropertyState_getObjects '[]' '{"productId":"opsi-client-agent", "propertyId":"kiosk_desktop_icon"}'`
+	DESKTOP_ICON=`echo $DESKTOP_ICON | sed s/opsi-client-agent/opsi-client-kiosk/g`
+	DESKTOP_ICON=`echo $DESKTOP_ICON | sed s/kiosk_desktop_icon/desktop_icon/g`
+	echo $DESKTOP_ICON > ${OCK_MIGRATION_DIR}/desktop_icon.json
+
+	if [ $OCK_CUSTOM_IN_AGENT_DIR ]; then
+		# Handle ock_custom folder 
+		echo "Saving ock_custom folder to new place..."
+		echo "   coping ${OCK_CUSTOM_IN_AGENT_DIR} to ${OCK_APP_DIR}"
+		cp -r --remove-destination $OCK_CUSTOM_IN_AGENT_DIR $OCK_APP_DIR || exit 1
+		#opsi-set-rights $OCK_APP_DIR
+	fi
+	sudo opsi-set-rights $OCK_DIR
+fi
+
+#******************************************
+# END opsi-client-kiosk migration 
+#******************************************
+
+## Handle old opsi-kiosk dirs in client-agent (before 4.1.1.0)
 #if [ -d $CLIENT_DATA_DIR ]; then
 #	echo "Saving old kiosk directories to new place..."
 #	for dirname in files/opsi/opsiclientkiosk/app/ock_custom ; do
