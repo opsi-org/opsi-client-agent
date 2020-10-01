@@ -8,8 +8,6 @@
 #   CLIENT_DATA_DIR: directory where client data will be installed
 #
 
-if 
-
 TMP_DIR=${CLIENT_DATA_DIR}/../${PRODUCT_ID}.tmp
 
 if [ -d $TMP_DIR ]; then
