@@ -8,7 +8,6 @@ encoding=utf8
 ;@filedesc        Collection of functions that gives info about system states that are relevant for product installations
 
 ; ###################################################################################################
-
 deffunc isRebootPending() : string
 	;@Description Checks if a Windows  & Linux needs a reboot
 	;@Returns Returns string "true" if reboot is required
@@ -167,7 +166,7 @@ Deffunc getOpsiNetworkMedium() : string
 	set $myip$ = getMyIpByTarget(GetIpByName("%opsiServer%"))
 	comment 'myip is: '+$myip$
 	
-	Message "Detect cabel MAC ..."
+	Message "Bestimme Kabel MAC ..."
 	set $cablemac$ = ""
 	set $command$ = Escapestring: powershell.exe "Get-Netadapter -Name 'Ethernet*' | select -expandproperty MacAddress"
 	set $resultlist$ = shellCall($command$)
@@ -177,7 +176,7 @@ Deffunc getOpsiNetworkMedium() : string
 	comment 'cablemac is: '+$cablemac$
 	
 	
-	Message "Detect cabel IP ..."
+	Message "Bestimme Kabel IP ..."
 	set $cable_ip$ = ""
 	set $command$ = Escapestring: powershell.exe "Get-Netadapter -Name 'Ethernet*' | select -expandproperty InterfaceIndex"
 	set $resultlist$ = shellCall($command$)
@@ -263,3 +262,61 @@ Deffunc getOpsiNetworkMedium() : string
 endfunc
 
 ;################################################################################################
+
+; ###################################################################################################
+DefFunc isVhdMode() : string
+  ;@author          detlef oertel
+  ;@date            22.08.2019
+  ;@Description     check if this installation is a 'vhd-reset' installation
+  ;@Returns         Returns string "true" if vhd is detected
+  ;@OnError         Returns string "false"
+  ;@SpecialCase     Works only in opsi service mode (not in interactive or batch mode)
+  ;@References
+  ;@Links
+  ;@Example     [actions]
+  ;@Example     if stringtobool(isVhdMode())
+  ;@Example       comment "vhd mode detected"
+  ;@Example     endif
+  DefVar $diskmode$
+  
+  set $result$ = "false"
+  if fileExists("c:\opsi.org\data\diskinfo.ini")
+  	set $diskmode$ = GetValueFromInifile("c:\opsi.org\data\diskinfo.ini","general","diskmode","")
+  	if "vhd" = $diskmode$
+  		set $result$ = "true"
+  	endif
+  endif
+  ;if fileExists("d:\windows.vhdx")
+  ;	set $result$ = "true"
+  ;endif
+EndFunc
+
+; ###################################################################################################
+
+; ###################################################################################################
+DefFunc isOliMode() : string
+  ;@author          detlef oertel
+  ;@date            22.08.2019
+  ;@Description     check if this installation is a 'opsi local image' (oli) installation
+  ;@Returns         Returns string "true" if oli is detected
+  ;@OnError         Returns string "false"
+  ;@SpecialCase     Works only in opsi service mode (not in interactive or batch mode)
+  ;@References
+  ;@Links
+  ;@Example     [actions]
+  ;@Example     if stringtobool(isOliMode())
+  ;@Example       comment "oli mode detected"
+  ;@Example     endif
+  DefVar $diskmode$
+  
+  set $result$ = "false"
+  if fileExists("c:\opsi.org\data\diskinfo.ini")
+  	set $diskmode$ = GetValueFromInifile("c:\opsi.org\data\diskinfo.ini","general","diskmode","")
+  	if "oli" = $diskmode$
+  		set $result$ = "true"
+  	endif
+  endif
+EndFunc
+
+; ###################################################################################################
+

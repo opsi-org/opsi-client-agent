@@ -1,6 +1,6 @@
 [Package]
 version: 1
-depends: opsi-client-kiosk
+depends:
 
 [Product]
 type: localboot
@@ -8,7 +8,7 @@ id: opsi-client-agent
 name: opsi.org client agent
 description: opsi windows client agent
 advice: 
-version: 4.1.1.2
+version: 4.1.1.3
 priority: 95
 licenseRequired: False
 productClasses: 
