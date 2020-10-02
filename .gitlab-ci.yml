@@ -27,8 +27,8 @@ package:makeopsipackage:
     - ./opsi-dev-tool -l debug --binary-pull
     - opsi-utils/opsi-makepackage --no-set-rights -l 6
     - version=`grep OPSI/control -A 10 -e "\[Product\]" | grep "version:" | tr -d "^a-zA-Z :"`
-    - '[ "$CI_COMMIT_TAG" = "" ] && ./opsi-dev-tool -l info --uib-binaryindex-url=http://opsipackage.uib.gmbh --binary-push ./*.opsi opsi-client-agent windows all "$version" "$CI_JOB_ID"'
-    - '[ "$CI_COMMIT_TAG" = "" ] || ./opsi-dev-tool -l info --uib-binaryindex-url=http://opsipackage.uib.gmbh --binary-push ./*.opsi opsi-client-agent windows all "$version"'
+    - '[ "$CI_COMMIT_TAG" = "" ] && ./opsi-dev-tool -l info --uib-binaryindex-url=http://opsipackages.uib.gmbh --binary-push ./*.opsi opsi-client-agent windows all "$version" "$CI_JOB_ID"'
+    - '[ "$CI_COMMIT_TAG" = "" ] || ./opsi-dev-tool -l info --uib-binaryindex-url=http://opsipackages.uib.gmbh --binary-push ./*.opsi opsi-client-agent windows all "$version"'
 
   artifacts:
     name: opsi-client-agent-package
