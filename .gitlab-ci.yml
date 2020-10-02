@@ -26,7 +26,7 @@ package:makeopsipackage:
     - *install_opsi_utils
     - ./opsi-dev-tool -l debug --binary-pull
     - opsi-utils/opsi-makepackage --no-set-rights -l 6
-    - version=`grep OPSI/control -A 10 -e "\[Product\]" | grep "version:" | sed 's#version: ##'`
+    - version=`grep OPSI/control -A 10 -e "\[Product\]" | grep "version:" | tr -d "^a-zA-Z :"`
     - '[ "$CI_COMMIT_TAG" = "" ] && ./opsi-dev-tool -l info --binary-push ./*.opsi opsi-client-agent windows all "$version" "$CI_JOB_ID"'
     - '[ "$CI_COMMIT_TAG" = "" ] || ./opsi-dev-tool -l info --binary-push ./*.opsi opsi-client-agent windows all "$version"'
 
