@@ -1154,7 +1154,7 @@ deffunc oca_copy_files() : void
 	
 	[Files_copy_opsiclientd_binaries]
 	copy -sc "$OCD_binaryPath$" "$OCD_base_dir$"
-	del -sf "$INST_BaseDir$\\opsiclientd_bin_old"
+	del -sfc "$INST_BaseDir$\\opsiclientd_bin_old"
 	
 	[Files_copy_opsiclientd_dir]
 	; remove extend.d as workaround to avoid copy errors while copy *.conf
