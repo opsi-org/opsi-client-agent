@@ -1,4 +1,18 @@
 ﻿[Changelog]
+opsi-client-agent (4.1.1.4-1) testing; urgency=low
+
+  * updated opsi-script-lib
+  * opsiclientd 4.2.0.30
+
+ -- Detlef Oertel <d.oertel@uib.de> Mon, 05 Oct 2020 15:00:00 +0200
+
+opsi-client-agent (4.1.1.3-2) experimental; urgency=low
+
+  * ACL-Fix
+
+ -- Erol Ueluekmen <e.ueluekmen@uib.de> Sun, 04 Oct 2020 21:10:00 +0200
+
+
 opsi-client-agent (4.1.1.3-1) experimental; urgency=low
 
   * add folder kiosk-package to opsi-client-agent (CLIENT_DATA\files\opsi). This folder contains the opsi-client-kiosk package.
@@ -6,20 +20,20 @@ opsi-client-agent (4.1.1.3-1) experimental; urgency=low
   * preinst: migrate kiosk (properties and ock_custom folder, only from client-agents which has the kiosk integrated) 
   * postinst: install opsi-client-kiosk from package (only if migration occured). Remove folder kiosk-package from client-agent (in any case)
 
--- Jan Werner <j.werner@uib.de> Fri, 02 Oct 2020 16:29:00 +0200
+ -- Jan Werner <j.werner@uib.de> Fri, 02 Oct 2020 16:29:00 +0200
 
 opsi-client-agent (4.1.1.3-1) testing; urgency=low
 
   * opsiclientd 4.2.0.28
   * opsi-script 4.12.4.1
 
--- Jan Schneider <j.schneider@uib.de> Fri, 02 Oct 2020 11:01:00 +0200
+ -- Jan Schneider <j.schneider@uib.de> Fri, 02 Oct 2020 11:01:00 +0200
 
 opsi-client-agent (4.1.1.2-1) testing; urgency=low
 
   * opsiclientd 4.2.0.27
 
--- Jan Schneider <j.schneider@uib.de> Wed, 30 Sep 2020 13:14:00 +0200
+ -- Jan Schneider <j.schneider@uib.de> Wed, 30 Sep 2020 13:14:00 +0200
 
 opsi-client-agent (4.1.1.1-2) testing; urgency=low
 
@@ -28,7 +42,7 @@ opsi-client-agent (4.1.1.1-2) testing; urgency=low
   * new properties are used to control and speed up the setup of access rights
   * Log setacl actions on loglevel 6
 
--- Detlef Oertel <d.oertel@uib.de>  Fri  25 Aug 2020 15:00:00 +0200
+ -- Detlef Oertel <d.oertel@uib.de>  Fri  25 Aug 2020 15:00:00 +0200
 
 opsi-client-agent (4.1.1.1-1) experimental; urgency=medium
 

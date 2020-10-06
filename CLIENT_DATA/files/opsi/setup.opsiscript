@@ -1000,6 +1000,7 @@ deffunc oca_copy_files() : void
 	Set $OCD_binaryPath$ = "%SCRIPTPATH%/opsiclientd_binaries/opsiclientd_windows_x86/*.*"
 	Comment "OCD binary path: " + $OCD_binaryPath$
 	markErrorNumber
+	DosInAnIcon_rename_opsiclientd_binaries
 	Files_copy_opsiclientd_binaries
 	Files_copy_opsiclientd_dir
 	if errorsOccuredSinceMark > 0
@@ -1147,8 +1148,13 @@ deffunc oca_copy_files() : void
 	;[Files_copy_py2exe]
 	;copy -sc "%SCRIPTPATH%\$OCD_DIST_DIR$\*.*" "$INST_BaseDir$\"
 	
+	[DosInAnIcon_rename_opsiclientd_binaries]
+	rmdir "$INST_BaseDir$\\opsiclientd_bin_old" /s /q
+	rename "$OCD_base_dir$" "opsiclientd_bin_old"
+	
 	[Files_copy_opsiclientd_binaries]
 	copy -sc "$OCD_binaryPath$" "$OCD_base_dir$"
+	del -sf "$INST_BaseDir$\\opsiclientd_bin_old"
 	
 	[Files_copy_opsiclientd_dir]
 	; remove extend.d as workaround to avoid copy errors while copy *.conf
@@ -1293,32 +1299,32 @@ deffunc oca_write_configuration() : void
 	Files_create_ctmp
 	set $lockdir$ = "c:\tmp"
 	if "true" = getproductproperty("fix_rights_on_c_tmp","false")
-		DosInAnIcon_open_dir_repair winst /showoutput
+		DosInAnIcon_open_dir_repair
 	else
-		DosInAnIcon_open_dir_norepair winst /showoutput
+		DosInAnIcon_open_dir_norepair
 	endif
 	comment "create c:\opsi.org"
 	Files_create_c_opsiorg
 	comment "lock c:\opsi.org -> for administrators only"
 	;DosInAnIcon_lock_c_opsiorg
 	set $lockdir$ = $OCD_OpsiVarDir$+"\log"
-	DosInAnIcon_lock_lockdir_recursive winst /showoutput
+	DosInAnIcon_lock_lockdir_not_recursive
 	set $lockdir$ = $OCD_OpsiVarDir$+"\opsiclientd"
-	DosInAnIcon_lock_lockdir_recursive winst /showoutput
+	DosInAnIcon_lock_lockdir_not_recursive
 	set $lockdir$ = $OCD_OpsiVarDir$+"\tmp"
-	DosInAnIcon_lock_lockdir_not_recursive winst /showoutput
+	DosInAnIcon_lock_lockdir_not_recursive
 	set $lockdir$ = $OCD_OpsiVarDir$+"\cache"
 	if "true" = getproductproperty("fix_rights_on_wan_cache","false")
-		DosInAnIcon_lock_lockdir_recursive winst /showoutput
+		DosInAnIcon_lock_lockdir_recursive
 	else
 		DosInAnIcon_lock_lockdir_not_recursive
 	endif
 	set $lockdir$ = $OCD_OpsiVarDir$+"\data"
-	DosInAnIcon_lock_lockdir_recursive winst /showoutput
+	DosInAnIcon_lock_lockdir_not_recursive
 	set $lockdir$ = $OCD_OpsiVarDir$+"\applog"
-	DosInAnIcon_open_dir_repair winst /showoutput
+	DosInAnIcon_open_dir_repair
 	set $lockdir$ = $OCD_OpsiVarDir$+"\usertmp"
-	DosInAnIcon_open_dir_repair winst /showoutput
+	DosInAnIcon_open_dir_repair
 
 	setloglevel = $aktLogLevel$
 	
@@ -1418,10 +1424,10 @@ deffunc oca_write_configuration() : void
 	
 	Message "Configuration: Lock opsi-client-agent"
 	comment "protect opsi-clientagent against non administrative manipulations"
-	;DosInAnIcon_lock_opsiclientagent winst /showoutput
+	;DosInAnIcon_lock_opsiclientagent
 	set $lockdir$ = $INST_BaseDir$
 	;setloglevel = 6
-	DosInAnIcon_lock_lockdir_not_recursive winst /showoutput
+	DosInAnIcon_lock_lockdir_not_recursive
 	;setloglevel = $aktLogLevel$
 	
 	comment "*.opsiscript should be opend by winst32.exe"
