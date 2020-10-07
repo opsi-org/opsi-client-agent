@@ -54,6 +54,14 @@ fi
 echo "Removing temporary files..."
 rm -rf $TMP_DIR
 
+# install opsi-client-kiosk package on depot (only if migration folder exists)
+if [ -d ${CLIENT_DATA_DIR}/../opsi-client-kiosk/migration ]; then
+	rm -df ${CLIENT_DATA_DIR}/../opsi-client-kiosk/migration
+	opsi-package-manager -iq ${CLIENT_DATA_DIR}/files/opsi/kiosk-package/opsi-client-kiosk_*.opsi
+fi
+# remove kiosk package from client-agent
+rm -rf ${CLIENT_DATA_DIR}/files/opsi/kiosk-package
+
 # opsi-admin -d deleteProductPropertyDefinition "${PRODUCT_ID}" "kiosk_startmenue_entry"
 # opsi-admin -d deleteProductPropertyDefinition "${PRODUCT_ID}" "kiosk_startmenue_folder"
 # opsi-admin -d deleteProductPropertyDefinition "${PRODUCT_ID}" "kiosk_desktop_icon"
