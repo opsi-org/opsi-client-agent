@@ -21,6 +21,18 @@ pull-binaries:
     version: latest
     branch: development
     server-url: http://binaryindex.uib.gmbh
+  # opsi kiosk included in opsipackage
+  - name: kiosk-package
+    server-type: binaryindex
+    destination: CLIENT_DATA/files/opsi
+    extract: true
+    post-script: []
+    os: windows
+    architecture: x86
+    version: latest
+    branch: development
+    server-url: http://binaryindex.uib.gmbh
+
   # opsigina - windows login stuff for xp and older
   - name: opsigina
     server-type: binaryindex
@@ -88,7 +100,7 @@ pull-binaries:
     branch: development
     server-url: http://binaryindex.uib.gmbh
   # utilities: contains setacl (version 2.1.1.0 and 3.0.6.0), getmsversioninfo and shutdown
-  - name: utilities
+  - name: utilities_withsessionhelper
     server-type: binaryindex
     destination: CLIENT_DATA/files/opsi/
     extract: true
@@ -116,19 +128,21 @@ pull-binaries:
     server-type: static
     destination: CLIENT_DATA/files/opsi/vcredist2015/
     extract: false
-    post-script: []
+    post-script:
+      - mv CLIENT_DATA/files/opsi/vcredist2015/vc_redist.x86.exe CLIENT_DATA/files/opsi/vcredist2015/vcredist_x86.exe
     file-url: https://aka.ms/vs/16/release/vc_redist.x86.exe
   # inno unpack utility
   - name: innounp
     server-type: static
     destination: CLIENT_DATA/files/opsi/deps
     extraction: true
-    post-script: []
+    post-script:
+      - rm CLIENT_DATA/files/opsi/deps/innounp035.rar
     file-url: https://downloads.sourceforge.net/project/innounp/innounp/innounp%200.35/innounp035.rar
   # Openssl library and executable
   - name: openssl
     server-type: binaryindex
-    destination: CLIENT_DATA/files/opsi/openssl
+    destination: CLIENT_DATA/files/opsi
     extract: true
     post-script: []
     os: windows
