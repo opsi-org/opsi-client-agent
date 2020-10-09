@@ -1,4 +1,10 @@
 ﻿[Changelog]
+opsi-client-agent (4.1.1.5-1) testing; urgency=low
+
+  * opsiclientd 4.2.0.32
+ 
+-- Jan Schneider <j.schneider@uib.de> Thu, 08 Oct 2020 10:17:00 +0200
+
 opsi-client-agent (4.1.1.4-1) testing; urgency=low
 
   * updated opsi-script-lib
