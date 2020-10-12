@@ -1015,7 +1015,7 @@ deffunc oca_copy_files() : void
 	;if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") >= "0"
 	;	Files_copy_ssl_to_py2exe
 	;endif
-	comment "copy custom files for opsiclientd (notifier, opsiclientd.conf, ..)"
+	comment "copy custom files for opsiclientd (opsiclientd.conf, ..)"
 	markErrorNumber
 	Files_copy_custom_opsiclientd
 	if errorsOccuredSinceMark > 0
@@ -1166,10 +1166,10 @@ deffunc oca_copy_files() : void
 
 	
 	[Files_copy_opsinotifier]
-	;copy -sVc "%SCRIPTPATH%\$OCD_notifier_dir$\*.*" "$INST_BaseDir$\"
-	; do not use -V while dist contains old notifier because they seem to be younger
 	copy -c "%SCRIPTPATH%\$OCD_notifier_dir$\opsi-notifier.exe" "$INST_BaseDir$\"
 	copy -c "%SCRIPTPATH%\$OCD_notifier_dir$\notifier.d\*.*" "$INST_NotifierDir$\"
+	; copy possible existing custom notifier changes over standard:
+	copy -sc "%SCRIPTPATH%\custom\notifier\*.*" "$INST_NotifierDir$"
 
 	[Files_copy_ssl_to_py2exe]
 	copy -Vc "%SCRIPTPATH%\openssl\libeay32.dll" "$INST_BaseDir$\lib"
@@ -1180,7 +1180,6 @@ deffunc oca_copy_files() : void
 	copy -Vc "%SCRIPTPATH%\openssl\ssleay32.dll" "$INST_BaseDir$\on_shutdown"
 
 	[Files_copy_custom_opsiclientd]
-	copy -sc "%SCRIPTPATH%\custom\notifier\*.*" "$INST_NotifierDir$"
 	copy -c "%SCRIPTPATH%\custom\opsiclientd.conf" "$INST_OpsiclientdDir$"
 
 	[Registry_DeletePreloginloader]

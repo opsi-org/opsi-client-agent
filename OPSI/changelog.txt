@@ -1,4 +1,11 @@
 ﻿[Changelog]
+opsi-client-agent (4.1.1.6-1) testing; urgency=low
+
+  * fix copy of custom nofier files 
+    (uib#2020100810000062 - opsi-winst-skin Anpassung Verzeichnisstruktur in client-agent 4.1.1.4-1)
+ 
+-- Detlef Oertel <d.oertel@uib.de> Mon, 09 Oct 2020 15:00:00 +0200
+
 opsi-client-agent (4.1.1.5-1) testing; urgency=low
 
   * opsiclientd 4.2.0.32
