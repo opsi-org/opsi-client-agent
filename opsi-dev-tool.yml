@@ -8,7 +8,7 @@ pull-binaries:
     os: windows
     architecture: x86
     version: latest
-    branch: stable
+    branch: development
     server-url: http://binaryindex.uib.gmbh
   # opsi script interpreter
   - name: opsi-winst
