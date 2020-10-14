@@ -1047,7 +1047,7 @@ deffunc oca_copy_files() : void
 	comment "copy lazarus based opsi-notifier over old pythen version"
 	markErrorNumber
 	Files_copy_opsinotifier
-	shellCall('copy "$INST_BaseDir$\opsi-notifier.exe" "$INST_BaseDir$\notifier.exe"')
+	shellCall('copy "' + $INST_BaseDir$ + '\opsi-notifier.exe" "' + $INST_BaseDir$ + '\notifier.exe"')
 
 	if errorsOccuredSinceMark > 0
 		LogError "failed to install opsinotifier"
