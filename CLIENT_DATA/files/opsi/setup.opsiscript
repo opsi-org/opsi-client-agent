@@ -1047,8 +1047,8 @@ deffunc oca_copy_files() : void
 	comment "copy lazarus based opsi-notifier over old pythen version"
 	markErrorNumber
 	Files_copy_opsinotifier
-	DosInAnIcon_copy_to_notifier
-	
+	shellCall('copy "$INST_BaseDir$\opsi-notifier.exe" "$INST_BaseDir$\notifier.exe"')
+
 	if errorsOccuredSinceMark > 0
 		LogError "failed to install opsinotifier"
 		Message "failed to install opsinotifier"
@@ -1172,10 +1172,6 @@ deffunc oca_copy_files() : void
 	copy -c "%SCRIPTPATH%\$OCD_notifier_dir$\notifier.d\*.*" "$INST_NotifierDir$\"
 	; copy possible existing custom notifier changes over standard:
 	copy -sc "%SCRIPTPATH%\custom\notifier\*.*" "$INST_NotifierDir$"
-
-	[DosInAnIcon_copy_to_notifier]
-	; for compatibility with former
-	copy "$INST_BaseDir$\opsi-notifier.exe" "$INST_BaseDir$\notifier.exe"
 
 	[Files_copy_ssl_to_py2exe]
 	copy -Vc "%SCRIPTPATH%\openssl\libeay32.dll" "$INST_BaseDir$\lib"
