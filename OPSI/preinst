@@ -64,7 +64,7 @@ if [ -d $KIOSK_IN_AGENT_DIR ] && [ ! -d $OCK_DIR ] ; then
 	[ ! -d $OCK_MIGRATION_DIR ] && mkdir -p $OCK_MIGRATION_DIR
 	
 	# create "dummy" product to migrate properties
-	opsi-admin -d method createProduct "localboot" "opsi-client-kiosk" "Opsi Client Kiosk" "4.1.0.0" "1"
+	# opsi-admin -d method createProduct "localboot" "opsi-client-kiosk" "Opsi Client Kiosk" "4.1.0.0" "1"
 	
 	# Handle properties
 	STARTMENUE_ENTRY=`opsi-admin -d method productPropertyState_getObjects '[]' '{"productId":"opsi-client-agent", "propertyId":"kiosk_startmenue_entry"}'`
