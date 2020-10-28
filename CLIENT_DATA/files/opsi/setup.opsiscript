@@ -1473,6 +1473,7 @@ deffunc oca_write_configuration() : void
 	set "DisplayVersion" = "$ProductVersion$"
 	set "DisplayIcon" = "$INST_WinstDir$\winst32.exe"
 	set "DisplayPublisher" = "uib gmbh, Mainz, Germany"
+	set "Publisher" = "uib gmbh, Mainz, Germany"
 	set "UninstallString" = '"$INST_WinstDir$\winst32.exe" /batch "$INST_BaseDir$\uninst\uninstall.opsiscript" "%opsiLogDir%\deinstall_opsi-client-agent.log" /PARAMETER DEINSTALL'
 	set "URLInfoAbout" = "http://opsi.org"
 	set "HelpLink" = "http://www.opsi.org/support/"
