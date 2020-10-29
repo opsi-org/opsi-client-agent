@@ -2647,14 +2647,10 @@ Set $INST_preloginvistaInstalled$ = 'false'
 set $INST_preloginloaderInstalled$ = 'false'
 set $ProductVersion$ = "%installingProdVersion%"
 if ($ProductVersion$="")
-  ; service_setup.cmd
-  set $ProductVersion$=GetValueFromInifile("c:\opsi.org\tmp\opsi\product.ini","opsi-client-agent","ProductVersion","")
+  ; service_setup.cmd or opsi-deploy
+  set $ProductVersion$=GetValueFromInifile("%SCRIPTPATH%\product.ini","opsi-client-agent","ProductVersion","")
   if ($ProductVersion$="")
-    ; opsi-deploy
-    set $ProductVersion$=GetValueFromInifile("c:\tmp\opsi-client-agent_inst\files\opsi\product.ini","opsi-client-agent","ProductVersion","")
-    if ($ProductVersion$="")
-	 LogWarning "empty productversion results in empty displayversion in [HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\opsi-client-agent]"
-    endif
+    LogWarning "empty productversion results in empty displayversion in [HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\opsi-client-agent]"
   endif
 endif
 set $OCD_OpsiVarDir$ = "c:\opsi.org"
