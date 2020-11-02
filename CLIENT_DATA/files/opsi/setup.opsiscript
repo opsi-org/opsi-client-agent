@@ -1110,6 +1110,9 @@ deffunc oca_copy_files() : void
 		isFatalError "failed to install shutdown"
 	endif
 	
+	comment 'exclude "' + $INST_BaseDir$ + '" from Windows Defender scanning'
+	powershellCall('Add-MpPreference -ExclusionPath "' + $INST_BaseDir$ + '"')
+
 	comment "end copy files"
 	
 	; ----------------------------------------------------------------
