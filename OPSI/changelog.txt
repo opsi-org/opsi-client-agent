@@ -1,4 +1,10 @@
 ﻿[Changelog]
+opsi-client-agent (4.1.1.7-4) experimental; urgency=low
+
+  * copy new opsiclientd binaries to opsicliend_new and rename to opsiclientd on success
+ 
+-- Jan Schneider <j.schneider@uib.de> Wed, 04 Nov 2020 18:55:00 +0200
+
 opsi-client-agent (4.1.1.7-1) experimental; urgency=low
 
   * opsiclientd 4.2.0.34
