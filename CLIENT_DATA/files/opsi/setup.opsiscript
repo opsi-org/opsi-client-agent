@@ -1000,8 +1000,9 @@ deffunc oca_copy_files() : void
 	Set $OCD_binaryPath$ = "%SCRIPTPATH%/opsiclientd_binaries/opsiclientd_windows_x86/*.*"
 	Comment "OCD binary path: " + $OCD_binaryPath$
 	markErrorNumber
-	DosInAnIcon_rename_opsiclientd_binaries
+
 	Files_copy_opsiclientd_binaries
+	DosInAnIcon_replace_opsiclientd_binaries
 	Files_copy_opsiclientd_dir
 	if errorsOccuredSinceMark > 0
 		LogError "failed to install opsiclientd"
@@ -1110,6 +1111,9 @@ deffunc oca_copy_files() : void
 		isFatalError "failed to install shutdown"
 	endif
 	
+	comment 'exclude "' + $INST_BaseDir$ + '" from Windows Defender scanning'
+	powershellCall('Add-MpPreference -ExclusionPath "' + $INST_BaseDir$ + '"')
+
 	comment "end copy files"
 	
 	; ----------------------------------------------------------------
@@ -1150,13 +1154,14 @@ deffunc oca_copy_files() : void
 	;[Files_copy_py2exe]
 	;copy -sc "%SCRIPTPATH%\$OCD_DIST_DIR$\*.*" "$INST_BaseDir$\"
 	
-	[DosInAnIcon_rename_opsiclientd_binaries]
-	rmdir "$INST_BaseDir$\\opsiclientd_bin_old" /s /q
-	rename "$OCD_base_dir$" "opsiclientd_bin_old"
-	
 	[Files_copy_opsiclientd_binaries]
-	copy -sc "$OCD_binaryPath$" "$OCD_base_dir$"
 	del -sfc "$INST_BaseDir$\\opsiclientd_bin_old"
+	del -sfc "$INST_BaseDir$\\opsiclientd_bin_new"
+	copy -sc "$OCD_binaryPath$" "$INST_BaseDir$\\opsiclientd_bin_new"
+	
+	[DosInAnIcon_replace_opsiclientd_binaries]
+	rename "$OCD_base_dir$" "opsiclientd_bin_old"
+	rename "$INST_BaseDir$\\opsiclientd_bin_new" "opsiclientd_bin"
 	
 	[Files_copy_opsiclientd_dir]
 	; remove extend.d as workaround to avoid copy errors while copy *.conf
@@ -1473,6 +1478,7 @@ deffunc oca_write_configuration() : void
 	set "DisplayVersion" = "$ProductVersion$"
 	set "DisplayIcon" = "$INST_WinstDir$\winst32.exe"
 	set "DisplayPublisher" = "uib gmbh, Mainz, Germany"
+	set "Publisher" = "uib gmbh, Mainz, Germany"
 	set "UninstallString" = '"$INST_WinstDir$\winst32.exe" /batch "$INST_BaseDir$\uninst\uninstall.opsiscript" "%opsiLogDir%\deinstall_opsi-client-agent.log" /PARAMETER DEINSTALL'
 	set "URLInfoAbout" = "http://opsi.org"
 	set "HelpLink" = "http://www.opsi.org/support/"
@@ -2646,14 +2652,10 @@ Set $INST_preloginvistaInstalled$ = 'false'
 set $INST_preloginloaderInstalled$ = 'false'
 set $ProductVersion$ = "%installingProdVersion%"
 if ($ProductVersion$="")
-  ; service_setup.cmd
-  set $ProductVersion$=GetValueFromInifile("c:\opsi.org\tmp\opsi\product.ini","opsi-client-agent","ProductVersion","")
+  ; service_setup.cmd or opsi-deploy
+  set $ProductVersion$=GetValueFromInifile("%SCRIPTPATH%\product.ini","opsi-client-agent","ProductVersion","")
   if ($ProductVersion$="")
-    ; opsi-deploy
-    set $ProductVersion$=GetValueFromInifile("c:\tmp\opsi-client-agent_inst\files\opsi\product.ini","opsi-client-agent","ProductVersion","")
-    if ($ProductVersion$="")
-	 LogWarning "empty productversion results in empty displayversion in [HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\opsi-client-agent]"
-    endif
+    LogWarning "empty productversion results in empty displayversion in [HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\opsi-client-agent]"
   endif
 endif
 set $OCD_OpsiVarDir$ = "c:\opsi.org"

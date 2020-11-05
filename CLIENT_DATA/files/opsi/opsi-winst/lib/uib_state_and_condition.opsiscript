@@ -166,7 +166,7 @@ Deffunc getOpsiNetworkMedium() : string
 	set $myip$ = getMyIpByTarget(GetIpByName("%opsiServer%"))
 	comment 'myip is: '+$myip$
 	
-	Message "Detect cabel MAC ..."
+	Message "Bestimme Kabel MAC ..."
 	set $cablemac$ = ""
 	set $command$ = Escapestring: powershell.exe "Get-Netadapter -Name 'Ethernet*' | select -expandproperty MacAddress"
 	set $resultlist$ = shellCall($command$)
@@ -176,7 +176,7 @@ Deffunc getOpsiNetworkMedium() : string
 	comment 'cablemac is: '+$cablemac$
 	
 	
-	Message "Detect cabel IP ..."
+	Message "Bestimme Kabel IP ..."
 	set $cable_ip$ = ""
 	set $command$ = Escapestring: powershell.exe "Get-Netadapter -Name 'Ethernet*' | select -expandproperty InterfaceIndex"
 	set $resultlist$ = shellCall($command$)

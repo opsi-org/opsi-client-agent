@@ -64,23 +64,27 @@ if [ -d $KIOSK_IN_AGENT_DIR ] && [ ! -d $OCK_DIR ] ; then
 	[ ! -d $OCK_MIGRATION_DIR ] && mkdir -p $OCK_MIGRATION_DIR
 	
 	# create "dummy" product to migrate properties
-	opsi-admin -d method createProduct "localboot" "opsi-client-kiosk" "Opsi Client Kiosk" "4.1.0.0" "1"
+	# opsi-admin -d method createProduct "localboot" "opsi-client-kiosk" "Opsi Client Kiosk" "4.1.0.0" "1"
 	
 	# Handle properties
 	STARTMENUE_ENTRY=`opsi-admin -d method productPropertyState_getObjects '[]' '{"productId":"opsi-client-agent", "propertyId":"kiosk_startmenue_entry"}'`
 	STARTMENUE_ENTRY=`echo $STARTMENUE_ENTRY | sed s/opsi-client-agent/opsi-client-kiosk/g`
 	STARTMENUE_ENTRY=`echo $STARTMENUE_ENTRY | sed s/kiosk_startmenue_entry/startmenue_entry/g`
-	opsi-admin -d method productPropertyState_updateObjects "${STARTMENUE_ENTRY}"
+	#opsi-admin -d method productPropertyState_updateObjects "${STARTMENUE_ENTRY}"
+	echo $STARTMENUE_ENTRY > ${OCK_MIGRATION_DIR}/startmenue_entry.json
+
 	
 	STARTMENUE_FOLDER=`opsi-admin -d method productPropertyState_getObjects '[]' '{"productId":"opsi-client-agent", "propertyId":"kiosk_startmenue_folder"}'`
 	STARTMENUE_FOLDER=`echo $STARTMENUE_FOLDER | sed s/opsi-client-agent/opsi-client-kiosk/g`
 	STARTMENUE_FOLDER=`echo $STARTMENUE_FOLDER | sed s/kiosk_startmenue_folder/startmenue_folder/g`
-	opsi-admin -d method productPropertyState_updateObjects "${STARTMENUE_FOLDER}"
+	#opsi-admin -d method productPropertyState_updateObjects "${STARTMENUE_FOLDER}"
+	echo $STARTMENUE_FOLDER > ${OCK_MIGRATION_DIR}/startmenue_folder.json
 	
 	DESKTOP_ICON=`opsi-admin -d method productPropertyState_getObjects '[]' '{"productId":"opsi-client-agent", "propertyId":"kiosk_desktop_icon"}'`
 	DESKTOP_ICON=`echo $DESKTOP_ICON | sed s/opsi-client-agent/opsi-client-kiosk/g`
 	DESKTOP_ICON=`echo $DESKTOP_ICON | sed s/kiosk_desktop_icon/desktop_icon/g`
-	opsi-admin -d method productPropertyState_updateObjects "${DESKTOP_ICON}"
+	#opsi-admin -d method productPropertyState_updateObjects "${DESKTOP_ICON}"
+	echo $DESKTOP_ICON > ${OCK_MIGRATION_DIR}/desktop_icon.json
 
 	# Handle ock_custom folder
 	if [ $OCK_CUSTOM_IN_AGENT_DIR ]; then
