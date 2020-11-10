@@ -7,9 +7,10 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x86
-    version: latest
+    version: 4.2.0.37
     branch: development
     server-url: http://binaryindex.uib.gmbh
+
   # opsi script interpreter
   - name: opsi-winst
     server-type: binaryindex
@@ -18,9 +19,10 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x86
-    version: latest
+    version: 4.12.4.4
     branch: development
     server-url: http://binaryindex.uib.gmbh
+
   # opsi kiosk included in opsipackage
   - name: kiosk-package
     server-type: binaryindex
@@ -29,7 +31,7 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x86
-    version: latest
+    version: 4.1.1.6~5
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
@@ -41,9 +43,10 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x86
-    version: latest
+    version: 4.0.1.0
     branch: development
     server-url: http://binaryindex.uib.gmbh
+
   # opsi-login-blocker - prevents login during opsi task execution
   - name: opsi-login-blocker
     server-type: binaryindex
@@ -52,9 +55,10 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x86
-    version: latest
+    version: 0  #TODO
     branch: development
     server-url: http://binaryindex.uib.gmbh
+
   # opsi-notifier
   - name: opsi-notifier
     server-type: binaryindex
@@ -66,6 +70,7 @@ pull-binaries:
     version: 4.1.1.3
     branch: development
     server-url: http://binaryindex.uib.gmbh
+
   # opsi-systray
   - name: opsi-systray
     server-type: binaryindex
@@ -74,9 +79,10 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x86
-    version: latest
+    version: 4.1.2.0
     branch: development
     server-url: http://binaryindex.uib.gmbh
+
   # opsiclientdguard
   - name: opsiclientdguard
     server-type: binaryindex
@@ -85,9 +91,10 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x86
-    version: latest
+    version: 4.1.0.2
     branch: development
     server-url: http://binaryindex.uib.gmbh
+
   # opsiclientd-event-starter
   - name: opsiclientd-event-starter
     server-type: binaryindex
@@ -96,9 +103,10 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x86
-    version: latest
+    version: 4.0.7.1
     branch: development
     server-url: http://binaryindex.uib.gmbh
+
   # utilities: contains setacl (version 2.1.1.0 and 3.0.6.0), getmsversioninfo and shutdown
   - name: utilities_withsessionhelper
     server-type: binaryindex
@@ -107,11 +115,13 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x86
-    version: latest
+    version: 2.1.1.0
     branch: development
     server-url: http://binaryindex.uib.gmbh
-  # Visual C++ redistributable 2008   # not supported anymore, so mirrored on binaryindex
-  - name: vcredist2008
+
+  # Visual C++ redistributable 2008
+  # not supported anymore, so pushed from bonifax workbench to binaryindex
+  - name: vc_redist
     server-type: binaryindex
     destination: CLIENT_DATA/files/opsi/deps
     extract: true
@@ -120,26 +130,42 @@ pull-binaries:
       - rm -r CLIENT_DATA/files/opsi/deps/vcredist2008
     os: windows
     architecture: x86
-    version: latest
-    branch: development
+    version: 2008
+    branch: mirror
     server-url: http://binaryindex.uib.gmbh
+
   # Visual C++ redistributable 2015
-  - name: vcredistx64
-    server-type: static
+  # mirrored via: opsi-dev-tool --binary-mirror https://aka.ms/vs/16/release/vc_redist.x86.exe vc_redist 'exe:::exe:windows' x86 '16/:::16/:2015'
+  - name: vc_redist
+    server-type: binaryindex
     destination: CLIENT_DATA/files/opsi/vcredist2015/
-    extract: false
+    extract: true
     post-script:
       - mv CLIENT_DATA/files/opsi/vcredist2015/vc_redist.x86.exe CLIENT_DATA/files/opsi/vcredist2015/vcredist_x86.exe
-    file-url: https://aka.ms/vs/16/release/vc_redist.x86.exe
+    os: windows
+    architecture: x86
+    version: 2015
+    branch: mirror
+    server-url: http://binaryindex.uib.gmbh
+
   # inno unpack utility
+  # mirrored via: opsi-dev-tool --binary-mirror https://downloads.sourceforge.net/project/innounp/innounp/innounp%200.35/innounp035.rar innounp '.rar:::.rar:windows' '.rar:::.rar:x86' '3.'
   - name: innounp
-    server-type: static
+    server-type: binaryindex
     destination: CLIENT_DATA/files/opsi/deps
-    extraction: true
+    extract: true
     post-script:
+      - unrar -o+ x CLIENT_DATA/files/opsi/deps/innounp035.rar
       - rm CLIENT_DATA/files/opsi/deps/innounp035.rar
-    file-url: https://downloads.sourceforge.net/project/innounp/innounp/innounp%200.35/innounp035.rar
+    os: windows
+    architecture: x86
+    version: 35
+    branch: mirror
+    server-url: http://binaryindex.uib.gmbh
+
+
   # Openssl library and executable
+  # mirrored via: opsi-dev-tool --binary-mirror 'https://indy.fulgan.com/SSL/Archive/Experimental/' openssl '.zip:::.zip:windows' 'x32|x64:::x32:x86,x64:x64' '^[^-]*-([^-]*)-'
   - name: openssl
     server-type: binaryindex
     destination: CLIENT_DATA/files/opsi
@@ -147,6 +173,6 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x86
-    version: 1.0.2
-    branch: development
+    version: 1.0.2o
+    branch: mirror
     server-url: http://binaryindex.uib.gmbh
