@@ -33,4 +33,4 @@ package:makeopsipackage:
   artifacts:
     name: opsi-client-agent-package
     paths:
-      - "./*.opsi"
+      - "./opsi-client-agent*.opsi*"
