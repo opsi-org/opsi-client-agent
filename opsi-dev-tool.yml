@@ -155,7 +155,7 @@ pull-binaries:
     destination: CLIENT_DATA/files/opsi/deps
     extract: true
     post-script:
-      - unrar -o+ x CLIENT_DATA/files/opsi/deps/innounp035.rar CLIENT_DATA/files/opsi/deps/
+      - unar CLIENT_DATA/files/opsi/deps/innounp035.rar -o CLIENT_DATA/files/opsi/deps/
       - rm CLIENT_DATA/files/opsi/deps/innounp035.rar
     os: windows
     architecture: x86
