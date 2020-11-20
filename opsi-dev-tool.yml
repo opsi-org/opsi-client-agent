@@ -150,18 +150,18 @@ pull-binaries:
 
   # inno unpack utility
   # mirrored via: opsi-dev-tool --binary-mirror https://downloads.sourceforge.net/project/innounp/innounp/innounp%200.35/innounp035.rar innounp '.rar:::.rar:windows' '.rar:::.rar:x86' '3.'
-  - name: innounp
-    server-type: binaryindex
-    destination: CLIENT_DATA/files/opsi/deps
-    extract: true
-    post-script:
-      - unar CLIENT_DATA/files/opsi/deps/innounp035.rar -o CLIENT_DATA/files/opsi/deps/
-      - rm CLIENT_DATA/files/opsi/deps/innounp035.rar
-    os: windows
-    architecture: x86
-    version: 35
-    branch: mirror
-    server-url: http://binaryindex.uib.gmbh
+  #- name: innounp
+  #  server-type: binaryindex
+  #  destination: CLIENT_DATA/files/opsi/deps
+  #  extract: true
+  #  post-script:
+  #    - unar CLIENT_DATA/files/opsi/deps/innounp035.rar -o CLIENT_DATA/files/opsi/deps/
+  #    - rm CLIENT_DATA/files/opsi/deps/innounp035.rar
+  #  os: windows
+  #  architecture: x86
+  #  version: 35
+  #  branch: mirror
+  #  server-url: http://binaryindex.uib.gmbh
 
 
   # Openssl library and executable
