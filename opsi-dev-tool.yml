@@ -3,11 +3,11 @@ pull-binaries:
   - name: opsiclientd
     server-type: binaryindex
     destination: CLIENT_DATA/files/opsi/opsiclientd_binaries
-    extract: true
+    extract: false
     post-script: []
     os: windows
     architecture: x86
-    version: 4.2.0.43
+    version: 4.2.0.44
     branch: development
     server-url: http://binaryindex.uib.gmbh
 

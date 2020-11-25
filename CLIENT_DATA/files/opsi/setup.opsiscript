@@ -135,7 +135,7 @@ DefVar $OCD_OpsiVarDir$
 DefVar $OCD_depot_server__username$
 DefVar $OCD_depServices$
 DefVar $OCD_notifier_dir$
-DefVar $OCD_binaryPath$
+DefVar $OCD_binaryArchiveFile$
 DefVar $OCD_static_html_dir$
 DefVar $OCD_base_dir$
 
@@ -927,6 +927,7 @@ endfunc
 ; ####################################################################
 
 deffunc oca_copy_files() : void
+	Defstringlist $filelist$
 
 	Message = Copy files: prepare
 	comment "Stop_Preloginloader_Service"
@@ -994,19 +995,20 @@ deffunc oca_copy_files() : void
 	
 	Message = Copy files: opsiclientd
 	comment "installing opsiclientd pyinstaller files"
-	;Set $OCD_binaryTarfile$ = "opsiclientd_binaries.tar.gz"
-	;Comment "OCD binary tarfile: " + $OCD_binaryTarfile$
-	;Set $OCD_binaryPath$ = "%SCRIPTPATH%/opsiclientd_binaries/" + $OCD_binaryTarfile$
-	Set $OCD_binaryPath$ = "%SCRIPTPATH%/opsiclientd_binaries/opsiclientd_windows_x86/*.*"
-	Comment "OCD binary path: " + $OCD_binaryPath$
-	markErrorNumber
+	
+	Set $filelist$ = shellCall('dir /B %ScriptPath%\\opsiclientd_binaries')
+	Set $filelist$ = getRegexMatchList('(?m)^opsiclientd_windows_\S*.zip', $filelist$)
+	Set $OCD_binaryArchiveFile$ = "%ScriptPath%\\opsiclientd_binaries\\" + takeString(0, $filelist$)
 
-	Files_copy_opsiclientd_binaries_to_new
-	DosInAnIcon_replace_opsiclientd_binaries
+	Comment "OCD binary archive file: " + $OCD_binaryArchiveFile$
+
+	markErrorNumber
+	Files_extract_opsiclientd_binaries_to_temp
+	DosInAnIcon_replace_opsiclientd_binaries_from_temp
 	if not (FileExists($OCD_base_dir$+"\opsiclientd.exe"))
 		LogError "failed to replace opsiclientd binaries"
 		Message "failed to replace opsiclientd binaries"
-		Files_copy_opsiclientd_binaries
+		Files_copy_opsiclientd_binaries_from_temp
 	endif
 	if not (FileExists($OCD_base_dir$+"\opsiclientd.exe"))
 		LogError "failed to install opsiclientd binaries"
@@ -1165,18 +1167,19 @@ deffunc oca_copy_files() : void
 	;[Files_copy_py2exe]
 	;copy -sc "%SCRIPTPATH%\$OCD_DIST_DIR$\*.*" "$INST_BaseDir$\"
 	
-	[Files_copy_opsiclientd_binaries_to_new]
-	del -sfc "$INST_BaseDir$\\opsiclientd_bin_old"
-	del -sfc "$INST_BaseDir$\\opsiclientd_bin_new"
-	copy -sc "$OCD_binaryPath$" "$INST_BaseDir$\\opsiclientd_bin_new"
-
-	[Files_copy_opsiclientd_binaries]
-	del -sfc "$OCD_base_dir$"
-	copy -sc "$OCD_binaryPath$" "$OCD_base_dir$"
+	[Files_extract_opsiclientd_binaries_to_temp]
+	del -sfc "$INST_BaseDir$\opsiclientd_windows_x86"
+	unzipfile "$OCD_binaryArchiveFile$" "$INST_BaseDir$\"
 	
-	[DosInAnIcon_replace_opsiclientd_binaries]
-	rename "$OCD_base_dir$" "opsiclientd_bin_old"
-	rename "$INST_BaseDir$\\opsiclientd_bin_new" "opsiclientd_bin"
+	[DosInAnIcon_replace_opsiclientd_binaries_from_temp]
+	rmdir "$INST_BaseDir$\opsiclientd_bin_old" /s /q
+	rename "$INST_BaseDir$\opsiclientd_bin" "opsiclientd_bin_old"
+	rename "$INST_BaseDir$\opsiclientd_windows_x86" "opsiclientd_bin"
+	
+	[Files_copy_opsiclientd_binaries_from_temp]
+	del -sfc "$OCD_base_dir$"
+	copy -sc "$INST_BaseDir$\opsiclientd_windows_x86\*.*" "$OCD_base_dir$\"
+	del -sfc "$INST_BaseDir$\opsiclientd_windows_x86"
 	
 	[Files_copy_opsiclientd_dir]
 	; remove extend.d as workaround to avoid copy errors while copy *.conf
@@ -1194,7 +1197,7 @@ deffunc oca_copy_files() : void
 	copy -sc "%SCRIPTPATH%\custom\notifier\*.*" "$INST_NotifierDir$"
 
 	[DosInAnIcon_copy_to_notifier]
-		copy "$INST_BaseDir$\opsi-notifier.exe" "$INST_BaseDir$\notifier.exe"
+	copy "$INST_BaseDir$\opsi-notifier.exe" "$INST_BaseDir$\notifier.exe"
 
 	[Files_copy_ssl_to_py2exe]
 	copy -Vc "%SCRIPTPATH%\openssl\libeay32.dll" "$INST_BaseDir$\lib"
