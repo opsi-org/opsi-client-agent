@@ -1001,8 +1001,19 @@ deffunc oca_copy_files() : void
 	Comment "OCD binary path: " + $OCD_binaryPath$
 	markErrorNumber
 
-	Files_copy_opsiclientd_binaries
+	Files_copy_opsiclientd_binaries_to_new
 	DosInAnIcon_replace_opsiclientd_binaries
+	if not FileExists($OCD_base_dir$+"\opsiclientd.exe")
+		LogError "failed to replace opsiclientd binaries"
+		Message "failed to replace opsiclientd binaries"
+		Files_copy_opsiclientd_binaries
+	endif
+	if not FileExists($OCD_base_dir$+"\opsiclientd.exe")
+		LogError "failed to install opsiclientd binaries"
+		Message "failed to install opsiclientd binaries"
+		isFatalError "failed to install opsiclientd binaries"
+	endif
+
 	Files_copy_opsiclientd_dir
 	if errorsOccuredSinceMark > 0
 		LogError "failed to install opsiclientd"
@@ -1154,10 +1165,14 @@ deffunc oca_copy_files() : void
 	;[Files_copy_py2exe]
 	;copy -sc "%SCRIPTPATH%\$OCD_DIST_DIR$\*.*" "$INST_BaseDir$\"
 	
-	[Files_copy_opsiclientd_binaries]
+	[Files_copy_opsiclientd_binaries_to_new]
 	del -sfc "$INST_BaseDir$\\opsiclientd_bin_old"
 	del -sfc "$INST_BaseDir$\\opsiclientd_bin_new"
 	copy -sc "$OCD_binaryPath$" "$INST_BaseDir$\\opsiclientd_bin_new"
+
+	[Files_copy_opsiclientd_binaries]
+	del -sfc "$OCD_base_dir$"
+	copy -sc "$OCD_binaryPath$" "$OCD_base_dir$"
 	
 	[DosInAnIcon_replace_opsiclientd_binaries]
 	rename "$OCD_base_dir$" "opsiclientd_bin_old"
