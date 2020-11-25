@@ -1,4 +1,11 @@
 ﻿[Changelog]
+opsi-client-agent (4.1.1.12-1) testing; urgency=low
+
+  * Update opsiclientd to version 4.2.0.43
+  * Fixed logging in opsi-deploy-client-agent for opsi 4.1
+ 
+-- Jan Schneider <j.schneider@uib.de> Mon, 16 Nov 2020 10:49:00 +0200
+
 opsi-client-agent (4.1.1.11-1) testing; urgency=low
 
   * update opsi-client-agent to 4.2.0.40
