@@ -1,4 +1,11 @@
 ﻿[Changelog]
+opsi-client-agent (4.1.1.14-1) testing; urgency=low
+
+  * Cleanup installation script
+  * Update opsiclientd to 4.2.0.45
+ 
+-- Jan Schneider <j.schneider@uib.de> Wed, 25 Nov 2020 22:56:00 +0200
+
 opsi-client-agent (4.1.1.13-1) testing; urgency=low
 
   * Update opsiclientd to version 4.2.0.44
