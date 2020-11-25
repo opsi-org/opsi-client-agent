@@ -1023,12 +1023,6 @@ deffunc oca_copy_files() : void
 		isFatalError "failed to install opsiclientd"
 	endif
 	
-	;comment "unzip opsiclientd.exe ... (W8.1 + 10 workaround)"
-	;Files_copy_opsiclientd_exe2
-	comment "Update SSL DLLs from opsi-script to opsiclientd"
-	;if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") >= "0"
-	;	Files_copy_ssl_to_py2exe
-	;endif
 	comment "copy custom files for opsiclientd (opsiclientd.conf, ..)"
 	markErrorNumber
 	Files_copy_custom_opsiclientd
@@ -1058,7 +1052,7 @@ deffunc oca_copy_files() : void
 	endif
 	
 	Message = Copy files: notifier
-	comment "copy lazarus based opsi-notifier over old pythen version"
+	comment "copy lazarus based opsi-notifier over old python version"
 	markErrorNumber
 	Files_copy_opsinotifier
 	DosInAnIcon_copy_to_notifier
@@ -1185,10 +1179,7 @@ deffunc oca_copy_files() : void
 	; remove extend.d as workaround to avoid copy errors while copy *.conf
 	del -fs "$INST_OpsiclientdDir$\extend.d\"
 	copy -s "$OCD_base_dir$\opsiclientd_data\*.*" "$INST_OpsiclientdDir$"
-	;copy "$OCD_base_dir$\opsiclientd_data\*.*" "$INST_OpsiclientdDir$"
-	;copy "$OCD_base_dir$\opsiclientd_data\static_html\*.*" "$INST_OpsiclientdDir$\static_html\"
 	del -fs "$OCD_base_dir$\opsiclientd_data\"
-
 	
 	[Files_copy_opsinotifier]
 	copy -c "%SCRIPTPATH%\$OCD_notifier_dir$\opsi-notifier.exe" "$INST_BaseDir$\"
@@ -1199,10 +1190,6 @@ deffunc oca_copy_files() : void
 	[DosInAnIcon_copy_to_notifier]
 	copy "$INST_BaseDir$\opsi-notifier.exe" "$INST_BaseDir$\notifier.exe"
 
-	[Files_copy_ssl_to_py2exe]
-	copy -Vc "%SCRIPTPATH%\openssl\libeay32.dll" "$INST_BaseDir$\lib"
-	copy -Vc "%SCRIPTPATH%\openssl\ssleay32.dll" "$INST_BaseDir$\lib"
-	
 	[Files_copy_ssl_to_on_shutdown]
 	copy -Vc "%SCRIPTPATH%\openssl\libeay32.dll" "$INST_BaseDir$\on_shutdown"
 	copy -Vc "%SCRIPTPATH%\openssl\ssleay32.dll" "$INST_BaseDir$\on_shutdown"
