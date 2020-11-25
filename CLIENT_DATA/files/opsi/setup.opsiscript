@@ -1003,12 +1003,12 @@ deffunc oca_copy_files() : void
 
 	Files_copy_opsiclientd_binaries_to_new
 	DosInAnIcon_replace_opsiclientd_binaries
-	if not FileExists($OCD_base_dir$+"\opsiclientd.exe")
+	if not (FileExists($OCD_base_dir$+"\opsiclientd.exe"))
 		LogError "failed to replace opsiclientd binaries"
 		Message "failed to replace opsiclientd binaries"
 		Files_copy_opsiclientd_binaries
 	endif
-	if not FileExists($OCD_base_dir$+"\opsiclientd.exe")
+	if not (FileExists($OCD_base_dir$+"\opsiclientd.exe"))
 		LogError "failed to install opsiclientd binaries"
 		Message "failed to install opsiclientd binaries"
 		isFatalError "failed to install opsiclientd binaries"
