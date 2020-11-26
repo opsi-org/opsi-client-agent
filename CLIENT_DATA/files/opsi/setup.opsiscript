@@ -929,6 +929,9 @@ endfunc
 deffunc oca_copy_files() : void
 	Defstringlist $filelist$
 
+	comment 'exclude "' + $INST_BaseDir$ + '" from Windows Defender scanning'
+	powershellCall('Add-MpPreference -ExclusionPath "' + $INST_BaseDir$ + '"')
+	
 	Message = Copy files: prepare
 	comment "Stop_Preloginloader_Service"
 	shellcall('net stop preloginloader')
@@ -1118,9 +1121,6 @@ deffunc oca_copy_files() : void
 		isFatalError "failed to install shutdown"
 	endif
 	
-	comment 'exclude "' + $INST_BaseDir$ + '" from Windows Defender scanning'
-	powershellCall('Add-MpPreference -ExclusionPath "' + $INST_BaseDir$ + '"')
-
 	comment "end copy files"
 	
 	; ----------------------------------------------------------------
