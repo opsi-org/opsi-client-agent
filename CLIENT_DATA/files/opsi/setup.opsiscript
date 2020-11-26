@@ -1005,7 +1005,6 @@ deffunc oca_copy_files() : void
 
 	Comment "OCD binary archive file: " + $OCD_binaryArchiveFile$
 
-	markErrorNumber
 	Files_extract_opsiclientd_binaries_to_temp
 	DosInAnIcon_replace_opsiclientd_binaries_from_temp
 	if not (FileExists($OCD_base_dir$+"\opsiclientd.exe"))
@@ -1019,6 +1018,7 @@ deffunc oca_copy_files() : void
 		isFatalError "failed to install opsiclientd binaries"
 	endif
 
+	markErrorNumber
 	Files_copy_opsiclientd_dir
 	if errorsOccuredSinceMark > 0
 		LogError "failed to install opsiclientd"
