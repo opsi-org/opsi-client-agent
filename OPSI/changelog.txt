@@ -1,4 +1,10 @@
 ﻿[Changelog]
+opsi-client-agent (4.1.1.16-1) testing; urgency=low
+
+  * Update opsiclientd to 4.2.0.47
+ 
+-- Jan Schneider <j.schneider@uib.de> Fri, 27 Nov 2020 16:15:00 +0200
+
 opsi-client-agent (4.1.1.15-2) testing; urgency=low
 
   * Do not fail if copy fallback suceeds
