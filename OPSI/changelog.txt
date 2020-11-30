@@ -2,8 +2,9 @@
 opsi-client-agent (4.1.1.16-2) testing; urgency=low
 
   * Fix vcredist_2015 install parameter
+  * Fix copy openssl
  
--- Jan Schneider <j.schneider@uib.de> Mon, 30 Nov 2020 12:25:00 +0200
+-- Jan Schneider <j.schneider@uib.de> Mon, 30 Nov 2020 14:35:00 +0200
 
 opsi-client-agent (4.1.1.16-1) testing; urgency=low
 
