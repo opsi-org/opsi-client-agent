@@ -1,4 +1,12 @@
 ﻿[Changelog]
+opsi-client-agent (4.1.1.18-1) stable; urgency=low
+
+  * Update opsiclientd to 4.2.0.50
+  * Update opsi-notifier to 4.1.1.5
+  * Update kiosk-package to 4.1.1.7-5
+
+-- Jan Schneider <j.schneider@uib.de> Thu, 10 Dec 2020 17:41:00 +0100
+
 opsi-client-agent (4.1.1.17-2) testing; urgency=low
 
   * Remove kiosk deinstall
