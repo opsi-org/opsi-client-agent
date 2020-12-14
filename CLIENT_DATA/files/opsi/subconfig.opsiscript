@@ -235,6 +235,28 @@ set $systray_notifyformat$ = GetProductProperty ("systray_request_notify_format"
 ;******** Sektion on_shutdown **********
 configure_on_shutdown()
 
+;******** Sektion kiosk_to_setup (only for migration) **********
+DefVar $kiosk_active$
+
+opsiservicecall_setOption_addConfigStateDefaults_true
+Set $ResultList$ = getReturnListFromSection('opsiservicecall_get_configState_software-on-demand.active')
+Set $ArrayStr$ = takestring(0, $resultlist$)
+Set $ObjectStr$ = jsonAsArrayGetElementByIndex($ArrayStr$,"0")
+Set $ArrayStr$ = jsonAsObjectGetValueByKey($objectStr$,"values")
+Set $kiosk_active$ = jsonAsArrayGetElementByIndex($ArrayStr$,"0")
+
+;if software-on-demand.active = true then set product opsi-client-kiosk to setup for the client
+if $kiosk_active$ = "true"
+	Set $ResultList$ = getReturnListFromSection('opsiservicecall_poc_kiosk_getObjects')
+	Set $ArrayStr$ = takestring(0, $resultlist$)
+	Set $ObjectStr$ = jsonAsArrayGetElementByIndex($ArrayStr$,"0")
+	Set $installState$ = jsonAsObjectGetValueByKey($objectStr$,"installationStatus")
+	if not($installState$ = "installed")
+		comment "Set product opsi-client-kiosk to setup"
+		opsiServiceCall_set_Kiosk_to_setup
+	endif
+endif
+
 ;******** Sektion systray **********
 Message "opsi-client-agent configuration: systray"
 comment "install and configure sytray"
@@ -287,6 +309,37 @@ del "ServicesPipeTimeout"
 
 
 ;;************************************** end on_shutdown sections ***************************************************
+
+
+;************** START kiosk_to_setup opsiservicecall sections *******************************************************
+[opsiservicecall_setOption_addConfigStateDefaults_true]
+"method": "backend_setOptions"
+"params": [
+	'{"addConfigStateDefaults":true}'
+]
+
+[opsiservicecall_get_configState_software-on-demand.active]
+"method": "configState_getObjects"
+"params": [
+	'[]',
+	'{"configId":"software-on-demand.active","objectId":"$INST_ClientId$"}',
+]
+
+[opsiservicecall_poc_kiosk_getObjects]
+"method": "productOnClient_getObjects"
+"params": [
+	'[]',
+	'{"productId":"opsi-client-kiosk","clientId":"$INST_ClientId$"}',
+]
+
+[opsiServiceCall_set_Kiosk_to_setup]
+"method": "setProductActionRequest"
+"params": [
+	"opsi-client-kiosk",
+	"$INST_ClientId$", 
+	"setup"
+]
+;************** END kiosk_to_setup opsiservicecall sections *******************************************************
 
 [Files_copy_systray]
 copy -sVc "%SCRIPTPATH%\opsi-systray\*.*" "$INST_BaseDir$\opsi-systray\"
