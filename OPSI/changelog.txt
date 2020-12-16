@@ -10,7 +10,7 @@ opsi-client-agent (4.1.1.18-1) stable; urgency=low
 
   * Update opsiclientd to 4.2.0.51
   * Update opsi-notifier to 4.1.1.5
-  * Update kiosk-package to 4.1.1.7-5
+  * Update kiosk-package to 4.1.1.7-6
 
 -- Jan Schneider <j.schneider@uib.de> Thu, 10 Dec 2020 17:41:00 +0100
 
