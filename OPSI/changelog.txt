@@ -1,4 +1,11 @@
 ﻿[Changelog]
+opsi-client-agent (4.1.1.21-1) stable; urgency=low
+
+  * Update opsiclientd to 4.2.0.56
+  * Update kiosk-package to 4.1.1.8-8
+
+-- Jan Schneider <j.schneider@uib.de> Fri, 18 Dec 2020 17:18:00 +0100
+
 opsi-client-agent (4.1.1.20-1) stable; urgency=low
 
   * Update opsiclientd to 4.2.0.55
