@@ -1265,6 +1265,7 @@ deffunc oca_write_configuration() : void
 	for %depotId% in $INST_ResultList$ do set $INST_ResultList2$ = addtolist($INST_ResultList2$, takeString(0,splitString("%depotId%",".")))
 	for %depotId% in $INST_ResultList2$ do Registry_hklm_set_depotshare_trusted
 	for %depotId% in $INST_ResultList2$ do Registry_hklm_set_depotshare_trusted /Sysnative
+	Registry_hklm_set_webdav_options /Sysnative
 
 	Message "Configuration: MAC-Address"
 	if ($update_mac_address_on_normal_setup$ = "true") or ($INST_Modus$ = "INSTALL")
@@ -1468,11 +1469,19 @@ deffunc oca_write_configuration() : void
 	[Registry_hklm_set_depotshare_trusted]
 	openkey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\Domains\%depotId%]
 	set "file"=reg_dword:0x00000001
+
 	openkey [HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap]
-	set "AutoDetect"=reg_dword:0x00000000
-	set "IntranetName"=reg_dword:0x00000001
-	set "ProxyByPass"=reg_dword:0x00000001
-	set "UNCAsIntranet"=reg_dword:0x00000001
+	set "AutoDetect" = reg_dword:0x00000000
+	set "IntranetName" = reg_dword:0x00000001
+	set "ProxyByPass" = reg_dword:0x00000001
+	set "UNCAsIntranet" = reg_dword:0x00000001
+
+	openkey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\Domains\%depotId%@SSL@4447]
+	set "file" = reg_dword:0x00000001
+
+	[Registry_hklm_set_webdav_options]
+	openkey [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters]
+	set "FileSizeLimitInBytes" = reg_dword:0xffffffff
 
 	[opsiservicecall_setMacAddress]
 	"method": "setMacAddress"
