@@ -2,7 +2,6 @@
 opsi-client-agent (4.1.1.25-1) stable; urgency=low
 
   * Update opsiclientd to 4.2.0.62
-  * Set webdav client options in registry
 
 -- Jan Schneider <j.schneider@uib.de> Mon, 13 Jan 2021 22:32:00 +0100
 
