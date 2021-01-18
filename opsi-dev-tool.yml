@@ -163,7 +163,6 @@ pull-binaries:
   #  branch: mirror
   #  server-url: http://binaryindex.uib.gmbh
 
-
   # Openssl library and executable
   # mirrored via: opsi-dev-tool --binary-mirror 'https://indy.fulgan.com/SSL/Archive/Experimental/' openssl '.zip:::.zip:windows' 'x32|x64:::x32:x86,x64:x64' '^[^-]*-([^-]*)-'
   - name: openssl
@@ -179,4 +178,17 @@ pull-binaries:
     architecture: x86
     version: 1.0.2o
     branch: mirror
+    server-url: http://binaryindex.uib.gmbh
+
+
+  # opsi deployment script (as binary)
+  - name: opsideployclientagent
+    server-type: binaryindex
+    destination: CLIENT_DATA
+    extract: true
+    post-script: []
+    os: linux
+    architecture: x64
+    version: 4.2.0.0
+    branch: development
     server-url: http://binaryindex.uib.gmbh
