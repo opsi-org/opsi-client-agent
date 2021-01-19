@@ -1,4 +1,10 @@
 ﻿[Changelog]
+opsi-client-agent (4.1.1.27-1) stable; urgency=low
+
+  * opsi-deploy-client-agent is now packed as binary, so no external dependencies needed
+
+-- Nils Doerrer <n.doerrer@uib.de> Tue, 19 Jan 2021 09:45:00 +0100
+
 opsi-client-agent (4.1.1.26-1) stable; urgency=low
 
   * Update opsiclientd to 4.2.0.63
