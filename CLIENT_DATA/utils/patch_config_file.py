@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+# Version 2:
+# dnsdomain now from backend.getDomain()
+# and not from socket.fqdn
+
 from __future__ import print_function
 
 import argparse
@@ -8,7 +12,7 @@ import socket
 
 from OPSI.Backend.BackendManager import BackendManager
 
-__version__ = '1'
+__version__ = '2'
 
 
 def main():
@@ -43,8 +47,9 @@ def main():
 			configurl = configurl[:-2]
 		else:
 			configurl = "https://" + configServerIp + ":4447"
+		dnsDomain = backend.getDomain()
 
-	depotServerHostname, dnsDomain = readHostnameAndDomain()
+	depotServerHostname = readHostnameAndDomain()
 	print(u"Depotserver hostname  : %s" % depotServerHostname)
 	print(u"DNS domain            : %s" % dnsDomain)
 
@@ -72,9 +77,10 @@ def readHostnameAndDomain():
 		raise ValueError("Not a fqdn: %s" % fqdn)
 
 	hostname = parts.pop(0)
-	domain = '.'.join(parts)
+	#domain = '.'.join(parts)
 
-	return hostname, domain
+	#return hostname, domain
+	return hostname
 
 
 def patchConfigFile(filename, dnsDomain, configServerIp, depotServerHostname, configurl):

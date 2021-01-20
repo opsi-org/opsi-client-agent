@@ -1,24 +1,24 @@
 [Package]
-version: 36
-depends: 
+version: 1
+depends:
 
 [Product]
 type: localboot
 id: opsi-client-agent
 name: opsi.org client agent
 description: opsi windows client agent
-advice: 
-version: 4.1.0.0
+advice:
+version: 4.1.1.26
 priority: 95
 licenseRequired: False
-productClasses: 
+productClasses:
 setupScript: files\opsi\setup.opsiscript
 uninstallScript: files\opsi\uninst\uninstall.opsiscript
 updateScript: files\opsi\config.opsiscript
-alwaysScript: 
-onceScript: 
-customScript: 
-userLoginScript: 
+alwaysScript:
+onceScript:
+customScript:
+userLoginScript:
 
 [ProductProperty]
 type: unicode
@@ -81,30 +81,6 @@ values: ["120000", "200000", "30000", "60000", "90000", "delete", "nochange"]
 default: ["nochange"]
 
 [ProductProperty]
-type: unicode
-name: kiosk_startmenue_folder
-multivalue: False
-editable: True
-description: The Start Menu folder for the Client Kiosk (software on demand)
-values: ["opsi.org"]
-default: ["opsi.org"]
-
-[ProductProperty]
-type: unicode
-name: kiosk_startmenue_entry
-multivalue: False
-editable: True
-description: The Start Menu entry for the Client Kiosk (software on demand)
-values: ["opsi kiosk", "software on demand"]
-default: ["software on demand"]
-
-[ProductProperty]
-type: bool
-name: kiosk_desktop_icon
-description: Create a desktop icon for client kiosk ?
-default: False
-
-[ProductProperty]
 type: bool
 name: systray_install
 description: Install the opsi systray program ?
@@ -133,4 +109,28 @@ type: bool
 name: update_mac_address_on_normal_setup
 description: true=MAC Address from the Network Interface that communicates with opsi will be send to the opsi-server if it do not look like a wifi interface. false=Never send MAC but in install mode
 default: True
+
+[ProductProperty]
+type: bool
+name: legacy_loginblocker_dll
+description: Install an older version of the loginblocker Dll
+default: False
+
+[ProductProperty]
+type: bool
+name: start_opsiclientd_guard
+description: Start service opsiclientdguard?
+default: True
+
+[ProductProperty]
+type: bool
+name: fix_rights_on_c_tmp
+description: Fix access rights on c:\tmp
+default: False
+
+[ProductProperty]
+type: bool
+name: fix_rights_on_wan_cache
+description: Fix access rights on c:\opsi.org\cache
+default: False
 

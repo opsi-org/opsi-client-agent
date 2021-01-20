@@ -1,10 +1,328 @@
-[Changelog]
+﻿[Changelog]
+opsi-client-agent (4.1.1.26-1) stable; urgency=low
+
+  * Update opsiclientd to 4.2.0.63
+
+-- Jan Schneider <j.schneider@uib.de> Mon, 18 Jan 2021 16:45:00 +0100
+
+opsi-client-agent (4.1.1.25-1) stable; urgency=low
+
+  * Update opsiclientd to 4.2.0.62
+
+-- Jan Schneider <j.schneider@uib.de> Mon, 13 Jan 2021 22:32:00 +0100
+
+opsi-client-agent (4.1.1.24-1) stable; urgency=low
+
+  * Update opsiclientd to 4.2.0.61
+  * Update opsi-winst to 4.12.4.12
+  * Remove opsiservicecall_setGeneralConfigValue_clientconfig_configserver_url
+
+-- Jan Schneider <j.schneider@uib.de> Mon, 11 Jan 2021 10:21:00 +0100
+
+opsi-client-agent (4.1.1.23-1) stable; urgency=low
+
+  * Update opsiclientd to 4.2.0.59
+
+-- Jan Schneider <j.schneider@uib.de> Mon, 28 Dec 2020 11:11:00 +0100
+
+opsi-client-agent (4.1.1.22-1) stable; urgency=low
+
+  * Update opsiclientd to 4.2.0.58
+
+-- Jan Schneider <j.schneider@uib.de> Sat, 19 Dec 2020 18:58:00 +0100
+
+opsi-client-agent (4.1.1.21-1) stable; urgency=low
+
+  * Update opsiclientd to 4.2.0.56
+  * Update kiosk-package to 4.1.1.8-8
+
+-- Jan Schneider <j.schneider@uib.de> Fri, 18 Dec 2020 17:18:00 +0100
+
+opsi-client-agent (4.1.1.20-1) stable; urgency=low
+
+  * Update opsiclientd to 4.2.0.55
+
+-- Jan Schneider <j.schneider@uib.de> Thu, 17 Dec 2020 16:58:00 +0100
+
+opsi-client-agent (4.1.1.19-1) stable; urgency=low
+
+  * Update opsiclientd to 4.2.0.54
+  * Update opsi-notifier to 4.1.1.6
+  * Update kiosk-package to 4.1.1.8-6
+
+-- Jan Schneider <j.schneider@uib.de> Thu, 17 Dec 2020 11:47:00 +0100
+
+opsi-client-agent (4.1.1.18-1) stable; urgency=low
+
+  * Update opsiclientd to 4.2.0.51
+  * Update opsi-notifier to 4.1.1.5
+  * Update kiosk-package to 4.1.1.7-6
+
+-- Jan Schneider <j.schneider@uib.de> Thu, 10 Dec 2020 17:41:00 +0100
+
+opsi-client-agent (4.1.1.17-2) testing; urgency=low
+
+  * Remove kiosk deinstall
+
+-- Jan Schneider <j.schneider@uib.de> Fri, 04 Nov 2020 15:43:00 +0100
+
+opsi-client-agent (4.1.1.17-1) testing; urgency=low
+
+  * Update opsiclientd to 4.2.0.48
+
+-- Jan Schneider <j.schneider@uib.de> Tue, 01 Nov 2020 22:15:00 +0200
+
+opsi-client-agent (4.1.1.16-2) testing; urgency=low
+
+  * Fix vcredist_2015 install parameter
+  * Fix copy openssl
+
+-- Jan Schneider <j.schneider@uib.de> Mon, 30 Nov 2020 14:35:00 +0200
+
+opsi-client-agent (4.1.1.16-1) testing; urgency=low
+
+  * Update opsiclientd to 4.2.0.47
+
+-- Jan Schneider <j.schneider@uib.de> Fri, 27 Nov 2020 16:15:00 +0200
+
+opsi-client-agent (4.1.1.15-2) testing; urgency=low
+
+  * Do not fail if copy fallback suceeds
+
+-- Jan Schneider <j.schneider@uib.de> Thu, 26 Nov 2020 18:54:00 +0200
+
+opsi-client-agent (4.1.1.15-1) testing; urgency=low
+
+  * Update opsiclientd to 4.2.0.46
+
+-- Jan Schneider <j.schneider@uib.de> Thu, 26 Nov 2020 13:29:00 +0200
+
+opsi-client-agent (4.1.1.14-1) testing; urgency=low
+
+  * Cleanup installation script
+  * Update opsiclientd to 4.2.0.45
+
+-- Jan Schneider <j.schneider@uib.de> Wed, 25 Nov 2020 22:56:00 +0200
+
+opsi-client-agent (4.1.1.13-1) testing; urgency=low
+
+  * Update opsiclientd to version 4.2.0.44
+  * Use opsiclientd zip file
+
+-- Jan Schneider <j.schneider@uib.de> Wed, 25 Nov 2020 18:46:00 +0200
+
+opsi-client-agent (4.1.1.12-1) testing; urgency=low
+
+  * Update opsiclientd to version 4.2.0.43
+  * Fixed logging in opsi-deploy-client-agent for opsi 4.1
+
+-- Jan Schneider <j.schneider@uib.de> Wed, 25 Nov 2020 13:00:00 +0200
+
+opsi-client-agent (4.1.1.11-1) testing; urgency=low
+
+  * update opsi-client-agent to 4.2.0.40
+
+-- Jan Schneider <j.schneider@uib.de> Mon, 16 Nov 2020 10:49:00 +0200
+
+opsi-client-agent (4.1.1.10-1) testing; urgency=low
+
+  * update opsi-client-agent to 4.2.0.38
+
+-- Jan Schneider <j.schneider@uib.de> Thu, 12 Nov 2020 12:16:00 +0200
+
+opsi-client-agent (4.1.1.9-1) experimental; urgency=low
+
+  * update opsi-client-agent to 4.2.0.37
+
+-- Jan Schneider <j.schneider@uib.de> Fri, 06 Nov 2020 16:22:00 +0200
+
+opsi-client-agent (4.1.1.8-1) experimental; urgency=low
+
+  * update opsi-script to 4.12.4.4
+
+-- Jan Schneider <j.schneider@uib.de> Thu, 05 Nov 2020 14:14:00 +0200
+
+opsi-client-agent (4.1.1.7-4) experimental; urgency=low
+
+  * copy new opsiclientd binaries to opsicliend_new and rename to opsiclientd on success
+
+-- Jan Schneider <j.schneider@uib.de> Wed, 04 Nov 2020 18:55:00 +0200
+
+opsi-client-agent (4.1.1.7-1) experimental; urgency=low
+
+  * opsiclientd 4.2.0.34
+  * opsi-winst 4.12.4.3
+  * opsi-notifier 4.1.1.3
+
+-- Nils Doerrer <n.doerrer@uib.de> Wed, 28 Oct 2020 10:30:00 +0200
+
+opsi-client-agent (4.1.1.6-1) testing; urgency=low
+
+  * fix copy of custom nofier files
+    (uib#2020100810000062 - opsi-winst-skin Anpassung Verzeichnisstruktur in client-agent 4.1.1.4-1)
+
+-- Detlef Oertel <d.oertel@uib.de> Mon, 09 Oct 2020 15:00:00 +0200
+
+opsi-client-agent (4.1.1.5-1) testing; urgency=low
+
+  * opsiclientd 4.2.0.32
+
+-- Jan Schneider <j.schneider@uib.de> Thu, 08 Oct 2020 10:17:00 +0200
+
+opsi-client-agent (4.1.1.4-1) testing; urgency=low
+
+  * updated opsi-script-lib
+  * opsiclientd 4.2.0.30
+
+ -- Detlef Oertel <d.oertel@uib.de> Mon, 05 Oct 2020 15:00:00 +0200
+
+opsi-client-agent (4.1.1.3-2) experimental; urgency=low
+
+  * ACL-Fix
+
+ -- Erol Ueluekmen <e.ueluekmen@uib.de> Sun, 04 Oct 2020 21:10:00 +0200
+
+
+opsi-client-agent (4.1.1.3-1) experimental; urgency=low
+
+  * add folder kiosk-package to opsi-client-agent (CLIENT_DATA\files\opsi). This folder contains the opsi-client-kiosk package.
+  * control: remove dependency to opsi-client-kiosk
+  * preinst: migrate kiosk (properties and ock_custom folder, only from client-agents which has the kiosk integrated)
+  * postinst: install opsi-client-kiosk from package (only if migration occured). Remove folder kiosk-package from client-agent (in any case)
+
+ -- Jan Werner <j.werner@uib.de> Fri, 02 Oct 2020 16:29:00 +0200
+
+opsi-client-agent (4.1.1.3-1) testing; urgency=low
+
+  * opsiclientd 4.2.0.28
+  * opsi-script 4.12.4.1
+
+ -- Jan Schneider <j.schneider@uib.de> Fri, 02 Oct 2020 11:01:00 +0200
+
+opsi-client-agent (4.1.1.2-1) testing; urgency=low
+
+  * opsiclientd 4.2.0.27
+
+ -- Jan Schneider <j.schneider@uib.de> Wed, 30 Sep 2020 13:14:00 +0200
+
+opsi-client-agent (4.1.1.1-2) testing; urgency=low
+
+  * new property: fix_rights_on_c_tmp (default=false)
+  * new property: fix_rights_on_wan_cache (default=false)
+  * new properties are used to control and speed up the setup of access rights
+  * Log setacl actions on loglevel 6
+
+ -- Detlef Oertel <d.oertel@uib.de>  Fri  25 Aug 2020 15:00:00 +0200
+
+opsi-client-agent (4.1.1.1-1) experimental; urgency=medium
+
+ * opsicliend 4.2.0.21 in opsiclientd_windows_x86
+ * update to opsiclientd 4.2.0.25
+
+ -- d.oertel <d.oertel@uib.de> Wed, 16 Sep 2020 15:00:00 + 0100
+ -- n.doerrer <n.doerrer@uib.de> Mon, 21 Sep 2020 14:30:00 + 0100
+
+opsi-client-agent (4.1.1.0-2) experimental; urgency=medium
+
+ * depends now on opsi-client-kiosk (opsi-client-kiosk must be installed on depot first to migrate icons and settings from client-agent)
+ * remove old kiosk completely from client-agent folder and system entries on client
+ * opsi-client-kiosk is set to setup if software-on-demand.active is true
+ * update to opsi-notifier 4.1.1.2
+
+ -- j.werner <j.werner@uib.de> Thu, 06 Aug 2020 13:49:00 + 0100
+ -- d.oertel <d.oertel@uib.de> Wed, 19 Aug 2020 15:00:00 + 0100
+
+opsi-client-agent (4.1.1.0-1) testing; urgency=medium
+
+  * switch to opsiclientd-pyinstaller
+  * startup opsiclientd in install mode
+  * fix sequence of getting the value of allow_reboot
+  * update to opsi-script 4.12.3.16
+  * update to opsi-systray 4.1.3.0
+  * update to opsi-notifier 4.1.1.1
+  * update to opsiclientdguard 4.0.0.2
+  * update to openssl 1.0.2u
+  * integrate vcredist2015
+  * remove opsi-kiosk from client-agent (is stand alone now)
+  * fix c:\opsi.org\usertmp file access rights
+  * update to setacl 3.06
+  * update oca_write_configuration():DosInAnIcon_open_dir by Mathias Knauer
+  * opsiclientd 4.2  (21.7.2020)
+  * fix Registry_set_ServicesPipeTimeout / Registry_del_ServicesPipeTimeout
+  * new property start_opsiclientd_guard (default=true)
+  * modified patch_config_file.py (get domain from backend)
+  * modified opsi-deploy-client-agent for opsi 4.2
+  * modified postinst for opsi 4.2
+  * remove old debug files (like config.ini) from log dir if $Inst_Debug$="off"
+  * preinst: save old kiosk files to new kiosk product
+  * modified function:
+    deffunc opsiservice_authenticated($testexisting$ : string,$user$ : string,
+    $pass$ : string, $url$ : string, $interactive$ : string) : string
+  * subconfig: all on_shutdown in one function
+
+ -- Jan Schneider <j.schneider@uib.de> Fri, 08 May 2020 11:03:00 + 0100
+ -- d.oertel <d.oertel@uib.de> Fri, 08 May 2020 15:00:00 + 0100
+
+opsi-client-agent (4.1.0.0-42) experimental; urgency=low
+
+  * update to opsiclientd : 4.2
+  * update to opsi-script 4.12.3.12
+  * update to opsi-systray 4.1.2.0
+
+-- Detlef Oertel <d.oertel@uib.de>  Thu  09 Apr 2020:15:00:00 +0200
+
+opsi-client-agent (4.1.0.0-41) experimental; urgency=low
+
+  * update to opsi-client-systray 4.1.1.0
+    * change to synapse
+    * no backend_exit
+  * update for win10 to opsiclientd : 4.0.100
+  * requires opsi-script 4.12.0.17
+
+-- Detlef Oertel <d.oertel@uib.de>  Mo, 06 Apr 2020:15:00:00 +0200
+
+opsi-client-agent (4.1.0.0-40) experimental; urgency=low
+
+  * update to opsiclientkiosk 4.1.1.2: fixed that last product was not within the sqlite database
+  * edit postinst: set config "software-on-demand.admin-mode" to false by default (e.g. if not existing)
+  * copy kiosk icons via zip (Detlef Oertel, Tue, 04 Feb 2020)
+
+-- Jan Werner <j.werner@uib.de>  Mon, 7 Feb 2020:12:04:00 +0200
+
+opsi-client-agent (4.1.0.0-39) experimental; urgency=low
+
+ * handle service_hidden_password also as confidential
+ * update opsiclientd to 4.0.99
+
+-- Detlef Oertel <d.oertel@uib.de>  Mo, 20 Jan 2020:15:00:00 +0200
+
+opsi-client-agent (4.1.0.0-38) experimental; urgency=low
+
+ * update to opsi-script 4.12.3.1
+ * opsi-deploy-client-agent: compatible with opsi 4.1 and 4.2
+
+ -- Niko Wenselowski <n.wenselowski@uib.de>  Mon, 18 Nov 2019 18:42:44 +0200
+
+opsi-client-agent (4.1.0.0-37) experimental; urgency=low
+
+  * new property: legacy_loginblocker_dll
+     false=new version (83 von 10.2019) true=old version (1.2.1.0 von 8.2016)
+     default=false
+  * opsiclientd 4.0.98
+  * service_setup.cmd (nt6): additional '-wait' in call of opsi-script (do 5.11.19)
+  * update to opsi-script 4.12.3 (do 5.11.19)
+  * update openssl to 1.0.2t (do 7.11.19)
+
+-- Erol Ueluekmen <e.ueluekmen@uib.de>  Mon, 28 Oct 2019:22:00:00 +0200
+
 opsi-client-agent (4.1.0.0-36) experimental; urgency=low
 
   * new property: update_mac_address_on_normal_setup
-     true=MAC Address from the Network Interface that communicates with opsi will be send to the opsi-server if it do not look like a wifi interface. 
+     true=MAC Address from the Network Interface that communicates with opsi will be send to the opsi-server if it do not look like a wifi interface.
      false=Never send MAC but in install mode
   * patch_config_file.py now works with opsi 4.2.
+  * opsi-kiosk: custom directories for icons and screenshots
+  * update to opsi-script 4.12.2.3
 
 -- Detlef Oertel <d.oertel@uib.de>  Fri, 16 Aug 2019:15:00:00 +0200
 
@@ -95,13 +413,13 @@ opsi-client-agent (4.1.0.0-23) stable; urgency=low
 
 opsi-client-agent (4.1.0.0-22) stable; urgency=low
 
-  * Check if vcredist 2008 is installed for more versions (9.0.x) 
+  * Check if vcredist 2008 is installed for more versions (9.0.x)
 
 -- Detlef Oertel <d.oertel@uib.de>  Tue, 18 Oct 2018:17:20:00 +0200
 
 opsi-client-agent (4.1.0.0-21) stable; urgency=low
 
-  * opsi_client_systray  4.1.0.1: fix logging to c:\opsi.org\applog    
+  * opsi_client_systray  4.1.0.1: fix logging to c:\opsi.org\applog
   * opsiclientkiosk  4.1.0.1: fix logging to c:\opsi.org\applog
   * update to opsi-winst/opsi-script 4.12.0.28
   * More messages in oca_write_configuration()
@@ -112,14 +430,14 @@ opsi-client-agent (4.1.0.0-21) stable; urgency=low
 opsi-client-agent (4.1.0.0-20) stable; urgency=low
 
   * fixes #3649 uninstall dont remove [HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Run]"opsi_systray_start"
-  
--- Bardo Wolf <b.wolf@uib.de>  Mon, 20 Aug 2018:15:00:00 +0200  
+
+-- Bardo Wolf <b.wolf@uib.de>  Mon, 20 Aug 2018:15:00:00 +0200
 
 opsi-client-agent (4.1.0.0-19) stable; urgency=low
 
-  * fixes #3630 opsi-local-image-wim-capture bleibt auf setup stehen 
+  * fixes #3630 opsi-local-image-wim-capture bleibt auf setup stehen
 
--- Bardo Wolf <b.wolf@uib.de>  Thu, 09 Aug 2018:15:00:00 +0200  
+-- Bardo Wolf <b.wolf@uib.de>  Thu, 09 Aug 2018:15:00:00 +0200
 
 opsi-client-agent (4.1.0.0-18) stable; urgency=low
 

@@ -10,17 +10,6 @@
 #   PRODUCT_VERSION
 #   PACKAGE_VERSION
 
-EMPTYARRAY=""
-
-CHECKCONFIG="software-on-demand.installation-now-button"
-CHECKSTRING="{\"id\":\"${CHECKCONFIG}\"}"
-ANSWERARRAY=`opsi-admin -dS method config_getObjects '[]' ${CHECKSTRING}`
-if [ "${EMPTYARRAY}" == "${ANSWERARRAY}" ] ; then
-  echo "config ${CHECKCONFIG} does not exists - creating"
-  opsi-admin -d method config_createBool "${CHECKCONFIG}" "${CHECKCONFIG}" "true"
-else
-  echo "config ${CHECKCONFIG} already exists"
-fi
 
 echo [${PRODUCT_ID}]  > $CLIENT_DATA_DIR/files/opsi/product.ini
 echo ProductVersion=${PRODUCT_VERSION}-${PACKAGE_VERSION} >> $CLIENT_DATA_DIR/files/opsi/product.ini
@@ -28,25 +17,19 @@ echo ProductVersion=${PRODUCT_VERSION}-${PACKAGE_VERSION} >> $CLIENT_DATA_DIR/fi
 chmod u+x $CLIENT_DATA_DIR/utils/set_ip_in_inifile
 chmod u+x $CLIENT_DATA_DIR/opsi-deploy-client-agent
 
-# for backward compatibiliy: create a setup.ins:
-cd $CLIENT_DATA_DIR/files/opsi
-ln setup.opsiscript setup.ins
-
 echo "Patching server information ..."
 PATCH_CONFIG_SCRIPT="$CLIENT_DATA_DIR/utils/patch_config_file.py"
 CONFIG_FILE="$CLIENT_DATA_DIR/files/opsi/cfg/config.ini"
 
-set +e
-python3 -c "import OPSI"
-ret=$?
-set -e
-if [ $ret -eq 0 ]; then
-	# Python 3 - opsi 4.2 or later
-	python3 $PATCH_CONFIG_SCRIPT $CONFIG_FILE
-
+if [ -e /usr/bin/opsi-python ]; then
+	# opsi 4.2 or later
+	/usr/bin/opsi-python $PATCH_CONFIG_SCRIPT $CONFIG_FILE
 else
 	# Python 2 - opsi 4.1
 	python $PATCH_CONFIG_SCRIPT $CONFIG_FILE
+
+	# opsi-deploy-client-agent should use Python 2
+	sed -i '1c#!/usr/bin/python' "$CLIENT_DATA_DIR/opsi-deploy-client-agent"
 fi
 
 TMP_DIR=${CLIENT_DATA_DIR}/../${PRODUCT_ID}.tmp
@@ -57,7 +40,7 @@ fi
 
 if [ -d $TMP_DIR ]; then
 	echo 'Restoring previous directories...'
-	for dirname in files/opsi/custom; do
+	for dirname in files/opsi/custom ; do
 		for path in $TMP_DIR/`basename $dirname`; do
 			if [ -d $path ]; then
 				test -e $CLIENT_DATA_DIR/$dirname && rm -rf $CLIENT_DATA_DIR/$dirname
@@ -70,5 +53,17 @@ fi
 
 echo "Removing temporary files..."
 rm -rf $TMP_DIR
+
+# install opsi-client-kiosk package on depot (only if migration folder exists)
+if [ -d ${CLIENT_DATA_DIR}/../opsi-client-kiosk/migration ]; then
+	rm -df ${CLIENT_DATA_DIR}/../opsi-client-kiosk/migration
+	opsi-package-manager -iq ${CLIENT_DATA_DIR}/files/opsi/kiosk-package/opsi-client-kiosk_*.opsi
+fi
+# remove kiosk package from client-agent
+rm -rf ${CLIENT_DATA_DIR}/files/opsi/kiosk-package
+
+# opsi-admin -d deleteProductPropertyDefinition "${PRODUCT_ID}" "kiosk_startmenue_entry"
+# opsi-admin -d deleteProductPropertyDefinition "${PRODUCT_ID}" "kiosk_startmenue_folder"
+# opsi-admin -d deleteProductPropertyDefinition "${PRODUCT_ID}" "kiosk_desktop_icon"
 
 exit 0
