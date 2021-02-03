@@ -3,7 +3,7 @@ opsi-client-agent (4.1.1.29-1) stable; urgency=low
 
   * Update opsiclientd to 4.2.0.66
 
--- Jan Schneider <j.schneider@uib.de> Tue, 02 Feb 2021 14:40:00 +0100
+-- Jan Schneider <j.schneider@uib.de> Wed, 03 Feb 2021 12:07:00 +0100
 
 opsi-client-agent (4.1.1.28-1) stable; urgency=low
 
