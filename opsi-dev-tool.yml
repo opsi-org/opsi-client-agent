@@ -159,7 +159,7 @@ pull-binaries:
     post-script:
       - mv CLIENT_DATA/files/opsi/vcredist2015/vc_redist.x64.exe CLIENT_DATA/files/opsi/vcredist2015/vcredist_2015_x64.exe
     os: windows
-    architecture: x86
+    architecture: x64
     version: 2015
     branch: mirror
     server-url: http://binaryindex.uib.gmbh
