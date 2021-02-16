@@ -147,7 +147,6 @@ DefVar $OLB_LoginBlockerTimeoutConnect$
 ;DefVar $OLB_LoginBlockerTimeoutInstall$
 ;opsiServiceType=0 (default), 1 (prelogin.exe/pcptch.exe), 2 (opsiclientd)
 DefVar $OLB_opsiServiceType$
-DefVar $OLB_legacy_loginblocker_dll$
 
 
 ;******** Sektion preloginloader **********
@@ -433,8 +432,6 @@ deffunc oca_read_configuration() : void
 	Set $OLB_LogLevel$ 			    = GetValueFromInifile($INST_custom_Cfgini$, "opsiLoginBlocker", "LogLevel", $OLB_LogLevel$)
 	Set $OLB_LoginBlockerStart$          	    = GetValueFromInifile($INST_custom_Cfgini$, "opsiLoginBlocker", "LoginBlockerStart", $OLB_LoginBlockerStart$)
 	Set $OLB_LoginBlockerTimeoutConnect$	    = GetValueFromInifile($INST_custom_Cfgini$, "opsiLoginBlocker", "LoginBlockerTimeoutConnect", $OLB_LoginBlockerTimeoutConnect$)
-
-	Set $OLB_legacy_loginblocker_dll$ = GetProductProperty("legacy_loginblocker_dll","false")
 
 	; Patch #1237 (https://forum.opsi.org/viewtopic.php?f=7&t=6764#p29403)
 	if contains( $OCD_config_service.url$, "," )
@@ -1052,21 +1049,13 @@ deffunc oca_copy_files() : void
 	markErrorNumber
 	if CompareDotSeparatedNumbers($INST_NTVersion$,">=","6.0")
 		comment "we are on nt6 or above "
-		if $OLB_legacy_loginblocker_dll$ = "false"
-			if ($INST_SystemType$ = "64 Bit System")
-				Files_copy_nt6_loginblocker_64 /Sysnative
-			else
-				Files_copy_nt6_loginblocker_32
-				Files_del_cmd64
-			endif ; 32/64
+		if ($INST_SystemType$ = "64 Bit System")
+			Files_copy_nt6_loginblocker_64 /Sysnative
 		else
-			if ($INST_SystemType$ = "64 Bit System")
-				Files_copy_nt6_legacy_loginblocker_64 /Sysnative
-			else
-				Files_copy_nt6_legacy_loginblocker_32
-				Files_del_cmd64
-			endif ; 32/64
-		endif
+			Files_copy_nt6_loginblocker_32
+			Files_del_cmd64
+		endif ; 32/64
+
 	endif ; nt6
 
 	if CompareDotSeparatedNumbers($INST_NTVersion$,"<","6.0")
@@ -1179,12 +1168,6 @@ deffunc oca_copy_files() : void
 
 	[Files_copy_nt6_loginblocker_64]
 	copy -Vc "%SCRIPTPATH%\opsiloginblocker\64bit\*.dll" "%SYSTEM%"
-
-	[Files_copy_nt6_alternative_loginblocker_32]
-	copy -Vc "%SCRIPTPATH%\opsiloginblocker\legacy\32bit\*.dll" "%SYSTEM%"
-
-	[Files_copy_nt6_alternative_loginblocker_64]
-	copy -Vc "%SCRIPTPATH%\opsiloginblocker\legacy\64bit\*.dll" "%SYSTEM%"
 
 	[Files_copy_xp_loginblocker_win2k]
 	copy -Vc "%SCRIPTPATH%\opsigina\32bit\opsigina.dll" "$INST_BaseDir$\opsigina\"
