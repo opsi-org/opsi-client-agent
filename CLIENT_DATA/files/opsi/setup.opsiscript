@@ -2779,7 +2779,11 @@ if $INST_vcredistx86_installed$ = "false"
 	killtask "autoit3.exe"
 endif
 
-shellcall('"%scriptpath%/vcredist2015/vcredist_2015_x86.exe" /install /passive /norestart')
+if ($INST_SystemType$ = "64 Bit System")
+	shellcall('"%scriptpath%/vcredist2015/vcredist_2015_x64.exe" /install /passive /norestart')
+else
+	shellcall('"%scriptpath%/vcredist2015/vcredist_2015_x86.exe" /install /passive /norestart')
+endif
 
 ;*********************************************************
 comment "set mode"
