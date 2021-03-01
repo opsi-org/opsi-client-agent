@@ -1277,6 +1277,8 @@ deffunc oca_write_configuration() : void
 	DosInAnIcon_lock_lockdir_not_recursive
 	set $lockdir$ = $OCD_OpsiVarDir$+"\opsiclientd"
 	DosInAnIcon_lock_lockdir_not_recursive
+	set $lockdir$ = $OCD_OpsiVarDir$+"\tls"
+	DosInAnIcon_lock_lockdir_not_recursive
 	set $lockdir$ = $OCD_OpsiVarDir$+"\tmp"
 	DosInAnIcon_lock_lockdir_not_recursive
 	set $lockdir$ = $OCD_OpsiVarDir$+"\cache"
@@ -1529,6 +1531,7 @@ deffunc oca_write_configuration() : void
 	CheckTargetPath = "$OCD_OpsiVarDir$\usertmp"
 	CheckTargetPath = "$OCD_OpsiVarDir$\cache"
 	CheckTargetPath = "$OCD_OpsiVarDir$\opsiclientd"
+	CheckTargetPath = "$OCD_OpsiVarDir$\tls"
 	CheckTargetPath = "$OCD_OpsiVarDir$\data"
 	;del -s -f -d 365 "$OCD_OpsiVarDir$\tmp\*"
 	;del -s -f -d 365 "$OCD_OpsiVarDir$\usertmp\*"
