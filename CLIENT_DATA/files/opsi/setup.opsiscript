@@ -1687,19 +1687,19 @@ deffunc oca_write_configuration() : void
 	Set "DependOnService" = REG_MULTI_SZ:"$OCD_depServices$"
 
 	[Registry_vista_loginblocker]
-	;openkey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Providers\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
-	;set ""="OpsiLoginBlocker"
 	openkey [HKEY_CLASSES_ROOT\CLSID\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
-	set ""="OpsiLoginBlocker"
+	set "" = "OpsiLoginBlocker"
 	openkey [HKEY_CLASSES_ROOT\CLSID\{d2028e19-82fe-44c6-ad64-51497c97a02a}\InprocServer32]
-	set ""="OpsiLoginBlocker.dll"
-	set "ThreadingModel"="Apartment"
+	set "" = "OpsiLoginBlocker.dll"
+	set "ThreadingModel" = "Apartment"
 	openkey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Provider Filters\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
-	set ""="OpsiLoginBlocker"
-	set "LoginBlockerStart"=reg_dword:0x00000001
-	set "LoginBlockerTimeoutConnect"=reg_dword:$OLB_LoginBlockerTimeoutConnect$
-	set "LoginBlockerLogLevel"=reg_dword:$OLB_LogLevel$
-	set "LoginBlockerLogDir"="%opsiLogDir%"
+	set "" = "OpsiLoginBlocker"
+	set "LoginBlockerStart" = reg_dword:0x00000001
+	set "LoginBlockerTimeoutConnect" = reg_dword:$OLB_LoginBlockerTimeoutConnect$
+	set "LoginBlockerLogLevel" = reg_dword:$OLB_LogLevel$
+	set "LoginBlockerLogDir" = "%opsiLogDir%"
+	openkey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Providers\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
+	set "" = "OpsiLoginBlocker"
 
 	[Registry_vista_del_loginblocker]
 	deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Providers\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
