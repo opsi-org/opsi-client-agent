@@ -7,7 +7,7 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x86
-    version: 4.2.0.63
+    version: 4.2.0.69
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
@@ -55,7 +55,7 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x86
-    version: 0  #TODO
+    version: 4.2.0.0
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
@@ -135,6 +135,7 @@ pull-binaries:
     server-url: http://binaryindex.uib.gmbh
 
   # Visual C++ redistributable 2015
+  # This needed for opsi-login-blocker x86 >= 4.2.0.0
   # mirrored via: opsi-dev-tool --binary-mirror https://aka.ms/vs/16/release/vc_redist.x86.exe vc_redist 'exe:::exe:windows' x86 '16/:::16/:2015'
   - name: vc_redist
     server-type: binaryindex
@@ -144,6 +145,21 @@ pull-binaries:
       - mv CLIENT_DATA/files/opsi/vcredist2015/vc_redist.x86.exe CLIENT_DATA/files/opsi/vcredist2015/vcredist_2015_x86.exe
     os: windows
     architecture: x86
+    version: 2015
+    branch: mirror
+    server-url: http://binaryindex.uib.gmbh
+
+  # Visual C++ redistributable 2015
+  # This needed for opsi-login-blocker x64 >= 4.2.0.0
+  # mirrored via: opsi-dev-tool --binary-mirror https://aka.ms/vs/16/release/vc_redist.x64.exe vc_redist 'exe:::exe:windows' x64 '16/:::16/:2015'
+  - name: vc_redist
+    server-type: binaryindex
+    destination: CLIENT_DATA/files/opsi/vcredist2015/
+    extract: true
+    post-script:
+      - mv CLIENT_DATA/files/opsi/vcredist2015/vc_redist.x64.exe CLIENT_DATA/files/opsi/vcredist2015/vcredist_2015_x64.exe
+    os: windows
+    architecture: x64
     version: 2015
     branch: mirror
     server-url: http://binaryindex.uib.gmbh
