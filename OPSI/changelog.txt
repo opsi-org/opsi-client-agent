@@ -4,7 +4,7 @@ opsi-client-agent (4.1.1.31-1) stable; urgency=low
   * Update opsiclientd to 4.2.0.69
   * Register opsi-login-blocker as CredentialProvider
 
--- Jan Schneider <j.schneider@uib.de> Mon, 30 Mar 2021 08:07:00 +0100
+-- Jan Schneider <j.schneider@uib.de> Fri, 09 Apr 2021 17:08:00 +0100
 
 opsi-client-agent (4.1.1.30-1) stable; urgency=low
 
