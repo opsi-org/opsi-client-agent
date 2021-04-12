@@ -10,7 +10,7 @@
 #   PRODUCT_VERSION
 #   PACKAGE_VERSION
 
-
+TMP_DIR=${CLIENT_DATA_DIR}/../${PRODUCT_ID}.tmp
 echo [${PRODUCT_ID}]  > $CLIENT_DATA_DIR/files/opsi/product.ini
 echo ProductVersion=${PRODUCT_VERSION}-${PACKAGE_VERSION} >> $CLIENT_DATA_DIR/files/opsi/product.ini
 
