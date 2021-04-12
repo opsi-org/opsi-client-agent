@@ -923,7 +923,9 @@ deffunc oca_copy_files() : void
 	Defstringlist $filelist$
 
 	comment 'exclude "' + $INST_BaseDir$ + '" from Windows Defender scanning'
-	powershellCall('Add-MpPreference -ExclusionPath "' + $INST_BaseDir$ + '"')
+	if CompareDotSeparatedNumbers($INST_NTVersion$,">=","6")
+		powershellCall('Add-MpPreference -ExclusionPath "' + $INST_BaseDir$ + '"')
+	endif
 
 	Message = Copy files: prepare
 	comment "Stop_Preloginloader_Service"
