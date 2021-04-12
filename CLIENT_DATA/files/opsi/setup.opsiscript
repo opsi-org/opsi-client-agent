@@ -23,7 +23,6 @@ ShowBitmap "%scriptpath%\uninst\opsi.png" "opsi-client-agent"
 ; Script variables with prefix INST
 
 ;******** installation vars **********
-DefVar $INST_AktGina$
 DefVar $INST_AllowReboot$
 DefVar $INST_Authenticated$
 DefVar $INST_BaseDir$
@@ -70,11 +69,8 @@ DefVar $INST_Sysconfini$
 DefVar $INST_SystemType$
 DefVar $INST_WinstDir$
 DefVar $INST_WinstRegKey$
-DefVar $INST_gina_to_chain$
-DefVar $INST_old_reg_gina_installed$
 DefVar $INST_preloginvistaInstalled$
 DefVar $INST_preloginloaderInstalled$
-DefVar $INST_GinaDll$
 DefVar $INST_service_hidden_password$
 DefVar $INST_DefaultLoglevel$
 DefVar $INST_PasswdLogLevel$
@@ -238,10 +234,6 @@ DefStringlist $pocList$
 
 Set $LogDir$ = "%opsiLogDir%"
 
-;importlib "%scriptpath%\ocalib.opsiscript"
-
-; ####################################################################
-; ####################################################################
 deffunc opsiservice_authenticated($testexisting$ : string,$user$ : string, $pass$ : string, $url$ : string, $interactive$ : string) : string
 	markErrorNumber
 	set $result$ = "false"
@@ -333,65 +325,8 @@ endfunc
 
 
 deffunc oca_read_configuration() : void
-
-	Message = Read config: gina
-	comment "get installed gina"
-	set $INST_AktGina$ = GetRegistryValue("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon", "GinaDLL")
-
-	comment "get nextgina to chain"
-	set $INST_gina_to_chain$ = GetRegistryValue("HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\opsi-client-agent","NextGina")
-
-	if $INST_gina_to_chain$ = ""
-		comment "no nextGina entry at opsi-client-agent - let us look at the old preloginloader key"
-		set $INST_gina_to_chain$ = GetRegistryValue("HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\preloginloader","NextGina")
-	endif
-
-	if $INST_gina_to_chain$ = ""
-		comment "no new opsigina installed - let us look for opsi pgina installation"
-		set $INST_gina_to_chain$ = GetRegistryValue("HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\preloginloader","pathMSGina")
-	endif
-
-	if $INST_gina_to_chain$ = ""
-		comment "no new opsi pgina installed - let us look for legacy opsi installation"
-		set $INST_old_reg_gina_installed$ = GetRegistryValue("HKEY_LOCAL_MACHINE\SOFTWARE\pGina\Opsi","Installed")
-		if $INST_old_reg_gina_installed$ = "1"
-			set $INST_gina_to_chain$ = GetRegistryValue("HKEY_LOCAL_MACHINE\SOFTWARE\pGina","pathMSGina")
-		endif
-	endif
-
-	if ($INST_gina_to_chain$ = "") and ("64 Bit System" = $INST_SystemType$)
-		comment "perhaps opsi-client-agent previously installed into wrong registry tree with 32-bit settings"
-		set $INST_gina_to_chain$ = GetRegistryValue("HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\opsi-client-agent","NextGina","32bit")
-	endif
-
-
-	if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") < "0"
-		if ($INST_AktGina$ = "")
-			comment "opsigina seems not be installed and we are on a fresh XP"
-			set $INST_gina_to_chain$ = "msgina.dll"
-		else
-			if ($INST_gina_to_chain$ = "")
-				comment "opsigina seems not be installed and there is active gina"
-				set $INST_gina_to_chain$ = $INST_AktGina$
-			else
-				if NOT ( $INST_gina_to_chain$ = $INST_AktGina$ )
-					comment "WARNING: opsigina seems installed and there is active gina different from opsi.org\opsi-client-agent] NextGina"
-					LogWarning "opsigina seems installed and there is active gina different from opsi.org\opsi-client-agent] NextGina"
-					set $INST_gina_to_chain$ = $INST_AktGina$
-				else
-					comment "opsigina seems be installed and so don't change the gina to chain"
-				endif
-			endif
-		endif
-		if strPos($INST_gina_to_chain$, "'") = "1"
-			comment "Path to gina is quoted with single marks - we need double marks to avoid syntax errors"
-			set $INST_gina_to_chain$ = unquote($INST_gina_to_chain$,"'")
-			set $INST_gina_to_chain$ = '"'+ $INST_gina_to_chain$ + '"'
-		endif
-	endif ; winxp / win2k
-
 	Message = Read config: general
-	Set $GEN_bootmode$    	 = GetValueFromInifile($INST_cfgini$, "general", "bootmode", $GEN_bootmode$)
+	Set $GEN_bootmode$ = GetValueFromInifile($INST_cfgini$, "general", "bootmode", $GEN_bootmode$)
 
 	comment "Getting dns domain from config file"
 	Set $INST_DnsDomainName$ = GetValueFromInifile($INST_cfgini$, "general", "dnsdomain", $INST_DnsDomainName$)
@@ -411,27 +346,27 @@ deffunc oca_read_configuration() : void
 	;SetLogLevel=$INST_DefaultLoglevel$
 
 	comment "Getting values from from config file"
-	Set $OCD_global.log_level$ 		    = GetValueFromInifile($INST_cfgini$, "opsiclientd", "global.log_level", $OCD_global.log_level$)
-	Set $OCD_config_service.url$ 		    = GetValueFromInifile($INST_cfgini$, "opsiclientd", "config_service.url", $OCD_config_service.url$)
+	Set $OCD_global.log_level$                  = GetValueFromInifile($INST_cfgini$, "opsiclientd", "global.log_level", $OCD_global.log_level$)
+	Set $OCD_config_service.url$                = GetValueFromInifile($INST_cfgini$, "opsiclientd", "config_service.url", $OCD_config_service.url$)
 	Set $OCD_config_service.connection_timeout$ = GetValueFromInifile($INST_cfgini$, "opsiclientd", "config_service.connection_timeout", $OCD_config_service.connection_timeout$)
-	Set $OCD_control_server.port$ 		    = GetValueFromInifile($INST_cfgini$, "opsiclientd", "control_server.port", $OCD_control_server.port$)
-	Set $OCD_notification_server.port$ 	    = GetValueFromInifile($INST_cfgini$, "opsiclientd", "notification_server.port", $OCD_notification_server.port$)
+	Set $OCD_control_server.port$               = GetValueFromInifile($INST_cfgini$, "opsiclientd", "control_server.port", $OCD_control_server.port$)
+	Set $OCD_notification_server.port$          = GetValueFromInifile($INST_cfgini$, "opsiclientd", "notification_server.port", $OCD_notification_server.port$)
 	Set $OCD_open_firewall_for_control_server$  = GetValueFromInifile($INST_cfgini$, "opsiclientd", "open_firewall_for_control_server", $OCD_open_firewall_for_control_server$)
-	Set $OLB_LogLevel$ 			    = GetValueFromInifile($INST_cfgini$, "opsiLoginBlocker", "LogLevel", $OLB_LogLevel$)
-	Set $OLB_LoginBlockerStart$          	    = GetValueFromInifile($INST_cfgini$, "opsiLoginBlocker", "LoginBlockerStart", $OLB_LoginBlockerStart$)
-	Set $OLB_LoginBlockerTimeoutConnect$	    = GetValueFromInifile($INST_cfgini$, "opsiLoginBlocker", "LoginBlockerTimeoutConnect", $OLB_LoginBlockerTimeoutConnect$)
+	Set $OLB_LogLevel$                          = GetValueFromInifile($INST_cfgini$, "opsiLoginBlocker", "LogLevel", $OLB_LogLevel$)
+	Set $OLB_LoginBlockerStart$                 = GetValueFromInifile($INST_cfgini$, "opsiLoginBlocker", "LoginBlockerStart", $OLB_LoginBlockerStart$)
+	Set $OLB_LoginBlockerTimeoutConnect$        = GetValueFromInifile($INST_cfgini$, "opsiLoginBlocker", "LoginBlockerTimeoutConnect", $OLB_LoginBlockerTimeoutConnect$)
 
 
 	comment "Getting values (overwrite)from from custom config file"
-	Set $OCD_global.log_level$ 		    = GetValueFromInifile($INST_custom_Cfgini$, "opsiclientd", "global.log_level", $OCD_global.log_level$)
-	Set $OCD_config_service.url$ 		    = GetValueFromInifile($INST_custom_Cfgini$, "opsiclientd", "config_service.url", $OCD_config_service.url$)
+	Set $OCD_global.log_level$                  = GetValueFromInifile($INST_custom_Cfgini$, "opsiclientd", "global.log_level", $OCD_global.log_level$)
+	Set $OCD_config_service.url$                = GetValueFromInifile($INST_custom_Cfgini$, "opsiclientd", "config_service.url", $OCD_config_service.url$)
 	Set $OCD_config_service.connection_timeout$ = GetValueFromInifile($INST_custom_Cfgini$, "opsiclientd", "config_service.connection_timeout", $OCD_config_service.connection_timeout$)
-	Set $OCD_control_server.port$ 		    = GetValueFromInifile($INST_custom_Cfgini$, "opsiclientd", "control_server.port", $OCD_control_server.port$)
-	Set $OCD_notification_server.port$ 	    = GetValueFromInifile($INST_custom_Cfgini$, "opsiclientd", "notification_server.port", $OCD_notification_server.port$)
+	Set $OCD_control_server.port$               = GetValueFromInifile($INST_custom_Cfgini$, "opsiclientd", "control_server.port", $OCD_control_server.port$)
+	Set $OCD_notification_server.port$          = GetValueFromInifile($INST_custom_Cfgini$, "opsiclientd", "notification_server.port", $OCD_notification_server.port$)
 	Set $OCD_open_firewall_for_control_server$  = GetValueFromInifile($INST_custom_Cfgini$, "opsiclientd", "open_firewall_for_control_server", $OCD_open_firewall_for_control_server$)
-	Set $OLB_LogLevel$ 			    = GetValueFromInifile($INST_custom_Cfgini$, "opsiLoginBlocker", "LogLevel", $OLB_LogLevel$)
-	Set $OLB_LoginBlockerStart$          	    = GetValueFromInifile($INST_custom_Cfgini$, "opsiLoginBlocker", "LoginBlockerStart", $OLB_LoginBlockerStart$)
-	Set $OLB_LoginBlockerTimeoutConnect$	    = GetValueFromInifile($INST_custom_Cfgini$, "opsiLoginBlocker", "LoginBlockerTimeoutConnect", $OLB_LoginBlockerTimeoutConnect$)
+	Set $OLB_LogLevel$                          = GetValueFromInifile($INST_custom_Cfgini$, "opsiLoginBlocker", "LogLevel", $OLB_LogLevel$)
+	Set $OLB_LoginBlockerStart$                 = GetValueFromInifile($INST_custom_Cfgini$, "opsiLoginBlocker", "LoginBlockerStart", $OLB_LoginBlockerStart$)
+	Set $OLB_LoginBlockerTimeoutConnect$        = GetValueFromInifile($INST_custom_Cfgini$, "opsiLoginBlocker", "LoginBlockerTimeoutConnect", $OLB_LoginBlockerTimeoutConnect$)
 
 	; Patch #1237 (https://forum.opsi.org/viewtopic.php?f=7&t=6764#p29403)
 	if contains( $OCD_config_service.url$, "," )
@@ -670,8 +605,6 @@ deffunc oca_read_configuration() : void
 	comment "$INST_SystemType$ -> "+                $INST_SystemType$
 	comment "$INST_WinstDir$ -> "+                  $INST_WinstDir$
 	comment "$INST_WinstRegKey$ -> "+               $INST_WinstRegKey$
-	comment "$INST_AktGina$ -> "+                   $INST_AktGina$
-	comment "$INST_gina_to_chain$ -> "+             $INST_gina_to_chain$
 
 	comment "$INST_vcredistx86_installed$ -> "+     $INST_vcredistx86_installed$
 	;comment "$INST_uac_level$ -> "+                 $INST_uac_level$
@@ -923,9 +856,7 @@ deffunc oca_copy_files() : void
 	Defstringlist $filelist$
 
 	comment 'exclude "' + $INST_BaseDir$ + '" from Windows Defender scanning'
-	if CompareDotSeparatedNumbers($INST_NTVersion$,">=","6")
-		powershellCall('Add-MpPreference -ExclusionPath "' + $INST_BaseDir$ + '"')
-	endif
+	powershellCall('Add-MpPreference -ExclusionPath "' + $INST_BaseDir$ + '"')
 
 	Message = Copy files: prepare
 	comment "Stop_Preloginloader_Service"
@@ -1048,33 +979,16 @@ deffunc oca_copy_files() : void
 
 	Message = Copy files: loginblocker
 	comment "copying loginblocker"
+
 	markErrorNumber
-	if CompareDotSeparatedNumbers($INST_NTVersion$,">=","6.0")
-		comment "we are on nt6 or above "
-		if ($INST_SystemType$ = "64 Bit System")
-			Files_copy_nt6_loginblocker_64 /Sysnative
-		else
-			Files_copy_nt6_loginblocker_32
-			Files_del_cmd64
-		endif ; 32/64
 
-	endif ; nt6
-
-	if CompareDotSeparatedNumbers($INST_NTVersion$,"<","6.0")
-		if ($INST_SystemType$ = "64 Bit System")
-			Files_copy_xp_loginblocker_64
-		else
-			if CompareDotSeparatedNumbers($INST_NTVersion$,"5.0") = "0"
-				Files_copy_xp_loginblocker_win2k
-				;Set $INST_SetAclDir$ = $INST_OpsiUtilitiesdDir$ + "\SetACL 2.2.0\SetACL 2.2.0\Command line version\x86"
-				Set $INST_SetAclDir$ = $INST_OpsiUtilitiesdDir$+"\SetACL\32 bit"
-				;Set $INST_SetAclDir$ = $INST_OpsiUtilitiesdDir$ + "\SetACL 2.1.1\SetACL 2.1.1\Command line version\x86"
-			else
-				Files_copy_xp_loginblocker_32
-			endif
-			Files_del_cmd64
-		endif
+	if ($INST_SystemType$ = "64 Bit System")
+		Files_copy_loginblocker_64 /Sysnative
+	else
+		Files_copy_loginblocker_32
+		Files_del_cmd64
 	endif
+
 	if errorsOccuredSinceMark > 0
 		LogError "failed to install loginblocker"
 		Message "failed to install loginblocker"
@@ -1165,20 +1079,11 @@ deffunc oca_copy_files() : void
 	[Files_del_prelogin]
 	del -sfc "$INST_BaseDir$\prelogin\"
 
-	[Files_copy_nt6_loginblocker_32]
+	[Files_copy_loginblocker_32]
 	copy -Vc "%SCRIPTPATH%\opsiloginblocker\32bit\*.dll" "%SYSTEM%"
 
-	[Files_copy_nt6_loginblocker_64]
+	[Files_copy_loginblocker_64]
 	copy -Vc "%SCRIPTPATH%\opsiloginblocker\64bit\*.dll" "%SYSTEM%"
-
-	[Files_copy_xp_loginblocker_win2k]
-	copy -Vc "%SCRIPTPATH%\opsigina\32bit\opsigina.dll" "$INST_BaseDir$\opsigina\"
-
-	[Files_copy_xp_loginblocker_64]
-	copy -Vc "%SCRIPTPATH%\opsigina\64bit\opsigina.dll" "$INST_BaseDir$\opsigina\"
-
-	[Files_copy_xp_loginblocker_32]
-	copy -Vc "%SCRIPTPATH%\opsigina\32bit\opsigina.dll" "$INST_BaseDir$\opsigina\"
 
 	[Files_del_cmd64]
 	del -fc "%SYSTEMROOT%\cmd64.exe"
@@ -1205,14 +1110,7 @@ deffunc oca_write_configuration() : void
 		else
 			Files_remove_config_from_debug
 		endif
-
-		;if $INST_MinorOS$ = "WinXP"
-		if ($INST_NTVersion$ = "5.1") or ($INST_NTVersion$ = "5.2")
-			if $INST_AktGina$ = ""
-				Registry_SetRemoveMsginaOnDeinst
-			endif
-		endif ; winxp
-	endif ; INSTALL
+	endif
 
 	;*********************************************************
 	comment "configurations we do also at update mode"
@@ -1319,25 +1217,18 @@ deffunc oca_write_configuration() : void
 	comment "set start to auto (2) if it was deactivated (4)"
 	Registry_ActivateOpsiclientd
 	if $OCD_open_firewall_for_control_server$ = "1"
-		if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") >= "0"
-			DosInAnIcon_open_firewall_for_control_server_nt6
-		else
-			DosInAnIcon_open_firewall_for_control_server
-		endif
+		DosInAnIcon_open_firewall_for_control_server
 	else
-		if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") >= "0"
-			DosInAnIcon_close_firewall_for_control_server_nt6
-		else
-			DosInAnIcon_close_firewall_for_control_server
-		endif
+		DosInAnIcon_close_firewall_for_control_server
 	endif
-	comment "disable Data Execution Prevention (DEP) for opsiclientd.exe"
-	comment "This should be prevent problems on win2003"
-	comment "wmic_get_os_DataExecutionPrevention_SupportPolicy"
+
+	comment "Disable Data Execution Prevention (DEP) for opsiclientd.exe"
 	shellCall('wmic os get DataExecutionPrevention_SupportPolicy')
 	Registry_disable_dep_opsiclientd /Sysnative
-	comment "make opsiclientd depending on dhcp and dnscache services"
+
+	comment "Make opsiclientd depend on dhcp and dnscache services"
 	Registry_opsiclientd_Service_depend_dhcp_dns
+
 	comment "Configure opsiclientd service restarts after failure"
 	; https://stackoverflow.com/questions/42620216/how-to-install-a-windows-service-with-first-failure-set-to-restart-the-servic
 	; https://technet.microsoft.com/de-de/library/cc742019(v=ws.10).aspx
@@ -1360,35 +1251,11 @@ deffunc oca_write_configuration() : void
 	endif
 
 	Message "Configuration: Login blocker"
-	if CompareDotSeparatedNumbers($INST_NTVersion$,">=","6.0")
-		if $OLB_LoginBlockerStart$ = "1"
-			Registry_vista_loginblocker /Sysnative
-		else
-			Registry_vista_del_loginblocker /Sysnative
-		endif
-	endif ; win vista
-
-	;if ($INST_MinorOS$ = "WinXP") or ($INST_MinorOS$ = "Win2k")
-	if CompareDotSeparatedNumbers($INST_NTVersion$,"<","6.0")
-		if $OLB_LoginBlockerStart$ = "1"
-			Registry_opsigina_opsi_Config /Sysnative
-			Registry_set_loginblocker_start /Sysnative
-		else
-			Registry_set_loginblocker_start /Sysnative
-		endif ; loginblocker start
-		if ($INST_SystemType$ = "64 Bit System")
-			winbatch_test_opsigina_64
-		else
-			winbatch_test_opsigina_32
-		endif
-		set $INST_ExitCode$ = getLastExitCode
-		if $INST_ExitCode$ = "0"
-			comment "opsigina test passed - install it"
-			Registry_opsigina_winlogon_Config /Sysnative
-		else
-			LogError "opsigina test failed, so we don't install it. Test Exitcode was: " + $INST_ExitCode$
-		endif
-	endif ; winXP
+	if $OLB_LoginBlockerStart$ = "1"
+		Registry_vista_loginblocker /Sysnative
+	else
+		Registry_vista_del_loginblocker /Sysnative
+	endif
 
 	Message "Configuration: Lock opsi-client-agent"
 	comment "protect opsi-clientagent against non administrative manipulations"
@@ -1423,12 +1290,6 @@ deffunc oca_write_configuration() : void
 
 	[Files_remove_config_from_debug]
 	del -s -f "%opsiLogDir%\cfg"
-
-	[Registry_SetRemoveMsginaOnDeinst]
-	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\preloginloader]
-	Set "RemoveMsginaOnDeinst"=REG_DWORD:1
-	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\opsi-client-agent]
-	Set "RemoveMsginaOnDeinst"=REG_DWORD:1
 
 	[Registry_SetUninstallEntries]
 	deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\opsi-preloginloader]
@@ -1666,17 +1527,11 @@ deffunc oca_write_configuration() : void
 	set "ImagePath" = REG_EXPAND_SZ:'"$OCD_base_dir$\opsiclientd.exe"'
 
 	[DosInAnIcon_open_firewall_for_control_server]
-	netsh firewall add portopening protocol = TCP port = $OCD_control_server.port$ name = opsiclientd-control-port
-
-	[DosInAnIcon_close_firewall_for_control_server]
-	netsh firewall delete portopening protocol = TCP port = $OCD_control_server.port$
-
-	[DosInAnIcon_open_firewall_for_control_server_nt6]
 	rem netsh firewall add portopening protocol = TCP port = $OCD_control_server.port$ name = opsiclientd-control-port
 	netsh advfirewall firewall delete rule name="opsiclientd-control-port"
 	netsh advfirewall firewall add rule name="opsiclientd-control-port" dir=in action=allow protocol=TCP localport=$OCD_control_server.port$
 
-	[DosInAnIcon_close_firewall_for_control_server_nt6]
+	[DosInAnIcon_close_firewall_for_control_server]
 	rem netsh firewall delete portopening protocol = TCP port = $OCD_control_server.port$
 	netsh advfirewall firewall delete rule name="opsiclientd-control-port"
 
@@ -1708,39 +1563,8 @@ deffunc oca_write_configuration() : void
 	deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Provider Filters\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
 	deletekey [HKEY_CLASSES_ROOT\CLSID\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
 
-	[Registry_opsigina_opsi_Config]
-	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\preloginloader]
-	Set "NextGina" = '$INST_gina_to_chain$'
-	set "LoginBlockerLogLevel" = REG_DWORD:$OLB_LogLevel$
-	Set "LoginBlockerTimeoutConnect" = REG_DWORD:$OLB_LoginBlockerTimeoutConnect$
-	Set "opsiServiceType"            = REG_DWORD:$OLB_opsiServiceType$
-	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\opsi-client-agent]
-	Set "NextGina" = '$INST_gina_to_chain$'
-	set "LoginBlockerLogLevel" = REG_DWORD:$OLB_LogLevel$
-	Set "LoginBlockerTimeoutConnect" = REG_DWORD:$OLB_LoginBlockerTimeoutConnect$
-	Set "opsiServiceType"            = REG_DWORD:$OLB_opsiServiceType$
-
-	[Registry_opsigina_winlogon_Config]
-	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon]
-	Set "GinaDLL" = "%ProgramFilesDir%\opsi.org\opsi-client-agent\opsigina\opsigina.dll"
-	set "DisableCAD" = REG_DWORD:0
-
-	[Registry_set_loginblocker_start]
-	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\preloginloader]
-	Set "LoginBlockerStart" = REG_DWORD:$OLB_LoginBlockerStart$
-	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\opsi-client-agent]
-	Set "LoginBlockerStart" = REG_DWORD:$OLB_LoginBlockerStart$
-
-	[winbatch_test_opsigina_64]
-	"%SCRIPTPATH%\opsigina\test\64bit\opsiginatest.exe" --testdll="$INST_BaseDir$\opsigina\opsigina.dll"
-
-	[winbatch_test_opsigina_32]
-	"%SCRIPTPATH%\opsigina\test\32bit\opsiginatest.exe" --testdll="$INST_BaseDir$\opsigina\opsigina.dll"
-
 	[DosInAnIcon_lock_opsiclientagent]
 	rem see http://setacl.sourceforge.net/
-
-
 	rem set rights for the base dir
 	rem make the dacl not inherited
 	"$INST_SetAclDir$\setacl.exe" -on "$INST_BaseDir$" -ot file -actn clear -actn setprot -op "dacl:p_c;sacl:nc" -rec cont_obj
@@ -2369,7 +2193,7 @@ deffunc oca_try_to_get_my_mac() : string
 			if ("" = takeFirstStringContaining($INST_ServiceResult$,"RUNNING")) and CompareDotSeparatedNumbers(GetMsVersionInfo, ">=", "5.1")
 				LogWarning "WMI service not running - giving up to get mac"
 			else
-				comment "WMI is running or we are at win2k and we only hope that it is running"
+				comment "WMI is running"
 				set $INST_ServiceResult$ = ShellCall("%ScriptPath%\ip2mac\ip2mac.exe")
 				set $result$ = lower(takestring(1, splitStringOnWhiteSpace(takeFirstStringContaining($INST_ServiceResult$,$INST_IPAddress$))))
 				if $result$ = ""
@@ -2562,7 +2386,6 @@ endif
 
 set $INST_ResultList$ = getProductMap
 
-Set $INST_AktGina$ = ""
 set $INST_service_hidden_password$ =""
 Set $INST_AllowReboot$ = "true"
 Set $INST_BaseDir$   = "%ProgramFiles32Dir%\opsi.org\opsi-client-agent"
@@ -2590,7 +2413,6 @@ Set $INST_Service_User$ = "pcpatch"
 Set $INST_Sysconfini$ = "%ScriptPath%\cfg\sysconf.ini"
 Set $INST_WinstDir$   = $INST_BaseDir$+"\opsi-winst"
 Set $INST_WinstRegKey$ = "HKLM\SOFTWARE\opsi.org\winst"
-set $INST_gina_to_chain$ = "msgina.dll"
 Set $INST_preloginvistaInstalled$ = 'false'
 set $INST_preloginloaderInstalled$ = 'false'
 set $ProductVersion$ = "%installingProdVersion%"
@@ -2705,6 +2527,16 @@ endif
 
 set $INST_MinorOS$ = GetNTVersion
 set $INST_NTVersion$ = GetMsVersionInfo
+if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") < "0"
+	logError "Installation aborted: NT5 not supported"
+	isFatalError
+endif
+
+if not (HasMinimumSpace ("%systemdrive%", "100 MB"))
+	logError "Not enough space on drive %systemdrive% (at least 100 MB required)"
+	isFatalError "Not enough space on drive %systemdrive%"
+endif
+
 Set $INST_SystemType$ = GetSystemType
 if ($INST_SystemType$ = "64 Bit System")
 	set $architecture$ = "64"
@@ -2743,36 +2575,6 @@ endif
 if GetRegistryStringValue("[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{FF66E9F6-83E7-3A3E-AF14-8DE9A809A6A4}] DisplayVersion") = "9.0.21022"
 	comment "vcredistx86 Version 9.0.21022 is installed"
 	set $INST_vcredistx86_installed$ = "true"
-endif
-
-if CompareDotSeparatedNumbers($INST_NTVersion$,"4.0") <= "0"
-	logError "Installation aborted: wrong OS version: only win2k and above alowed"
-	isFatalError
-endif
-;if CompareDotSeparatedNumbers($INST_NTVersion$,"6.1") < "0"
-;	set $OCD_DIST_DIR$ = "dist.nt5"
-;	logWarning "New opsiclientd will not run under nt5 and nt6.0, you will get the last stable version (4.0.83)"
-;endif
-;
-;Switch $INST_NTVersion$
-;	Case "6.1"
-;		set $OCD_DIST_DIR$ = "dist.win7"
-;	Endcase
-;	Case "6.2"
-;		set $OCD_DIST_DIR$ = "dist.win8"
-;	Endcase
-;	Case "6.3"
-;		set $OCD_DIST_DIR$ = "dist.win81"
-;	Endcase
-;Endswitch
-
-;if CompareDotSeparatedNumbers($INST_NTVersion$,"10.0") >= "0"
-;	set $OCD_DIST_DIR$ = "dist.win10"
-;endif
-
-if not (HasMinimumSpace ("%systemdrive%", "10 MB"))
-	logError "Not enough space on drive %systemdrive% (we need 10 MB): Aborting"
-	isFatalError
 endif
 
 if $INST_vcredistx86_installed$ = "false"

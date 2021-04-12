@@ -3,6 +3,7 @@ opsi-client-agent (4.1.1.31-1) stable; urgency=low
 
   * Update opsiclientd to 4.2.0.69
   * Register opsi-login-blocker as CredentialProvider
+  * Remove nt5 support
 
 -- Jan Schneider <j.schneider@uib.de> Fri, 09 Apr 2021 17:08:00 +0100
 

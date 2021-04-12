@@ -35,18 +35,6 @@ pull-binaries:
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
-  # opsigina - windows login stuff for xp and older
-  - name: opsigina
-    server-type: binaryindex
-    destination: CLIENT_DATA/files/opsi/
-    extract: true
-    post-script: []
-    os: windows
-    architecture: x86
-    version: 4.0.1.0
-    branch: development
-    server-url: http://binaryindex.uib.gmbh
-
   # opsi-login-blocker - prevents login during opsi task execution
   - name: opsi-login-blocker
     server-type: binaryindex
@@ -195,7 +183,6 @@ pull-binaries:
     version: 1.0.2o
     branch: mirror
     server-url: http://binaryindex.uib.gmbh
-
 
   # opsi deployment script (as binary)
   - name: opsideployclientagent
