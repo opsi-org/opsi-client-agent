@@ -2,7 +2,7 @@ pull-binaries:
   # opsi client daemon
   - name: opsiclientd
     server-type: binaryindex
-    destination: CLIENT_DATA/files/opsi/opsiclientd_binaries
+    destination: CLIENT_DATA/files/opsiclientd
     extract: false
     post-script: []
     os: windows
@@ -12,9 +12,9 @@ pull-binaries:
     server-url: http://binaryindex.uib.gmbh
 
   # opsi script interpreter
-  - name: opsi-winst
+  - name: opsi-script
     server-type: binaryindex
-    destination: CLIENT_DATA/files/opsi/
+    destination: CLIENT_DATA/files/opsi-script
     extract: true
     post-script: []
     os: windows
@@ -26,7 +26,7 @@ pull-binaries:
   # opsi kiosk included in opsipackage
   - name: kiosk-package
     server-type: binaryindex
-    destination: CLIENT_DATA/files/opsi
+    destination: CLIENT_DATA/files/kiosk-package
     extract: true
     post-script: []
     os: windows
@@ -38,7 +38,7 @@ pull-binaries:
   # opsi-login-blocker - prevents login during opsi task execution
   - name: opsi-login-blocker
     server-type: binaryindex
-    destination: CLIENT_DATA/files/opsi/
+    destination: CLIENT_DATA/files/opsi-login-blocker
     extract: true
     post-script: []
     os: windows
@@ -50,7 +50,7 @@ pull-binaries:
   # opsi-notifier
   - name: opsi-notifier
     server-type: binaryindex
-    destination: CLIENT_DATA/files/opsi/
+    destination: CLIENT_DATA/files/opsi-notifier
     extract: true
     post-script: []
     os: windows
@@ -62,7 +62,7 @@ pull-binaries:
   # opsi-systray
   - name: opsi-systray
     server-type: binaryindex
-    destination: CLIENT_DATA/files/opsi/
+    destination: CLIENT_DATA/files/opsi-systray
     extract: true
     post-script: []
     os: windows
@@ -71,22 +71,10 @@ pull-binaries:
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
-  # opsiclientdguard
-  - name: opsiclientdguard
-    server-type: binaryindex
-    destination: CLIENT_DATA/files/opsi/
-    extract: true
-    post-script: []
-    os: windows
-    architecture: x86
-    version: 4.1.0.2
-    branch: development
-    server-url: http://binaryindex.uib.gmbh
-
   # opsiclientd-event-starter
   - name: opsiclientd-event-starter
     server-type: binaryindex
-    destination: CLIENT_DATA/files/opsi/on_shutdown
+    destination: CLIENT_DATA/files/opsiclientd-event-starter
     extract: true
     post-script: []
     os: windows
@@ -95,42 +83,15 @@ pull-binaries:
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
-  # utilities: contains setacl (version 2.1.1.0 and 3.0.6.0), getmsversioninfo and shutdown
-  - name: utilities_withsessionhelper
-    server-type: binaryindex
-    destination: CLIENT_DATA/files/opsi/
-    extract: true
-    post-script: []
-    os: windows
-    architecture: x86
-    version: 2.1.1.0
-    branch: development
-    server-url: http://binaryindex.uib.gmbh
-
-  # Visual C++ redistributable 2008
-  # not supported anymore, so pushed from bonifax workbench to binaryindex
-  - name: vc_redist
-    server-type: binaryindex
-    destination: CLIENT_DATA/files/opsi/deps
-    extract: true
-    post-script:
-      - cp -r CLIENT_DATA/files/opsi/deps/vcredist2008/* CLIENT_DATA/files/opsi/deps/
-      - rm -r CLIENT_DATA/files/opsi/deps/vcredist2008
-    os: windows
-    architecture: x86
-    version: 2008
-    branch: mirror
-    server-url: http://binaryindex.uib.gmbh
-
   # Visual C++ redistributable 2015
   # This needed for opsi-login-blocker x86 >= 4.2.0.0
   # mirrored via: opsi-dev-tool --binary-mirror https://aka.ms/vs/16/release/vc_redist.x86.exe vc_redist 'exe:::exe:windows' x86 '16/:::16/:2015'
   - name: vc_redist
     server-type: binaryindex
-    destination: CLIENT_DATA/files/opsi/vcredist2015/
+    destination: CLIENT_DATA/files/vcredist2015/
     extract: true
     post-script:
-      - mv CLIENT_DATA/files/opsi/vcredist2015/vc_redist.x86.exe CLIENT_DATA/files/opsi/vcredist2015/vcredist_2015_x86.exe
+      - mv CLIENT_DATA/files/vcredist2015/vc_redist.x86.exe CLIENT_DATA/files/vcredist2015/vcredist_2015_x86.exe
     os: windows
     architecture: x86
     version: 2015
@@ -142,47 +103,32 @@ pull-binaries:
   # mirrored via: opsi-dev-tool --binary-mirror https://aka.ms/vs/16/release/vc_redist.x64.exe vc_redist 'exe:::exe:windows' x64 '16/:::16/:2015'
   - name: vc_redist
     server-type: binaryindex
-    destination: CLIENT_DATA/files/opsi/vcredist2015/
+    destination: CLIENT_DATA/files/vcredist2015/
     extract: true
     post-script:
-      - mv CLIENT_DATA/files/opsi/vcredist2015/vc_redist.x64.exe CLIENT_DATA/files/opsi/vcredist2015/vcredist_2015_x64.exe
+      - mv CLIENT_DATA/files/vcredist2015/vc_redist.x64.exe CLIENT_DATA/files/vcredist2015/vcredist_2015_x64.exe
     os: windows
     architecture: x64
     version: 2015
     branch: mirror
     server-url: http://binaryindex.uib.gmbh
 
-  # inno unpack utility
-  # mirrored via: opsi-dev-tool --binary-mirror https://downloads.sourceforge.net/project/innounp/innounp/innounp%200.35/innounp035.rar innounp '.rar:::.rar:windows' '.rar:::.rar:x86' '3.'
-  #- name: innounp
+  ## Openssl library and executable
+  ## mirrored via: opsi-dev-tool --binary-mirror 'https://indy.fulgan.com/SSL/Archive/Experimental/' openssl '.zip:::.zip:windows' 'x32|x64:::x32:x86,x64:x64' '^[^-]*-([^-]*)-'
+  #- name: openssl
   #  server-type: binaryindex
-  #  destination: CLIENT_DATA/files/opsi/deps
+  #  destination: CLIENT_DATA/files/opsi/openssl-temp
   #  extract: true
   #  post-script:
-  #    - unar CLIENT_DATA/files/opsi/deps/innounp035.rar -o CLIENT_DATA/files/opsi/deps/
-  #    - rm CLIENT_DATA/files/opsi/deps/innounp035.rar
+  #    - mkdir -p CLIENT_DATA/files/opsi/openssl
+  #    - find CLIENT_DATA/files/opsi/openssl-temp -iname .DS_Store -delete
+  #    - mv CLIENT_DATA/files/opsi/openssl-temp/openssl-1.0.2o-x32-VC2017/* CLIENT_DATA/files/opsi/openssl/
+  #    - rm -r CLIENT_DATA/files/opsi/openssl-temp
   #  os: windows
   #  architecture: x86
-  #  version: 35
+  #  version: 1.0.2o
   #  branch: mirror
   #  server-url: http://binaryindex.uib.gmbh
-
-  # Openssl library and executable
-  # mirrored via: opsi-dev-tool --binary-mirror 'https://indy.fulgan.com/SSL/Archive/Experimental/' openssl '.zip:::.zip:windows' 'x32|x64:::x32:x86,x64:x64' '^[^-]*-([^-]*)-'
-  - name: openssl
-    server-type: binaryindex
-    destination: CLIENT_DATA/files/opsi/openssl-temp
-    extract: true
-    post-script:
-      - mkdir -p CLIENT_DATA/files/opsi/openssl
-      - find CLIENT_DATA/files/opsi/openssl-temp -iname .DS_Store -delete
-      - mv CLIENT_DATA/files/opsi/openssl-temp/openssl-1.0.2o-x32-VC2017/* CLIENT_DATA/files/opsi/openssl/
-      - rm -r CLIENT_DATA/files/opsi/openssl-temp
-    os: windows
-    architecture: x86
-    version: 1.0.2o
-    branch: mirror
-    server-url: http://binaryindex.uib.gmbh
 
   # opsi deployment script (as binary)
   - name: opsideployclientagent
