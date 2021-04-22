@@ -2,7 +2,7 @@ pull-binaries:
   # opsi client daemon
   - name: opsiclientd
     server-type: binaryindex
-    destination: CLIENT_DATA/files/opsiclientd
+    destination: CLIENT_DATA/files
     extract: false
     post-script: []
     os: windows
@@ -11,14 +11,33 @@ pull-binaries:
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
-  # opsi script interpreter
-  - name: opsi-script
+ # opsi-script binaries
+  - name: opsi-script-bin
     server-type: binaryindex
-    destination: CLIENT_DATA/files/opsi-script
+    destination: CLIENT_DATA/files/tmp
     extract: true
-    post-script: []
-    os: windows
-    architecture: x86
+    post-script:
+      - rm -r CLIENT_DATA/files/opsi-script
+      - mv CLIENT_DATA/files/tmp/opsi-script CLIENT_DATA/files/opsi
+      - rmdir CLIENT_DATA/files/tmp
+      - mkdir CLIENT_DATA/files/opsi-script/64
+      - cp CLIENT_DATA/files/opsi-script/opsi-script CLIENT_DATA/files/opsi-script/64
+    os: linux
+    architecture: x64
+    version: 4.12.4.17
+    branch: development
+    server-url: http://binaryindex.uib.gmbh
+
+  # opsi-script binaries
+  - name: opsi-script-common
+    server-type: binaryindex
+    destination: CLIENT_DATA/files
+    extract: true
+    post-script:
+      - mv CLIENT_DATA/files/opsi-script-common/* CLIENT_DATA/files/opsi-script
+      - rmdir CLIENT_DATA/files/opsi-script-common
+    os: all
+    architecture: all
     version: 4.12.4.17
     branch: development
     server-url: http://binaryindex.uib.gmbh
@@ -26,11 +45,11 @@ pull-binaries:
   # opsi kiosk included in opsipackage
   - name: kiosk-package
     server-type: binaryindex
-    destination: CLIENT_DATA/files/kiosk-package
+    destination: CLIENT_DATA/files
     extract: true
     post-script: []
     os: windows
-    architecture: x86
+    architecture: all
     version: 4.1.1.8-8
     branch: development
     server-url: http://binaryindex.uib.gmbh
@@ -38,11 +57,11 @@ pull-binaries:
   # opsi-login-blocker - prevents login during opsi task execution
   - name: opsi-login-blocker
     server-type: binaryindex
-    destination: CLIENT_DATA/files/opsi-login-blocker
+    destination: CLIENT_DATA/files
     extract: true
     post-script: []
     os: windows
-    architecture: x86
+    architecture: all
     version: 4.2.0.0
     branch: development
     server-url: http://binaryindex.uib.gmbh
@@ -50,7 +69,7 @@ pull-binaries:
   # opsi-notifier
   - name: opsi-notifier
     server-type: binaryindex
-    destination: CLIENT_DATA/files/opsi-notifier
+    destination: CLIENT_DATA/files
     extract: true
     post-script: []
     os: windows
@@ -62,7 +81,7 @@ pull-binaries:
   # opsi-systray
   - name: opsi-systray
     server-type: binaryindex
-    destination: CLIENT_DATA/files/opsi-systray
+    destination: CLIENT_DATA/files
     extract: true
     post-script: []
     os: windows
@@ -74,12 +93,36 @@ pull-binaries:
   # opsiclientd-event-starter
   - name: opsiclientd-event-starter
     server-type: binaryindex
-    destination: CLIENT_DATA/files/opsiclientd-event-starter
+    destination: CLIENT_DATA/files
     extract: true
     post-script: []
     os: windows
     architecture: x86
     version: 4.0.7.1
+    branch: development
+    server-url: http://binaryindex.uib.gmbh
+
+  # opsi client agent installation helper (as binary)
+  - name: oca-installation-helper
+    server-type: binaryindex
+    destination: CLIENT_DATA
+    extract: true
+    post-script: []
+    os: windows
+    architecture: x86
+    version: 4.2.0.0
+    branch: development
+    server-url: http://binaryindex.uib.gmbh
+
+  # opsi deployment script (as binary)
+  - name: opsideployclientagent
+    server-type: binaryindex
+    destination: CLIENT_DATA
+    extract: true
+    post-script: []
+    os: linux
+    architecture: x64
+    version: 4.2.0.6
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
@@ -130,14 +173,4 @@ pull-binaries:
   #  branch: mirror
   #  server-url: http://binaryindex.uib.gmbh
 
-  # opsi deployment script (as binary)
-  - name: opsideployclientagent
-    server-type: binaryindex
-    destination: CLIENT_DATA
-    extract: true
-    post-script: []
-    os: linux
-    architecture: x64
-    version: 4.2.0.6
-    branch: development
-    server-url: http://binaryindex.uib.gmbh
+
