@@ -14,16 +14,16 @@ pull-binaries:
  # opsi-script binaries
   - name: opsi-script-bin
     server-type: binaryindex
-    destination: CLIENT_DATA/files/tmp
+    destination: CLIENT_DATA/files
     extract: true
-    post-script:
-      - rm -r CLIENT_DATA/files/opsi-script
-      - mv CLIENT_DATA/files/tmp/opsi-script CLIENT_DATA/files/opsi
-      - rmdir CLIENT_DATA/files/tmp
-      - mkdir CLIENT_DATA/files/opsi-script/64
-      - cp CLIENT_DATA/files/opsi-script/opsi-script CLIENT_DATA/files/opsi-script/64
-    os: linux
-    architecture: x64
+    post-script: []
+    #  - "[ -e CLIENT_DATA/files/opsi-script] && rm -r CLIENT_DATA/files/opsi-script"
+    #  - mv CLIENT_DATA/files/tmp/opsi-script CLIENT_DATA/files/
+    #  - rmdir CLIENT_DATA/files/tmp
+    #  - mkdir CLIENT_DATA/files/opsi-script/64
+    #  - cp CLIENT_DATA/files/opsi-script/opsi-script CLIENT_DATA/files/opsi-script/64
+    os: windows
+    architecture: x86
     version: 4.12.4.17
     branch: development
     server-url: http://binaryindex.uib.gmbh
@@ -34,7 +34,7 @@ pull-binaries:
     destination: CLIENT_DATA/files
     extract: true
     post-script:
-      - mv CLIENT_DATA/files/opsi-script-common/* CLIENT_DATA/files/opsi-script
+      - mv CLIENT_DATA/files/opsi-script-common/* CLIENT_DATA/files/opsi-script/
       - rmdir CLIENT_DATA/files/opsi-script-common
     os: all
     architecture: all
