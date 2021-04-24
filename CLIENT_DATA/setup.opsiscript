@@ -80,7 +80,7 @@ else
 
 	Sub_uninstall_opsiclientdguard
 
-	;;;;;;;;;;Sub_install_vcredist
+	Sub_install_vcredist
 
 	Sub_install_opsiscript
 
