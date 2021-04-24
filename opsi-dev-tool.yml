@@ -38,7 +38,7 @@ pull-binaries:
         - mv CLIENT_DATA/files/opsi-script-common/* CLIENT_DATA/files/opsi-script/
         - rmdir CLIENT_DATA/files/opsi-script-common
       windows:
-        - Copy-Item -Path CLIENT_DATA\\files\\opsi-script-common\\*.* -Destination CLIENT_DATA\\files\\opsi-script\\ -Recurse
+        - Copy-Item -Path CLIENT_DATA\\files\\opsi-script-common\\* -Destination CLIENT_DATA\\files\\opsi-script\\ -Recurse
         - Remove-Item -Recurse -Force CLIENT_DATA\\files\\opsi-script-common
     os: all
     architecture: all
