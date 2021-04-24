@@ -7,7 +7,7 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x86
-    version: 4.2.0.69
+    version: 4.2.0.71
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
@@ -34,8 +34,12 @@ pull-binaries:
     destination: CLIENT_DATA/files
     extract: true
     post-script:
-      - mv CLIENT_DATA/files/opsi-script-common/* CLIENT_DATA/files/opsi-script/
-      - rmdir CLIENT_DATA/files/opsi-script-common
+      linux:
+        - mv CLIENT_DATA/files/opsi-script-common/* CLIENT_DATA/files/opsi-script/
+        - rmdir CLIENT_DATA/files/opsi-script-common
+      windows:
+        - Copy-Item -Path CLIENT_DATA\\files\\opsi-script-common\\*.* -Destination CLIENT_DATA\\files\\opsi-script\\ -Recurse
+        - Remove-Item -Recurse -Force CLIENT_DATA\\files\\opsi-script-common
     os: all
     architecture: all
     version: 4.12.4.17
@@ -108,7 +112,8 @@ pull-binaries:
     destination: CLIENT_DATA
     extract: true
     post-script:
-      - chmod 755 CLIENT_DATA/oca-installation-helper.exe
+      linux:
+        - chmod 755 CLIENT_DATA/oca-installation-helper.exe
     os: windows
     architecture: x86
     version: 4.2.0.0
@@ -134,8 +139,6 @@ pull-binaries:
     server-type: binaryindex
     destination: CLIENT_DATA/files/vcredist2015/
     extract: true
-    post-script:
-      - mv CLIENT_DATA/files/vcredist2015/vc_redist.x86.exe CLIENT_DATA/files/vcredist2015/vcredist_2015_x86.exe
     os: windows
     architecture: x86
     version: 2015
@@ -149,8 +152,6 @@ pull-binaries:
     server-type: binaryindex
     destination: CLIENT_DATA/files/vcredist2015/
     extract: true
-    post-script:
-      - mv CLIENT_DATA/files/vcredist2015/vc_redist.x64.exe CLIENT_DATA/files/vcredist2015/vcredist_2015_x64.exe
     os: windows
     architecture: x64
     version: 2015
