@@ -45,8 +45,14 @@ package:windows-x86-installer:
   script:
     - Invoke-WebRequest -UseBasicParsing -Uri "$OPSIDEVTOOLS_URL_WINDOWS_X86" -OutFile opsi-dev-tools.zip
     - Expand-Archive opsi-dev-tools.zip -DestinationPath opsi-dev-tools
-    - Start-Process -FilePath "opsi-dev-tools\opsi-dev-tool.exe" -ArgumentList "-l","debug","--binary-pull" -PassThru -Wait
-    - "& .\\build-oca-installer.ps1 CLIENT_DATA"
+    #- Start-Process -FilePath "opsi-dev-tools\opsi-dev-tool.exe" -ArgumentList "-l","debug","--binary-pull" -PassThru -Wait
+    - "& .\\opsi-dev-tools\\opsi-dev-tool.exe -l debug --binary-pull"
+    - "& .\\build-oca-installer.ps1 CLIENT_DATA opsi-client-agent-installer.exe"
+    - "& .\\opsi-dev-tools\\opsi-dev-tool.exe -l info --signserver-sign opsi-client-agent-installer.exe"
     # Push to binaryindex
     #- if (! $CI_COMMIT_TAG) {poetry run opsi-dev-tool -l info --binary-push opsiclientd_windows_x86 "$CI_JOB_ID"}
     #- if ($CI_COMMIT_TAG) {poetry run opsi-dev-tool -l info --binary-push opsiclientd_windows_x86}
+  artifacts:
+    name: opsi-client-agent-installer
+    paths:
+      - "opsi-client-agent-installer.exe"

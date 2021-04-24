@@ -1,7 +1,11 @@
 
 $srcDir = "opsi-client-agent"
+$dstFile = "opsi-client-agent-installer.exe"
 if ($args.length -gt 0) {
 	$srcDir = $args[0]
+}
+if ($args.length -gt 1) {
+	$dstFile = $args[1]
 }
 
 $temp = [System.IO.Path]::GetTempPath()
@@ -36,4 +40,4 @@ $config=(
 $Utf8NoBomEncoding = New-Object System.Text.UTF8Encoding $False
 [System.IO.File]::WriteAllLines("$workDir\config.txt", $config, $Utf8NoBomEncoding)
 
-cmd.exe /c copy /b "$workDir\7zip\7zS.sfx"+"$workDir\config.txt"+"$workDir\oca.7z" "$workDir\opsi-client-agent-installer.exe"
+cmd.exe /c copy /b "$workDir\7zip\7zS.sfx"+"$workDir\config.txt"+"$workDir\oca.7z" "$dstFile"
