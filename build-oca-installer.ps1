@@ -17,7 +17,7 @@ if (Test-Path $workDir) {
 New-Item -Path $workDir -Type directory
 
 Write-Host "Copy oca files..."
-Copy-Item -Path $srcDir -Destination $workDir -Recurse
+Copy-Item -Path $srcDir -Destination $workDir\opsi-client-agent -Recurse
 
 Write-Host "Download 7zip..."
 $WebClient = New-Object System.Net.WebClient
