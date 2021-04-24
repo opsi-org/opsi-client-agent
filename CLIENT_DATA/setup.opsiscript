@@ -1,0 +1,334 @@
+; Copyright (c) uib gmbh (www.uib.de)
+; This sourcecode is owned by uib
+; and published under the Terms of the General Public License.
+; credits: http://www.opsi.org/en/credits/
+;
+; Fehlt:
+;  - Datei / Verzeichnis umbenennen
+;  - Laeuft Skript im Service-Kontext?
+;  - /batch mit /opsiservice, /clientid, /username, /password
+
+[Actions]
+requiredWinstVersion >= "4.12.4.17"
+;ScriptErrorMessages=off
+
+;;;DefVar $LogDir$
+DefVar $TempString$
+DefStringList $TempList$
+
+DefVar $OCA_ProductId$
+DefVar $OCA_MinimumSpace$
+DefVar $OCA_BaseDir$
+
+DefVar $OCA_ServiceAddress$
+DefVar $OCA_ServiceUsername$
+DefVar $OCA_ServicePassword$
+DefVar $OCA_ClientId$
+
+DefVar $OLB_LoginBlockerStart$
+DefVar $OLB_LoginBlockerTimeoutConnect$
+DefVar $OLB_LogLevel$
+
+DefVar $OST_CheckInterval$
+DefVar $OST_NotifyFormat$
+
+DefVar $OCD_BinaryArchiveFile$
+
+;;;Set $LogDir$ = "%opsiLogDir%"
+Set $OCA_ServiceAddress$ = "%opsiserviceURL%"
+Set $OCA_ServiceUsername$ = "%opsiserviceUser%"
+Set $OCA_ServicePassword$ = "%opsiservicePassword%"
+Set $OCA_ClientId$ = "%HostID%"
+
+Set $OCA_ProductId$ = "opsi-client-agent"
+Set $OCA_MinimumSpace$ = "200 MB"
+Set $OCA_BaseDir$ = "%ProgramFiles32Dir%\opsi.org\opsi-client-agent"
+
+Set $OLB_LoginBlockerStart$ = GetProductProperty("LoginBlockerStart", "on")
+Set $OLB_LoginBlockerTimeoutConnect$ = "120"
+Set $OLB_LogLevel$ = "5"
+
+Set $OST_CheckInterval$ = GetProductProperty("systray_check_interval", "60")
+Set $OST_NotifyFormat$ = GetProductProperty("systray_request_notify_format", "productname : request")
+
+
+if not (HasMinimumSpace ("%SystemDrive%", $OCA_MinimumSpace$))
+	LogError "Insufficient disk space on %SystemDrive%, " + $OCA_MinimumSpace$ + " needed for " + $OCA_ProductId$
+	IsFatalError "Insufficient disk space"
+	; Stop process and set installation status to failed
+else
+	Comment "Show product image"
+	ShowBitmap "%ScriptPath%\" + $OCA_ProductId$ + ".png" $OCA_ProductId$
+
+	Message "Installing " + $OCA_ProductId$ + " ..."
+
+	if ("%opsiserviceURL%" = "")
+		Comment "Not running in service context"
+		ShellCall("sc stop opsiclientd")
+		SleepSeconds 5
+
+		Set $TempList$ = SplitString(PARAMSTR, "||")
+		Set $OCA_ClientId$ = TakeString(0, $TempList$)
+		Set $OCA_ServiceAddress$ = TakeString(1, $TempList$)
+		Set $OCA_ServiceUsername$ = TakeString(2, $TempList$)
+		Set $OCA_ServicePassword$ = TakeString(3, $TempList$)
+
+		OpsiServiceCall_authenticated /serviceurl $OCA_ServiceAddress$ /username $OCA_ServiceUsername$ /password $OCA_ServicePassword$
+	else
+		Comment "Running in service context"
+	endif
+
+	Sub_uninstall_opsiclientdguard
+
+	;;;;;;;;;;Sub_install_vcredist
+
+	Sub_install_opsiscript
+
+	Sub_install_opsinotifier
+
+	Sub_uninstall_opsisystray
+	if GetProductProperty("systray_install", "true") = "true"
+		Sub_install_opsisystray
+	endif
+
+	Sub_uninstall_loginblocker
+	if GetProductProperty("LoginBlockerStart", "on") = "on"
+		Sub_install_loginblocker
+	endif
+
+	Sub_install_opsiclientd
+endif
+
+
+
+[OpsiServiceCall_authenticated]
+"method": "authenticated"
+"params": []
+
+; === opsi-systray ===============================================================
+[Sub_uninstall_opsisystray]
+Comment "Uninstalling opsi-systray"
+Message "Uninstalling opsi-systray"
+KillTask "opsi-client-systray.exe"
+Registry_uninstall_opsisystray
+Files_uninstall_opsisystray
+
+[Sub_install_opsisystray]
+Comment "Installing opsi-systray"
+Message "Installing opsi-systray"
+Files_install_opsisystray
+Registry_install_opsisystray
+
+[Files_uninstall_opsisystray]
+del -sfc "$OCA_BaseDir$\opsi-systray"
+
+[Registry_uninstall_opsisystray]
+OpenKey [HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run]
+DeleteVar "opsi_systray_start"
+
+[Files_install_opsisystray]
+copy -sVc "%ScriptPath%\files\opsi-systray\*.*" "$OCA_BaseDir$\opsi-systray\"
+; Detlef fragen:
+;copy -Vc  "%ScriptPath%\openssl\*.dll" "$INST_BaseDir$\opsi-systray\"
+
+[Registry_install_opsisystray]
+OpenKey [HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run]
+Set "opsi_systray_start" = '"$OCA_BaseDir$\opsi-systray\opsi-client-systray.exe" --fqdn=$OCA_ClientId$ --checkintervall=$OST_CheckInterval$ --notifyformat="$OST_NotifyFormat$"'
+
+
+; === opsiclientd ===============================================================
+[Sub_install_opsiclientd]
+Comment "Installing opsiclientd"
+Message "Installing opsiclientd"
+
+Set $TempList$ = ShellCall('dir /B "%ScriptPath%\files"')
+Set $TempList$ = GetRegexMatchList('(?m)^opsiclientd_windows_\S*.zip', $TempList$)
+Set $OCD_BinaryArchiveFile$ = "%ScriptPath%\files\" + TakeString(0, $TempList$)
+
+Comment "Opsiclientd archive file: " + $OCD_BinaryArchiveFile$
+
+Files_extract_opsiclientd_binaries_to_temp
+PowerShellCall('Remove-Item -Recurse -Force "' + $OCA_BaseDir$ + '\opsiclientd_bin_old"')
+PowerShellCall('Rename-Item "' + $OCA_BaseDir$ + '\opsiclientd_bin" "' + $OCA_BaseDir$ + '\opsiclientd_bin_old"')
+PowerShellCall('Rename-Item "' + $OCA_BaseDir$ + '\opsiclientd_windows_x86" "' + $OCA_BaseDir$ + '\opsiclientd_bin"')
+
+;if not (FileExists($OCA_BaseDir$ + "\opsiclientd_bin\opsiclientd.exe"))
+;	LogError "Failed to replace opsiclientd binaries, retry with copy"
+;	Files_install_opsiclientd_binaries_from_temp
+;endif
+if not (FileExists($OCA_BaseDir$ + "\opsiclientd_bin\opsiclientd.exe"))
+	LogError "Failed to install opsiclientd binaries"
+	IsFatalError "Failed to install opsiclientd binaries"
+endif
+
+MarkErrorNumber
+Files_install_opsiclientd_dir
+if ErrorsOccuredSinceMark > 0
+	LogError "Failed to install opsiclientd"
+	IsFatalError "Failed to install opsiclientd"
+endif
+
+comment "Copy opsiclientd custom files"
+MarkErrorNumber
+Files_install_opsiclientd_custom
+if errorsOccuredSinceMark > 0
+	LogError "failed to install custom_opsiclientd"
+	Message "failed to install custom_opsiclientd"
+	IsFatalError "failed to install custom_opsiclientd"
+endif
+
+comment "Patch opsiclientd.conf"
+Patches_opsiclientd_conf $OCA_BaseDir$ + "\opsiclientd\opsiclientd.conf"
+
+comment "Run opsiclientd setup"
+ShellCall('"'+ $OCA_BaseDir$ + '\opsiclientd_bin\opsiclientd.exe" setup --client-id "' + $OCA_ClientId$ + '" --service-address "' + $OCA_ServiceAddress$ + '" --service-username "' + $OCA_ServiceUsername$ + '" --service-password "' + $OCA_ServicePassword$ + '"')
+
+comment "Creating opsiclientd restart marker"
+PowerShellCall('New-Item "' + $OCA_BaseDir$ + '\opsiclientd_bin\.opsiclientd_restart" -ItemType File')
+
+if not (ProcessIsRunning("opsiclientd.exe"))
+	ShellCall('sc start opsiclientd')
+endif
+
+[Files_extract_opsiclientd_binaries_to_temp]
+del -sfc "$OCA_BaseDir$\opsiclientd_windows_x86"
+unzipfile "$OCD_BinaryArchiveFile$" "$OCA_BaseDir$\"
+
+;[Files_install_opsiclientd_binaries_from_temp]
+;del -sfc "$OCA_BaseDir$\opsiclientd_bin"
+;copy -sc "$OCA_BaseDir$\opsiclientd_windows_x86\*.*" "$OCA_BaseDir$\opsiclientd_bin\"
+;del -sfc "$OCA_BaseDir$\opsiclientd_windows_x86"
+
+[Files_install_opsiclientd_dir]
+; Remove extend.d as workaround to avoid copy errors while copy *.conf
+del -fs "$OCA_BaseDir$\opsiclientd\extend.d"
+copy -s "$OCA_BaseDir$\opsiclientd_bin\opsiclientd_data\*.*" "$OCA_BaseDir$\opsiclientd\"
+del -fs "$OCA_BaseDir$\opsiclientd_bin\opsiclientd_data"
+
+[Files_install_opsiclientd_custom]
+copy -c "%ScriptPath%\custom\opsiclientd.conf" "$OCA_BaseDir$\opsiclientd\"
+
+[Patches_opsiclientd_conf]
+;Set [config_service] url=$OCD_config_service.url$/rpc
+;Set [config_service] connection_timeout=$OCD_config_service.connection_timeout$
+;Set [control_server] port=$OCD_control_server.port$
+;Set [notification_server] port=$OCD_notification_server.port$
+Set [global] log_level = 6
+
+Set [action_processor] local_dir = %global.base_dir%\\opsi-script
+Set [action_processor] remote_dir = opsi-script\\windows\\x86
+Set [action_processor] remote_common_dir = opsi-script\\common
+Set [action_processor] filename = opsi-script.exe
+
+
+
+; === vcredist ==================================================================
+[Sub_install_vcredist]
+Comment "Installing vcredist"
+Message "Installing vcredist"
+; Needed for opsi-login-blocker x86 and opsiclientd
+ShellCall('"%ScriptPath%\files\vcredist2015\vcredist_2015_x86.exe" /install /passive /norestart')
+if (GetSystemType = "64 Bit System")
+	; Needed for opsi-login-blocker x64
+	ShellCall('"%ScriptPath%\files\vcredist2015\vcredist_2015_x64.exe" /install /passive /norestart')
+endif
+
+
+; === opsi-script ===============================================================
+[Sub_install_opsiscript]
+Comment "Installing opsi-script"
+Message "Installing opsi-script"
+Files_install_opsiscript
+
+[Files_install_opsiscript]
+; Do not use -V because it leads to broken winst on downgrade
+copy -sc "%ScriptPath%\files\opsi-script\*.*" "$OCA_BaseDir$\opsi-script\"
+
+
+; === opsi-notifier =============================================================
+[Sub_install_opsinotifier]
+Comment "Installing opsi-notifier"
+Message "Installing opsi-notifier"
+KillTask "opsi-notifier.exe"
+Files_install_opsinotifier
+
+[Files_install_opsinotifier]
+copy -c "%ScriptPath%\files\opsi-notifier\opsi-notifier.exe" "$OCA_BaseDir$\"
+copy -c "%ScriptPath%\files\opsi-notifier\notifier.d\*.*" "$OCA_BaseDir$\notifier\"
+; Copy possible existing custom notifier changes over standard:
+copy -sc "%ScriptPath%\custom\notifier\*.*" "$OCA_BaseDir$\notifier\"
+
+
+; === opsiclientdguard ==========================================================
+[Sub_uninstall_opsiclientdguard]
+Comment "Uninstalling opsiclientdguard"
+Message "Uninstalling opsiclientdguard"
+if FileExists($OCA_BaseDir$ + "\opsiclientdguard")
+	ShellCall('sc stop opsiclientdguard')
+	ShellCall('sc delete opsiclientdguard')
+	Files_uninstall_opsiclientdguard
+endif
+
+[Files_uninstall_opsiclientdguard]
+del -sf "$OCA_BaseDir$\opsiclientdguard"
+
+
+; === opsi login blocker ========================================================
+[Sub_uninstall_loginblocker]
+Comment "Uninstalling login blocker"
+Message "Uninstalling login blocker"
+Registry_uninstall_loginblocker /sysnative
+; logonui.exe locks OpsiLoginBlocker.dll
+KillTask "logonui.exe"
+Files_uninstall_loginblocker /sysnative
+
+[Sub_install_loginblocker]
+Comment "Installing login blocker"
+Message "Installing login blocker"
+MarkErrorNumber
+
+if (GetSystemType = "64 Bit System")
+	Files_install_loginblocker_64 /sysnative
+else
+	Files_install_loginblocker_32 /sysnative
+endif
+Registry_install_loginblocker /sysnative
+
+if ErrorsOccuredSinceMark > 0
+	LogError "Failed to install loginblocker"
+	Message "Failed to install loginblocker"
+	IsFatalError "Failed to install loginblocker"
+endif
+
+[Files_uninstall_loginblocker]
+del -f "%System%\OpsiLoginBlocker.dll"
+
+[Files_install_loginblocker_32]
+copy -Vc "%ScriptPath%\files\OpsiLoginBlocker\32bit\OpsiLoginBlocker.dll" "%System%\"
+
+[Files_install_loginblocker_64]
+copy -Vc "%ScriptPath%\files\OpsiLoginBlocker\64bit\OpsiLoginBlocker.dll" "%System%\"
+
+[Registry_uninstall_loginblocker]
+DeleteKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Providers\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
+DeleteKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Provider Filters\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
+DeleteKey [HKEY_CLASSES_ROOT\CLSID\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
+
+[Registry_install_loginblocker]
+OpenKey [HKEY_CLASSES_ROOT\CLSID\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
+Set "" = "OpsiLoginBlocker"
+
+OpenKey [HKEY_CLASSES_ROOT\CLSID\{d2028e19-82fe-44c6-ad64-51497c97a02a}\InprocServer32]
+Set "" = "OpsiLoginBlocker.dll"
+Set "ThreadingModel" = "Apartment"
+
+OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Provider Filters\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
+Set "" = "OpsiLoginBlocker"
+Set "LoginBlockerStart" = REG_DWORD:1
+Set "LoginBlockerTimeoutConnect" = REG_DWORD:$OLB_LoginBlockerTimeoutConnect$
+Set "LoginBlockerLogLevel" = REG_DWORD:$OLB_LogLevel$
+Set "LoginBlockerLogDir" = "%opsiLogDir%"
+
+OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Providers\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
+Set "" = "OpsiLoginBlocker"
+

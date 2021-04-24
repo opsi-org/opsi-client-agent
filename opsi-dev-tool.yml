@@ -107,7 +107,8 @@ pull-binaries:
     server-type: binaryindex
     destination: CLIENT_DATA
     extract: true
-    post-script: []
+    post-script:
+      - chmod 755 CLIENT_DATA/oca-installation-helper.exe
     os: windows
     architecture: x86
     version: 4.2.0.0
