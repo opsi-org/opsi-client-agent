@@ -11,57 +11,26 @@
 #   PACKAGE_VERSION
 
 TMP_DIR=${CLIENT_DATA_DIR}/../${PRODUCT_ID}.tmp
-echo [${PRODUCT_ID}]  > $CLIENT_DATA_DIR/files/opsi/product.ini
-echo ProductVersion=${PRODUCT_VERSION}-${PACKAGE_VERSION} >> $CLIENT_DATA_DIR/files/opsi/product.ini
-
-chmod u+x $CLIENT_DATA_DIR/utils/set_ip_in_inifile
-chmod u+x $CLIENT_DATA_DIR/opsi-deploy-client-agent
-
-echo "Patching server information ..."
-PATCH_CONFIG_SCRIPT="$CLIENT_DATA_DIR/utils/patch_config_file.py"
-CONFIG_FILE="$CLIENT_DATA_DIR/files/opsi/cfg/config.ini"
-
-if [ -e /usr/bin/opsi-python ]; then
-	# opsi 4.2 or later
-	/usr/bin/opsi-python $PATCH_CONFIG_SCRIPT $CONFIG_FILE
-else
-	# Python 2 - opsi 4.1
-	python $PATCH_CONFIG_SCRIPT $CONFIG_FILE
-fi
-
-TMP_DIR=${CLIENT_DATA_DIR}/../${PRODUCT_ID}.tmp
 if [ ! -d $TMP_DIR ]; then
 	echo "Nothing to do!"
 	exit 0
 fi
 
-
-if [ -d $TMP_DIR ]; then
-	echo 'Restoring previous directories...'
-	for dirname in files/opsi/custom ; do
-		for path in $TMP_DIR/`basename $dirname`; do
-			if [ -d $path ]; then
-				test -e $CLIENT_DATA_DIR/$dirname && rm -rf $CLIENT_DATA_DIR/$dirname
-				echo "   moving $path to $CLIENT_DATA_DIR/$dirname"
-				mv $path $CLIENT_DATA_DIR/$dirname || exit 1
-			fi
-		done
-	done
+if [ -d "${TMP_DIR}/custom" ]; then
+	echo "Restoring custom dir"
+	[ -e "${CLIENT_DATA_DIR}/custom" ] && rm -rf "${CLIENT_DATA_DIR}/custom"
+	mv "${TMP_DIR}/custom" ${CLIENT_DATA_DIR}/ || exit 1
 fi
 
 echo "Removing temporary files..."
-rm -rf $TMP_DIR
+rm -rf "${TMP_DIR}"
 
 # install opsi-client-kiosk package on depot (only if migration folder exists)
 if [ -d ${CLIENT_DATA_DIR}/../opsi-client-kiosk/migration ]; then
 	rm -df ${CLIENT_DATA_DIR}/../opsi-client-kiosk/migration
-	opsi-package-manager -iq ${CLIENT_DATA_DIR}/files/opsi/kiosk-package/opsi-client-kiosk_*.opsi
+	opsi-package-manager -iq ${CLIENT_DATA_DIR}/files/kiosk-package/opsi-client-kiosk_*.opsi
 fi
 # remove kiosk package from client-agent
-rm -rf ${CLIENT_DATA_DIR}/files/opsi/kiosk-package
-
-# opsi-admin -d deleteProductPropertyDefinition "${PRODUCT_ID}" "kiosk_startmenue_entry"
-# opsi-admin -d deleteProductPropertyDefinition "${PRODUCT_ID}" "kiosk_startmenue_folder"
-# opsi-admin -d deleteProductPropertyDefinition "${PRODUCT_ID}" "kiosk_desktop_icon"
+rm -rf ${CLIENT_DATA_DIR}/files/kiosk-package
 
 exit 0
