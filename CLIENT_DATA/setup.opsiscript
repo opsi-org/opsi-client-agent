@@ -111,6 +111,8 @@ Sub_install_opsiclientd
 "method": "authenticated"
 "params": []
 
+
+
 ; === opsi-systray ===============================================================
 [Sub_uninstall_opsisystray]
 Comment "Uninstalling opsi-systray"
@@ -140,6 +142,7 @@ copy -sVc "%ScriptPath%\files\opsi-systray\*.*" "$OCA_BaseDir$\opsi-systray\"
 [Registry_install_opsisystray]
 OpenKey [HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run]
 Set "opsi_systray_start" = '"$OCA_BaseDir$\opsi-systray\opsi-client-systray.exe" --fqdn=$OCA_ClientId$ --checkintervall=$OST_CheckInterval$ --notifyformat="$OST_NotifyFormat$"'
+
 
 
 ; === opsiclientd ===============================================================
@@ -215,10 +218,6 @@ del -fs "$OCA_BaseDir$\opsiclientd_bin\opsiclientd_data"
 copy -c "%ScriptPath%\custom\opsiclientd.conf" "$OCA_BaseDir$\opsiclientd\"
 
 [Patches_opsiclientd_conf]
-;Set [config_service] url=$OCD_config_service.url$/rpc
-;Set [config_service] connection_timeout=$OCD_config_service.connection_timeout$
-;Set [control_server] port=$OCD_control_server.port$
-;Set [notification_server] port=$OCD_notification_server.port$
 Set [global] log_level = 6
 
 Set [action_processor] local_dir = %global.base_dir%\\opsi-script
@@ -240,6 +239,7 @@ if (GetSystemType = "64 Bit System")
 endif
 
 
+
 ; === opsi-script ===============================================================
 [Sub_install_opsiscript]
 Comment "Installing opsi-script"
@@ -249,6 +249,7 @@ Files_install_opsiscript
 [Files_install_opsiscript]
 ; Do not use -V because it leads to broken winst on downgrade
 copy -sc "%ScriptPath%\files\opsi-script\*.*" "$OCA_BaseDir$\opsi-script\"
+
 
 
 ; === opsi-notifier =============================================================
@@ -265,6 +266,7 @@ copy -c "%ScriptPath%\files\opsi-notifier\notifier.d\*.*" "$OCA_BaseDir$\notifie
 copy -sc "%ScriptPath%\custom\notifier\*.*" "$OCA_BaseDir$\notifier\"
 
 
+
 ; === opsiclientdguard ==========================================================
 [Sub_uninstall_opsiclientdguard]
 Comment "Uninstalling opsiclientdguard"
@@ -277,6 +279,7 @@ endif
 
 [Files_uninstall_opsiclientdguard]
 del -sf "$OCA_BaseDir$\opsiclientdguard"
+
 
 
 ; === opsi login blocker ========================================================
