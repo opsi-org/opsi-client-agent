@@ -1,0 +1,9 @@
+rem --- Install opsi-client-agent
+echo [%date% %time%] Starting opsi-client-agent installation as user %USERNAME%
+FOR /F "tokens=1* delims==" %%A IN (%script_drive%\opsi\opsi-client-agent\files\opsi\cfg\config.ini) DO (
+	IF "%%A"=="service_address" set service_address=%%B
+	IF "%%A"=="client_id" set client_id=%%B
+	IF "%%A"=="client_key" set client_key=%%B
+)
+echo [%date% %time%] Executing: "%script_drive%\opsi\opsi-client-agent\files\opsi-script\opsi-script.exe" /batch "%script_drive%\opsi\opsi-client-agent\setup.opsiscript" %sys_drive%\opsi.org\log\opsi-client-agent.log /parameter %service_address%||%client_id%||%client_key%||bootimage
+"%script_drive%\opsi\opsi-client-agent\files\opsi-script\opsi-script.exe" /batch "%script_drive%\opsi\opsi-client-agent\setup.opsiscript" %sys_drive%\opsi.org\log\opsi-client-agent.log /parameter %service_address%||%client_id%||%client_key%||bootimage

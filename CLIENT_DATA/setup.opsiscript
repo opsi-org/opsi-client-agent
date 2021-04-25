@@ -23,6 +23,7 @@ DefVar $OCA_ServiceAddress$
 DefVar $OCA_ServiceUsername$
 DefVar $OCA_ServicePassword$
 DefVar $OCA_ClientId$
+DefVar $OCA_InstallationMode$
 
 DefVar $OLB_LoginBlockerStart$
 DefVar $OLB_LoginBlockerTimeoutConnect$
@@ -38,6 +39,7 @@ Set $OCA_ServiceAddress$ = "%opsiserviceURL%"
 Set $OCA_ServiceUsername$ = "%opsiserviceUser%"
 Set $OCA_ServicePassword$ = "%opsiservicePassword%"
 Set $OCA_ClientId$ = "%HostID%"
+Set $OCA_InstallationMode$ = ""
 
 Set $OCA_ProductId$ = "opsi-client-agent"
 Set $OCA_BaseDir$ = "%ProgramFiles32Dir%\opsi.org\opsi-client-agent"
@@ -75,10 +77,11 @@ if ("%opsiserviceURL%" = "")
 	SleepSeconds 5
 
 	Set $TempList$ = SplitString(PARAMSTR, "||")
-	Set $OCA_ClientId$ = TakeString(0, $TempList$)
-	Set $OCA_ServiceAddress$ = TakeString(1, $TempList$)
-	Set $OCA_ServiceUsername$ = TakeString(2, $TempList$)
-	Set $OCA_ServicePassword$ = TakeString(3, $TempList$)
+	Set $OCA_ServiceAddress$ = TakeString(0, $TempList$)
+	Set $OCA_ClientId$ = TakeString(1, $TempList$)
+	Set $OCA_ServiceUsername$ = TakeString(1, $TempList$)
+	Set $OCA_ServicePassword$ = AsConfidential(TakeString(2, $TempList$))
+	Set $OCA_InstallationMode$ = TakeString(3, $TempList$)
 
 	OpsiServiceCall_authenticated /serviceurl $OCA_ServiceAddress$ /username $OCA_ServiceUsername$ /password $OCA_ServicePassword$
 else
