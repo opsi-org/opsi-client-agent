@@ -130,11 +130,11 @@ CheckTargetPath = "$OCA_VarDir$\data"
 takeown /R /D N /F "$OCA_VarDir$"
 ; Remove all explicit permissions from the folder recursively (inheritance only)
 icacls "$OCA_VarDir$" /q /c /t /reset
-; Disable inheritance from parent folder
-icacls "$OCA_VarDir$" /inheritance:r
 ; Allow full access to local admin group and system user, inherit to all objects (OI) and containers (CI)
 ; Allow read access to local users for folder only
-icacls "$OCA_VarDir$" /grant:r *S-1-5-32-544:(OI)(CI)F /grant:r *S-1-5-18:(OI)(CI)F /grant:r *S-1-5-32-545:R
+icacls "$OCA_VarDir$" /grant:r *S-1-5-32-544:(OI)(CI)F /grant:r *S-1-5-18:(OI)(CI)F /grant:r *S-1-5-32-545:RX
+; Disable inheritance from parent folder
+icacls "$OCA_VarDir$" /inheritance:r
 ; Set owner to SYSTEM
 icacls "$OCA_VarDir$" /setowner SYSTEM
 ; Add full permission for local users on applog
@@ -146,11 +146,11 @@ icacls "$OCA_VarDir$\usertmp" /grant *S-1-5-32-545:(OI)(CI)F
 takeown /R /D N /F "$OCA_BaseDir$"
 ; Remove all explicit permissions from the folder recursively (inheritance only)
 icacls "$OCA_BaseDir$" /q /c /t /reset
-; Disable inheritance from parent folder
-icacls "$OCA_BaseDir$" /inheritance:r
 ; Allow full access to local admin group and system user, inherit to all objects (OI) and containers (CI)
 ; Allow read access to local users for folder only
-icacls "$OCA_BaseDir$" /grant:r *S-1-5-32-544:(OI)(CI)F /grant:r *S-1-5-18:(OI)(CI)F /grant:r *S-1-5-32-545:R
+icacls "$OCA_BaseDir$" /grant:r *S-1-5-32-544:(OI)(CI)F /grant:r *S-1-5-18:(OI)(CI)F /grant:r *S-1-5-32-545:RX
+; Disable inheritance from parent folder
+icacls "$OCA_BaseDir$" /inheritance:r
 ; Set owner to SYSTEM
 icacls "$OCA_BaseDir$" /setowner SYSTEM
 ; Add read and exceute permission for local users on opsi-script
