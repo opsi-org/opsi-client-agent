@@ -5,19 +5,18 @@
 ;
 ; Fehlt:
 ;  - Datei / Verzeichnis umbenennen
-;  - Laeuft Skript im Service-Kontext?
+;  - Erkennen ob Skript im Service-Kontext laeuft
 ;  - /batch mit /opsiservice, /clientid, /username, /password
 
 [Actions]
 requiredWinstVersion >= "4.12.4.17"
-;ScriptErrorMessages=off
 
-;;;DefVar $LogDir$
 DefVar $TempString$
 DefStringList $TempList$
 
 DefVar $OCA_ProductId$
 DefVar $OCA_BaseDir$
+DefVar $OCA_VarDir$
 
 DefVar $OCA_ServiceAddress$
 DefVar $OCA_ServiceUsername$
@@ -34,15 +33,15 @@ DefVar $OST_NotifyFormat$
 
 DefVar $OCD_BinaryArchiveFile$
 
-;;;Set $LogDir$ = "%opsiLogDir%"
+Set $OCA_ProductId$ = "opsi-client-agent"
+Set $OCA_BaseDir$ = "%ProgramFiles32Dir%\opsi.org\opsi-client-agent"
+Set $OCA_VarDir$ = "c:\opsi.org"
+
 Set $OCA_ServiceAddress$ = "%opsiserviceURL%"
 Set $OCA_ServiceUsername$ = "%opsiserviceUser%"
 Set $OCA_ServicePassword$ = "%opsiservicePassword%"
 Set $OCA_ClientId$ = "%HostID%"
 Set $OCA_InstallationMode$ = ""
-
-Set $OCA_ProductId$ = "opsi-client-agent"
-Set $OCA_BaseDir$ = "%ProgramFiles32Dir%\opsi.org\opsi-client-agent"
 
 Set $OLB_LoginBlockerStart$ = GetProductProperty("LoginBlockerStart", "on")
 Set $OLB_LoginBlockerTimeoutConnect$ = "120"
@@ -108,7 +107,48 @@ endif
 
 Sub_install_opsiclientd
 
+Comment "Creating directories and setting permissions"
+Message "Creating directories and setting permissions"
+Files_create_dirs
+DosInAnIcon_set_file_permissions
 
+
+
+[Files_create_dirs]
+CheckTargetPath = "$OCA_VarDir$"
+CheckTargetPath = "$OCA_VarDir$\log"
+CheckTargetPath = "$OCA_VarDir$\applog"
+CheckTargetPath = "$OCA_VarDir$\tmp"
+CheckTargetPath = "$OCA_VarDir$\usertmp"
+CheckTargetPath = "$OCA_VarDir$\cache"
+CheckTargetPath = "$OCA_VarDir$\opsiclientd"
+CheckTargetPath = "$OCA_VarDir$\tls"
+CheckTargetPath = "$OCA_VarDir$\data"
+
+[DosInAnIcon_set_file_permissions]
+; Remove all explicit permissions from the folder recursively (inheritance only)
+icacls "$OCA_VarDir$" /q /c /t /reset
+; Disable inheritance from parent folder
+icacls "$OCA_VarDir$" /inheritance:r
+; Allow local admin group and system user, inherit to all objects (OI) and containers (CI)
+icacls "$OCA_VarDir$" /grant:r *S-1-5-32-544:(OI)(CI)F /grant:r *S-1-5-18:(OI)(CI)F
+; Set owner to SYSTEM
+icacls "$OCA_VarDir$" /setowner SYSTEM
+; Add permission for local users on applog
+icacls "$OCA_VarDir$\applog" /grant *S-1-5-32-545:(OI)(CI)F
+; Add permission for local users on usertmp
+icacls "$OCA_VarDir$\usertmp" /grant *S-1-5-32-545:(OI)(CI)F
+
+; Remove all explicit permissions from the folder recursively (inheritance only)
+icacls "$OCA_BaseDir$" /q /c /t /reset
+; Disable inheritance from parent folder
+icacls "$OCA_BaseDir$" /inheritance:r
+; Allow local admin group and system user, inherit to all objects (OI) and containers (CI)
+icacls "$OCA_BaseDir$" /grant:r *S-1-5-32-544:(OI)(CI)F /grant:r *S-1-5-18:(OI)(CI)F
+; Set owner to SYSTEM
+icacls "$OCA_BaseDir$" /setowner SYSTEM
+; Add permission for local users on opsi-script
+icacls "$OCA_BaseDir$\opsi-script" /grant *S-1-5-32-545:(OI)(CI)F
 
 [OpsiServiceCall_authenticated]
 "method": "authenticated"
@@ -248,12 +288,24 @@ endif
 Comment "Installing opsi-script"
 Message "Installing opsi-script"
 Files_install_opsiscript
+Registry_open_with_opsiscript
 
 [Files_install_opsiscript]
 ; Do not use -V because it leads to broken winst on downgrade
 copy -sc "%ScriptPath%\files\opsi-script\*.*" "$OCA_BaseDir$\opsi-script\"
 
-
+[Registry_open_with_opsiscript]
+OpenKey [HKEY_CLASSES_ROOT\.opsiscript]
+Set "" = 'OpsiOrg.opsi-script.opsiscript'
+OpenKey [HKEY_CLASSES_ROOT\OpsiOrg.opsi-script.opsiscript]
+Set "" = 'opsi-script command file'
+OpenKey [HKEY_CLASSES_ROOT\OpsiOrg.opsi-script.opsiscript\DefaultIcon]
+; TODO: Add opsi.ico to opsi-script in binaryindex
+Set "" = '$OCA_BaseDir$\opsi-script\opsi.ico'
+OpenKey [HKEY_CLASSES_ROOT\OpsiOrg.opsi-script.opsiscript\Shell\Open]
+Set "Icon" = '$OCA_BaseDir$\opsi-script\opsi.ico'
+OpenKey [HKEY_CLASSES_ROOT\OpsiOrg.opsi-script.opsiscript\Shell\Open\Command]
+Set "" = '"$OCA_BaseDir$\opsi-script\opsi-script.exe" "%1"'
 
 ; === opsi-notifier =============================================================
 [Sub_install_opsinotifier]
