@@ -94,18 +94,6 @@ pull-binaries:
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
-  # opsiclientd-event-starter
-  - name: opsiclientd-event-starter
-    server-type: binaryindex
-    destination: CLIENT_DATA/files
-    extract: true
-    post-script: []
-    os: windows
-    architecture: x86
-    version: 4.0.7.1
-    branch: development
-    server-url: http://binaryindex.uib.gmbh
-
   # opsi client agent installation helper (as binary)
   - name: oca-installation-helper
     server-type: binaryindex
