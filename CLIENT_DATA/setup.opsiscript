@@ -17,7 +17,6 @@ DefVar $TempString$
 DefStringList $TempList$
 
 DefVar $OCA_ProductId$
-DefVar $OCA_MinimumSpace$
 DefVar $OCA_BaseDir$
 
 DefVar $OCA_ServiceAddress$
@@ -41,7 +40,6 @@ Set $OCA_ServicePassword$ = "%opsiservicePassword%"
 Set $OCA_ClientId$ = "%HostID%"
 
 Set $OCA_ProductId$ = "opsi-client-agent"
-Set $OCA_MinimumSpace$ = "200 MB"
 Set $OCA_BaseDir$ = "%ProgramFiles32Dir%\opsi.org\opsi-client-agent"
 
 Set $OLB_LoginBlockerStart$ = GetProductProperty("LoginBlockerStart", "on")
@@ -51,53 +49,61 @@ Set $OLB_LogLevel$ = "5"
 Set $OST_CheckInterval$ = GetProductProperty("systray_check_interval", "60")
 Set $OST_NotifyFormat$ = GetProductProperty("systray_request_notify_format", "productname : request")
 
-
-if not (HasMinimumSpace ("%SystemDrive%", $OCA_MinimumSpace$))
-	LogError "Insufficient disk space on %SystemDrive%, " + $OCA_MinimumSpace$ + " needed for " + $OCA_ProductId$
-	IsFatalError "Insufficient disk space"
-	; Stop process and set installation status to failed
-else
-	Comment "Show product image"
-	ShowBitmap "%ScriptPath%\" + $OCA_ProductId$ + ".png" $OCA_ProductId$
-
-	Message "Installing " + $OCA_ProductId$ + " ..."
-
-	if ("%opsiserviceURL%" = "")
-		Comment "Not running in service context"
-		ShellCall("sc stop opsiclientd")
-		SleepSeconds 5
-
-		Set $TempList$ = SplitString(PARAMSTR, "||")
-		Set $OCA_ClientId$ = TakeString(0, $TempList$)
-		Set $OCA_ServiceAddress$ = TakeString(1, $TempList$)
-		Set $OCA_ServiceUsername$ = TakeString(2, $TempList$)
-		Set $OCA_ServicePassword$ = TakeString(3, $TempList$)
-
-		OpsiServiceCall_authenticated /serviceurl $OCA_ServiceAddress$ /username $OCA_ServiceUsername$ /password $OCA_ServicePassword$
-	else
-		Comment "Running in service context"
-	endif
-
-	Sub_uninstall_opsiclientdguard
-
-	Sub_install_vcredist
-
-	Sub_install_opsiscript
-
-	Sub_install_opsinotifier
-
-	Sub_uninstall_opsisystray
-	if GetProductProperty("systray_install", "true") = "true"
-		Sub_install_opsisystray
-	endif
-
-	Sub_uninstall_loginblocker
-	if GetProductProperty("LoginBlockerStart", "on") = "on"
-		Sub_install_loginblocker
-	endif
-
-	Sub_install_opsiclientd
+if not (GetOS = "Windows_NT")
+	LogError "OS not supoorted: " + GetOS
+	isFatalError "OS not supoorted: " + GetOS
 endif
+
+if CompareDotSeparatedNumbers(GetMsVersionInfo, "6.0") < "0"
+	logError "Windows version not supported: " + GetMsVersionInfo
+	isFatalError "Windows version not supported: " + GetMsVersionInfo
+endif
+
+if not (HasMinimumSpace ("%SystemDrive%", "200 MB"))
+	LogError "Insufficient disk space on %SystemDrive% (200 MB required)"
+	IsFatalError "Insufficient disk space"
+endif
+
+Comment "Show product image"
+ShowBitmap "%ScriptPath%\" + $OCA_ProductId$ + ".png" $OCA_ProductId$
+
+Message "Installing " + $OCA_ProductId$ + " ..."
+
+if ("%opsiserviceURL%" = "")
+	Comment "Not running in service context"
+	ShellCall("sc stop opsiclientd")
+	SleepSeconds 5
+
+	Set $TempList$ = SplitString(PARAMSTR, "||")
+	Set $OCA_ClientId$ = TakeString(0, $TempList$)
+	Set $OCA_ServiceAddress$ = TakeString(1, $TempList$)
+	Set $OCA_ServiceUsername$ = TakeString(2, $TempList$)
+	Set $OCA_ServicePassword$ = TakeString(3, $TempList$)
+
+	OpsiServiceCall_authenticated /serviceurl $OCA_ServiceAddress$ /username $OCA_ServiceUsername$ /password $OCA_ServicePassword$
+else
+	Comment "Running in service context"
+endif
+
+Sub_uninstall_opsiclientdguard
+
+Sub_install_vcredist
+
+Sub_install_opsiscript
+
+Sub_install_opsinotifier
+
+Sub_uninstall_opsisystray
+if GetProductProperty("systray_install", "true") = "true"
+	Sub_install_opsisystray
+endif
+
+Sub_uninstall_loginblocker
+if GetProductProperty("LoginBlockerStart", "on") = "on"
+	Sub_install_loginblocker
+endif
+
+Sub_install_opsiclientd
 
 
 
