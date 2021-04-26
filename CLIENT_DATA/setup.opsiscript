@@ -101,6 +101,8 @@ if ("%opsiserviceURL%" = "")
 		Comment "Bootimage mode (reinstall)"
 		Set $OCA_Reboot$ = "true"
 
+		Registry_set_opsi_general_config
+
 		Comment "Setting running netboot package to installed"
 		Set $TempActionRequest$ = "setup"
 		Set $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_netboot_running"))
@@ -180,6 +182,14 @@ else
 	PowerShellCall('New-Item "' + $OCA_BaseDir$ + '\opsiclientd_bin\.opsiclientd_restart" -ItemType File')
 endif
 
+
+
+
+[Registry_set_opsi_general_config]
+OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\general]
+Set "bootmode" = "BKSTD"
+;Set "opsiconf" = REG_DWORD:1
+;Set "configlocal" = REG_DWORD:0
 
 [Files_create_dirs]
 CheckTargetPath = "$OCA_VarDir$"
