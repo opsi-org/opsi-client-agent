@@ -7,12 +7,16 @@
 ;  - Datei / Verzeichnis umbenennen
 ;  - Erkennen ob Skript im Service-Kontext laeuft
 ;  - /batch mit /opsiservice, /clientid, /username, /password
+;  - KillTask funktoniert nicht (opsi-notifier.exe)
 
 [Actions]
 requiredWinstVersion >= "4.12.4.17"
+encoding = "UTF-8"
 
 DefVar $TempString$
 DefStringList $TempList$
+DefStringList $TempList2$
+DefVar $ActionRequest$
 
 DefVar $OCA_ProductId$
 DefVar $OCA_BaseDir$
@@ -83,6 +87,25 @@ if ("%opsiserviceURL%" = "")
 	Set $OCA_InstallationMode$ = TakeString(3, $TempList$)
 
 	OpsiServiceCall_authenticated /serviceurl $OCA_ServiceAddress$ /username $OCA_ServiceUsername$ /password $OCA_ServicePassword$
+
+	if ($OCA_InstallationMode$ = "bootimage")
+		Comment "Bootimage mode (reinstall)"
+		ExitWindows /Reboot
+
+		Comment "Setting installed packages to setup"
+		Set $ActionRequest$ = "setup"
+		Set $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_installed"))
+		if JsonAsArrayCountElements($TempString$) > "0"
+			Set $TempList$ = JsonAsArrayToStringList($TempString$)
+			Set $TempList2$ = EmptyList($TempList2$)
+			for %poc% in $TempList$ do Set $TempList2$ = addToList($TempList2$, JsonAsObjectGetValueByKey('%poc%', "productId"))
+			Set $TempList2$ = RemoveFromListByMatch('opsi-winst', $TempList2$)
+			Set $TempList2$ = RemoveFromListByMatch('opsi-script', $TempList2$)
+			for %ProductId4Action% in $TempList2$ do OpsiServiceCall_setProductActionRequestWithDependencies
+		endif
+	endif
+
+	Sub_install_opsiscript
 else
 	Comment "Running in service context"
 endif
@@ -91,18 +114,11 @@ Sub_uninstall_opsiclientdguard
 
 Sub_install_vcredist
 
-Sub_install_opsiscript
-
 Sub_install_opsinotifier
 
 Sub_uninstall_opsisystray
 if GetProductProperty("systray_install", "true") = "true"
 	Sub_install_opsisystray
-endif
-
-Sub_uninstall_loginblocker
-if GetProductProperty("LoginBlockerStart", "on") = "on"
-	Sub_install_loginblocker
 endif
 
 Sub_install_opsiclientd
@@ -112,6 +128,19 @@ Message "Creating directories and setting permissions"
 Files_create_dirs
 DosInAnIcon_set_file_permissions
 
+Set $TempList$ = createStringList()
+Set $TempList$ = GetProductPropertyList("setup_after_install", $TempList$)
+if count($TempList$) > "0"
+	Set $ActionRequest$ = "setup"
+	for %ProductId4Action% in $TempList$ do OpsiServiceCall_setProductActionRequestWithDependencies
+	ExitWindows /Reboot
+endif
+
+; Installation of opsi-login-blocker will kill/restart LogonUI => last step
+Sub_uninstall_loginblocker
+if GetProductProperty("LoginBlockerStart", "on") = "on"
+	Sub_install_loginblocker
+endif
 
 
 [Files_create_dirs]
@@ -160,13 +189,35 @@ icacls "$OCA_BaseDir$\opsi-script" /grant *S-1-5-32-545:(OI)(CI)RX
 "method": "authenticated"
 "params": []
 
+[OpsiServiceCall_setProductActionRequestWithDependencies]
+"method": "setProductActionRequestWithDependencies"
+"params": [
+	"%ProductId4Action%",
+	"$OCA_ClientId$",
+	"$ActionRequest$"
+]
+
+[OpsiServiceCall_productOnClient_getObjects_installed]
+"method": "productOnClient_getObjects"
+"params": [
+	"[]",
+	'{"clientId":"$OCA_ClientId$","productType":"LocalbootProduct","installationStatus":"installed"}'
+]
+
+;[OpsiServiceCall_productOnClient_getObjects]
+;"method": "productOnClient_getObjects"
+;"params": [
+;	"[]",
+;	'{"clientId":"$OCA_ClientId$","productType":"LocalbootProduct","actionRequest":"$ActionRequest$"}'
+;]
 
 
 ; === opsi-systray ===============================================================
 [Sub_uninstall_opsisystray]
 Comment "Uninstalling opsi-systray"
 Message "Uninstalling opsi-systray"
-KillTask "opsi-client-systray.exe"
+;KillTask "opsi-client-systray.exe"
+ShellCall("taskkill /f /im opsi-client-systray.exe")
 Registry_uninstall_opsisystray
 Files_uninstall_opsisystray
 
@@ -317,7 +368,8 @@ Set "" = '"$OCA_BaseDir$\opsi-script\opsi-script.exe" "%1"'
 [Sub_install_opsinotifier]
 Comment "Installing opsi-notifier"
 Message "Installing opsi-notifier"
-KillTask "opsi-notifier.exe"
+;KillTask "opsi-notifier.exe"
+ShellCall("taskkill /f /im opsi-notifier.exe")
 Files_install_opsinotifier
 
 [Files_install_opsinotifier]
@@ -349,7 +401,8 @@ Comment "Uninstalling login blocker"
 Message "Uninstalling login blocker"
 Registry_uninstall_loginblocker /sysnative
 ; logonui.exe locks OpsiLoginBlocker.dll
-KillTask "logonui.exe"
+;KillTask "logonui.exe"
+ShellCall("taskkill /f /im logonui.exe")
 Files_uninstall_loginblocker /sysnative
 
 [Sub_install_loginblocker]
