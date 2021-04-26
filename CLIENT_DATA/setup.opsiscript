@@ -168,6 +168,10 @@ if CompareDotSeparatedNumbers(GetMsVersionInfo, "<", "10.0")
 	Set $OCA_Reboot$ = "true"
 endif
 
+if (GetProductProperty("allow_reboot", "true") = "false")
+	Set $OCA_Reboot$ = "false"
+endif
+
 if ($OCA_Reboot$ = "true")
 	ExitWindows /Reboot
 else
