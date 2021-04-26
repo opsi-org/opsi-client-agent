@@ -1,24 +1,29 @@
 rem --- Install opsi-client-agent
+setlocal EnableDelayedExpansion
+
 echo [%date% %time%] Starting opsi-client-agent installation as user %USERNAME%
-IF EXIST %script_drive%\opsi\opsi-client-agent\files\opsi\cfg\config.ini (
-	FOR /F "tokens=1* delims==" %%A IN (%script_drive%\opsi\opsi-client-agent\files\opsi\cfg\config.ini) DO (
-		IF "%%A"=="bootserver" set bootserver=%%B
-		IF "%%A"=="hostname" set hostname=%%B
-		IF "%%A"=="dnsdomain" set dnsdomain=%%B
-		IF "%%A"=="pckey" set pckey=%%B
+if exist "%script_drive%\opsi\opsi-client-agent\install.conf" (
+	echo [%date% %time%] install.conf found
+	for /F "tokens=1* delims==" %%a IN (%script_drive%\opsi\opsi-client-agent\install.conf) do (
+		set option=%%a
+		set value=%%b
+		if "!option: =!"=="service_address" set service_address=!value: =!
+		if "!option: =!"=="client_id" set client_id=!value: =!
+		if "!option: =!"=="client_key" set client_key=!value: =!
 	)
-	set service_address=%bootserver%
-	set client_id=%hostname%.%dnsdomain%
-	set client_key=%pckey%
 )
-IF EXIST %script_drive%\opsi\opsi-client-agent\install.conf (
-	FOR /F "tokens=1* delims==" %%A IN (%script_drive%\opsi\opsi-client-agent\install.conf) DO (
-		IF "%%A"=="service_address" set service_address=%%B
-		IF "%%A"=="client_id" set client_id=%%B
-		IF "%%A"=="client_key" set client_key=%%B
-		IF "%%A"=="service_password" set client_key=%%B
+if exist "%script_drive%\opsi\opsi-client-agent\files\opsi\cfg\config.ini" (
+	echo [%date% %time%] config.ini found
+	for /F "tokens=1* delims==" %%a IN (%script_drive%\opsi\opsi-client-agent\files\opsi\cfg\config.ini) do (
+		set option=%%a
+		set value=%%b
+		if "!option: =!"=="service_address" set service_address=!value: =!
+		if "!option: =!"=="client_hostname" set client_hostname=!value: =!
+		if "!option: =!"=="client_domain" set client_domain=!value: =!
+		if "!option: =!"=="client_key" set client_key=!value: =!
 	)
+	set client_id=!client_hostname!.!client_domain!
 )
 
-echo [%date% %time%] Executing: "%script_drive%\opsi\opsi-client-agent\files\opsi-script\opsi-script.exe" /batch "%script_drive%\opsi\opsi-client-agent\setup.opsiscript" %sys_drive%\opsi.org\log\opsi-client-agent.log /parameter %service_address%||%client_id%||%client_key%||bootimage
-"%script_drive%\opsi\opsi-client-agent\files\opsi-script\opsi-script.exe" /batch "%script_drive%\opsi\opsi-client-agent\setup.opsiscript" %sys_drive%\opsi.org\log\opsi-client-agent.log /parameter %service_address%||%client_id%||%client_key%||bootimage
+echo [%date% %time%] Executing: "%script_drive%\opsi\opsi-client-agent\files\opsi-script\opsi-script.exe" /batch "%script_drive%\opsi\opsi-client-agent\setup.opsiscript" "%sys_drive%\opsi.org\log\opsi-client-agent.log" /parameter "%service_address%||%client_id%||%client_key%||bootimage"
+"%script_drive%\opsi\opsi-client-agent\files\opsi-script\opsi-script.exe" /batch "%script_drive%\opsi\opsi-client-agent\setup.opsiscript" "%sys_drive%\opsi.org\log\opsi-client-agent.log" /parameter "%service_address%||%client_id%||%client_key%||bootimage"
