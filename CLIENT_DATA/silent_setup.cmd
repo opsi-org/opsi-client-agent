@@ -1,2 +1,2 @@
 @echo off
-call oca-installation-helper.exe --non-interactive
+call %~dp0\oca-installation-helper.exe --non-interactive

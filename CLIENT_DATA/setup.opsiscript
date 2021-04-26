@@ -61,7 +61,7 @@ if not (GetOS = "Windows_NT")
 	isFatalError "OS not supoorted: " + GetOS
 endif
 
-if CompareDotSeparatedNumbers(GetMsVersionInfo, "6.0") < "0"
+if CompareDotSeparatedNumbers(GetMsVersionInfo, "<", "6.0")
 	logError "Windows version not supported: " + GetMsVersionInfo
 	isFatalError "Windows version not supported: " + GetMsVersionInfo
 endif
@@ -163,11 +163,16 @@ if GetProductProperty("LoginBlockerStart", "on") = "on"
 	Sub_install_loginblocker
 endif
 
+if CompareDotSeparatedNumbers(GetMsVersionInfo, "<", "10.0")
+	; Restart opsiclientd on windows before windows 10 not working reliable (service terminated unexpectedly)
+	Set $OCA_Reboot$ = "true"
+endif
+
 if ($OCA_Reboot$ = "true")
 	ExitWindows /Reboot
 else
 	; Restart opsiclientd after event
-	comment "Creating opsiclientd restart marker"
+	Comment "Creating opsiclientd restart marker"
 	PowerShellCall('New-Item "' + $OCA_BaseDir$ + '\opsiclientd_bin\.opsiclientd_restart" -ItemType File')
 endif
 
@@ -237,7 +242,7 @@ icacls "$OCA_BaseDir$\opsi-script" /grant *S-1-5-32-545:(OI)(CI)RX
 "method": "productOnClient_getObjects"
 "params": [
 	"[]",
-	'{"clientId":"$OCA_ClientId$","productType":"NetbootProduct","actionProgess":"running"}'
+	'{"clientId":"$OCA_ClientId$","productType":"NetbootProduct","actionProgress":"running"}'
 ]
 
 [OpsiServiceCall_setProductInstallationStatus_installed]
