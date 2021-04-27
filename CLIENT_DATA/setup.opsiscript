@@ -490,7 +490,8 @@ if ("%opsiserviceURL%" = "")
 		ShellCall("sc stop opsiclientd")
 		SleepSeconds 5
 	endif
-	DefVar $TempList$
+
+	DefStringList $TempList$
 	Set $TempList$ = SplitString(PARAMSTR, "||")
 	Set $OCA_ServiceAddress$ = TakeString(0, $TempList$)
 	Set $OCA_ClientId$ = TakeString(1, $TempList$)
