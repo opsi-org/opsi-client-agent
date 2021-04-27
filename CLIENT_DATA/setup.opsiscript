@@ -525,6 +525,9 @@ setup_after_install()
 ; Installation of opsi-login-blocker will kill/restart LogonUI => last step
 install_loginblocker()
 
+if ("%opsiserviceURL%" = "")
+	OpsiServiceCall_productOnClient_createObjects_opsiclientagent
+endif
 
 if CompareDotSeparatedNumbers(GetMsVersionInfo, "<", "10.0")
 	; Restart opsiclientd on windows before windows 10 not working reliable (service terminated unexpectedly)
@@ -551,3 +554,8 @@ endif
 "method": "authenticated"
 "params": []
 
+[OpsiServiceCall_productOnClient_createObjects_opsiclientagent]
+"method": "productOnClient_createObjects"
+"params": [
+	'[{"type":"ProductOnClient","productType":"LocalbootProduct","clientId":"$OCA_ClientId$","productId":"$OCA_ProductId$","installationStatus":"installed","actionRequest":"none","actionResult":"successful"}]'
+]
