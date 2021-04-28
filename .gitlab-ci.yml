@@ -51,11 +51,11 @@ package:windows-x86-installer:
     # Build 7z sfx installer
     - "& .\\oca-installer\\build.ps1 CLIENT_DATA opsi-client-agent-installer.exe"
     # Compile versioninfo resource
-    - "& .\\resource_hacker\\ResourceHacker.exe -open oca-installer\\versioninfo.rc -save oca-installer\\versioninfo.res -action compile"
+    - "& .\\resourcehacker\\ResourceHacker.exe -open oca-installer\\versioninfo.rc -save oca-installer\\versioninfo.res -action compile"
     # Replace versioninfo resource in exe
-    - "& .\\resource_hacker\\ResourceHacker.exe -resource oca-installer\\versioninfo.res -open opsi-client-agent-installer.exe -save opsi-client-agent-installer.exe -action addoverwrite"
+    - "& .\\resourcehacker\\ResourceHacker.exe -resource oca-installer\\versioninfo.res -open opsi-client-agent-installer.exe -save opsi-client-agent-installer.exe -action addoverwrite"
     # Replace icon in exe
-    - "& .\\resource_hacker\\ResourceHacker.exe -open opsi-client-agent-installer.exe -save opsi-client-agent-installer.exe -action addoverwrite -res opsi.ico -mask ICONGROUP,MAINICON,"
+    - "& .\\resourcehacker\\ResourceHacker.exe -open opsi-client-agent-installer.exe -save opsi-client-agent-installer.exe -action addoverwrite -res opsi.ico -mask ICONGROUP,MAINICON,"
     # Sign exe
     - "& .\\opsi-dev-tools\\opsi-dev-tool.exe -l info --signserver-sign opsi-client-agent-installer.exe"
     # Push to binaryindex
