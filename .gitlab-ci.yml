@@ -59,8 +59,7 @@ package:windows-x86-installer:
     - Start-Sleep -s 5
     - Get-Content reshack.log
     # Replace icon in exe
-    - dir oca-installer\
-    - .\\resourcehacker\\ResourceHacker.exe -open opsi-client-agent-installer.exe -save opsi-client-agent-installer.exe -action addoverwrite -res oca-installer\\opsi.ico -mask ICONGROUP,MAINICON, -log reshack.log
+    - .\\resourcehacker\\ResourceHacker.exe -open opsi-client-agent-installer.exe -save opsi-client-agent-installer.exe -action addoverwrite -res oca-installer\\opsi.ico -mask "ICONGROUP,MAINICON," -log reshack.log
     - Start-Sleep -s 5
     - Get-Content reshack.log
     # Sign exe
