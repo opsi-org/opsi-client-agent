@@ -53,16 +53,16 @@ package:windows-x86-installer:
     # Compile versioninfo resource
     - .\\resourcehacker\\ResourceHacker.exe -open oca-installer\\versioninfo.rc -save oca-installer\\versioninfo.res -action compile -log reshack.log
     - Start-Sleep -s 5
-    - Get-Content -encoding UTF16 reshack.log
+    - Get-Content reshack.log
     # Replace versioninfo resource in exe
     - .\\resourcehacker\\ResourceHacker.exe -resource oca-installer\\versioninfo.res -open opsi-client-agent-installer.exe -save opsi-client-agent-installer.exe -action addoverwrite -log reshack.log
     - Start-Sleep -s 5
-    - Get-Content -encoding UTF16 reshack.log
+    - Get-Content reshack.log
     # Replace icon in exe
     - dir oca-installer\
     - .\\resourcehacker\\ResourceHacker.exe -open opsi-client-agent-installer.exe -save opsi-client-agent-installer.exe -action addoverwrite -res oca-installer\\opsi.ico -mask ICONGROUP,MAINICON, -log reshack.log
     - Start-Sleep -s 5
-    - Get-Content -encoding UTF16 reshack.log
+    - Get-Content reshack.log
     # Sign exe
     - .\\opsi-dev-tools\\opsi-dev-tool.exe -l info --signserver-sign opsi-client-agent-installer.exe
     # Push to binaryindex
