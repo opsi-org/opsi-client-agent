@@ -46,10 +46,17 @@ package:windows-x86-installer:
     - Invoke-WebRequest -UseBasicParsing -Uri "$OPSIDEVTOOLS_URL_WINDOWS_X86" -OutFile opsi-dev-tools.zip
     - Expand-Archive opsi-dev-tools.zip -DestinationPath opsi-dev-tools
     - Invoke-WebRequest -UseBasicParsing -Uri "http://binaryindex.uib.gmbh/mirror/resource_hacker/windows/x86/resource_hacker_windows_x86_5.1.8.zip" -OutFile resource_hacker.zip
-    - Expand-Archive resource_hacker.zip -DestinationPath resource_hacker
+    - Expand-Archive resource_hacker.zip -DestinationPath .
     - "& .\\opsi-dev-tools\\opsi-dev-tool.exe -l debug --binary-pull"
-    - "& .\\build-oca-installer.ps1 CLIENT_DATA opsi-client-agent-installer.exe"
-    - "& .\\resource_hacker\\ResourceHacker.exe -open opsi-client-agent-installer.exe -save opsi-client-agent-installer.exe -action addskip -res opsi.ico -mask ICONGROUP,MAINICON,"
+    # Build 7z sfx installer
+    - "& .\\oca-installer\\build.ps1 CLIENT_DATA opsi-client-agent-installer.exe"
+    # Compile versioninfo resource
+    - "& .\\resource_hacker\\ResourceHacker.exe -open oca-installer\\versioninfo.rc -save oca-installer\\versioninfo.res -action compile"
+    # Replace versioninfo resource in exe
+    - "& .\\resource_hacker\\ResourceHacker.exe -resource oca-installer\\versioninfo.res -open opsi-client-agent-installer.exe -save opsi-client-agent-installer.exe -action addoverwrite"
+    # Replace icon in exe
+    - "& .\\resource_hacker\\ResourceHacker.exe -open opsi-client-agent-installer.exe -save opsi-client-agent-installer.exe -action addoverwrite -res opsi.ico -mask ICONGROUP,MAINICON,"
+    # Sign exe
     - "& .\\opsi-dev-tools\\opsi-dev-tool.exe -l info --signserver-sign opsi-client-agent-installer.exe"
     # Push to binaryindex
     #- if (! $CI_COMMIT_TAG) {poetry run opsi-dev-tool -l info --binary-push opsiclientd_windows_x86 "$CI_JOB_ID"}
