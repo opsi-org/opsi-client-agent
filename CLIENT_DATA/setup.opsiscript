@@ -374,8 +374,6 @@ EndFunc
 ; === directories ===============================================================
 DefFunc post_os_installation_tasks() : void
 	Comment "Running post os installation tasks"
-	Set $OCA_Reboot$ = "true"
-
 	DefStringList $TempList1$
 	DefStringList $TempList2$
 	DefVar $TempString$
@@ -533,15 +531,17 @@ if CompareDotSeparatedNumbers(GetMsVersionInfo, "<", "10.0")
 	; Restart opsiclientd on windows before windows 10 not working reliable (service terminated unexpectedly)
 	Set $OCA_Reboot$ = "true"
 endif
-
-if Contains($OCA_InstallationOptions$, "noreboot")
-	Set $OCA_Reboot$ = "false"
-else
-	if Contains($OCA_InstallationOptions$, "reboot")
-		Set $OCA_Reboot$ = "true"
+if Contains($OCA_InstallationOptions$, "bootimage")
+	Set $OCA_Reboot$ = "true"
+	if Contains($OCA_InstallationOptions$, "noreboot")
+		Set $OCA_Reboot$ = "false"
 	else
-		if (GetProductProperty("allow_reboot", "true") = "false")
-			Set $OCA_Reboot$ = "false"
+		if Contains($OCA_InstallationOptions$, "reboot")
+			Set $OCA_Reboot$ = "true"
+		else
+			if (GetProductProperty("allow_reboot", "true") = "false")
+				Set $OCA_Reboot$ = "false"
+			endif
 		endif
 	endif
 endif
