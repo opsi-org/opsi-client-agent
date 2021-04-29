@@ -4,6 +4,7 @@
 ; credits: http://www.opsi.org/en/credits/
 ;
 ; Fehlt:
+;  - else if !
 ;  - Datei / Verzeichnis umbenennen
 ;  - Erkennen ob Skript im Service-Kontext laeuft
 ;  - /batch mit /opsiservice, /clientid, /username, /password
@@ -17,7 +18,7 @@ encoding = "UTF-8"
 DefVar $OCA_ProductId$
 DefVar $OCA_BaseDir$
 DefVar $OCA_VarDir$
-
+DefVar $OCA_StartedFromOpsiclientd$
 DefVar $OCA_ServiceAddress$
 DefVar $OCA_ServiceUsername$
 DefVar $OCA_ServicePassword$
@@ -37,7 +38,10 @@ DefVar $OCD_BinaryArchiveFile$
 Set $OCA_ProductId$ = "opsi-client-agent"
 Set $OCA_BaseDir$ = "%ProgramFiles32Dir%\opsi.org\opsi-client-agent"
 Set $OCA_VarDir$ = "c:\opsi.org"
-
+Set $OCA_StartedFromOpsiclientd$ = "true"
+if ("%opsiserviceURL%" = "")
+	Set $OCA_StartedFromOpsiclientd$ = "false"
+endif
 Set $OCA_ServiceAddress$ = "%opsiserviceURL%"
 Set $OCA_ServiceUsername$ = "%opsiserviceUser%"
 Set $OCA_ServicePassword$ = "%opsiservicePassword%"
@@ -483,7 +487,7 @@ ShowBitmap "%ScriptPath%\files\opsi-logo.png" "opsi client agent"
 
 Message "Installing " + $OCA_ProductId$ + " ..."
 
-if ("%opsiserviceURL%" = "")
+if ($OCA_StartedFromOpsiclientd$ = "false")
 	Comment "Not running in service context"
 	if ProcessIsRunning("opsiclientd.exe")
 		ShellCall("sc stop opsiclientd")
@@ -524,16 +528,13 @@ setup_after_install()
 ; Installation of opsi-login-blocker will kill/restart LogonUI => last step
 install_loginblocker()
 
-if ("%opsiserviceURL%" = "")
+if ($OCA_StartedFromOpsiclientd$ = "false")
 	OpsiServiceCall_productOnClient_createObjects_opsiclientagent
 endif
 
-if CompareDotSeparatedNumbers(GetMsVersionInfo, "<", "10.0")
-	; Restart opsiclientd on windows before windows 10 not working reliable (service terminated unexpectedly)
-	Set $OCA_Finalize$ = "reboot"
-endif
 if Contains($OCA_InstallationOptions$, "bootimage")
 	Set $OCA_Finalize$ = "reboot"
+else
 	if Contains($OCA_InstallationOptions$, "noreboot")
 		Set $OCA_Finalize$ = ""
 	else
@@ -545,6 +546,11 @@ if Contains($OCA_InstallationOptions$, "bootimage")
 			else
 				if (GetProductProperty("allow_reboot", "true") = "false")
 					Set $OCA_Finalize$ = ""
+				else
+					if CompareDotSeparatedNumbers(GetMsVersionInfo, "<", "10.0")
+						; Restart opsiclientd on windows before windows 10 not working reliable (service terminated unexpectedly)
+						Set $OCA_Finalize$ = "reboot"
+					endif
 				endif
 			endif
 		endif
@@ -555,7 +561,11 @@ if ($OCA_Finalize$ = "reboot")
 	ExitWindows /Reboot
 else
 	if ($OCA_Finalize$ = "shutdown")
-		ExitWindows /ShutdownWanted
+		if ($OCA_StartedFromOpsiclientd$ = "false")
+			PowerShellCall("Stop-Computer -ComputerName localhost -Force")
+		else
+			ExitWindows /ShutdownWanted
+		endif
 	else
 		; Restart opsiclientd after current event or start opsiclientd without executing events
 		Comment "Creating opsiclientd restart marker"
