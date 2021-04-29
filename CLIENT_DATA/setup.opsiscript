@@ -547,7 +547,7 @@ else
 				if (GetProductProperty("allow_reboot", "true") = "false")
 					Set $OCA_Finalize$ = ""
 				else
-					if CompareDotSeparatedNumbers(GetMsVersionInfo, "<", "10.0")
+					if (CompareDotSeparatedNumbers(GetMsVersionInfo, "<", "10.0") and ($OCA_StartedFromOpsiclientd$ = "false"))
 						; Restart opsiclientd on windows before windows 10 not working reliable (service terminated unexpectedly)
 						Set $OCA_Finalize$ = "reboot"
 					endif
