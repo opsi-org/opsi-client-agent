@@ -368,6 +368,8 @@ DefFunc install_directories() : void
 	icacls "$OCA_BaseDir$" /setowner SYSTEM
 	; Add read and exceute permission for local users on opsi-script
 	icacls "$OCA_BaseDir$\opsi-script" /grant *S-1-5-32-545:(OI)(CI)RX
+	; Add read and exceute permission for local users on opsi-systray
+	icacls "$OCA_BaseDir$\opsi-systray" /grant *S-1-5-32-545:(OI)(CI)RX
 EndFunc
 
 
