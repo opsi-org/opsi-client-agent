@@ -23,7 +23,7 @@ DefVar $OCA_ServiceUsername$
 DefVar $OCA_ServicePassword$
 DefVar $OCA_ClientId$
 DefVar $OCA_InstallationOptions$
-DefVar $OCA_Reboot$
+DefVar $OCA_Finalize$
 
 DefVar $OLB_LoginBlockerStart$
 DefVar $OLB_LoginBlockerTimeoutConnect$
@@ -43,7 +43,7 @@ Set $OCA_ServiceUsername$ = "%opsiserviceUser%"
 Set $OCA_ServicePassword$ = "%opsiservicePassword%"
 Set $OCA_ClientId$ = "%HostID%"
 Set $OCA_InstallationOptions$ = ""
-Set $OCA_Reboot$ = "false"
+Set $OCA_Finalize$ = ""
 
 Set $OLB_LoginBlockerStart$ = GetProductProperty("LoginBlockerStart", "on")
 Set $OLB_LoginBlockerTimeoutConnect$ = "120"
@@ -448,7 +448,7 @@ DefFunc setup_after_install() : void
 	Set $TempList$ = GetProductPropertyList("setup_after_install", $TempList$)
 	if count($TempList$) > "0"
 		Comment "Setup after install"
-		Set $OCA_Reboot$ = "true"
+		Set $OCA_Finalize$ = "reboot"
 		for %TempProductId% in $TempList$ do OpsiServiceCall_setProductActionRequestWithDependencies_setup
 	endif
 
@@ -530,31 +530,39 @@ endif
 
 if CompareDotSeparatedNumbers(GetMsVersionInfo, "<", "10.0")
 	; Restart opsiclientd on windows before windows 10 not working reliable (service terminated unexpectedly)
-	Set $OCA_Reboot$ = "true"
+	Set $OCA_Finalize$ = "reboot"
 endif
 if Contains($OCA_InstallationOptions$, "bootimage")
-	Set $OCA_Reboot$ = "true"
+	Set $OCA_Finalize$ = "reboot"
 	if Contains($OCA_InstallationOptions$, "noreboot")
-		Set $OCA_Reboot$ = "false"
+		Set $OCA_Finalize$ = ""
 	else
 		if Contains($OCA_InstallationOptions$, "reboot")
-			Set $OCA_Reboot$ = "true"
+			Set $OCA_Finalize$ = "reboot"
 		else
-			if (GetProductProperty("allow_reboot", "true") = "false")
-				Set $OCA_Reboot$ = "false"
+			if Contains($OCA_InstallationOptions$, "shutdown")
+				Set $OCA_Finalize$ = "shutdown"
+			else
+				if (GetProductProperty("allow_reboot", "true") = "false")
+					Set $OCA_Finalize$ = ""
+				endif
 			endif
 		endif
 	endif
 endif
 
-if ($OCA_Reboot$ = "true")
+if ($OCA_Finalize$ = "reboot")
 	ExitWindows /Reboot
 else
-	; Restart opsiclientd after current event or start opsiclientd without executing events
-	Comment "Creating opsiclientd restart marker"
-	PowerShellCall('New-Item "' + $OCA_BaseDir$ + '\opsiclientd_bin\.opsiclientd_restart" -ItemType File')
-	if not (ProcessIsRunning("opsiclientd.exe"))
-		ShellCall('sc start opsiclientd')
+	if ($OCA_Finalize$ = "shutdown")
+		ExitWindows /ShutdownWanted
+	else
+		; Restart opsiclientd after current event or start opsiclientd without executing events
+		Comment "Creating opsiclientd restart marker"
+		PowerShellCall('New-Item "' + $OCA_BaseDir$ + '\opsiclientd_bin\.opsiclientd_restart" -ItemType File')
+		if not (ProcessIsRunning("opsiclientd.exe"))
+			ShellCall('sc start opsiclientd')
+		endif
 	endif
 endif
 
