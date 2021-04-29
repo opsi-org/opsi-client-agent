@@ -311,8 +311,7 @@ DefFunc install_opsisystray() : void
 
 	[Files_install_opsisystray]
 	copy -sVc "%ScriptPath%\files\opsi-systray\*.*" "$OCA_BaseDir$\opsi-systray\"
-	; Detlef fragen:
-	;copy -Vc  "%ScriptPath%\openssl\*.dll" "$INST_BaseDir$\opsi-systray\"
+	copy -Vc "%ScriptPath%\files\opsi-script\*.dll" "$OCA_BaseDir$\opsi-systray\"
 
 	[Registry_install_opsisystray]
 	OpenKey [HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run]
