@@ -325,7 +325,9 @@ DefFunc install_directories() : void
 	Message "Creating directories and setting permissions"
 	Files_create_dirs
 
-	Set $AdminSID$ = TakeString(0, PowerShellCall("(Get-LocalUser | Where-Object {$_.SID -like 'S-1-5-*-500'}).SID.Value"))
+	; Get-LocalUser is not available in Powershell 2 (win7)
+	;Set $AdminSID$ = TakeString(0, PowerShellCall("(Get-LocalUser | Where-Object {$_.SID -like 'S-1-5-*-500'}).SID.Value"))
+	Set $AdminSID$ = TakeString(0, PowerShellCall("(Get-WmiObject win32_useraccount | Where-Object {$_.SID -like 'S-1-5-*-500'}).SID"))
 	DosInAnIcon_set_file_permissions
 
 	[Files_create_dirs]
