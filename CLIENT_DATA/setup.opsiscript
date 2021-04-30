@@ -39,7 +39,7 @@ Set $ServiceUsername$ = "%opsiserviceUser%"
 Set $ServicePassword$ = "%opsiservicePassword%"
 Set $ClientId$ = "%HostID%"
 Set $InstallationOptions$ = ""
-Set $Finalize$ = ""
+Set $Finalize$ = "service_restart"
 
 
 ; === requirements ==============================================================
@@ -530,7 +530,7 @@ if Contains($InstallationOptions$, "bootimage")
 	Set $Finalize$ = "reboot"
 else
 	if Contains($InstallationOptions$, "noreboot")
-		Set $Finalize$ = ""
+		Set $Finalize$ = "service_restart"
 	else
 		if Contains($InstallationOptions$, "reboot")
 			Set $Finalize$ = "reboot"
@@ -539,36 +539,33 @@ else
 				Set $Finalize$ = "shutdown"
 			else
 				if (GetProductProperty("allow_reboot", "true") = "false")
-					Set $Finalize$ = ""
-				else
-					if (CompareDotSeparatedNumbers(GetMsVersionInfo, "<", "10.0") and ($RunningInServiceContext$ = "false"))
-						; Restart opsiclientd on windows before windows 10 not working reliable (service terminated unexpectedly)
-						Set $Finalize$ = "reboot"
-					endif
+					Set $Finalize$ = "service_restart"
 				endif
 			endif
 		endif
 	endif
 endif
 
-if ($Finalize$ = "reboot")
-	ExitWindows /Reboot
-else
-	if ($Finalize$ = "shutdown")
+Switch $Finalize$
+	Case "reboot"
+		ExitWindows /Reboot
+	EndCase
+	Case "shutdown"
 		if ($RunningInServiceContext$ = "false")
 			PowerShellCall("Stop-Computer -ComputerName localhost -Force")
 		else
 			ExitWindows /ShutdownWanted
 		endif
-	else
+	EndCase
+	Case "service_restart"
 		; Restart opsiclientd after current event or start opsiclientd without executing events
 		Comment "Creating opsiclientd restart marker"
 		PowerShellCall('New-Item "' + $BaseDir$ + '\opsiclientd_bin\.opsiclientd_restart" -ItemType File')
 		if not (ProcessIsRunning("opsiclientd.exe"))
 			ShellCall('sc start opsiclientd')
 		endif
-	endif
-endif
+	EndCase
+EndSwitch
 
 
 [OpsiServiceCall_authenticated]
