@@ -8,6 +8,7 @@
 ;  - Datei / Verzeichnis umbenennen
 ;  - Erkennen ob Skript im Service-Kontext laeuft
 ;  - /batch mit /opsiservice, /clientid, /username, /password
+;  - GetProductProperty funktioniert nicht ohne service context
 ;  - KillTask funktoniert nicht (opsi-notifier.exe)
 
 
@@ -15,48 +16,30 @@
 requiredWinstVersion >= "4.12.4.17"
 encoding = "UTF-8"
 
-DefVar $OCA_ProductId$
-DefVar $OCA_BaseDir$
-DefVar $OCA_VarDir$
-DefVar $OCA_StartedFromOpsiclientd$
-DefVar $OCA_ServiceAddress$
-DefVar $OCA_ServiceUsername$
-DefVar $OCA_ServicePassword$
-DefVar $OCA_ClientId$
-DefVar $OCA_InstallationOptions$
-DefVar $OCA_Finalize$
+DefVar $ProductId$
+DefVar $BaseDir$
+DefVar $VarDir$
+DefVar $RunningInServiceContext$
+DefVar $ServiceAddress$
+DefVar $ServiceUsername$
+DefVar $ServicePassword$
+DefVar $ClientId$
+DefVar $InstallationOptions$
+DefVar $Finalize$
 
-DefVar $OLB_LoginBlockerStart$
-DefVar $OLB_LoginBlockerTimeoutConnect$
-DefVar $OLB_LogLevel$
-
-DefVar $OST_CheckInterval$
-DefVar $OST_NotifyFormat$
-
-DefVar $OCD_BinaryArchiveFile$
-
-Set $OCA_ProductId$ = "opsi-client-agent"
-Set $OCA_BaseDir$ = "%ProgramFiles32Dir%\opsi.org\opsi-client-agent"
-Set $OCA_VarDir$ = "c:\opsi.org"
-Set $OCA_StartedFromOpsiclientd$ = "true"
+Set $ProductId$ = "opsi-client-agent"
+Set $BaseDir$ = "%ProgramFiles32Dir%\opsi.org\opsi-client-agent"
+Set $VarDir$ = "c:\opsi.org"
+Set $RunningInServiceContext$ = "true"
 if ("%opsiserviceURL%" = "")
-	Set $OCA_StartedFromOpsiclientd$ = "false"
+	Set $RunningInServiceContext$ = "false"
 endif
-Set $OCA_ServiceAddress$ = "%opsiserviceURL%"
-Set $OCA_ServiceUsername$ = "%opsiserviceUser%"
-Set $OCA_ServicePassword$ = "%opsiservicePassword%"
-Set $OCA_ClientId$ = "%HostID%"
-Set $OCA_InstallationOptions$ = ""
-Set $OCA_Finalize$ = ""
-
-Set $OLB_LoginBlockerStart$ = GetProductProperty("LoginBlockerStart", "on")
-Set $OLB_LoginBlockerTimeoutConnect$ = "120"
-Set $OLB_LogLevel$ = "5"
-
-Set $OST_CheckInterval$ = GetProductProperty("systray_check_interval", "60")
-Set $OST_NotifyFormat$ = GetProductProperty("systray_request_notify_format", "productname : request")
-
-
+Set $ServiceAddress$ = "%opsiserviceURL%"
+Set $ServiceUsername$ = "%opsiserviceUser%"
+Set $ServicePassword$ = "%opsiservicePassword%"
+Set $ClientId$ = "%HostID%"
+Set $InstallationOptions$ = ""
+Set $Finalize$ = ""
 
 
 ; === requirements ==============================================================
@@ -76,7 +59,8 @@ EndFunc
 
 
 ; === opsiclientd ===============================================================
-DefFunc install_opsiclientd() : void
+DefFunc install_opsiclientd(): void
+	DefVar $BinaryArchiveFile$
 	DefStringList $TempList$
 
 	Sub_uninstall_opsiclientdguard
@@ -85,14 +69,14 @@ DefFunc install_opsiclientd() : void
 	[Sub_uninstall_opsiclientdguard]
 	Comment "Uninstalling opsiclientdguard"
 	Message "Uninstalling opsiclientdguard"
-	if FileExists($OCA_BaseDir$ + "\opsiclientdguard")
+	if FileExists($BaseDir$ + "\opsiclientdguard")
 		ShellCall('sc stop opsiclientdguard')
 		ShellCall('sc delete opsiclientdguard')
 		Files_uninstall_opsiclientdguard
 	endif
 
 	[Files_uninstall_opsiclientdguard]
-	del -sf "$OCA_BaseDir$\opsiclientdguard"
+	del -sf "$BaseDir$\opsiclientdguard"
 
 	[Sub_install_opsiclientd]
 	Comment "Installing opsiclientd"
@@ -100,20 +84,20 @@ DefFunc install_opsiclientd() : void
 
 	Set $TempList$ = ShellCall('dir /B "%ScriptPath%\files"')
 	Set $TempList$ = GetRegexMatchList('(?m)^opsiclientd_windows_\S*.zip', $TempList$)
-	Set $OCD_BinaryArchiveFile$ = "%ScriptPath%\files\" + TakeString(0, $TempList$)
+	Set $BinaryArchiveFile$ = "%ScriptPath%\files\" + TakeString(0, $TempList$)
 
-	Comment "Opsiclientd archive file: " + $OCD_BinaryArchiveFile$
+	Comment "Opsiclientd archive file: " + $BinaryArchiveFile$
 
 	Files_extract_opsiclientd_binaries_to_temp
-	PowerShellCall('Remove-Item -Recurse -Force "' + $OCA_BaseDir$ + '\opsiclientd_bin_old"')
-	PowerShellCall('Rename-Item "' + $OCA_BaseDir$ + '\opsiclientd_bin" "' + $OCA_BaseDir$ + '\opsiclientd_bin_old"')
-	PowerShellCall('Rename-Item "' + $OCA_BaseDir$ + '\opsiclientd_windows_x86" "' + $OCA_BaseDir$ + '\opsiclientd_bin"')
+	PowerShellCall('Remove-Item -Recurse -Force "' + $BaseDir$ + '\opsiclientd_bin_old"')
+	PowerShellCall('Rename-Item "' + $BaseDir$ + '\opsiclientd_bin" "' + $BaseDir$ + '\opsiclientd_bin_old"')
+	PowerShellCall('Rename-Item "' + $BaseDir$ + '\opsiclientd_windows_x86" "' + $BaseDir$ + '\opsiclientd_bin"')
 
-	;if not (FileExists($OCA_BaseDir$ + "\opsiclientd_bin\opsiclientd.exe"))
+	;if not (FileExists($BaseDir$ + "\opsiclientd_bin\opsiclientd.exe"))
 	;	LogError "Failed to replace opsiclientd binaries, retry with copy"
 	;	Files_install_opsiclientd_binaries_from_temp
 	;endif
-	if not (FileExists($OCA_BaseDir$ + "\opsiclientd_bin\opsiclientd.exe"))
+	if not (FileExists($BaseDir$ + "\opsiclientd_bin\opsiclientd.exe"))
 		LogError "Failed to install opsiclientd binaries"
 		IsFatalError "Failed to install opsiclientd binaries"
 	endif
@@ -135,29 +119,29 @@ DefFunc install_opsiclientd() : void
 	endif
 
 	comment "Patch opsiclientd.conf"
-	Patches_opsiclientd_conf $OCA_BaseDir$ + "\opsiclientd\opsiclientd.conf"
+	Patches_opsiclientd_conf $BaseDir$ + "\opsiclientd\opsiclientd.conf"
 
 	comment "Run opsiclientd setup"
-	ShellCall('"'+ $OCA_BaseDir$ + '\opsiclientd_bin\opsiclientd.exe" setup --client-id "' + $OCA_ClientId$ + '" --service-address "' + $OCA_ServiceAddress$ + '" --service-username "' + $OCA_ServiceUsername$ + '" --service-password "' + $OCA_ServicePassword$ + '"')
+	ShellCall('"'+ $BaseDir$ + '\opsiclientd_bin\opsiclientd.exe" setup --client-id "' + $ClientId$ + '" --service-address "' + $ServiceAddress$ + '" --service-username "' + $ServiceUsername$ + '" --service-password "' + $ServicePassword$ + '"')
 
 
 	[Files_extract_opsiclientd_binaries_to_temp]
-	del -sfc "$OCA_BaseDir$\opsiclientd_windows_x86"
-	unzipfile "$OCD_BinaryArchiveFile$" "$OCA_BaseDir$\"
+	del -sfc "$BaseDir$\opsiclientd_windows_x86"
+	unzipfile "$BinaryArchiveFile$" "$BaseDir$\"
 
 	;[Files_install_opsiclientd_binaries_from_temp]
-	;del -sfc "$OCA_BaseDir$\opsiclientd_bin"
-	;copy -sc "$OCA_BaseDir$\opsiclientd_windows_x86\*.*" "$OCA_BaseDir$\opsiclientd_bin\"
-	;del -sfc "$OCA_BaseDir$\opsiclientd_windows_x86"
+	;del -sfc "$BaseDir$\opsiclientd_bin"
+	;copy -sc "$BaseDir$\opsiclientd_windows_x86\*.*" "$BaseDir$\opsiclientd_bin\"
+	;del -sfc "$BaseDir$\opsiclientd_windows_x86"
 
 	[Files_install_opsiclientd_dir]
 	; Remove extend.d as workaround to avoid copy errors while copy *.conf
-	del -fs "$OCA_BaseDir$\opsiclientd\extend.d"
-	copy -s "$OCA_BaseDir$\opsiclientd_bin\opsiclientd_data\*.*" "$OCA_BaseDir$\opsiclientd\"
-	del -fs "$OCA_BaseDir$\opsiclientd_bin\opsiclientd_data"
+	del -fs "$BaseDir$\opsiclientd\extend.d"
+	copy -s "$BaseDir$\opsiclientd_bin\opsiclientd_data\*.*" "$BaseDir$\opsiclientd\"
+	del -fs "$BaseDir$\opsiclientd_bin\opsiclientd_data"
 
 	[Files_install_opsiclientd_custom]
-	copy -c "%ScriptPath%\custom\opsiclientd.conf" "$OCA_BaseDir$\opsiclientd\"
+	copy -c "%ScriptPath%\custom\opsiclientd.conf" "$BaseDir$\opsiclientd\"
 
 	[Patches_opsiclientd_conf]
 	Set [global] log_level = 6
@@ -181,7 +165,7 @@ DefFunc install_opsiscript() : void
 
 	[Files_install_opsiscript]
 	; Do not use -V because it leads to broken winst on downgrade
-	copy -sc "%ScriptPath%\files\opsi-script\*.*" "$OCA_BaseDir$\opsi-script\"
+	copy -sc "%ScriptPath%\files\opsi-script\*.*" "$BaseDir$\opsi-script\"
 
 	[Registry_open_with_opsiscript]
 	OpenKey [HKEY_CLASSES_ROOT\.opsiscript]
@@ -190,16 +174,21 @@ DefFunc install_opsiscript() : void
 	Set "" = 'opsi-script command file'
 	OpenKey [HKEY_CLASSES_ROOT\OpsiOrg.opsi-script.opsiscript\DefaultIcon]
 	; TODO: Add opsi.ico to opsi-script in binaryindex
-	Set "" = '$OCA_BaseDir$\opsi-script\opsi.ico'
+	Set "" = '$BaseDir$\opsi-script\opsi.ico'
 	OpenKey [HKEY_CLASSES_ROOT\OpsiOrg.opsi-script.opsiscript\Shell\Open]
-	Set "Icon" = '$OCA_BaseDir$\opsi-script\opsi.ico'
+	Set "Icon" = '$BaseDir$\opsi-script\opsi.ico'
 	OpenKey [HKEY_CLASSES_ROOT\OpsiOrg.opsi-script.opsiscript\Shell\Open\Command]
-	Set "" = '"$OCA_BaseDir$\opsi-script\opsi-script.exe" "%1"'
+	Set "" = '"$BaseDir$\opsi-script\opsi-script.exe" "%1"'
 EndFunc
 
 
 ; === opsi login blocker ========================================================
 DefFunc install_loginblocker() : void
+	DefVar $LoginBlockerLogLevel$
+	DefVar $LoginBlockerTimeoutConnect$
+	Set $LoginBlockerTimeoutConnect$ = "120"
+	Set $LoginBlockerLogLevel$ = "5"
+
 	Sub_uninstall_loginblocker
 	if GetProductProperty("LoginBlockerStart", "on") = "on"
 		Sub_install_loginblocker
@@ -257,8 +246,8 @@ DefFunc install_loginblocker() : void
 	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Provider Filters\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
 	Set "" = "OpsiLoginBlocker"
 	Set "LoginBlockerStart" = REG_DWORD:1
-	Set "LoginBlockerTimeoutConnect" = REG_DWORD:$OLB_LoginBlockerTimeoutConnect$
-	Set "LoginBlockerLogLevel" = REG_DWORD:$OLB_LogLevel$
+	Set "LoginBlockerTimeoutConnect" = REG_DWORD:$LoginBlockerTimeoutConnect$
+	Set "LoginBlockerLogLevel" = REG_DWORD:$LoginBlockerLogLevel$
 	Set "LoginBlockerLogDir" = "%opsiLogDir%"
 
 	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Providers\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
@@ -278,15 +267,20 @@ DefFunc install_opsinotifier() : void
 	Files_install_opsinotifier
 
 	[Files_install_opsinotifier]
-	copy -c "%ScriptPath%\files\opsi-notifier\opsi-notifier.exe" "$OCA_BaseDir$\"
-	copy -c "%ScriptPath%\files\opsi-notifier\notifier.d\*.*" "$OCA_BaseDir$\notifier\"
+	copy -c "%ScriptPath%\files\opsi-notifier\opsi-notifier.exe" "$BaseDir$\"
+	copy -c "%ScriptPath%\files\opsi-notifier\notifier.d\*.*" "$BaseDir$\notifier\"
 	; Copy possible existing custom notifier changes over standard:
-	copy -sc "%ScriptPath%\custom\notifier\*.*" "$OCA_BaseDir$\notifier\"
+	copy -sc "%ScriptPath%\custom\notifier\*.*" "$BaseDir$\notifier\"
 EndFunc
 
 
 ; === opsi-systray ===============================================================
 DefFunc install_opsisystray() : void
+	DefVar $CheckInterval$
+	DefVar $NotifyFormat$
+	Set $CheckInterval$ = GetProductProperty("systray_check_interval", "60")
+	Set $NotifyFormat$ = GetProductProperty("systray_request_notify_format", "productname : request")
+
 	Sub_uninstall_opsisystray
 	if GetProductProperty("systray_install", "true") = "true"
 		Sub_install_opsisystray
@@ -307,19 +301,19 @@ DefFunc install_opsisystray() : void
 	Registry_install_opsisystray
 
 	[Files_uninstall_opsisystray]
-	del -sfc "$OCA_BaseDir$\opsi-systray"
+	del -sfc "$BaseDir$\opsi-systray"
 
 	[Registry_uninstall_opsisystray]
 	OpenKey [HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run]
 	DeleteVar "opsi_systray_start"
 
 	[Files_install_opsisystray]
-	copy -sVc "%ScriptPath%\files\opsi-systray\*.*" "$OCA_BaseDir$\opsi-systray\"
-	copy -Vc "%ScriptPath%\files\opsi-script\*.dll" "$OCA_BaseDir$\opsi-systray\"
+	copy -sVc "%ScriptPath%\files\opsi-systray\*.*" "$BaseDir$\opsi-systray\"
+	copy -Vc "%ScriptPath%\files\opsi-script\*.dll" "$BaseDir$\opsi-systray\"
 
 	[Registry_install_opsisystray]
 	OpenKey [HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run]
-	Set "opsi_systray_start" = '"$OCA_BaseDir$\opsi-systray\opsi-client-systray.exe" --fqdn=$OCA_ClientId$ --checkintervall=$OST_CheckInterval$ --notifyformat="$OST_NotifyFormat$"'
+	Set "opsi_systray_start" = '"$BaseDir$\opsi-systray\opsi-client-systray.exe" --fqdn=$ClientId$ --checkintervall=$CheckInterval$ --notifyformat="$NotifyFormat$"'
 EndFunc
 
 
@@ -331,48 +325,48 @@ DefFunc install_directories() : void
 	DosInAnIcon_set_file_permissions
 
 	[Files_create_dirs]
-	CheckTargetPath = "$OCA_VarDir$"
-	CheckTargetPath = "$OCA_VarDir$\log"
-	CheckTargetPath = "$OCA_VarDir$\applog"
-	CheckTargetPath = "$OCA_VarDir$\tmp"
-	CheckTargetPath = "$OCA_VarDir$\usertmp"
-	CheckTargetPath = "$OCA_VarDir$\cache"
-	CheckTargetPath = "$OCA_VarDir$\opsiclientd"
-	CheckTargetPath = "$OCA_VarDir$\tls"
-	CheckTargetPath = "$OCA_VarDir$\data"
+	CheckTargetPath = "$VarDir$"
+	CheckTargetPath = "$VarDir$\log"
+	CheckTargetPath = "$VarDir$\applog"
+	CheckTargetPath = "$VarDir$\tmp"
+	CheckTargetPath = "$VarDir$\usertmp"
+	CheckTargetPath = "$VarDir$\cache"
+	CheckTargetPath = "$VarDir$\opsiclientd"
+	CheckTargetPath = "$VarDir$\tls"
+	CheckTargetPath = "$VarDir$\data"
 
 	[DosInAnIcon_set_file_permissions]
 	; Take ownership, redirect stdout to nul for speedup
-	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$OCA_VarDir$" > nul
+	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$VarDir$" > nul
 	; Remove all explicit permissions from the folder recursively (inheritance only)
-	icacls "$OCA_VarDir$" /q /c /t /reset
+	icacls "$VarDir$" /q /c /t /reset
 	; Allow full access to local admin group and system user, inherit to all objects (OI) and containers (CI)
 	; Allow read access to local users for folder only
-	icacls "$OCA_VarDir$" /grant:r *S-1-5-32-544:(OI)(CI)F /grant:r *S-1-5-18:(OI)(CI)F /grant:r *S-1-5-32-545:RX
+	icacls "$VarDir$" /grant:r *S-1-5-32-544:(OI)(CI)F /grant:r *S-1-5-18:(OI)(CI)F /grant:r *S-1-5-32-545:RX
 	; Disable inheritance from parent folder
-	icacls "$OCA_VarDir$" /inheritance:r
+	icacls "$VarDir$" /inheritance:r
 	; Set owner to SYSTEM
-	icacls "$OCA_VarDir$" /setowner SYSTEM
+	icacls "$VarDir$" /setowner SYSTEM
 	; Add full permission for local users on applog
-	icacls "$OCA_VarDir$\applog" /grant *S-1-5-32-545:(OI)(CI)F
+	icacls "$VarDir$\applog" /grant *S-1-5-32-545:(OI)(CI)F
 	; Add full permission for local users on usertmp
-	icacls "$OCA_VarDir$\usertmp" /grant *S-1-5-32-545:(OI)(CI)F
+	icacls "$VarDir$\usertmp" /grant *S-1-5-32-545:(OI)(CI)F
 
 	; Take ownership, redirect stdout to nul for speedup
-	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$OCA_BaseDir$" > nul
+	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$BaseDir$" > nul
 	; Remove all explicit permissions from the folder recursively (inheritance only)
-	icacls "$OCA_BaseDir$" /q /c /t /reset
+	icacls "$BaseDir$" /q /c /t /reset
 	; Allow full access to local admin group and system user, inherit to all objects (OI) and containers (CI)
 	; Allow read access to local users for folder only
-	icacls "$OCA_BaseDir$" /grant:r *S-1-5-32-544:(OI)(CI)F /grant:r *S-1-5-18:(OI)(CI)F /grant:r *S-1-5-32-545:RX
+	icacls "$BaseDir$" /grant:r *S-1-5-32-544:(OI)(CI)F /grant:r *S-1-5-18:(OI)(CI)F /grant:r *S-1-5-32-545:RX
 	; Disable inheritance from parent folder
-	icacls "$OCA_BaseDir$" /inheritance:r
+	icacls "$BaseDir$" /inheritance:r
 	; Set owner to SYSTEM
-	icacls "$OCA_BaseDir$" /setowner SYSTEM
+	icacls "$BaseDir$" /setowner SYSTEM
 	; Add read and exceute permission for local users on opsi-script
-	icacls "$OCA_BaseDir$\opsi-script" /grant *S-1-5-32-545:(OI)(CI)RX
+	icacls "$BaseDir$\opsi-script" /grant *S-1-5-32-545:(OI)(CI)RX
 	; Add read and exceute permission for local users on opsi-systray
-	icacls "$OCA_BaseDir$\opsi-systray" /grant *S-1-5-32-545:(OI)(CI)RX
+	icacls "$BaseDir$\opsi-systray" /grant *S-1-5-32-545:(OI)(CI)RX
 EndFunc
 
 
@@ -416,7 +410,7 @@ DefFunc post_os_installation_tasks() : void
 	"method": "setProductActionRequestWithDependencies"
 	"params": [
 		"%TempProductId%",
-		"$OCA_ClientId$",
+		"$ClientId$",
 		"setup"
 	]
 
@@ -424,21 +418,21 @@ DefFunc post_os_installation_tasks() : void
 	"method": "productOnClient_getObjects"
 	"params": [
 		"[]",
-		'{"clientId":"$OCA_ClientId$","productType":"LocalbootProduct","installationStatus":"installed"}'
+		'{"clientId":"$ClientId$","productType":"LocalbootProduct","installationStatus":"installed"}'
 	]
 
 	[OpsiServiceCall_productOnClient_getObjects_netboot_running]
 	"method": "productOnClient_getObjects"
 	"params": [
 		"[]",
-		'{"clientId":"$OCA_ClientId$","productType":"NetbootProduct","actionProgress":"running"}'
+		'{"clientId":"$ClientId$","productType":"NetbootProduct","actionProgress":"running"}'
 	]
 
 	[OpsiServiceCall_setProductInstallationStatus_installed]
 	"method": "setProductInstallationStatus"
 	"params": [
 		"%TempProductId%",
-		"$OCA_ClientId$",
+		"$ClientId$",
 		"installed"
 	]
 EndFunc
@@ -452,7 +446,7 @@ DefFunc setup_after_install() : void
 	Set $TempList$ = GetProductPropertyList("setup_after_install", $TempList$)
 	if count($TempList$) > "0"
 		Comment "Setup after install"
-		Set $OCA_Finalize$ = "reboot"
+		Set $Finalize$ = "reboot"
 		for %TempProductId% in $TempList$ do OpsiServiceCall_setProductActionRequestWithDependencies_setup
 	endif
 
@@ -460,7 +454,7 @@ DefFunc setup_after_install() : void
 	"method": "setProductActionRequestWithDependencies"
 	"params": [
 		"%TempProductId%",
-		"$OCA_ClientId$",
+		"$ClientId$",
 		"setup"
 	]
 EndFunc
@@ -485,9 +479,9 @@ endif
 Comment "Show product image"
 ShowBitmap "%ScriptPath%\files\opsi-logo.png" "opsi client agent"
 
-Message "Installing " + $OCA_ProductId$ + " ..."
+Message "Installing " + $ProductId$ + " ..."
 
-if ($OCA_StartedFromOpsiclientd$ = "false")
+if ($RunningInServiceContext$ = "false")
 	Comment "Not running in service context"
 	if ProcessIsRunning("opsiclientd.exe")
 		ShellCall("sc stop opsiclientd")
@@ -496,20 +490,20 @@ if ($OCA_StartedFromOpsiclientd$ = "false")
 
 	DefStringList $TempList$
 	Set $TempList$ = SplitString(PARAMSTR, "||")
-	Set $OCA_ServiceAddress$ = TakeString(0, $TempList$)
-	Set $OCA_ClientId$ = TakeString(1, $TempList$)
-	Set $OCA_ServiceUsername$ = TakeString(1, $TempList$)
-	Set $OCA_ServicePassword$ = AsConfidential(TakeString(2, $TempList$))
-	Set $OCA_InstallationOptions$ = TakeString(3, $TempList$)
+	Set $ServiceAddress$ = TakeString(0, $TempList$)
+	Set $ClientId$ = TakeString(1, $TempList$)
+	Set $ServiceUsername$ = TakeString(1, $TempList$)
+	Set $ServicePassword$ = AsConfidential(TakeString(2, $TempList$))
+	Set $InstallationOptions$ = TakeString(3, $TempList$)
 
 	MarkErrorNumber
-	OpsiServiceCall_authenticated /serviceurl $OCA_ServiceAddress$ /username $OCA_ServiceUsername$ /password $OCA_ServicePassword$
+	OpsiServiceCall_authenticated /serviceurl $ServiceAddress$ /username $ServiceUsername$ /password $ServicePassword$
 	if ErrorsOccuredSinceMark > 0
 		LogError "Opsi service authentication failed"
 		IsFatalError "Service auth failure"
 	endif
 
-	if Contains($OCA_InstallationOptions$, "bootimage")
+	if Contains($InstallationOptions$, "bootimage")
 		post_os_installation_tasks()
 	endif
 
@@ -528,28 +522,28 @@ setup_after_install()
 ; Installation of opsi-login-blocker will kill/restart LogonUI => last step
 install_loginblocker()
 
-if ($OCA_StartedFromOpsiclientd$ = "false")
+if ($RunningInServiceContext$ = "false")
 	OpsiServiceCall_productOnClient_createObjects_opsiclientagent
 endif
 
-if Contains($OCA_InstallationOptions$, "bootimage")
-	Set $OCA_Finalize$ = "reboot"
+if Contains($InstallationOptions$, "bootimage")
+	Set $Finalize$ = "reboot"
 else
-	if Contains($OCA_InstallationOptions$, "noreboot")
-		Set $OCA_Finalize$ = ""
+	if Contains($InstallationOptions$, "noreboot")
+		Set $Finalize$ = ""
 	else
-		if Contains($OCA_InstallationOptions$, "reboot")
-			Set $OCA_Finalize$ = "reboot"
+		if Contains($InstallationOptions$, "reboot")
+			Set $Finalize$ = "reboot"
 		else
-			if Contains($OCA_InstallationOptions$, "shutdown")
-				Set $OCA_Finalize$ = "shutdown"
+			if Contains($InstallationOptions$, "shutdown")
+				Set $Finalize$ = "shutdown"
 			else
 				if (GetProductProperty("allow_reboot", "true") = "false")
-					Set $OCA_Finalize$ = ""
+					Set $Finalize$ = ""
 				else
-					if (CompareDotSeparatedNumbers(GetMsVersionInfo, "<", "10.0") and ($OCA_StartedFromOpsiclientd$ = "false"))
+					if (CompareDotSeparatedNumbers(GetMsVersionInfo, "<", "10.0") and ($RunningInServiceContext$ = "false"))
 						; Restart opsiclientd on windows before windows 10 not working reliable (service terminated unexpectedly)
-						Set $OCA_Finalize$ = "reboot"
+						Set $Finalize$ = "reboot"
 					endif
 				endif
 			endif
@@ -557,11 +551,11 @@ else
 	endif
 endif
 
-if ($OCA_Finalize$ = "reboot")
+if ($Finalize$ = "reboot")
 	ExitWindows /Reboot
 else
-	if ($OCA_Finalize$ = "shutdown")
-		if ($OCA_StartedFromOpsiclientd$ = "false")
+	if ($Finalize$ = "shutdown")
+		if ($RunningInServiceContext$ = "false")
 			PowerShellCall("Stop-Computer -ComputerName localhost -Force")
 		else
 			ExitWindows /ShutdownWanted
@@ -569,7 +563,7 @@ else
 	else
 		; Restart opsiclientd after current event or start opsiclientd without executing events
 		Comment "Creating opsiclientd restart marker"
-		PowerShellCall('New-Item "' + $OCA_BaseDir$ + '\opsiclientd_bin\.opsiclientd_restart" -ItemType File')
+		PowerShellCall('New-Item "' + $BaseDir$ + '\opsiclientd_bin\.opsiclientd_restart" -ItemType File')
 		if not (ProcessIsRunning("opsiclientd.exe"))
 			ShellCall('sc start opsiclientd')
 		endif
@@ -584,5 +578,5 @@ endif
 [OpsiServiceCall_productOnClient_createObjects_opsiclientagent]
 "method": "productOnClient_createObjects"
 "params": [
-	'[{"type":"ProductOnClient","productType":"LocalbootProduct","clientId":"$OCA_ClientId$","productId":"$OCA_ProductId$","installationStatus":"installed","actionRequest":"none","actionResult":"successful"}]'
+	'[{"type":"ProductOnClient","productType":"LocalbootProduct","clientId":"$ClientId$","productId":"$ProductId$","installationStatus":"installed","actionRequest":"none","actionResult":"successful"}]'
 ]
