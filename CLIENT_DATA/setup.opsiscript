@@ -10,6 +10,7 @@
 ;  - /batch mit /opsiservice, /clientid, /username, /password
 ;  - GetProductProperty funktioniert nicht ohne service context
 ;  - KillTask funktoniert nicht (opsi-notifier.exe)
+;  - Sekundäre Powershell-Sektionen
 
 
 [Actions]
@@ -319,9 +320,12 @@ EndFunc
 
 ; === directories ===============================================================
 DefFunc install_directories() : void
+	DefVar $AdminSID$
 	Comment "Creating directories and setting permissions"
 	Message "Creating directories and setting permissions"
 	Files_create_dirs
+
+	Set $AdminSID$ = TakeString(0, PowerShellCall("(Get-LocalUser | Where-Object {$_.SID -like 'S-1-5-*-500'}).SID.Value"))
 	DosInAnIcon_set_file_permissions
 
 	[Files_create_dirs]
@@ -340,9 +344,9 @@ DefFunc install_directories() : void
 	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$VarDir$" > nul
 	; Remove all explicit permissions from the folder recursively (inheritance only)
 	icacls "$VarDir$" /q /c /t /reset
-	; Allow full access to local admin group and system user, inherit to all objects (OI) and containers (CI)
+	; Allow full access to local admin group, system user and admin user inherit to all objects (OI) and containers (CI)
 	; Allow read access to local users for folder only
-	icacls "$VarDir$" /grant:r *S-1-5-32-544:(OI)(CI)F /grant:r *S-1-5-18:(OI)(CI)F /grant:r *S-1-5-32-545:RX
+	icacls "$VarDir$" /grant:r *S-1-5-32-544:(OI)(CI)F /grant:r *S-1-5-18:(OI)(CI)F /grant:r *$AdminSID$:(OI)(CI)F /grant:r *S-1-5-32-545:RX
 	; Disable inheritance from parent folder
 	icacls "$VarDir$" /inheritance:r
 	; Set owner to SYSTEM
@@ -356,9 +360,9 @@ DefFunc install_directories() : void
 	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$BaseDir$" > nul
 	; Remove all explicit permissions from the folder recursively (inheritance only)
 	icacls "$BaseDir$" /q /c /t /reset
-	; Allow full access to local admin group and system user, inherit to all objects (OI) and containers (CI)
+	; Allow full access to local admin group, system user and admin user inherit to all objects (OI) and containers (CI)
 	; Allow read access to local users for folder only
-	icacls "$BaseDir$" /grant:r *S-1-5-32-544:(OI)(CI)F /grant:r *S-1-5-18:(OI)(CI)F /grant:r *S-1-5-32-545:RX
+	icacls "$BaseDir$" /grant:r *S-1-5-32-544:(OI)(CI)F /grant:r *S-1-5-18:(OI)(CI)F /grant:r *$AdminSID$:(OI)(CI)F /grant:r *S-1-5-32-545:RX
 	; Disable inheritance from parent folder
 	icacls "$BaseDir$" /inheritance:r
 	; Set owner to SYSTEM
