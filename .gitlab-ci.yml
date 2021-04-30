@@ -51,6 +51,10 @@ package:windows-x86-installer:
     # Build 7z sfx installer
     - .\\oca-installer\\build.ps1 CLIENT_DATA opsi-client-agent-installer.exe
     # Compile versioninfo resource
+    - $versionLine = Get-Content -Path OPSI\\control | Where-Object { $_ -match 'version: 4.' }
+    - $version = $versionLine.Split(':')[1].trim()
+    - $versionComma = $version -replace "\.",","
+    - ((Get-Content -path oca-installer\\versioninfo.rc -Raw) -replace "{version}",$version -replace "{version_comma}",$versionComma) | Set-Content -Path oca-installer\\versioninfo.rc
     - .\\resourcehacker\\ResourceHacker.exe -open oca-installer\\versioninfo.rc -save oca-installer\\versioninfo.res -action compile -log reshack.log
     - Start-Sleep -s 5
     - Get-Content reshack.log
