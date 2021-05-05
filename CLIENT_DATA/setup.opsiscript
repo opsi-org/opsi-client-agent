@@ -1,17 +1,6 @@
-; Copyright (c) uib gmbh (www.uib.de)
-; This sourcecode is owned by uib
-; and published under the Terms of the General Public License.
-; credits: http://www.opsi.org/en/credits/
-;
-; Fehlt:
-;  - else if !
-;  - Datei / Verzeichnis umbenennen
-;  - Erkennen ob Skript im Service-Kontext laeuft
-;  - /batch mit /opsiservice, /clientid, /username, /password
-;  - GetProductProperty funktioniert nicht ohne service context
-;  - KillTask funktoniert nicht (opsi-notifier.exe)
-;  - Sekundäre Powershell-Sektionen
-
+# Copyright (c) 2021 uib GmbH <info@uib.de>
+# All rights reserved.
+# License: AGPL-3.0
 
 [Actions]
 requiredWinstVersion >= "4.12.4.17"
@@ -572,12 +561,12 @@ EndSwitch
 ]
 
 [ExecWith_powershell_running_in_service_context]
-$ppid = (gwmi win32_process -Filter "processid='$PID'").ParentProcessId
-if ( (gwmi win32_process -Filter "processid='$ppid'").ProcessName -eq "opsiclientd.exe" ) {
-	Exit 0
-}
-$pppid = (gwmi win32_process -Filter "processid='$ppid'").ParentProcessId
-if ( (gwmi win32_process -Filter "processid='$pppid'").ProcessName -eq "opsiclientd.exe" ) {
-	Exit 0
+$procid = $PID
+while ($procid -ge 1) {
+	$parent = (gwmi win32_process -Filter "processid='$procid'")
+	if ($parent.ProcessName -eq "opsiclientd.exe" ) {
+		Exit 0
+	}
+	$procid = $parent.ParentProcessId
 }
 Exit 1
