@@ -24,11 +24,11 @@ pull-binaries:
     #  - cp CLIENT_DATA/files/opsi-script/opsi-script CLIENT_DATA/files/opsi-script/64
     os: windows
     architecture: x86
-    version: 4.12.4.17
+    version: 4.12.4.18
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
-  # opsi-script binaries
+  # opsi-script common files
   - name: opsi-script-common
     server-type: binaryindex
     destination: CLIENT_DATA/files
@@ -42,7 +42,7 @@ pull-binaries:
         - Remove-Item -Recurse -Force CLIENT_DATA\\files\\opsi-script-common
     os: all
     architecture: all
-    version: 4.12.4.17
+    version: 4.12.4.18
     branch: development
     server-url: http://binaryindex.uib.gmbh
 

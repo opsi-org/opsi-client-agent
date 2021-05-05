@@ -31,15 +31,11 @@ DefVar $Finalize$
 Set $ProductId$ = "opsi-client-agent"
 Set $BaseDir$ = "%ProgramFiles32Dir%\opsi.org\opsi-client-agent"
 Set $VarDir$ = "c:\opsi.org"
-Set $RunningInServiceContext$ = "true"
-if ("%opsiserviceURL%" = "")
-	Set $RunningInServiceContext$ = "false"
-endif
 Set $ServiceAddress$ = "%opsiserviceURL%"
 Set $ServiceUsername$ = "%opsiserviceUser%"
 Set $ServicePassword$ = "%opsiservicePassword%"
 Set $ClientId$ = "%HostID%"
-Set $InstallationOptions$ = ""
+Set $InstallationOptions$ = PARAMSTR
 Set $Finalize$ = "service_restart"
 
 
@@ -487,26 +483,19 @@ ShowBitmap "%ScriptPath%\files\opsi-logo.png" "opsi client agent"
 
 Message "Installing " + $ProductId$ + " ..."
 
-if ($RunningInServiceContext$ = "false")
+Set $RunningInServiceContext$ = "true"
+ExecWith_powershell_running_in_service_context powershell.exe -ExecutionPolicy Bypass
+if ("1" = GetLastExitcode)
+	Set $RunningInServiceContext$ = "false"
+endif
+
+if ($RunningInServiceContext$ = "true")
+	Comment "Running in service context"
+else
 	Comment "Not running in service context"
 	if ProcessIsRunning("opsiclientd.exe")
 		ShellCall("sc stop opsiclientd")
 		SleepSeconds 5
-	endif
-
-	DefStringList $TempList$
-	Set $TempList$ = SplitString(PARAMSTR, "||")
-	Set $ServiceAddress$ = TakeString(0, $TempList$)
-	Set $ClientId$ = TakeString(1, $TempList$)
-	Set $ServiceUsername$ = TakeString(1, $TempList$)
-	Set $ServicePassword$ = AsConfidential(TakeString(2, $TempList$))
-	Set $InstallationOptions$ = TakeString(3, $TempList$)
-
-	MarkErrorNumber
-	OpsiServiceCall_authenticated /serviceurl $ServiceAddress$ /username $ServiceUsername$ /password $ServicePassword$
-	if ErrorsOccuredSinceMark > 0
-		LogError "Opsi service authentication failed"
-		IsFatalError "Service auth failure"
 	endif
 
 	if Contains($InstallationOptions$, "bootimage")
@@ -514,8 +503,6 @@ if ($RunningInServiceContext$ = "false")
 	endif
 
 	install_opsiscript()
-else
-	Comment "Running in service context"
 endif
 
 install_requirements()
@@ -583,3 +570,14 @@ EndSwitch
 "params": [
 	'[{"type":"ProductOnClient","productType":"LocalbootProduct","clientId":"$ClientId$","productId":"$ProductId$","installationStatus":"installed","actionRequest":"none","actionResult":"successful"}]'
 ]
+
+[ExecWith_powershell_running_in_service_context]
+$ppid = (gwmi win32_process -Filter "processid='$PID'").ParentProcessId
+if ( (gwmi win32_process -Filter "processid='$ppid'").ProcessName -eq "opsiclientd.exe" ) {
+	Exit 0
+}
+$pppid = (gwmi win32_process -Filter "processid='$ppid'").ParentProcessId
+if ( (gwmi win32_process -Filter "processid='$pppid'").ProcessName -eq "opsiclientd.exe" ) {
+	Exit 0
+}
+Exit 1

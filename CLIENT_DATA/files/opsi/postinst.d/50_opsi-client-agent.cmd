@@ -25,5 +25,5 @@ if exist "%script_drive%\opsi\opsi-client-agent\files\opsi\cfg\config.ini" (
 	set client_id=!client_hostname!.!client_domain!
 )
 
-echo [%date% %time%] Executing: "%script_drive%\opsi\opsi-client-agent\files\opsi-script\opsi-script.exe" /batch "%script_drive%\opsi\opsi-client-agent\setup.opsiscript" "%sys_drive%\opsi.org\log\opsi-client-agent.log" /parameter "%service_address%||%client_id%||%client_key%||bootimage"
-"%script_drive%\opsi\opsi-client-agent\files\opsi-script\opsi-script.exe" /batch "%script_drive%\opsi\opsi-client-agent\setup.opsiscript" "%sys_drive%\opsi.org\log\opsi-client-agent.log" /parameter "%service_address%||%client_id%||%client_key%||bootimage"
+echo [%date% %time%] Executing: "%script_drive%\opsi\opsi-client-agent\files\opsi-script\opsi-script.exe" "%script_drive%\opsi\opsi-client-agent\setup.opsiscript" -batch -productid "opsi-client-agent" -opsiservice "%service_address%" -clientid "%client_id%" -username "%client_id%" -password "%client_key%" -logfile "%sys_drive%\opsi.org\log\opsi-client-agent.log" -parameter "bootimage"
+"%script_drive%\opsi\opsi-client-agent\files\opsi-script\opsi-script.exe" "%script_drive%\opsi\opsi-client-agent\setup.opsiscript" -batch -productid "opsi-client-agent" -opsiservice "%service_address%" -clientid "%client_id%" -username "%client_id%" -password "%client_key%" -logfile "%sys_drive%\opsi.org\log\opsi-client-agent.log" -parameter "bootimage"
