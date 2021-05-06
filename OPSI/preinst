@@ -17,9 +17,9 @@ fi
 mkdir $TMP_DIR
 [ -d $CLIENT_DATA_DIR ] || mkdir $CLIENT_DATA_DIR
 
-if [ -d "${CLIENT_DATA_DIR}/custom" ]; then
+if [ -d "${CLIENT_DATA_DIR}/files/custom" ]; then
 	echo "Saving custom dir"
-	mv "${CLIENT_DATA_DIR}/custom" $TMP_DIR/ || exit 1
+	mv "${CLIENT_DATA_DIR}/files/custom" $TMP_DIR/ || exit 1
 fi
 
 #******************************************

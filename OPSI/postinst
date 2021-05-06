@@ -18,12 +18,16 @@ fi
 
 if [ -d "${TMP_DIR}/custom" ]; then
 	echo "Restoring custom dir"
-	[ -e "${CLIENT_DATA_DIR}/custom" ] && rm -rf "${CLIENT_DATA_DIR}/custom"
-	mv "${TMP_DIR}/custom" ${CLIENT_DATA_DIR}/ || exit 1
+	[ -e "${CLIENT_DATA_DIR}/files/custom" ] && rm -rf "${CLIENT_DATA_DIR}/files/custom"
+	mv "${TMP_DIR}/custom" "${CLIENT_DATA_DIR}/files/custom" || exit 1
 fi
 
 echo "Removing temporary files..."
 rm -rf "${TMP_DIR}"
+
+[ -e "${CLIENT_DATA_DIR}/files/custom/notifier" ] && mv "${CLIENT_DATA_DIR}/files/custom/notifier" "${CLIENT_DATA_DIR}/files/custom/opsi-notifier"
+[ -e "${CLIENT_DATA_DIR}/files/custom/opsi-notifier" ] || mkdir -p "${CLIENT_DATA_DIR}/files/custom/opsi-notifier"
+[ -e "${CLIENT_DATA_DIR}/files/custom/opsiclientd" ] || mkdir -p "${CLIENT_DATA_DIR}/files/custom/opsiclientd"
 
 # install opsi-client-kiosk package on depot (only if migration folder exists)
 if [ -d ${CLIENT_DATA_DIR}/../opsi-client-kiosk/migration ]; then

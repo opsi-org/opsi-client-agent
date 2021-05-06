@@ -127,7 +127,7 @@ DefFunc install_opsiclientd(): void
 	del -fs "$BaseDir$\opsiclientd_bin\opsiclientd_data"
 
 	[Files_install_opsiclientd_custom]
-	copy -c "%ScriptPath%\custom\opsiclientd.conf" "$BaseDir$\opsiclientd\"
+	copy -c "%ScriptPath%\files\custom\opsiclientd\*.*" "$BaseDir$\opsiclientd\"
 
 	[Patches_opsiclientd_conf]
 	Set [global] log_level = 6
@@ -255,8 +255,8 @@ DefFunc install_opsinotifier() : void
 	[Files_install_opsinotifier]
 	copy -c "%ScriptPath%\files\opsi-notifier\opsi-notifier.exe" "$BaseDir$\"
 	copy -c "%ScriptPath%\files\opsi-notifier\notifier.d\*.*" "$BaseDir$\notifier\"
-	; Copy possible existing custom notifier changes over standard:
-	copy -sc "%ScriptPath%\custom\notifier\*.*" "$BaseDir$\notifier\"
+	; Copy possible existing custom notifier files
+	copy -sc "%ScriptPath%\files\custom\opsi-notifier\*.*" "$BaseDir$\notifier\"
 EndFunc
 
 
