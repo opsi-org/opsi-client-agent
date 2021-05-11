@@ -500,11 +500,13 @@ install_opsinotifier()
 install_opsisystray()
 install_opsiclientd()
 install_directories()
-setup_after_install()
+
 if FileExists("%opsiTmpDir%\productOnClients.json")
 	comment "Found WIM-capture meta data file. Start processing."
 	ImportLib "wim-capture"
 	oca_restore_productOnClient()
+else
+	setup_after_install()
 endif
 
 ; Installation of opsi-login-blocker will kill/restart LogonUI => last step
