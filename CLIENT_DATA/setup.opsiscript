@@ -288,18 +288,19 @@ DefFunc install_opsisystray() : void
 
 	[Files_uninstall_opsisystray]
 	del -sfc "$BaseDir$\opsi-systray"
+	del -sfc "$BaseDir$\opsi-client-systray"
 
 	[Registry_uninstall_opsisystray]
 	OpenKey [HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run]
 	DeleteVar "opsi_systray_start"
 
 	[Files_install_opsisystray]
-	copy -sVc "%ScriptPath%\files\opsi-systray\*.*" "$BaseDir$\opsi-systray\"
-	copy -Vc "%ScriptPath%\files\opsi-script\*.dll" "$BaseDir$\opsi-systray\"
+	copy -sVc "%ScriptPath%\files\opsi-client-systray\*.*" "$BaseDir$\opsi-client-systray\"
+	copy -Vc "%ScriptPath%\files\opsi-script\*.dll" "$BaseDir$\opsi-client-systray\"
 
 	[Registry_install_opsisystray]
 	OpenKey [HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run]
-	Set "opsi_systray_start" = '"$BaseDir$\opsi-systray\opsi-client-systray.exe" --fqdn=$ClientId$ --checkintervall=$CheckInterval$ --notifyformat="$NotifyFormat$"'
+	Set "opsi_systray_start" = '"$BaseDir$\opsi-client-systray\opsi-client-systray.exe" --fqdn=$ClientId$ --checkintervall=$CheckInterval$ --notifyformat="$NotifyFormat$"'
 EndFunc
 
 
@@ -356,8 +357,8 @@ DefFunc install_directories() : void
 	icacls "$BaseDir$" /setowner SYSTEM
 	; Add read and exceute permission for local users on opsi-script
 	icacls "$BaseDir$\opsi-script" /grant *S-1-5-32-545:(OI)(CI)RX
-	; Add read and exceute permission for local users on opsi-systray
-	icacls "$BaseDir$\opsi-systray" /grant *S-1-5-32-545:(OI)(CI)RX
+	; Add read and exceute permission for local users on opsi-client-systray
+	icacls "$BaseDir$\opsi-client-systray" /grant *S-1-5-32-545:(OI)(CI)RX
 EndFunc
 
 
