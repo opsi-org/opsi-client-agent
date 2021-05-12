@@ -42,6 +42,7 @@ DefFunc oca_restore_productOnClient() : void
 	DefVar $TempString$
 	DefStringList $TempList$
 	DefVar $DoNotChangeSetupRequests$
+	DefVar $SwitchInstalledProductsToSetup$
 	DefStringList $ProductOnClients$
 	DefStringList $ProductIdsInstalled$
 	DefStringList $ProductIdsSetup$
