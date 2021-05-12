@@ -485,7 +485,7 @@ DefFunc get_config_value($ConfigName$ : string) : string
 	]
 EndFunc
 
-DefFunc oca_restore_productOnClient() : void
+DefFunc process_wim_capture() : void
 	; * Fetch the list of installed packages from opsi service if clientconfig.capture.switch_installed_products_to_setup is true
 	; * Fetch the list of packages with action set to "once" or "setup" from opsi service
 	; * Read ProductOnClient objects from json file "%opsiTmpDir%\productOnClients.json", create them on opsi service with updated clientId
@@ -723,7 +723,7 @@ install_directories()
 
 if FileExists("%opsiTmpDir%\productOnClients.json")
 	comment "Found WIM-capture meta data file. Start processing."
-	oca_restore_productOnClient()
+	process_wim_capture()
 else
 	setup_after_install()
 endif
