@@ -31,6 +31,14 @@ DefFunc get_config_value($ConfigName$ : string) : string
 EndFunc
 
 DefFunc oca_restore_productOnClient() : void
+	; * Fetch the list of installed packages from opsi service if clientconfig.capture.switch_installed_products_to_setup is true
+	; * Fetch the list of packages with action set to "once" or "setup" from opsi service
+	; * Read ProductOnClient objects from json file "%opsiTmpDir%\productOnClients.json", create them on opsi service with updated clientId
+	; * Remove restored package states from list of installed packages
+	; * Set remaining installed packages to "setup" on service if clientconfig.capture.switch_installed_products_to_setup is true
+	; * Set the list of fetched "once" and "setup" actions on service if clientconfig.capture.do_not_change_setup_requests is true
+	; * Delete ProductOnClients for a list of unwanted packages (opsi-local-image-wim-capture, ...)
+
 	DefVar $TempString$
 	DefStringList $TempList$
 	DefVar $DoNotChangeSetupRequests$
@@ -45,8 +53,6 @@ DefFunc oca_restore_productOnClient() : void
 
 	Set $SwitchInstalledProductsToSetup$ = Lower(get_config_value("clientconfig.capture.switch_installed_products_to_setup"))
 	Comment "Mode: switch_installed_products_to_setup = " + $SwitchInstalledProductsToSetup$
-
-	; If $DoNotChangeSetupRequests$ == true: Keep current actionRequests (once/setup) on service
 	Set $DoNotChangeSetupRequests$ = "true"
 
 	if $SwitchInstalledProductsToSetup$ = "true"
