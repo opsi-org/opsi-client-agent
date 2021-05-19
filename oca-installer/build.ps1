@@ -33,7 +33,7 @@ Start-Process "$workDir\7zip\7z.exe" -ArgumentList "a","$workDir\oca.7z","$workD
 # "BeginPrompt=`"Start opsi client agent installation?`"`n"
 $config=(
 ";!@Install@!UTF-8!`n" +
-"Title=`"opsi-client-agent`"`n" +
+"Title=`"opsi client agent installer`"`n" +
 "RunProgram=`"opsi-client-agent\oca-installation-helper.exe`"`n" +
 ";!@InstallEnd@!`n"
 )
