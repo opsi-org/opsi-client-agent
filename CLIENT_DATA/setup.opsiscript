@@ -455,16 +455,23 @@ EndFunc
 ; === wim-capture ================================================================
 DefFunc get_config_value($ConfigName$ : string) : string
 	DefVar $TempString$
+	DefStringList $TempList$
+
+	Set $result$ = "__null__"
 
 	Comment "Get configState " + $ConfigName$
- 	Set $TempList$ = TakeString(0, GetReturnListFromSection('OpsiServiceCall_get_configState'))
-	if jsonAsArrayCountElements($TempString$) > "0"
-		Set $TempString$ = JsonAsArrayGetElementByIndex($TempString$, "0")
-		Set $TempString$ = JsonAsObjectGetValueByKey($TempString$, "values")
-		Set $result$ = JsonAsArrayGetElementByIndex($TempString$, "0")
-	else
+	Set $TempList$ = GetReturnListFromSection('OpsiServiceCall_get_configState')
+	if Count($TempList$) > "0"
+		Set $TempString$ = TakeString(0, $TempList$)
+		if jsonAsArrayCountElements($TempString$) > "0"
+			Set $TempString$ = JsonAsArrayGetElementByIndex($TempString$, "0")
+			Set $TempString$ = JsonAsObjectGetValueByKey($TempString$, "values")
+			Set $result$ = JsonAsArrayGetElementByIndex($TempString$, "0")
+		endif
+	endif
+	if $result$ = "__null__"
 		; ConfigState not found, use default from Config
-		Set $TempList$ = TakeString(0, GetReturnListFromSection('OpsiServiceCall_get_config'))
+		Set $TempString$ = TakeString(0, GetReturnListFromSection('OpsiServiceCall_get_config'))
 		Set $TempString$ = JsonAsArrayGetElementByIndex($TempString$, "0")
 		Set $TempString$ = JsonAsObjectGetValueByKey($TempString$, "defaultValues")
 		Set $result$ = JsonAsArrayGetElementByIndex($TempString$, "0")
@@ -474,7 +481,7 @@ DefFunc get_config_value($ConfigName$ : string) : string
 	"method": "config_getObjects"
 	"params": [
 		'[]',
-		'{"configId":"$ConfigName$"}',
+		'{"id":"$ConfigName$"}',
 	]
 
 	[OpsiServiceCall_get_configState]
@@ -521,7 +528,9 @@ DefFunc process_wim_capture() : void
 		Set $TempString$ = TakeString(0, $TempList$)
 		if JsonAsArrayCountElements($TempString$) > "0"
 			Set $ProductOnClients$ = JsonAsArrayToStringList($TempString$)
-			for %CurPoc% in $ProductOnClients$ do Set $ProductIdsInstalled$ = AddToList($ProductIdsInstalled$, JsonAsObjectGetValueByKey('%CurPoc%', "productId"))
+			if Count($ProductOnClients$) > "0"
+				for %CurPoc% in $ProductOnClients$ do Set $ProductIdsInstalled$ = AddToList($ProductIdsInstalled$, JsonAsObjectGetValueByKey('%CurPoc%', "productId"))
+			endif
 		endif
 	else
 		Comment "Delete ProductOnClients with actionRequest none"
@@ -532,8 +541,12 @@ DefFunc process_wim_capture() : void
 		if JsonAsArrayCountElements($TempString$) > "0"
 			Set $ProductOnClients$ = JsonAsArrayToStringList($TempString$)
 		endif
-		for %CurPoc% in $ProductOnClients$ do Set $ProductIds$ = AddToList($ProductIds$, JsonAsObjectGetValueByKey('%CurPoc%', "productId"))
-		for %CurProductId% in $ProductIds$ do OpsiServiceCall_del_productOnClient
+		if Count($ProductOnClients$) > "0"
+			for %CurPoc% in $ProductOnClients$ do Set $ProductIds$ = AddToList($ProductIds$, JsonAsObjectGetValueByKey('%CurPoc%', "productId"))
+		endif
+		if Count($ProductIds$) > "0"
+			for %CurProductId% in $ProductIds$ do OpsiServiceCall_del_productOnClient
+		endif
 	endif
 	Comment "Mode: do_not_change_setup_requests = " + $DoNotChangeSetupRequests$
 
@@ -544,7 +557,9 @@ DefFunc process_wim_capture() : void
 	Set $TempString$ = TakeString(0, $TempList$)
 	if jsonAsArrayCountElements($TempString$) > "0"
 		Set $ProductOnClients$ = JsonAsArrayToStringList($TempString$)
-		for %CurPoc% in $ProductOnClients$ do Set $ProductIdsSetup$ = AddToList($ProductIdsSetup$, JsonAsObjectGetValueByKey('%CurPoc%', "productId"))
+		if Count($ProductOnClients$) > "0"
+			for %CurPoc% in $ProductOnClients$ do Set $ProductIdsSetup$ = AddToList($ProductIdsSetup$, JsonAsObjectGetValueByKey('%CurPoc%', "productId"))
+		endif
 	endif
 
 	Comment "Fetch localboot packages with actionRequest once from opsi service"
@@ -554,7 +569,9 @@ DefFunc process_wim_capture() : void
 	Set $TempString$ = TakeString(0, $TempList$)
 	if JsonAsArrayCountElements($TempString$) > "0"
 		Set $ProductOnClients$ = jsonAsArrayToStringList($TempString$)
-		for %CurPoc% in $ProductOnClients$ do Set $ProductIdsOnce$ = AddToList($ProductIdsOnce$, JsonAsObjectGetValueByKey('%CurPoc%', "productId"))
+		if Count($ProductOnClients$) > "0"
+			for %CurPoc% in $ProductOnClients$ do Set $ProductIdsOnce$ = AddToList($ProductIdsOnce$, JsonAsObjectGetValueByKey('%CurPoc%', "productId"))
+		endif
 	endif
 
 	Message "Restore productOnClients from file"
@@ -571,7 +588,7 @@ DefFunc process_wim_capture() : void
 	Comment "Convert modified list to json array"
 	Set $TempString$ = JsonStringListToJsonArray($ProductOnClients$)
 
-	if not (errorsOccuredSinceMark = 0)
+	if errorsOccuredSinceMark > 0
 		LogError "Error while handling productOnClients from captured image"
 		IsFatalError "Error while handling productOnClients from captured image"
 	endif
@@ -604,6 +621,8 @@ DefFunc process_wim_capture() : void
 
 	Comment "Rename productOnClients.json"
 	Files_rename_productOnClients_json
+
+	Set $Finalize$ = "reboot"
 
 
 	[sub_set_clientId_in_ProductOnClients]
