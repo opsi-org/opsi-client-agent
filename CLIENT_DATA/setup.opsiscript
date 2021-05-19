@@ -493,6 +493,8 @@ DefFunc process_wim_capture() : void
 	; * Set remaining installed packages to "setup" on service if clientconfig.capture.switch_installed_products_to_setup is true
 	; * Set the list of fetched "once" and "setup" actions on service if clientconfig.capture.do_not_change_setup_requests is true
 	; * Delete ProductOnClients for a list of unwanted packages (opsi-local-image-wim-capture, ...)
+	;
+	; Example productOnClients.json: [{"clientId":"win7-x64-image.nightly.test","actionResult":"none","installationStatus":"installed","actionRequest":"none","packageVersion":null,"ident":"opsi-wim-capture;LocalbootProduct;win7-x64-image.nightly.test","productType":"LocalbootProduct","lastAction":null,"productVersion":null,"modificationTime":"2021-05-19 11:56:38","productId":"opsi-wim-capture","actionProgress":"installing","type":"ProductOnClient","targetConfiguration":null,"actionSequence":-1}]
 
 	DefVar $TempString$
 	DefStringList $TempList$
@@ -600,6 +602,9 @@ DefFunc process_wim_capture() : void
 	Set $ProductIds$ = createStringList('opsi-local-image-wim-capture', 'opsi-local-image-sysprep', 'opsi-wim-capture')
 	for %CurProductId% in $ProductIds$ do OpsiServiceCall_del_productOnClient
 
+	Comment "Rename productOnClients.json"
+	Files_rename_productOnClients_json
+
 
 	[sub_set_clientId_in_ProductOnClients]
 	Comment "Get object from array"
@@ -669,6 +674,9 @@ DefFunc process_wim_capture() : void
 		'$ClientId$',
 	]
 
+	[Files_rename_productOnClients_json]
+	del -fc "%opsiTmpDir%\restored_productOnClients.json"
+	rename -c "%opsiTmpDir%\productOnClients.json" "%opsiTmpDir%\restored_productOnClients.json"
 EndFunc
 
 
