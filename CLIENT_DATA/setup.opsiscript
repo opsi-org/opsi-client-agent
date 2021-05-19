@@ -747,13 +747,11 @@ install_opsinotifier()
 install_opsisystray()
 install_opsiclientd()
 install_directories()
-
 if FileExists("%opsiTmpDir%\productOnClients.json")
 	comment "Found WIM-capture meta data file. Start processing."
 	process_wim_capture()
-else
-	setup_after_install()
 endif
+setup_after_install()
 
 ; Installation of opsi-login-blocker will kill/restart LogonUI => last step
 install_loginblocker()
