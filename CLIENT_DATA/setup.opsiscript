@@ -761,7 +761,7 @@ if ($RunningInServiceContext$ = "false")
 endif
 
 if Contains($InstallationOptions$, "bootimage")
-	Set $Finalize$ = "reboot"
+	Set $Finalize$ = ""
 else
 	if Contains($InstallationOptions$, "noreboot")
 		Set $Finalize$ = "service_restart"
