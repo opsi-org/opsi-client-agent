@@ -11,52 +11,52 @@ deffunc configure_on_shutdown() : void
 	Defvar $on_shutdown_install$
 	DefVar $on_shutdown_install_set_policy$
 	DefVar $on_shutdown_RunScript$
-	
+
 	DefStringList $on_shutdown_configStates$
 	DefStringList $on_shutdown_keylist$
-	
+
 	Set $on_shutdown_RegKeyA$ = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts\Shutdown"
 	set $on_shutdown_GPOname$ = "opsi shutdown install policy"
-	
-	
+
+
 	comment "read on_shutdown settings"
 	if $INST_SystemType$ = "64 Bit System"
 		set $on_shutdown_RunScript$ = $INST_BaseDir$+"\on_shutdown\doinstall64.cmd"
 	else
 		set $on_shutdown_RunScript$ = $INST_BaseDir$+"\on_shutdown\doinstall32.cmd"
 	endif
-	
+
 	if CompareDotSeparatedNumbers($INST_NTVersion$,"<","6.0")
 		Set $on_shutdown_RegKeyB$ = "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System\Scripts\Shutdown"
 	else
 		Set $on_shutdown_RegKeyB$ = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Shutdown"
 	endif
-	
+
 	Set $on_shutdown_install$ = GetProductProperty("on_shutdown_install", "off")
 	Set $on_shutdown_install_set_policy$ = GetProductProperty("on_shutdown_install_set_policy", "on")
-	
+
 	;******** Sektion on_shutdown **********
 	Message "opsi-client-agent configuration: on_shutdown"
 	comment "$on_shutdown_install$ -> "+                    $on_shutdown_install$
 	comment "$on_shutdown_install_set_policy$ -> "+         $on_shutdown_install_set_policy$
-	
-	
+
+
 	comment "configure on_shutdown"
 	if ($on_shutdown_install$ = "on")
-		
+
 		; GONE TO deffunc oca_copy_files()
 		;comment "copy files for install_on_shutdown"
 		;Files_install_on_shutdown_copy_files
-		
+
 		comment "patch local opsiclientd.conf for install_on_shutdown"
 		if CompareDotSeparatedNumbers("%WinstVersion%",">=","4.12.0.10")
 			Patches_install_on_shutdown_opsiclientd_conf_enable $INST_OpsiclientdConf$ /encoding "utf8"
 		else
 			Patches_install_on_shutdown_opsiclientd_conf_enable $INST_OpsiclientdConf$
 		endif
-		
+
 		if ($on_shutdown_install_set_policy$ = "on")
-			
+
 			;************************** Registry patches for shutdown script ***********************************
 			comment "Patch Registry for on_shutdown SCRIPT"
 			if $INST_NTVersion$ = "5.0"
@@ -66,7 +66,7 @@ deffunc configure_on_shutdown() : void
 				Set $on_shutdown_found$ = ""
 				Set $on_shutdown_last_val$ = ""
 				Set $on_shutdown_keylist$ = getRegistryKeyListSysnative($on_shutdown_RegKeyA$)
-				
+
 				if (count($on_shutdown_keylist$) = "0")
 					comment "no Shutdown Policy entry found - inserting entry 0"
 					Set $on_shutdown_RegKeyA$ = $on_shutdown_RegKeyA$ + "\0"
@@ -86,27 +86,27 @@ deffunc configure_on_shutdown() : void
 						Set $on_shutdown_RegKeyB$ = $on_shutdown_RegKeyB$ + "\"+$on_shutdown_found$
 					endif
 				endif
-				
+
 				if CompareDotSeparatedNumbers($INST_NTVersion$,"6.0") < "0"
 					Registry_install_on_shutdown_XP /sysnative
 				else
 					Registry_install_on_shutdown_WIN7 /sysnative
 				endif
 			endif
-			
+
 		endif	;on_shutdown_install_set_policy=on
-		
+
 	else
-		
+
 		comment "patch local opsiclientd.conf install_on_shutdown=false"
 		if CompareDotSeparatedNumbers("%WinstVersion%",">=","4.12.0.10")
 			Patches_install_on_shutdown_opsiclientd_conf_disable $INST_OpsiclientdConf$ /encoding "utf8"
 		else
 			Patches_install_on_shutdown_opsiclientd_conf_disable $INST_OpsiclientdConf$
 		endif
-		
+
 		Set $on_shutdown_keylist$ = getRegistryKeyListSysnative($on_shutdown_RegKeyA$)
-		
+
 		if (count($on_shutdown_keylist$) = "0")
 			comment "no opsi shutdown script entry found - nothing to remove"
 		else
@@ -123,9 +123,9 @@ deffunc configure_on_shutdown() : void
 				Registry_install_on_shutdown_delete /sysnative
 			endif
 		endif
-		
+
 	endif	;on_shutdown_install=on
-	
+
 	[Registry_install_on_shutdown_XP]
 	OpenKey [$on_shutdown_RegKeyA$]
 	set "GPO-ID"		= "LocalGPO"
@@ -133,30 +133,30 @@ deffunc configure_on_shutdown() : void
 	set "FileSysPath" = "C:\WINDOWS\System32\GroupPolicy\Machine"
 	set "DisplayName" = "$on_shutdown_GPOname$"
 	set "GPOName"	  = "$on_shutdown_GPOname$"
-	
+
 	OpenKey [$on_shutdown_RegKeyA$\0]
 	set "Script"	  = "$on_shutdown_RunScript$"
 	set "Parameters" = ""
 	;set "ExecTime"	= REG_BINARY:00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
-	
+
 	OpenKey [$on_shutdown_RegKeyB$]
 	set "GPO-ID"		= "LocalGPO"
 	set "SOM-ID"		= "Local"
 	set "FileSysPath" = "C:\WINDOWS\System32\GroupPolicy\Machine"
 	set "DisplayName" = "$on_shutdown_GPOname$"
 	set "GPOName"	  = "$on_shutdown_GPOname$"
-	
+
 	OpenKey [$on_shutdown_RegKeyB$\0]
 	set "Script"	  = "$on_shutdown_RunScript$"
 	set "Parameters" = ""
 	;set "ExecTime"	= REG_BINARY:00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
-	
+
 	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\policies\system]
 	set "shutdownwithoutlogon" = REG_DWORD:00000001
 	set "HideShutdownScripts"  = REG_DWORD:00000001
 	set "MaxGPOScriptWait"	  = REG_DWORD:00000000
-	
-	
+
+
 	;;*******************************************
 	[Registry_install_on_shutdown_WIN7]
 	OpenKey [$on_shutdown_RegKeyA$]
@@ -166,14 +166,14 @@ deffunc configure_on_shutdown() : void
 	set "DisplayName"	= "$on_shutdown_GPOname$"
 	set "GPOName"		 = "$on_shutdown_GPOname$"
 	set "PSScriptOrder" = REG_DWORD:00000001
-	
+
 	OpenKey [$on_shutdown_RegKeyA$\0]
 	set "Script"	  = "$on_shutdown_RunScript$"
 	set "Parameters" = ""
 	;set "ExecTime"	= REG_BINARY:00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
 	set "ErrorCode"  = REG_DWORD:00000000
-	
-	
+
+
 	OpenKey [$on_shutdown_RegKeyB$]
 	set "GPO-ID"		  = "LocalGPO"
 	set "SOM-ID"		  = "Local"
@@ -181,42 +181,42 @@ deffunc configure_on_shutdown() : void
 	set "DisplayName"	= "$on_shutdown_GPOname$"
 	set "GPOName"		 = "$on_shutdown_GPOname$"
 	set "PSScriptOrder" = REG_DWORD:00000001
-	
+
 	OpenKey [$on_shutdown_RegKeyB$\0]
 	set "Script"		 = "$on_shutdown_RunScript$"
 	set "Parameters"	= ""
 	set "IsPowershell" = REG_DWORD:00000000
 	;set "ExecTime"	  = REG_BINARY:00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
-	
+
 	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System]
 	set "MaxGPOScriptWait"	  = REG_DWORD:00000000
 	set "shutdownwithoutlogon" = REG_DWORD:00000001
-	
+
 	;;*******************************************
-	
+
 	[Registry_install_on_shutdown_delete]
 	DeleteKey [$on_shutdown_RegKeyA$]
 	DeleteKey [$on_shutdown_RegKeyB$]
-	
+
 	;;*******************************************
-	
-	
+
+
 	[Patches_install_on_shutdown_opsiclientd_conf_enable]
 	set [event_on_shutdown] active = true
-	
+
 	;;*******************************************
-	
+
 	[Patches_install_on_shutdown_opsiclientd_conf_disable]
 	set [event_on_shutdown] active = false
-	
+
 	;;*******************************************
-	
+
 	[sub_on_shutdown_find_regkey]
 	Set $on_shutdown_last_val$ = "%s%"
 	if GetRegistryStringValueSysNative("["+$on_shutdown_RegKeyA$+"\%s%] GPOName") = $on_shutdown_GPOname$
 		Set $on_shutdown_found$ = "%s%"
 	endif
-	
+
 endfunc
 
 ;******** Sektion on_shutdown **********
@@ -300,12 +300,12 @@ endif
 
 
 [Registry_set_ServicesPipeTimeout]
-openkey [HKLM\SYSTEM\CurrentControlSet\Control] 
+openkey [HKLM\SYSTEM\CurrentControlSet\Control]
 set "ServicesPipeTimeout" = REG_DWORD:$OCD_services_pipe_timeout$
 
 [Registry_del_ServicesPipeTimeout]
-openkey [HKLM\SYSTEM\CurrentControlSet\Control] 
-del "ServicesPipeTimeout" 
+openkey [HKLM\SYSTEM\CurrentControlSet\Control]
+del "ServicesPipeTimeout"
 
 
 ;;************************************** end on_shutdown sections ***************************************************
@@ -336,21 +336,22 @@ del "ServicesPipeTimeout"
 "method": "setProductActionRequest"
 "params": [
 	"opsi-client-kiosk",
-	"$INST_ClientId$", 
+	"$INST_ClientId$",
 	"setup"
 ]
 ;************** END kiosk_to_setup opsiservicecall sections *******************************************************
 
 [Files_copy_systray]
-copy -sVc "%SCRIPTPATH%\opsi-systray\*.*" "$INST_BaseDir$\opsi-systray\"
-copy -Vc  "%SCRIPTPATH%\openssl\*.dll" "$INST_BaseDir$\opsi-systray\"
+copy -sVc "%SCRIPTPATH%\opsi-client-systray\*.*" "$INST_BaseDir$\opsi-client-systray\"
+copy -Vc  "%SCRIPTPATH%\openssl\*.dll" "$INST_BaseDir$\opsi-client-systray\"
 
 [Registry_run_systray]
 openkey [HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run]
-set "opsi_systray_start"='"$INST_BaseDir$\opsi-systray\opsi-client-systray.exe" --fqdn=$INST_ClientId$ --checkintervall=$systray_check_interval$ --notifyformat="$systray_notifyformat$"'
+set "opsi_systray_start"='"$INST_BaseDir$\opsi-client-systray\opsi-client-systray.exe" --fqdn=$INST_ClientId$ --checkintervall=$systray_check_interval$ --notifyformat="$systray_notifyformat$"'
 
 [Files_del_systray]
 del -sfc "$INST_BaseDir$\opsi-systray\*.*"
+del -sfc "$INST_BaseDir$\opsi-client-systray\*.*"
 
 [Registry_del_run_systray]
 openkey [HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run]
@@ -359,13 +360,13 @@ DeleteVar "opsi_systray_start"
 [DosInAnIcon_lock_opsisystray]
 rem see http://setacl.sourceforge.net/
 
-rem grant user execute to the opsi-systray directory 
+rem grant user execute to the opsi-client-systray directory
 rem make the dacl not inherited
-"$INST_SetAclDir$\setacl.exe" -on "$INST_BaseDir$\opsi-systray" -ot file -actn clear -actn setprot -op "dacl:p_c;sacl:nc" -rec cont_obj
+"$INST_SetAclDir$\setacl.exe" -on "$INST_BaseDir$\opsi-client-systray" -ot file -actn clear -actn setprot -op "dacl:p_c;sacl:nc" -rec cont_obj
 rem therefore remove users from dacl
-"$INST_SetAclDir$\setacl.exe" -on "$INST_BaseDir$\opsi-systray" -ot file -actn trustee -trst n1:S-1-5-32-545;s1:y;ta:remtrst;w:dacl"
+"$INST_SetAclDir$\setacl.exe" -on "$INST_BaseDir$\opsi-client-systray" -ot file -actn trustee -trst n1:S-1-5-32-545;s1:y;ta:remtrst;w:dacl"
 rem therefore set new rights
-"$INST_SetAclDir$\setacl.exe" -on "$INST_BaseDir$\opsi-systray" -ot file -actn ace -ace "n:S-1-5-32-544;p:full;s:y" -ace "n:S-1-5-32-545;p:read_ex;s:y" -actn clear -clr "dacl,sacl" -actn rstchldrn -rst "dacl,sacl"
+"$INST_SetAclDir$\setacl.exe" -on "$INST_BaseDir$\opsi-client-systray" -ot file -actn ace -ace "n:S-1-5-32-544;p:full;s:y" -ace "n:S-1-5-32-545;p:read_ex;s:y" -actn clear -clr "dacl,sacl" -actn rstchldrn -rst "dacl,sacl"
 
 rem show the resulting acl
 "$INST_SetAclDir$\setacl.exe" -on "$INST_BaseDir$" -ot file -actn list -lst "f:own;w:d,s,o,g;i:y;s:b"
