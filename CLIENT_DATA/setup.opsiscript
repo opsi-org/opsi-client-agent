@@ -699,6 +699,13 @@ DefFunc process_wim_capture() : void
 EndFunc
 
 
+; === opsi_winst_for_old_netboot_products ===================================================================
+DefFunc create_opsi_winst_for_compatibility() : void
+	Comment "Creating opsi-winst for compatibility with old netboot products"
+	ShellCall('xcopy /E /I "' + $BaseDir$ + '\opsi-script" "' + $BaseDir$ + '\opsi-winst"')
+EndFunc
+
+
 ; === actions ===================================================================
 if not (GetOS = "Windows_NT")
 	LogError "OS not supoorted: " + GetOS
@@ -761,6 +768,7 @@ if ($RunningInServiceContext$ = "false")
 endif
 
 if Contains($InstallationOptions$, "bootimage")
+	create_opsi_winst_for_compatibility()
 	Set $Finalize$ = ""
 else
 	if Contains($InstallationOptions$, "noreboot")
