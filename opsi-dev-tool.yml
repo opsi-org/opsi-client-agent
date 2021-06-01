@@ -7,7 +7,7 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x86
-    version: ~4.2.0.72
+    version: 4.2.0.74
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
@@ -24,7 +24,7 @@ pull-binaries:
     #  - cp CLIENT_DATA/files/opsi-script/opsi-script CLIENT_DATA/files/opsi-script/64
     os: windows
     architecture: x86
-    version: 4.12.4.21
+    version: 4.12.4.22
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
@@ -42,7 +42,7 @@ pull-binaries:
         - Remove-Item -Recurse -Force CLIENT_DATA\\files\\opsi-script-common
     os: all
     architecture: all
-    version: 4.12.4.21
+    version: 4.12.4.22
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
@@ -116,7 +116,7 @@ pull-binaries:
     post-script: []
     os: linux
     architecture: x64
-    version: 4.2.0.7
+    version: 4.2.0.8
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
