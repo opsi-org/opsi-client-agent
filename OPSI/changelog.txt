@@ -2,6 +2,7 @@
 opsi-client-agent (4.1.1.36-1) stable; urgency=low
 
   * Update opsiclientd to 4.2.0.74
+  * Update opsi-deploy-client-agent to 4.2.0.8 (n.doerrer)
 
 -- Jan Schneider <j.schneider@uib.de> Tue, 01 Jun 2021 07:16:00 +0100
 
