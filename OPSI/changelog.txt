@@ -1,8 +1,14 @@
 ﻿[Changelog]
+opsi-client-agent (4.1.1.36-2) stable; urgency=low
+
+  * Updated opsi-deploy-client-agent to 4.2.0.9
+
+-- Nils Doerrer <n.doerrer@uib.de> Wed, 02 Jun 2021 15:16:00 +0100
+
+
 opsi-client-agent (4.1.1.36-1) stable; urgency=low
 
   * Update opsiclientd to 4.2.0.74
-  * Update opsi-deploy-client-agent to 4.2.0.8 (n.doerrer)
 
 -- Jan Schneider <j.schneider@uib.de> Tue, 01 Jun 2021 07:16:00 +0100
 

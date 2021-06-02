@@ -192,6 +192,6 @@ pull-binaries:
     post-script: []
     os: linux
     architecture: x64
-    version: 4.2.0.8
+    version: 4.2.0.9
     branch: development
     server-url: http://binaryindex.uib.gmbh
