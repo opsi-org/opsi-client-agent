@@ -16,6 +16,7 @@ echo ProductVersion=${PRODUCT_VERSION}-${PACKAGE_VERSION} >> $CLIENT_DATA_DIR/fi
 
 chmod u+x $CLIENT_DATA_DIR/utils/set_ip_in_inifile
 chmod u+x $CLIENT_DATA_DIR/opsi-deploy-client-agent
+chmod u+x $CLIENT_DATA_DIR/opsi-deploy-client-agent-41
 
 echo "Patching server information ..."
 PATCH_CONFIG_SCRIPT="$CLIENT_DATA_DIR/utils/patch_config_file.py"
