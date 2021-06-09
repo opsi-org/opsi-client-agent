@@ -1,4 +1,4 @@
-#! /usr/bin/opsi-python
+#! /usr/bin/python
 # -*- coding: utf-8 -*-
 
 # This tool is part of the desktop management solution opsi
@@ -1232,7 +1232,7 @@ def main(argv):
 					fails += 1
 		runningThreads = newRunningThreads
 		time.sleep(1)
-	
+
 	success = total - fails - skips
 
 	logger.notice("%s/%s deployments successfully" % (success, total))
