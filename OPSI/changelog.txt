@@ -1,4 +1,10 @@
 ﻿[Changelog]
+opsi-client-agent (4.1.1.37-3) stable; urgency=low
+
+  * Updated opsi-deploy-client-agent to 4.2.0.10 (fixed deploy install call)
+
+-- Nils Doerrer <n.doerrer@uib.de> Mon, 14 Jun 2021 14:16:00 +0100
+
 opsi-client-agent (4.1.1.37-2) stable; urgency=low
 
   * Set /usr/bin/python in opsi-deploy-client-agent-41
