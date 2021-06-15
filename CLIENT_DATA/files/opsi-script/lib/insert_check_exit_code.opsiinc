@@ -1,5 +1,0 @@
-; opsi include file
-
-DefVar $ExitCode$
-
-include_append "section_sub_check_exit_code.opsiinc"
