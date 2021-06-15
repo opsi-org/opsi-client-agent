@@ -30,8 +30,8 @@ pull-binaries:
     extract: true
     post-script:
       linux:
-        - cp -R CLIENT_DATA/files/opsi-script-common/* CLIENT_DATA/files/opsi-script/
-        - rmdir CLIENT_DATA/files/opsi-script-common
+        - cp -r CLIENT_DATA/files/opsi-script-common/* CLIENT_DATA/files/opsi-script/
+        - rm -r CLIENT_DATA/files/opsi-script-common
       windows:
         - Copy-Item -Path CLIENT_DATA\\files\\opsi-script-common\\* -Destination CLIENT_DATA\\files\\opsi-script\\ -Recurse
         - Remove-Item -Recurse -Force CLIENT_DATA\\files\\opsi-script-common
