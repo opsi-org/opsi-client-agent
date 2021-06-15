@@ -1,0 +1,56 @@
+# Translators:
+# Daniel Debeus <konatodiel@gmx.fr>, 2017
+# Benoit Mortier <benoit.mortier@opensides.be>, 2017
+msgid ""
+msgstr ""
+"Project-Id-Version: opsi.org\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2017-08-16 12:16+0100\n"
+"Last-Translator: Benoit Mortier <benoit.mortier@opensides.be>, 2017\n"
+"Language-Team: French (https://www.transifex.com/opsi-org/teams/35141/fr/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: fr\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+#: oca_systray_dm.rsactionswaiting
+msgid "opsi: Pending installations:"
+msgstr "opsi: installation en cours"
+
+#: oca_systray_dm.rsnoactionswaiting
+msgid "opsi: No pending installations"
+msgstr "opsi: pas d'installation en cours"
+
+#: oca_systray_dm.rsnone
+msgid "None"
+msgstr "Rien"
+
+#: oswebservice.rssendlog
+msgid "Sending log file to server ..."
+msgstr "Envoi du fichier journal au serveur ..."
+
+#: tdatamodule1.mi_exit.caption
+msgid "Abort Program"
+msgstr "Arrêter le programme"
+
+#: tdatamodule1.mi_exit.hint
+msgid "Terminate this systray program"
+msgstr "Terminer le programme dans la zone de notification"
+
+#: tdatamodule1.mi_pull_for_action_request.caption
+msgid "Check for Installations"
+msgstr "Vérifier les installations"
+
+#: tdatamodule1.mi_pull_for_action_request.hint
+msgid "Check now for pending opsi installations"
+msgstr "Vérifie maintenant les installations en attente"
+
+#: tdatamodule1.mi_startevent.caption
+msgid "Install now"
+msgstr "Installer maintenant"
+
+#: tdatamodule1.mi_startevent.hint
+msgid "Start now all pending opsi installations"
+msgstr "Démarrer maintenant toutes les installations en attente"
