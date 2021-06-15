@@ -1,6 +1,7 @@
 image: python:3.7-stretch
 
 stages:
+  - build_installer
   - package
 
 .install_opsi_dev_tools: &install_opsi_dev_tools |
@@ -19,26 +20,7 @@ stages:
   adduser opsiconfd pcpatch
   adduser opsiconfd opsiadmin
 
-package:makeopsipackage:
-  stage: package
-  script:
-    - *install_opsi_dev_tools
-    - *install_opsi_utils
-    - ./opsi-dev-tool -l debug --binary-pull
-    - version=`grep OPSI/control -A 10 -e "\[Product\]" | grep "version:" | tr -d "^a-zA-Z :"`
-    - package=`grep OPSI/control -A 5 -e "\[Package\]" | grep "version:" | tr -d "^a-zA-Z :"`
-    - '[ "$CI_COMMIT_TAG" = "" ] && sed -i "s/version: $package/version: $package.$CI_JOB_ID/" OPSI/control'
-    - opsi-utils/opsi-makepackage --no-set-rights -l 6
-    - mkdir opsi-client-agent-package
-    - cp ./opsi-client-agent*.opsi* opsi-client-agent-package/
-    - '[ "$CI_COMMIT_TAG" = "" ] && ./opsi-dev-tool -l info --uib-binaryindex-url=http://opsipackages.uib.gmbh --binary-push opsi-client-agent-package opsi-client-agent all all "$version-$package" "$CI_JOB_ID"'
-    - '[ "$CI_COMMIT_TAG" = "" ] || ./opsi-dev-tool -l info --uib-binaryindex-url=http://opsipackages.uib.gmbh --binary-push opsi-client-agent-package opsi-client-agent all all "$version-$package"'
-#  artifacts:
-#    name: opsi-client-agent-package
-#    paths:
-#      - "./opsi-client-agent*.opsi*"
-
-package:windows-x86-installer:
+build_installer:windows-x86-installer:
   stage: package
   tags:
     - win10
@@ -71,7 +53,21 @@ package:windows-x86-installer:
     # Push to binaryindex
     - if (! $CI_COMMIT_TAG) {.\\opsi-dev-tools\\opsi-dev-tool.exe -l info --binary-push opsi-client-agent-installer.exe opsi-client-agent-installer windows x86 $version "$CI_JOB_ID"}
     - if ($CI_COMMIT_TAG) {.\\opsi-dev-tools\\opsi-dev-tool.exe -l info --binary-push opsi-client-agent-installer.exe opsi-client-agent-installer windows x86 $version }
-  #artifacts:
-  #  name: opsi-client-agent-installer
-  #  paths:
-  #    - "opsi-client-agent-installer.exe"
+
+package:makeopsipackage:
+  stage: package
+  dependencies:
+    - build_installer:windows-x86-installer
+  script:
+    - *install_opsi_dev_tools
+    - *install_opsi_utils
+    - ./opsi-dev-tool -l debug --binary-pull
+    - version=`grep OPSI/control -A 10 -e "\[Product\]" | grep "version:" | tr -d "^a-zA-Z :"`
+    - package=`grep OPSI/control -A 5 -e "\[Package\]" | grep "version:" | tr -d "^a-zA-Z :"`
+    - '[ "$CI_COMMIT_TAG" = "" ] && sed -i "s/version: $package/version: $package.$CI_JOB_ID/" OPSI/control'
+    - mv opsi-client-agent-installer.exe CLIENT_DATA/
+    - opsi-utils/opsi-makepackage --no-set-rights -l 6
+    - mkdir opsi-client-agent-package
+    - cp ./opsi-client-agent*.opsi* opsi-client-agent-package/
+    - '[ "$CI_COMMIT_TAG" = "" ] && ./opsi-dev-tool -l info --uib-binaryindex-url=http://opsipackages.uib.gmbh --binary-push opsi-client-agent-package opsi-client-agent all all "$version-$package" "$CI_JOB_ID"'
+    - '[ "$CI_COMMIT_TAG" = "" ] || ./opsi-dev-tool -l info --uib-binaryindex-url=http://opsipackages.uib.gmbh --binary-push opsi-client-agent-package opsi-client-agent all all "$version-$package"'
