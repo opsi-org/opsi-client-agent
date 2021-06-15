@@ -9,6 +9,16 @@
 #   DEPOT_ID
 #   PRODUCT_VERSION
 #   PACKAGE_VERSION
+PUBLIC_DIR="/var/lib/opsi/public"
+INSTALLER="${CLIENT_DATA_DIR}/opsi-client-agent-installer.exe"
+
+if [ -e "${INSTALLER}" -a -d "${PUBLIC_DIR}" ]; then
+	mkdir -p "${PUBLIC_DIR}/opsi-client-agent" || true
+	if [ -d "${PUBLIC_DIR}/opsi-client-agent" ]; then
+		mv "${INSTALLER}" "${PUBLIC_DIR}/opsi-client-agent/" || true
+	fi
+fi
+[ -e "${INSTALLER}" && rm "${INSTALLER}"
 
 TMP_DIR=${CLIENT_DATA_DIR}/../${PRODUCT_ID}.tmp
 if [ ! -d $TMP_DIR ]; then
