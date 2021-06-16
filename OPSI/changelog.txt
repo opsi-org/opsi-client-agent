@@ -1,4 +1,10 @@
 ﻿[Changelog]
+opsi-client-agent (4.1.1.38-2) stable; urgency=low
+
+  * Fixed cleanup of (very) old opsiclientd on reinstall
+
+-- Nils Doerrer <n.doerrer@uib.de> Wed, 16 Jun 2021 17:07:00 +0100
+
 opsi-client-agent (4.1.1.38-1) stable; urgency=low
 
   * Update opsiclientd to 4.2.0.76

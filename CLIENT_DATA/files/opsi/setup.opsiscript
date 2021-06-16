@@ -866,17 +866,17 @@ deffunc oca_copy_files() : void
 
 	if ($INST_Modus$ = "INSTALL")
 		comment "clean all up"
+		comment "Stop_opsiclientd_Service"
+		shellCall('net stop opsiclientd')
+		shellCall('net stop opsiclientdguard')
 		if FileExists($OCD_base_dir$+"\")
-			comment "Stopping and removing existing services...."
-			comment "Stop_opsiclientd_Service"
-			shellCall('net stop opsiclientdguard')
-			shellCall('net stop opsiclientd')
+			comment "removing existing services...."
 			comment "unregister_opsiclientd_service"
 			shellcall('"'+$OCD_base_dir$+'\opsiclientd.exe" remove')
 			Registry_DeleteOpsiclientd
-			comment "Deleting old files...."
-			Files_Delete_OCA_BaseDir
 		endif
+		comment "Deleting old files...."
+		Files_Delete_OCA_BaseDir
 	endif ; INSTALL
 	markErrorNumber
 	Message = Copy files: opsi-script
