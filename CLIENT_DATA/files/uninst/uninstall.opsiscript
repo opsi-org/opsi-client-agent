@@ -19,22 +19,12 @@ Set $ServiceUsername$ = "%opsiserviceUser%"
 Set $ServicePassword$ = "%opsiservicePassword%"
 Set $ClientId$ = "%HostID%"
 
-Sub_uninstall_opsiclientdguard
 Registry_uninstall_loginblocker
 ShellCall("taskkill /f /im logonui.exe")
 Sub_uninstall_opsisystray
-Files_uninstall
 Registry_del_keys
-
-[Sub_uninstall_opsiclientdguard]
-Comment "Uninstalling opsiclientdguard"
-Message "Uninstalling opsiclientdguard"
-if FileExists($BaseDir$ + "\opsiclientdguard")
-	ShellCall('sc stop opsiclientdguard')
-	ShellCall('sc delete opsiclientdguard')
-	ShellCall("sc stop opsiclientd")
-	ShellCall("sc delete opsiclientd")
-endif
+Sub_uninstall_opsiclientdguard
+Files_uninstall
 
 [Registry_uninstall_loginblocker]
 DeleteKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Providers\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
@@ -47,15 +37,24 @@ Message "Uninstalling opsi-systray"
 ShellCall("taskkill /f /im opsi-client-systray.exe")
 Registry_uninstall_opsisystray
 
-
 [Registry_uninstall_opsisystray]
 OpenKey [HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run]
 DeleteVar "opsi_systray_start"
 
-[Files_uninstall]
-del -f "%System%\OpsiLoginBlocker.dll"
-del -sf "$BaseDir$"
-
 [Registry_del_keys]
 deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org]
 deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\opsi-client-agent]
+
+[Sub_uninstall_opsiclientdguard]
+Comment "Uninstalling opsiclientdguard"
+Message "Uninstalling opsiclientdguard"
+if FileExists($BaseDir$ + "\opsiclientdguard")
+	ShellCall('sc stop opsiclientdguard')
+	ShellCall('sc delete opsiclientdguard')
+	ShellCall("sc stop opsiclientd")
+	ShellCall("sc delete opsiclientd")
+endif
+
+[Files_uninstall]
+del -f "%System%\OpsiLoginBlocker.dll"
+del -sf "$BaseDir$"
