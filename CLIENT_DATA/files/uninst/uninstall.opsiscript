@@ -1,0 +1,60 @@
+# Copyright (c) 2021 uib GmbH <info@uib.de>
+# All rights reserved.
+# License: AGPL-3.0
+
+[Actions]
+requiredWinstVersion >= "4.12.4.17"
+encoding = "UTF-8"
+
+DefVar $BaseDir$
+DefVar $RunningInServiceContext$
+DefVar $ServiceAddress$
+DefVar $ServiceUsername$
+DefVar $ServicePassword$
+DefVar $ClientId$
+
+Set $BaseDir$ = "%ProgramFiles32Dir%\opsi.org\opsi-client-agent"
+Set $ServiceAddress$ = "%opsiserviceURL%"
+Set $ServiceUsername$ = "%opsiserviceUser%"
+Set $ServicePassword$ = "%opsiservicePassword%"
+Set $ClientId$ = "%HostID%"
+
+Registry_uninstall_loginblocker
+ShellCall("taskkill /f /im logonui.exe")
+Sub_uninstall_opsisystray
+Registry_del_keys
+Sub_uninstall_opsiclientdguard
+Files_uninstall
+
+[Registry_uninstall_loginblocker]
+DeleteKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Providers\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
+DeleteKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Provider Filters\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
+DeleteKey [HKEY_CLASSES_ROOT\CLSID\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
+
+[Sub_uninstall_opsisystray]
+Comment "Uninstalling opsi-systray"
+Message "Uninstalling opsi-systray"
+ShellCall("taskkill /f /im opsi-client-systray.exe")
+Registry_uninstall_opsisystray
+
+[Registry_uninstall_opsisystray]
+OpenKey [HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run]
+DeleteVar "opsi_systray_start"
+
+[Registry_del_keys]
+deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org]
+deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\opsi-client-agent]
+
+[Sub_uninstall_opsiclientdguard]
+Comment "Uninstalling opsiclientdguard"
+Message "Uninstalling opsiclientdguard"
+if FileExists($BaseDir$ + "\opsiclientdguard")
+	ShellCall('sc stop opsiclientdguard')
+	ShellCall('sc delete opsiclientdguard')
+	ShellCall("sc stop opsiclientd")
+	ShellCall("sc delete opsiclientd")
+endif
+
+[Files_uninstall]
+del -f "%System%\OpsiLoginBlocker.dll"
+del -sf "$BaseDir$"

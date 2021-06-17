@@ -430,6 +430,30 @@ DefFunc post_os_installation_tasks() : void
 EndFunc
 
 
+; === configuration ===============================================================
+DefFunc install_configuration() : void
+	Comment "Setting and applying configurations"
+	Message "Setting and applying configurations"
+
+	Files_copy_uninst
+	Registry_SetUninstallEntries
+
+	[Files_copy_uninst]
+	copy -s "%ScriptPath%\files\uninst\*.*" "$BaseDir$\uninst\"
+
+	[Registry_SetUninstallEntries]
+	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\opsi-client-agent]
+	set "DisplayName" = "opsi-client-agent"
+	set "DisplayVersion" = "%installingProdVersion%"
+	set "DisplayIcon" = "$BaseDir$\opsi-script\opsi-script.exe"
+	set "DisplayPublisher" = "uib gmbh, Mainz, Germany"
+	set "Publisher" = "uib gmbh, Mainz, Germany"
+	set "UninstallString" = '"$BaseDir$\opsi-script\opsi-script.exe" /batch "$BaseDir$\uninst\uninstall.opsiscript" "%opsiLogDir%\deinstall_opsi-client-agent.log"'
+	set "URLInfoAbout" = "http://opsi.org"
+	set "HelpLink" = "http://www.opsi.org/support/"
+EndFunc
+
+
 ; === setup after install ========================================================
 DefFunc setup_after_install() : void
 	DefStringList $TempList$
@@ -754,6 +778,8 @@ install_opsinotifier()
 install_opsisystray()
 install_opsiclientd()
 install_directories()
+install_configuration()
+
 if FileExists("%opsiTmpDir%\productOnClients.json")
 	comment "Found WIM-capture meta data file. Start processing."
 	process_wim_capture()

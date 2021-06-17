@@ -13,7 +13,7 @@ priority: 95
 licenseRequired: False
 productClasses:
 setupScript: setup.opsiscript
-uninstallScript: uninstall.opsiscript
+uninstallScript: files/uninst/uninstall.opsiscript
 updateScript:
 alwaysScript:
 onceScript:
