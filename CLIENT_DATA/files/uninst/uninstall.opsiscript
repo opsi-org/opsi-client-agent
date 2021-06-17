@@ -24,6 +24,7 @@ Registry_uninstall_loginblocker
 ShellCall("taskkill /f /im logonui.exe")
 Sub_uninstall_opsisystray
 Files_uninstall
+Registry_del_keys
 
 [Sub_uninstall_opsiclientdguard]
 Comment "Uninstalling opsiclientdguard"
@@ -54,3 +55,7 @@ DeleteVar "opsi_systray_start"
 [Files_uninstall]
 del -f "%System%\OpsiLoginBlocker.dll"
 del -sf "$BaseDir$"
+
+[Registry_del_keys]
+deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org]
+deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\opsi-client-agent]
