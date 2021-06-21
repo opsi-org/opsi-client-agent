@@ -828,7 +828,7 @@ Switch $Finalize$
 	Case "service_restart"
 		; Restart opsiclientd after current event or start opsiclientd without executing events
 		Comment "Creating opsiclientd restart marker"
-		PowerShellCall('New-Item "' + $BaseDir$ + '\opsiclientd_bin\.opsiclientd_restart" -ItemType File')
+		PowerShellCall('New-Item "' + $BaseDir$ + '\.opsiclientd_restart" -ItemType File')
 		if not (ProcessIsRunning("opsiclientd.exe"))
 			ShellCall('sc start opsiclientd')
 		endif
