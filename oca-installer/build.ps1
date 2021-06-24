@@ -1,11 +1,15 @@
 
 $srcDir = "opsi-client-agent"
 $dstFile = "opsi-client-agent-installer.exe"
+$version = ""
 if ($args.length -gt 0) {
 	$srcDir = $args[0]
 }
 if ($args.length -gt 1) {
 	$dstFile = $args[1]
+}
+if ($args.length -gt 2) {
+	$version = $args[2]
 }
 
 $temp = [System.IO.Path]::GetTempPath()
@@ -33,7 +37,7 @@ Start-Process "$workDir\7zip\7z.exe" -ArgumentList "a","$workDir\oca.7z","$workD
 # "BeginPrompt=`"Start opsi client agent installation?`"`n"
 $config=(
 ";!@Install@!UTF-8!`n" +
-"Title=`"opsi client agent installer`"`n" +
+"Title=`"opsi client agent installer $version`"`n" +
 "RunProgram=`"opsi-client-agent\oca-installation-helper.exe`"`n" +
 ";!@InstallEnd@!`n"
 )
