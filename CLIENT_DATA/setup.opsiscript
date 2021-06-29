@@ -771,6 +771,7 @@ else
 	endif
 
 	install_opsiscript()
+	create_opsi_winst_for_compatibility()
 endif
 
 install_requirements()
@@ -794,7 +795,6 @@ if ($RunningInServiceContext$ = "false")
 endif
 
 if Contains($InstallationOptions$, "bootimage")
-	create_opsi_winst_for_compatibility()
 	Set $Finalize$ = ""
 else
 	if Contains($InstallationOptions$, "noreboot")
