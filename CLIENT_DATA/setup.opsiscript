@@ -122,7 +122,7 @@ DefFunc install_opsiclientd(): void
 
 	[Files_install_opsiclientd_dir]
 	; Remove extend.d as workaround to avoid copy errors while copy *.conf
-	del -fs "$BaseDir$\opsiclientd\extend.d"
+	del -f "$BaseDir$\opsiclientd\extend.d\*.conf"
 	copy -s "$BaseDir$\opsiclientd_bin\opsiclientd_data\*.*" "$BaseDir$\opsiclientd\"
 	del -fs "$BaseDir$\opsiclientd_bin\opsiclientd_data"
 
@@ -148,6 +148,8 @@ DefFunc install_opsiscript() : void
 	Message "Installing opsi-script"
 	Files_install_opsiscript
 	Registry_open_with_opsiscript
+	Comment "Creating opsi-winst for compatibility with old netboot products"
+	Files_create_opsi_winst_for_compatibility
 
 	[Files_install_opsiscript]
 	; Do not use -V because it leads to broken winst on downgrade
@@ -165,6 +167,11 @@ DefFunc install_opsiscript() : void
 	Set "Icon" = '$BaseDir$\opsi-script\opsi.ico'
 	OpenKey [HKEY_CLASSES_ROOT\OpsiOrg.opsi-script.opsiscript\Shell\Open\Command]
 	Set "" = '"$BaseDir$\opsi-script\opsi-script.exe" "%1"'
+
+	[Files_create_opsi_winst_for_compatibility]
+	del -sf  "$BaseDir$\opsi-winst"
+	checkTargetPath = "$BaseDir$\opsi-winst"
+	copy -sc "$BaseDir$\opsi-script\*.*"
 EndFunc
 
 
@@ -723,13 +730,6 @@ DefFunc process_wim_capture() : void
 EndFunc
 
 
-; === opsi_winst_for_old_netboot_products ===================================================================
-DefFunc create_opsi_winst_for_compatibility() : void
-	Comment "Creating opsi-winst for compatibility with old netboot products"
-	ShellCall('xcopy /E /I "' + $BaseDir$ + '\opsi-script" "' + $BaseDir$ + '\opsi-winst"')
-EndFunc
-
-
 ; === actions ===================================================================
 if not (GetOS = "Windows_NT")
 	LogError "OS not supoorted: " + GetOS
@@ -771,7 +771,6 @@ else
 	endif
 
 	install_opsiscript()
-	create_opsi_winst_for_compatibility()
 endif
 
 install_requirements()
