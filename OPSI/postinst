@@ -21,8 +21,8 @@ fi
 [ -e "${INSTALLER}" && rm "${INSTALLER}"
 
 chmod u+x,g+x $CLIENT_DATA_DIR/opsi-deploy-client-agent
-chmod +x $CLIENT_DATA_DIR/service_setup.cmd
-chmod +x $CLIENT_DATA_DIR/silent_setup.cmd
+chmod u+x,g+x $CLIENT_DATA_DIR/service_setup.cmd
+chmod u+x,g+x $CLIENT_DATA_DIR/silent_setup.cmd
 
 TMP_DIR=${CLIENT_DATA_DIR}/../${PRODUCT_ID}.tmp
 if [ ! -d $TMP_DIR ]; then
