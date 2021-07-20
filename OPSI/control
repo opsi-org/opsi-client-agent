@@ -8,13 +8,13 @@ id: opsi-client-agent
 name: opsi.org client agent
 description: opsi windows client agent
 advice:
-version: 4.1.1.41
+version: 4.2.0.0
 priority: 95
 licenseRequired: False
 productClasses:
-setupScript: files\opsi\setup.opsiscript
-uninstallScript: files\opsi\uninst\uninstall.opsiscript
-updateScript: files\opsi\config.opsiscript
+setupScript: setup.opsiscript
+uninstallScript: files/uninst/uninstall.opsiscript
+updateScript:
 alwaysScript:
 onceScript:
 customScript:
@@ -25,65 +25,29 @@ type: unicode
 name: loginblockerstart
 multivalue: False
 editable: False
-description: Block user login for the time of opsi task execution
+description: Install opsi login blocker (credential provider / filter)?
 values: ["off", "on"]
 default: ["on"]
 
 [ProductProperty]
 type: bool
 name: allow_reboot
-description: Allow to reboot machine after installation/update?
+description: Allow restarting the computer after installation or update?
 default: True
-
-[ProductProperty]
-type: unicode
-name: on_shutdown_install
-multivalue: False
-editable: False
-description: Install and configure on_shutdown ?
-values: ["off", "on"]
-default: ["off"]
-
-[ProductProperty]
-type: unicode
-name: on_shutdown_install_set_policy
-multivalue: False
-editable: False
-description: set policy (registry patch) for on_shutdown_install. (Otherwise set shutdown script with your own Group Policies)
-values: ["off", "on"]
-default: ["on"]
-
-[ProductProperty]
-type: unicode
-name: depends_on_service
-multivalue: True
-editable: True
-description: List of services that have to started before opsiclientd
-values: ["Dhcp", "Dnscache"]
-default: ["Dhcp", "Dnscache"]
 
 [ProductProperty]
 type: unicode
 name: setup_after_install
 multivalue: True
 editable: True
-description: Which opsi product(s) should we switch to setup after installation is done ?
+description: Which opsi packages should be set to setup after installation?
 values: []
 default: []
 
 [ProductProperty]
-type: unicode
-name: services_pipe_timeout
-multivalue: False
-editable: True
-description: For opsiclientd startup Error (1053) "The service did not respond to the start or control request in a timely fashion." set this to 60000 or more. Timeout in milliseconds; Sets ServicesPipeTimeout in HKLM\SYSTEM\CurrentControlSet\Control
-values: ["120000", "200000", "30000", "60000", "90000", "delete", "nochange"]
-default: ["nochange"]
-
-[ProductProperty]
 type: bool
 name: systray_install
-description: Install the opsi systray program ?
+description: Should opsi systray be installed?
 default: False
 
 [ProductProperty]
@@ -91,7 +55,7 @@ type: unicode
 name: systray_check_interval
 multivalue: False
 editable: True
-description: Interval in minutes to check for pending action requests ; 0 = no checks at all
+description: Interval in minutes in which checks are made for pending action requests (0 = no check).
 values: ["0", "120", "180", "240", "300", "60"]
 default: ["180"]
 
@@ -100,31 +64,6 @@ type: unicode
 name: systray_request_notify_format
 multivalue: False
 editable: False
-description: Format of action request notification
+description: Action request message format
 values: ["productid : request", "productname : request", "productname productversion : request"]
 default: ["productname : request"]
-
-[ProductProperty]
-type: bool
-name: update_mac_address_on_normal_setup
-description: true=MAC Address from the Network Interface that communicates with opsi will be send to the opsi-server if it do not look like a wifi interface. false=Never send MAC but in install mode
-default: True
-
-[ProductProperty]
-type: bool
-name: start_opsiclientd_guard
-description: Start service opsiclientdguard?
-default: True
-
-[ProductProperty]
-type: bool
-name: fix_rights_on_c_tmp
-description: Fix access rights on c:\tmp
-default: False
-
-[ProductProperty]
-type: bool
-name: fix_rights_on_wan_cache
-description: Fix access rights on c:\opsi.org\cache
-default: False
-

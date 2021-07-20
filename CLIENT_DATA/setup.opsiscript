@@ -1,0 +1,857 @@
+# Copyright (c) 2021 uib GmbH <info@uib.de>
+# All rights reserved.
+# License: AGPL-3.0
+
+[Actions]
+requiredWinstVersion >= "4.12.4.17"
+encoding = "UTF-8"
+
+DefVar $ProductId$
+DefVar $BaseDir$
+DefVar $VarDir$
+DefVar $RunningInServiceContext$
+DefVar $ServiceAddress$
+DefVar $ServiceUsername$
+DefVar $ServicePassword$
+DefVar $ClientId$
+DefVar $InstallationOptions$
+DefVar $Finalize$
+
+Set $ProductId$ = "opsi-client-agent"
+Set $BaseDir$ = "%ProgramFiles32Dir%\opsi.org\opsi-client-agent"
+Set $VarDir$ = "c:\opsi.org"
+Set $ServiceAddress$ = "%opsiserviceURL%"
+Set $ServiceUsername$ = "%opsiserviceUser%"
+Set $ServicePassword$ = "%opsiservicePassword%"
+Set $ClientId$ = "%HostID%"
+Set $InstallationOptions$ = PARAMSTR
+Set $Finalize$ = "service_restart"
+
+
+; === requirements ==============================================================
+DefFunc install_requirements() : void
+	Sub_install_vcredist
+
+	[Sub_install_vcredist]
+	Comment "Installing vcredist"
+	Message "Installing vcredist"
+	; Needed for opsi-login-blocker x86 and opsiclientd
+	ShellCall('"%ScriptPath%\files\vcredist2015\vc_redist.x86.exe" /install /passive /norestart')
+	if (GetSystemType = "64 Bit System")
+		; Needed for opsi-login-blocker x64
+		ShellCall('"%ScriptPath%\files\vcredist2015\vc_redist.x64.exe" /install /passive /norestart')
+	endif
+EndFunc
+
+
+; === opsiclientd ===============================================================
+DefFunc install_opsiclientd(): void
+	DefVar $BinaryArchiveFile$
+	DefStringList $TempList$
+
+	Sub_uninstall_opsiclientdguard
+	Sub_install_opsiclientd
+
+	[Sub_uninstall_opsiclientdguard]
+	Comment "Uninstalling opsiclientdguard"
+	Message "Uninstalling opsiclientdguard"
+	if FileExists($BaseDir$ + "\opsiclientdguard")
+		ShellCall('sc stop opsiclientdguard')
+		ShellCall('sc delete opsiclientdguard')
+		Files_uninstall_opsiclientdguard
+	endif
+
+	[Files_uninstall_opsiclientdguard]
+	del -sf "$BaseDir$\opsiclientdguard"
+
+	[Sub_install_opsiclientd]
+	Comment "Installing opsiclientd"
+	Message "Installing opsiclientd"
+
+	Set $TempList$ = ShellCall('dir /B "%ScriptPath%\files"')
+	Set $TempList$ = GetRegexMatchList('(?m)^opsiclientd_windows_\S*.zip', $TempList$)
+	Set $BinaryArchiveFile$ = "%ScriptPath%\files\" + TakeString(0, $TempList$)
+
+	Comment "Opsiclientd archive file: " + $BinaryArchiveFile$
+
+	Files_extract_opsiclientd_binaries_to_temp
+	PowerShellCall('Remove-Item -Recurse -Force "' + $BaseDir$ + '\opsiclientd_bin_old"')
+	PowerShellCall('Rename-Item "' + $BaseDir$ + '\opsiclientd_bin" "' + $BaseDir$ + '\opsiclientd_bin_old"')
+	PowerShellCall('Rename-Item "' + $BaseDir$ + '\opsiclientd_windows_x86" "' + $BaseDir$ + '\opsiclientd_bin"')
+
+	;if not (FileExists($BaseDir$ + "\opsiclientd_bin\opsiclientd.exe"))
+	;	LogError "Failed to replace opsiclientd binaries, retry with copy"
+	;	Files_install_opsiclientd_binaries_from_temp
+	;endif
+	if not (FileExists($BaseDir$ + "\opsiclientd_bin\opsiclientd.exe"))
+		LogError "Failed to install opsiclientd binaries"
+		IsFatalError "Failed to install opsiclientd binaries"
+	endif
+
+	MarkErrorNumber
+	Files_install_opsiclientd_dir
+	if ErrorsOccuredSinceMark > 0
+		LogError "Failed to install opsiclientd"
+		IsFatalError "Failed to install opsiclientd"
+	endif
+
+	comment "Copy opsiclientd custom files"
+	MarkErrorNumber
+	Files_install_opsiclientd_custom
+	if errorsOccuredSinceMark > 0
+		LogError "failed to install custom_opsiclientd"
+		Message "failed to install custom_opsiclientd"
+		IsFatalError "failed to install custom_opsiclientd"
+	endif
+
+	comment "Patch opsiclientd.conf"
+	Patches_opsiclientd_conf $BaseDir$ + "\opsiclientd\opsiclientd.conf"
+
+	comment "Run opsiclientd setup"
+	ShellCall('"'+ $BaseDir$ + '\opsiclientd_bin\opsiclientd.exe" setup --client-id "' + $ClientId$ + '" --service-address "' + $ServiceAddress$ + '" --service-username "' + $ServiceUsername$ + '" --service-password "' + $ServicePassword$ + '"')
+
+
+	[Files_extract_opsiclientd_binaries_to_temp]
+	del -sfc "$BaseDir$\opsiclientd_windows_x86"
+	unzipfile "$BinaryArchiveFile$" "$BaseDir$\"
+
+	;[Files_install_opsiclientd_binaries_from_temp]
+	;del -sfc "$BaseDir$\opsiclientd_bin"
+	;copy -sc "$BaseDir$\opsiclientd_windows_x86\*.*" "$BaseDir$\opsiclientd_bin\"
+	;del -sfc "$BaseDir$\opsiclientd_windows_x86"
+
+	[Files_install_opsiclientd_dir]
+	; Remove extend.d as workaround to avoid copy errors while copy *.conf
+	del -f "$BaseDir$\opsiclientd\extend.d\*.conf"
+	copy -s "$BaseDir$\opsiclientd_bin\opsiclientd_data\*.*" "$BaseDir$\opsiclientd\"
+	del -fs "$BaseDir$\opsiclientd_bin\opsiclientd_data"
+
+	[Files_install_opsiclientd_custom]
+	copy -c "%ScriptPath%\files\custom\opsiclientd\*.*" "$BaseDir$\opsiclientd\"
+
+	[Patches_opsiclientd_conf]
+	Set [global] log_level = 6
+
+	Set [action_processor] local_dir = %global.base_dir%\\opsi-script
+	Set [action_processor] remote_dir = opsi-script\\windows\\x86
+	Set [action_processor] remote_common_dir = opsi-script\\common
+	Set [action_processor] filename = opsi-script.exe
+EndFunc
+
+
+; === opsi-script ===============================================================
+DefFunc install_opsiscript() : void
+	Sub_install_opsiscript
+
+	[Sub_install_opsiscript]
+	Comment "Installing opsi-script"
+	Message "Installing opsi-script"
+	Files_install_opsiscript
+	Registry_open_with_opsiscript
+	Comment "Creating opsi-winst for compatibility with old netboot products"
+	Files_create_opsi_winst_for_compatibility
+
+	[Files_install_opsiscript]
+	; Do not use -V because it leads to broken winst on downgrade
+	copy -sc "%ScriptPath%\files\opsi-script\*.*" "$BaseDir$\opsi-script\"
+
+	[Registry_open_with_opsiscript]
+	OpenKey [HKEY_CLASSES_ROOT\.opsiscript]
+	Set "" = 'OpsiOrg.opsi-script.opsiscript'
+	OpenKey [HKEY_CLASSES_ROOT\OpsiOrg.opsi-script.opsiscript]
+	Set "" = 'opsi-script command file'
+	OpenKey [HKEY_CLASSES_ROOT\OpsiOrg.opsi-script.opsiscript\DefaultIcon]
+	; TODO: Add opsi.ico to opsi-script in binaryindex
+	Set "" = '$BaseDir$\opsi-script\opsi.ico'
+	OpenKey [HKEY_CLASSES_ROOT\OpsiOrg.opsi-script.opsiscript\Shell\Open]
+	Set "Icon" = '$BaseDir$\opsi-script\opsi.ico'
+	OpenKey [HKEY_CLASSES_ROOT\OpsiOrg.opsi-script.opsiscript\Shell\Open\Command]
+	Set "" = '"$BaseDir$\opsi-script\opsi-script.exe" "%1"'
+
+	[Files_create_opsi_winst_for_compatibility]
+	del -sf  "$BaseDir$\opsi-winst"
+	checkTargetPath = "$BaseDir$\opsi-winst"
+	copy -sc "$BaseDir$\opsi-script\*.*"
+EndFunc
+
+
+; === opsi login blocker ========================================================
+DefFunc install_loginblocker() : void
+	DefVar $LoginBlockerLogLevel$
+	DefVar $LoginBlockerTimeoutConnect$
+	Set $LoginBlockerTimeoutConnect$ = "120"
+	Set $LoginBlockerLogLevel$ = "5"
+
+	Sub_uninstall_loginblocker
+	if GetProductProperty("LoginBlockerStart", "on") = "on"
+		Sub_install_loginblocker
+	endif
+
+	[Sub_uninstall_loginblocker]
+	Comment "Uninstalling login blocker"
+	Message "Uninstalling login blocker"
+	Registry_uninstall_loginblocker /sysnative
+	; logonui.exe locks OpsiLoginBlocker.dll
+	;KillTask "logonui.exe"
+	ShellCall("taskkill /f /im logonui.exe")
+	Files_uninstall_loginblocker /sysnative
+
+	[Sub_install_loginblocker]
+	Comment "Installing login blocker"
+	Message "Installing login blocker"
+	MarkErrorNumber
+
+	if (GetSystemType = "64 Bit System")
+		Files_install_loginblocker_64 /sysnative
+	else
+		Files_install_loginblocker_32 /sysnative
+	endif
+	Registry_install_loginblocker /sysnative
+
+	if ErrorsOccuredSinceMark > 0
+		LogError "Failed to install loginblocker"
+		Message "Failed to install loginblocker"
+		IsFatalError "Failed to install loginblocker"
+	endif
+
+	[Files_uninstall_loginblocker]
+	del -f "%System%\OpsiLoginBlocker.dll"
+
+	[Files_install_loginblocker_32]
+	copy -Vc "%ScriptPath%\files\OpsiLoginBlocker\32bit\OpsiLoginBlocker.dll" "%System%\"
+
+	[Files_install_loginblocker_64]
+	copy -Vc "%ScriptPath%\files\OpsiLoginBlocker\64bit\OpsiLoginBlocker.dll" "%System%\"
+
+	[Registry_uninstall_loginblocker]
+	DeleteKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Providers\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
+	DeleteKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Provider Filters\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
+	DeleteKey [HKEY_CLASSES_ROOT\CLSID\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
+
+	[Registry_install_loginblocker]
+	OpenKey [HKEY_CLASSES_ROOT\CLSID\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
+	Set "" = "OpsiLoginBlocker"
+
+	OpenKey [HKEY_CLASSES_ROOT\CLSID\{d2028e19-82fe-44c6-ad64-51497c97a02a}\InprocServer32]
+	Set "" = "OpsiLoginBlocker.dll"
+	Set "ThreadingModel" = "Apartment"
+
+	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Provider Filters\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
+	Set "" = "OpsiLoginBlocker"
+	Set "LoginBlockerStart" = REG_DWORD:1
+	Set "LoginBlockerTimeoutConnect" = REG_DWORD:$LoginBlockerTimeoutConnect$
+	Set "LoginBlockerLogLevel" = REG_DWORD:$LoginBlockerLogLevel$
+	Set "LoginBlockerLogDir" = "%opsiLogDir%"
+
+	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Providers\{d2028e19-82fe-44c6-ad64-51497c97a02a}]
+	Set "" = "OpsiLoginBlocker"
+EndFunc
+
+
+; === opsi-notifier =============================================================
+DefFunc install_opsinotifier() : void
+	Sub_install_opsinotifier
+
+	[Sub_install_opsinotifier]
+	Comment "Installing opsi-notifier"
+	Message "Installing opsi-notifier"
+	;KillTask "opsi-notifier.exe"
+	ShellCall("taskkill /f /im opsi-notifier.exe")
+	Files_install_opsinotifier
+
+	[Files_install_opsinotifier]
+	copy -c "%ScriptPath%\files\opsi-notifier\opsi-notifier.exe" "$BaseDir$\"
+	copy -c "%ScriptPath%\files\opsi-notifier\notifier.d\*.*" "$BaseDir$\notifier\"
+	; Copy possible existing custom notifier files
+	copy -sc "%ScriptPath%\files\custom\opsi-notifier\*.*" "$BaseDir$\notifier\"
+EndFunc
+
+
+; === opsi-systray ===============================================================
+DefFunc install_opsisystray() : void
+	DefVar $CheckInterval$
+	DefVar $NotifyFormat$
+	Set $CheckInterval$ = GetProductProperty("systray_check_interval", "60")
+	Set $NotifyFormat$ = GetProductProperty("systray_request_notify_format", "productname : request")
+
+	Sub_uninstall_opsisystray
+	if GetProductProperty("systray_install", "true") = "true"
+		Sub_install_opsisystray
+	endif
+
+	[Sub_uninstall_opsisystray]
+	Comment "Uninstalling opsi-systray"
+	Message "Uninstalling opsi-systray"
+	;KillTask "opsi-client-systray.exe"
+	ShellCall("taskkill /f /im opsi-client-systray.exe")
+	Registry_uninstall_opsisystray
+	Files_uninstall_opsisystray
+
+	[Sub_install_opsisystray]
+	Comment "Installing opsi-systray"
+	Message "Installing opsi-systray"
+	Files_install_opsisystray
+	Registry_install_opsisystray
+
+	[Files_uninstall_opsisystray]
+	del -sfc "$BaseDir$\opsi-systray"
+	del -sfc "$BaseDir$\opsi-client-systray"
+
+	[Registry_uninstall_opsisystray]
+	OpenKey [HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run]
+	DeleteVar "opsi_systray_start"
+
+	[Files_install_opsisystray]
+	copy -sVc "%ScriptPath%\files\opsi-client-systray\*.*" "$BaseDir$\opsi-client-systray\"
+	copy -Vc "%ScriptPath%\files\opsi-script\*.dll" "$BaseDir$\opsi-client-systray\"
+
+	[Registry_install_opsisystray]
+	OpenKey [HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run]
+	Set "opsi_systray_start" = '"$BaseDir$\opsi-client-systray\opsi-client-systray.exe" --fqdn=$ClientId$ --checkintervall=$CheckInterval$ --notifyformat="$NotifyFormat$"'
+EndFunc
+
+
+; === directories ===============================================================
+DefFunc install_directories() : void
+	DefVar $AdminSID$
+	Comment "Creating directories and setting permissions"
+	Message "Creating directories and setting permissions"
+	Files_create_dirs
+
+	; Get-LocalUser is not available in Powershell 2 (win7)
+	;Set $AdminSID$ = TakeString(0, PowerShellCall("(Get-LocalUser | Where-Object {$_.SID -like 'S-1-5-*-500'}).SID.Value"))
+	Set $AdminSID$ = TakeString(0, PowerShellCall("(Get-WmiObject win32_useraccount | Where-Object {$_.SID -like 'S-1-5-*-500'}).SID"))
+	DosInAnIcon_set_file_permissions
+
+	[Files_create_dirs]
+	CheckTargetPath = "$VarDir$"
+	CheckTargetPath = "$VarDir$\log"
+	CheckTargetPath = "$VarDir$\applog"
+	CheckTargetPath = "$VarDir$\tmp"
+	CheckTargetPath = "$VarDir$\usertmp"
+	CheckTargetPath = "$VarDir$\cache"
+	CheckTargetPath = "$VarDir$\opsiclientd"
+	CheckTargetPath = "$VarDir$\tls"
+	CheckTargetPath = "$VarDir$\data"
+
+	[DosInAnIcon_set_file_permissions]
+	; Take ownership, redirect stdout to nul for speedup
+	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$VarDir$" > nul
+	; Remove all explicit permissions from the folder recursively (inheritance only)
+	icacls "$VarDir$" /q /c /t /reset
+	; Allow full access to local admin group, system user and admin user inherit to all objects (OI) and containers (CI)
+	; Allow read access to local users for folder only
+	icacls "$VarDir$" /grant:r *S-1-5-32-544:(OI)(CI)F /grant:r *S-1-5-18:(OI)(CI)F /grant:r *$AdminSID$:(OI)(CI)F /grant:r *S-1-5-32-545:RX
+	; Disable inheritance from parent folder
+	icacls "$VarDir$" /inheritance:r
+	; Set owner to SYSTEM
+	icacls "$VarDir$" /setowner SYSTEM
+	; Add full permission for local users on applog
+	icacls "$VarDir$\applog" /grant *S-1-5-32-545:(OI)(CI)F
+	; Add full permission for local users on usertmp
+	icacls "$VarDir$\usertmp" /grant *S-1-5-32-545:(OI)(CI)F
+
+	; Take ownership, redirect stdout to nul for speedup
+	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$BaseDir$" > nul
+	; Remove all explicit permissions from the folder recursively (inheritance only)
+	icacls "$BaseDir$" /q /c /t /reset
+	; Allow full access to local admin group, system user and admin user inherit to all objects (OI) and containers (CI)
+	; Allow read access to local users for folder only
+	icacls "$BaseDir$" /grant:r *S-1-5-32-544:(OI)(CI)F /grant:r *S-1-5-18:(OI)(CI)F /grant:r *$AdminSID$:(OI)(CI)F /grant:r *S-1-5-32-545:RX
+	; Disable inheritance from parent folder
+	icacls "$BaseDir$" /inheritance:r
+	; Set owner to SYSTEM
+	icacls "$BaseDir$" /setowner SYSTEM
+	; Add read and exceute permission for local users on opsi-script
+	icacls "$BaseDir$\opsi-script" /grant *S-1-5-32-545:(OI)(CI)RX
+	; Add read and exceute permission for local users on opsi-client-systray
+	icacls "$BaseDir$\opsi-client-systray" /grant *S-1-5-32-545:(OI)(CI)RX
+EndFunc
+
+
+; === directories ===============================================================
+DefFunc post_os_installation_tasks() : void
+	Comment "Running post os installation tasks"
+	DefStringList $TempList1$
+	DefStringList $TempList2$
+	DefVar $TempString$
+
+	Registry_set_opsi_general_config
+
+	Comment "Setting running netboot package to installed"
+	Set $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_netboot_running"))
+	if JsonAsArrayCountElements($TempString$) > "0"
+		Set $TempList1$ = JsonAsArrayToStringList($TempString$)
+		Set $TempList2$ = EmptyList($TempList2$)
+		for %ProdOnClient% in $TempList1$ do Set $TempList2$ = addToList($TempList2$, JsonAsObjectGetValueByKey('%ProdOnClient%', "productId"))
+		for %TempProductId% in $TempList2$ do OpsiServiceCall_setProductInstallationStatus_installed
+	endif
+
+	Comment "Setting installed packages to setup"
+	Set $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_localboot_installed"))
+	if JsonAsArrayCountElements($TempString$) > "0"
+		Set $TempList1$ = JsonAsArrayToStringList($TempString$)
+		Set $TempList2$ = EmptyList($TempList2$)
+		for %ProdOnClient% in $TempList1$ do Set $TempList2$ = addToList($TempList2$, JsonAsObjectGetValueByKey('%ProdOnClient%', "productId"))
+		Set $TempList2$ = RemoveFromListByMatch('opsi-winst', $TempList2$)
+		Set $TempList2$ = RemoveFromListByMatch('opsi-script', $TempList2$)
+		Set $TempList2$ = RemoveFromListByMatch('opsi-client-agent', $TempList2$)
+		for %TempProductId% in $TempList2$ do OpsiServiceCall_setProductActionRequestWithDependencies_setup
+	endif
+
+	[Registry_set_opsi_general_config]
+	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\general]
+	Set "bootmode" = "BKSTD"
+	;Set "opsiconf" = REG_DWORD:1
+	;Set "configlocal" = REG_DWORD:0
+
+	[OpsiServiceCall_setProductActionRequestWithDependencies_setup]
+	"method": "setProductActionRequestWithDependencies"
+	"params": [
+		"%TempProductId%",
+		"$ClientId$",
+		"setup"
+	]
+
+	[OpsiServiceCall_productOnClient_getObjects_localboot_installed]
+	"method": "productOnClient_getObjects"
+	"params": [
+		"[]",
+		'{"clientId":"$ClientId$","productType":"LocalbootProduct","installationStatus":"installed"}'
+	]
+
+	[OpsiServiceCall_productOnClient_getObjects_netboot_running]
+	"method": "productOnClient_getObjects"
+	"params": [
+		"[]",
+		'{"clientId":"$ClientId$","productType":"NetbootProduct","actionProgress":"running"}'
+	]
+
+	[OpsiServiceCall_setProductInstallationStatus_installed]
+	"method": "setProductInstallationStatus"
+	"params": [
+		"%TempProductId%",
+		"$ClientId$",
+		"installed"
+	]
+EndFunc
+
+
+; === configuration ===============================================================
+DefFunc install_configuration() : void
+	Comment "Setting and applying configurations"
+	Message "Setting and applying configurations"
+
+	Files_copy_uninst
+	Registry_SetUninstallEntries
+
+	[Files_copy_uninst]
+	copy -s "%ScriptPath%\files\uninst\*.*" "$BaseDir$\uninst\"
+
+	[Registry_SetUninstallEntries]
+	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\opsi-client-agent]
+	set "DisplayName" = "opsi-client-agent"
+	set "DisplayVersion" = "%installingProdVersion%"
+	set "DisplayIcon" = "$BaseDir$\opsi-script\opsi-script.exe"
+	set "DisplayPublisher" = "uib gmbh, Mainz, Germany"
+	set "Publisher" = "uib gmbh, Mainz, Germany"
+	set "UninstallString" = '"$BaseDir$\opsi-script\opsi-script.exe" /batch "$BaseDir$\uninst\uninstall.opsiscript" "%opsiLogDir%\deinstall_opsi-client-agent.log"'
+	set "URLInfoAbout" = "http://opsi.org"
+	set "HelpLink" = "http://www.opsi.org/support/"
+EndFunc
+
+
+; === setup after install ========================================================
+DefFunc setup_after_install() : void
+	DefStringList $TempList$
+
+	Set $TempList$ = createStringList()
+	Set $TempList$ = GetProductPropertyList("setup_after_install", $TempList$)
+	if count($TempList$) > "0"
+		Comment "Setup after install"
+		Set $Finalize$ = "reboot"
+		for %TempProductId% in $TempList$ do OpsiServiceCall_setProductActionRequestWithDependencies_setup
+	endif
+
+	[OpsiServiceCall_setProductActionRequestWithDependencies_setup]
+	"method": "setProductActionRequestWithDependencies"
+	"params": [
+		"%TempProductId%",
+		"$ClientId$",
+		"setup"
+	]
+EndFunc
+
+
+; === wim-capture ================================================================
+DefFunc get_config_value($ConfigName$ : string) : string
+	DefVar $TempString$
+	DefStringList $TempList$
+
+	Set $result$ = "__null__"
+
+	Comment "Get configState " + $ConfigName$
+	Set $TempList$ = GetReturnListFromSection('OpsiServiceCall_get_configState')
+	if Count($TempList$) > "0"
+		Set $TempString$ = TakeString(0, $TempList$)
+		if jsonAsArrayCountElements($TempString$) > "0"
+			Set $TempString$ = JsonAsArrayGetElementByIndex($TempString$, "0")
+			Set $TempString$ = JsonAsObjectGetValueByKey($TempString$, "values")
+			Set $result$ = JsonAsArrayGetElementByIndex($TempString$, "0")
+		endif
+	endif
+	if $result$ = "__null__"
+		; ConfigState not found, use default from Config
+		Set $TempString$ = TakeString(0, GetReturnListFromSection('OpsiServiceCall_get_config'))
+		Set $TempString$ = JsonAsArrayGetElementByIndex($TempString$, "0")
+		Set $TempString$ = JsonAsObjectGetValueByKey($TempString$, "defaultValues")
+		Set $result$ = JsonAsArrayGetElementByIndex($TempString$, "0")
+	endif
+
+	[OpsiServiceCall_get_config]
+	"method": "config_getObjects"
+	"params": [
+		'[]',
+		'{"id":"$ConfigName$"}',
+	]
+
+	[OpsiServiceCall_get_configState]
+	"method": "configState_getObjects"
+	"params": [
+		'[]',
+		'{"configId":"$ConfigName$","objectId":"$ClientId$"}',
+	]
+EndFunc
+
+DefFunc process_wim_capture() : void
+	; * Fetch the list of installed packages from opsi service if clientconfig.capture.switch_installed_products_to_setup is true
+	; * Fetch the list of packages with action set to "once" or "setup" from opsi service
+	; * Read ProductOnClient objects from json file "%opsiTmpDir%\productOnClients.json", create them on opsi service with updated clientId
+	; * Remove restored package states from list of installed packages
+	; * Set remaining installed packages to "setup" on service if clientconfig.capture.switch_installed_products_to_setup is true
+	; * Set the list of fetched "once" and "setup" actions on service if clientconfig.capture.do_not_change_setup_requests is true
+	; * Delete ProductOnClients for a list of unwanted packages (opsi-local-image-wim-capture, ...)
+	;
+	; Example productOnClients.json: [{"clientId":"win7-x64-image.nightly.test","actionResult":"none","installationStatus":"installed","actionRequest":"none","packageVersion":null,"ident":"opsi-wim-capture;LocalbootProduct;win7-x64-image.nightly.test","productType":"LocalbootProduct","lastAction":null,"productVersion":null,"modificationTime":"2021-05-19 11:56:38","productId":"opsi-wim-capture","actionProgress":"installing","type":"ProductOnClient","targetConfiguration":null,"actionSequence":-1}]
+
+	DefVar $TempString$
+	DefStringList $TempList$
+	DefVar $DoNotChangeSetupRequests$
+	DefVar $SwitchInstalledProductsToSetup$
+	DefStringList $ProductOnClients$
+	DefStringList $ProductIdsInstalled$
+	DefStringList $ProductIdsSetup$
+	DefStringList $ProductIdsOnce$
+	DefStringList $ProductIds$
+	DefStringList $ErrorList$
+
+	Set $ProductIdsInstalled$ = EmptyList($ProductIdsInstalled$)
+
+	Set $SwitchInstalledProductsToSetup$ = Lower(get_config_value("clientconfig.capture.switch_installed_products_to_setup"))
+	Comment "Mode: switch_installed_products_to_setup = " + $SwitchInstalledProductsToSetup$
+	Set $DoNotChangeSetupRequests$ = "true"
+
+	if $SwitchInstalledProductsToSetup$ = "true"
+		Set $DoNotChangeSetupRequests$ = Lower(get_config_value("clientconfig.capture.do_not_change_setup_requests"))
+		Comment "Fetch installed localboot packages from opsi service"
+		Set $ProductOnClients$ = EmptyList($ProductOnClients$)
+		Set $TempList$ = GetReturnListFromSection("OpsiServiceCall_get_productOnClient_installed_localboot")
+		Set $TempString$ = TakeString(0, $TempList$)
+		if JsonAsArrayCountElements($TempString$) > "0"
+			Set $ProductOnClients$ = JsonAsArrayToStringList($TempString$)
+			if Count($ProductOnClients$) > "0"
+				for %CurPoc% in $ProductOnClients$ do Set $ProductIdsInstalled$ = AddToList($ProductIdsInstalled$, JsonAsObjectGetValueByKey('%CurPoc%', "productId"))
+			endif
+		endif
+	else
+		Comment "Delete ProductOnClients with actionRequest none"
+		Set $ProductIds$ = EmptyList($ProductIds$)
+		Set $ProductOnClients$ = EmptyList($ProductOnClients$)
+		Set $TempList$ = GetReturnListFromSection("OpsiServiceCall_get_productOnClient_none_localboot")
+		Set $TempString$ = TakeString(0, $TempList$)
+		if JsonAsArrayCountElements($TempString$) > "0"
+			Set $ProductOnClients$ = JsonAsArrayToStringList($TempString$)
+		endif
+		if Count($ProductOnClients$) > "0"
+			for %CurPoc% in $ProductOnClients$ do Set $ProductIds$ = AddToList($ProductIds$, JsonAsObjectGetValueByKey('%CurPoc%', "productId"))
+		endif
+		if Count($ProductIds$) > "0"
+			for %CurProductId% in $ProductIds$ do OpsiServiceCall_del_productOnClient
+		endif
+	endif
+	Comment "Mode: do_not_change_setup_requests = " + $DoNotChangeSetupRequests$
+
+	Comment "Fetch localboot packages with actionRequest setup from opsi service"
+	Set $ProductIdsSetup$ = EmptyList($ProductIdsSetup$)
+	Set $ProductOnClients$ = EmptyList($ProductOnClients$)
+	Set $TempList$ = GetReturnListFromSection("OpsiServiceCall_get_productOnClient_setup_localboot")
+	Set $TempString$ = TakeString(0, $TempList$)
+	if jsonAsArrayCountElements($TempString$) > "0"
+		Set $ProductOnClients$ = JsonAsArrayToStringList($TempString$)
+		if Count($ProductOnClients$) > "0"
+			for %CurPoc% in $ProductOnClients$ do Set $ProductIdsSetup$ = AddToList($ProductIdsSetup$, JsonAsObjectGetValueByKey('%CurPoc%', "productId"))
+		endif
+	endif
+
+	Comment "Fetch localboot packages with actionRequest once from opsi service"
+	Set $ProductIdsOnce$ = EmptyList($ProductIdsOnce$)
+	Set $ProductOnClients$ = EmptyList($ProductOnClients$)
+	Set $TempList$ = GetReturnListFromSection("OpsiServiceCall_get_productOnClient_once_localboot")
+	Set $TempString$ = TakeString(0, $TempList$)
+	if JsonAsArrayCountElements($TempString$) > "0"
+		Set $ProductOnClients$ = jsonAsArrayToStringList($TempString$)
+		if Count($ProductOnClients$) > "0"
+			for %CurPoc% in $ProductOnClients$ do Set $ProductIdsOnce$ = AddToList($ProductIdsOnce$, JsonAsObjectGetValueByKey('%CurPoc%', "productId"))
+		endif
+	endif
+
+	Message "Restore productOnClients from file"
+	Comment "Restore productOnClients from file"
+	Set $ProductIds$ = EmptyList($ProductIds$)
+	Set $TempString$ = StrLoadTextFile("%opsiTmpDir%\productOnClients.json")
+	if not (JsonIsValid($TempString$))
+		LogError "Invalid json file: %opsiTmpDir%\productOnClients.json"
+		IsFatalError "Invalid json file: %opsiTmpDir%\productOnClients.json"
+	endif
+	Set $ProductOnClients$ = JsonAsArrayToStringList($TempString$)
+	for %CurPoc% in $ProductOnClients$ do Set $ProductIds$ = AddToList($ProductIds$, JsonAsObjectGetValueByKey('%CurPoc%', "productId"))
+	for %PocIdx% = "0" to Calculate(Count($ProductOnClients$)+"-1") do sub_set_clientId_in_ProductOnClients
+	Comment "Convert modified list to json array"
+	Set $TempString$ = JsonStringListToJsonArray($ProductOnClients$)
+
+	if errorsOccuredSinceMark > 0
+		LogError "Error while handling productOnClients from captured image"
+		IsFatalError "Error while handling productOnClients from captured image"
+	endif
+
+	Comment "Updating " + jsonAsArrayCountElements($TempString$) + " ProductOnClients from file"
+	OpsiServiceCall_update_productOnClient
+
+	if Count($ProductIdsInstalled$) > "0"
+		for %CurProductId% in $ProductIds$ do Set $ProductIdsInstalled$ = RemoveFromListByMatch('%CurProductId%', $ProductIdsInstalled$)
+		if Count($ProductIdsInstalled$) > "0"
+			Comment "Set installed productIds to setup"
+			for %CurProductId% in $ProductIdsInstalled$ do OpsiServiceCall_set_setup
+		endif
+	endif
+
+	if $DoNotChangeSetupRequests$ = "true"
+		Comment "Restore saved setup actions"
+		if count($ProductIdsSetup$) > "0"
+			for %CurProductId% in $ProductIdsSetup$ do OpsiServiceCall_set_setup
+		endif
+		Comment "Restore saved once actions"
+		if count($ProductIdsOnce$) > "0"
+			for %CurProductId% in $ProductIdsOnce$ do OpsiServiceCall_set_once
+		endif
+	endif
+
+	Comment "Delete unwanted ProductOnClients"
+	Set $ProductIds$ = createStringList('opsi-local-image-wim-capture', 'opsi-local-image-sysprep', 'opsi-wim-capture')
+	for %CurProductId% in $ProductIds$ do OpsiServiceCall_del_productOnClient
+
+	Comment "Rename productOnClients.json"
+	Files_rename_productOnClients_json
+
+	Set $Finalize$ = "reboot"
+
+
+	[sub_set_clientId_in_ProductOnClients]
+	Comment "Get object from array"
+	Set $TempString$ = TakeString("%PocIdx%", $ProductOnClients$)
+	Comment "Remove ident"
+	Set $TempString$ = JsonAsObjectDeleteByKey($TempString$, "ident")
+	Comment "Set clientId"
+	Set $TempString$ = JsonAsObjectSetStringtypeValueByKey($TempString$, "clientId", $ClientId$)
+	Comment "Write modified object back to array"
+	Set $ProductOnClients$ = SetStringInListAtIndex($TempString$, $ProductOnClients$, "%PocIdx%")
+
+
+	[OpsiServiceCall_get_productOnClient_installed_localboot]
+	"method": "productOnClient_getObjects"
+	"params": [
+		"[]",
+		'{"clientId":"$ClientId$","productType":"LocalbootProduct","installationStatus":"installed"}',
+	]
+
+	[OpsiServiceCall_get_productOnClient_setup_localboot]
+	"method": "productOnClient_getObjects"
+	"params": [
+		"[]",
+		'{"clientId":"$ClientId$","productType":"LocalbootProduct","actionRequest":"setup"}',
+	]
+
+	[OpsiServiceCall_get_productOnClient_once_localboot]
+	"method": "productOnClient_getObjects"
+	"params": [
+		"[]",
+		'{"clientId":"$ClientId$","productType":"LocalbootProduct","actionRequest":"once"}',
+	]
+
+	[OpsiServiceCall_get_productOnClient_none_localboot]
+	"method": "productOnClient_getObjects"
+	"params": [
+		"[]",
+		'{"clientId":"$ClientId$","productType":"LocalbootProduct","actionRequest":"none"}',
+	]
+
+	[OpsiServiceCall_update_productOnClient]
+	"method": "productOnClient_updateObjects"
+	"params": [
+		'$TempString$'
+	]
+
+	[OpsiServiceCall_set_setup]
+	"method": "setProductActionRequestWithDependencies"
+	"params": [
+		'%CurProductId%',
+		'$ClientId$',
+		'setup',
+	]
+
+	[OpsiServiceCall_set_once]
+	"method": "setProductActionRequestWithDependencies"
+	"params": [
+		'%CurProductId%',
+		'$ClientId$',
+		'once',
+	]
+
+	[OpsiServiceCall_del_productOnClient]
+	"method": "productOnClient_delete"
+	"params": [
+		'%CurProductId%',
+		'$ClientId$',
+	]
+
+	[Files_rename_productOnClients_json]
+	del -fc "%opsiTmpDir%\restored_productOnClients.json"
+	rename -c "%opsiTmpDir%\productOnClients.json" "%opsiTmpDir%\restored_productOnClients.json"
+EndFunc
+
+
+; === actions ===================================================================
+if not (GetOS = "Windows_NT")
+	LogError "OS not supoorted: " + GetOS
+	isFatalError "OS not supoorted: " + GetOS
+endif
+
+if CompareDotSeparatedNumbers(GetMsVersionInfo, "<", "6.0")
+	logError "Windows version not supported: " + GetMsVersionInfo
+	isFatalError "Windows version not supported: " + GetMsVersionInfo
+endif
+
+if not (HasMinimumSpace ("%SystemDrive%", "200 MB"))
+	LogError "Insufficient disk space on %SystemDrive% (200 MB required)"
+	IsFatalError "Insufficient disk space"
+endif
+
+Comment "Show product image"
+ShowBitmap "%ScriptPath%\files\opsi-logo.png" "opsi client agent"
+
+Message "Installing " + $ProductId$ + " ..."
+
+Set $RunningInServiceContext$ = "true"
+ExecWith_powershell_running_in_service_context powershell.exe -ExecutionPolicy Bypass
+if ("1" = GetLastExitcode)
+	Set $RunningInServiceContext$ = "false"
+endif
+
+if ($RunningInServiceContext$ = "true")
+	Comment "Running in service context"
+else
+	Comment "Not running in service context"
+	if ProcessIsRunning("opsiclientd.exe")
+		ShellCall("sc stop opsiclientd")
+		SleepSeconds 5
+	endif
+
+	if Contains($InstallationOptions$, "bootimage")
+		post_os_installation_tasks()
+	endif
+
+	install_opsiscript()
+endif
+
+install_requirements()
+install_opsinotifier()
+install_opsisystray()
+install_opsiclientd()
+install_directories()
+install_configuration()
+
+if FileExists("%opsiTmpDir%\productOnClients.json")
+	comment "Found WIM-capture meta data file. Start processing."
+	process_wim_capture()
+endif
+setup_after_install()
+
+; Installation of opsi-login-blocker will kill/restart LogonUI => last step
+install_loginblocker()
+
+if ($RunningInServiceContext$ = "false")
+	OpsiServiceCall_productOnClient_createObjects_opsiclientagent
+endif
+
+if Contains($InstallationOptions$, "bootimage")
+	Set $Finalize$ = ""
+else
+	if Contains($InstallationOptions$, "noreboot")
+		Set $Finalize$ = "service_restart"
+	else
+		if Contains($InstallationOptions$, "reboot")
+			Set $Finalize$ = "reboot"
+		else
+			if Contains($InstallationOptions$, "shutdown")
+				Set $Finalize$ = "shutdown"
+			else
+				if (GetProductProperty("allow_reboot", "true") = "false")
+					Set $Finalize$ = "service_restart"
+				endif
+			endif
+		endif
+	endif
+endif
+
+Switch $Finalize$
+	Case "reboot"
+		ExitWindows /Reboot
+	EndCase
+	Case "shutdown"
+		if ($RunningInServiceContext$ = "false")
+			PowerShellCall("Stop-Computer -ComputerName localhost -Force")
+		else
+			ExitWindows /ShutdownWanted
+		endif
+	EndCase
+	Case "service_restart"
+		; Restart opsiclientd after current event or start opsiclientd without executing events
+		Comment "Creating opsiclientd restart marker"
+		PowerShellCall('New-Item "' + $BaseDir$ + '\.opsiclientd_restart" -ItemType File')
+		if not (ProcessIsRunning("opsiclientd.exe"))
+			ShellCall('sc start opsiclientd')
+		endif
+	EndCase
+EndSwitch
+
+
+[OpsiServiceCall_authenticated]
+"method": "authenticated"
+"params": []
+
+[OpsiServiceCall_productOnClient_createObjects_opsiclientagent]
+"method": "productOnClient_createObjects"
+"params": [
+	'[{"type":"ProductOnClient","productType":"LocalbootProduct","clientId":"$ClientId$","productId":"$ProductId$","installationStatus":"installed","actionRequest":"none","actionResult":"successful"}]'
+]
+
+[ExecWith_powershell_running_in_service_context]
+$procid = $PID
+while ($procid -ge 1) {
+	$parent = (gwmi win32_process -Filter "processid='$procid'")
+	if ($parent.ProcessName -eq "opsiclientd.exe" ) {
+		Exit 0
+	}
+	$procid = $parent.ParentProcessId
+}
+Exit 1

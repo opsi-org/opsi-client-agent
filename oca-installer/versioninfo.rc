@@ -1,0 +1,29 @@
+
+1 VERSIONINFO
+FILEVERSION {version_comma}
+PRODUCTVERSION {version_comma}
+FILEOS 0x40004
+FILETYPE 0x1
+{
+BLOCK "StringFileInfo"
+{
+	BLOCK "040904B0"
+	{
+		VALUE "CompanyName", "uib GmbH <info@uib.de>"
+		VALUE "FileDescription", "opsi-client-agent installer"
+		VALUE "Comments", "https://www.opsi.org"
+		VALUE "FileVersion", "{version}"
+		VALUE "InternalName", "opsi-client-agent-installer.exe"
+		VALUE "LegalCopyright", "AGPL-3.0"
+		VALUE "LegalTrademarks", ""
+		VALUE "OriginalFilename", "opsi-client-agent-installer.exe"
+		VALUE "ProductName", "opsi client agent installer"
+		VALUE "ProductVersion", "{version}"
+	}
+}
+
+BLOCK "VarFileInfo"
+{
+	VALUE "Translation", 0x0409 0x04E4
+}
+}

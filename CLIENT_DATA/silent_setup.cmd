@@ -1,2 +1,2 @@
 @echo off
-call service_setup.cmd /u
+call %~dp0\oca-installation-helper.exe --non-interactive
