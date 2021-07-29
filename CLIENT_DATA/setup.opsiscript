@@ -150,6 +150,7 @@ DefFunc install_opsiscript() : void
 	Registry_open_with_opsiscript
 	Comment "Creating opsi-winst for compatibility with old netboot products"
 	Files_create_opsi_winst_for_compatibility
+	opsiservicecall_set_OpsiScript_installed
 
 	[Files_install_opsiscript]
 	; Do not use -V because it leads to broken winst on downgrade
@@ -172,6 +173,15 @@ DefFunc install_opsiscript() : void
 	del -sf  "$BaseDir$\opsi-winst"
 	checkTargetPath = "$BaseDir$\opsi-winst"
 	copy -sc "$BaseDir$\opsi-script\*.*"
+
+	[opsiservicecall_set_OpsiScript_installed]
+	"method": "setProductInstallationStatus"
+	"params": [
+		"opsi-script",
+		"$ClientId$",
+		"installed"
+	]
+
 EndFunc
 
 
@@ -319,8 +329,11 @@ DefFunc install_directories() : void
 	Files_create_dirs
 
 	; Get-LocalUser is not available in Powershell 2 (win7)
-	;Set $AdminSID$ = TakeString(0, PowerShellCall("(Get-LocalUser | Where-Object {$_.SID -like 'S-1-5-*-500'}).SID.Value"))
-	Set $AdminSID$ = TakeString(0, PowerShellCall("(Get-WmiObject win32_useraccount | Where-Object {$_.SID -like 'S-1-5-*-500'}).SID"))
+	; Some win10 seem to get stuck on Get-WmiObject win32_useraccount
+	Set $AdminSID$ = TakeString(0, PowerShellCall("(Get-LocalUser | Where-Object {$_.SID -like 'S-1-5-*-500'}).SID.Value"))
+	if not (contains($AdminSID$, "S-1-5-"))
+		Set $AdminSID$ = TakeString(0, PowerShellCall("(Get-WmiObject win32_useraccount | Where-Object {$_.SID -like 'S-1-5-*-500'}).SID"))
+	endif
 	DosInAnIcon_set_file_permissions
 
 	[Files_create_dirs]
