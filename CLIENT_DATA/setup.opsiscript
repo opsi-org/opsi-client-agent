@@ -382,7 +382,7 @@ DefFunc install_directories() : void
 EndFunc
 
 
-; === directories ===============================================================
+; === post os installation tasks ================================================
 DefFunc post_os_installation_tasks() : void
 	Comment "Running post os installation tasks"
 	DefStringList $TempList1$
@@ -410,6 +410,7 @@ DefFunc post_os_installation_tasks() : void
 		Set $TempList2$ = RemoveFromListByMatch('opsi-script', $TempList2$)
 		Set $TempList2$ = RemoveFromListByMatch('opsi-client-agent', $TempList2$)
 		for %TempProductId% in $TempList2$ do OpsiServiceCall_setProductActionRequestWithDependencies_setup
+		Set $Finalize$ = "reboot"
 	endif
 
 	[Registry_set_opsi_general_config]
