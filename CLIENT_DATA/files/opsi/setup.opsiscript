@@ -1202,6 +1202,8 @@ deffunc oca_write_configuration() : void
 
 	Patches_opsiclientd_conf_rest $INST_OpsiclientdConf$ /encoding "utf8"
 
+	Patches_opsiclientd_conf_depot_protocol_on_demand $INST_OpsiclientdConf$ /encoding "utf8"
+
 	if not (($SHI_pckey$ = "") or ($SHI_pckey$ = "#@PCKEY#"))
 		comment "dont log the pckey"
 		Patches_opsiclientd_conf_key $INST_OpsiclientdConf$ /encoding "utf8"
@@ -1514,6 +1516,8 @@ deffunc oca_write_configuration() : void
 	Set [global] log_level=$OCD_global.log_level$
 	Set [depot_server] username=$OCD_depot_server__username$
 
+	[Patches_opsiclientd_conf_depot_protocol_on_demand]
+	Set [event_on_demand] depot_protocol = cifs
 
 	[DosInAnIcon_generate_opsiclientdCertificate]
 	;"%ProgramFilesDir%\OpenSSL\bin\openssl" req -new -x509 -days 1000 -nodes -config "$INST_opensslConfigFile$" -out "$INST_opsiclientdCertificateFile$" -keyout "$INST_opsiclientdCertificateFile$"
