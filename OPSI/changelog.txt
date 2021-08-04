@@ -1,4 +1,11 @@
 ﻿[Changelog]
+opsi-client-agent (4.2.0.1-1) stable; urgency=low
+
+  * Update opsiclientd to 4.2.0.82
+  * Reboot after installation if other packages are set to setup
+
+-- Jan Schneider <j.schneider@uib.de> Mon, 21 Jun 2021 14:46:00 +0100
+
 opsi-client-agent (4.2.0.0-1) stable; urgency=low
 
   * opsi-client-agent 4.2 release
