@@ -40,8 +40,13 @@ echo "Removing temporary files..."
 rm -rf "${TMP_DIR}"
 
 [ -e "${CLIENT_DATA_DIR}/files/custom/notifier" ] && mv "${CLIENT_DATA_DIR}/files/custom/notifier" "${CLIENT_DATA_DIR}/files/custom/opsi-notifier"
+if [ -e "${CLIENT_DATA_DIR}/files/custom/winstskin" ]; then
+	[ -e "${CLIENT_DATA_DIR}/files/custom/opsi-script" ] || mkdir -p "${CLIENT_DATA_DIR}/files/custom/opsi-script"
+	mv "${CLIENT_DATA_DIR}/files/custom/winstskin" "${CLIENT_DATA_DIR}/files/custom/opsi-script/skin"
+fi
 [ -e "${CLIENT_DATA_DIR}/files/custom/opsi-notifier" ] || mkdir -p "${CLIENT_DATA_DIR}/files/custom/opsi-notifier"
 [ -e "${CLIENT_DATA_DIR}/files/custom/opsiclientd" ] || mkdir -p "${CLIENT_DATA_DIR}/files/custom/opsiclientd"
+[ -e "${CLIENT_DATA_DIR}/files/custom/opsi-script/skin" ] || mkdir -p "${CLIENT_DATA_DIR}/files/custom/opsi-script/skin"
 
 # install opsi-client-kiosk package on depot (only if migration folder exists)
 if [ -d ${CLIENT_DATA_DIR}/../opsi-client-kiosk/migration ]; then
