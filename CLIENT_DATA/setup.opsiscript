@@ -268,12 +268,16 @@ DefFunc install_opsinotifier() : void
 	;KillTask "opsi-notifier.exe"
 	ShellCall("taskkill /f /im opsi-notifier.exe")
 	Files_install_opsinotifier
+	WinBatch_start_notifier /LetThemGo
 
 	[Files_install_opsinotifier]
 	copy -c "%ScriptPath%\files\opsi-notifier\opsi-notifier.exe" "$BaseDir$\"
 	copy -c "%ScriptPath%\files\opsi-notifier\notifier.d\*.*" "$BaseDir$\notifier\"
 	; Copy possible existing custom notifier files
 	copy -sc "%ScriptPath%\files\custom\opsi-notifier\*.*" "$BaseDir$\notifier\"
+
+	[WinBatch_start_notifier]
+	"$BaseDir$\opsi-notifier.exe" -p 44000 -i event -s notifier/event.ini
 EndFunc
 
 
