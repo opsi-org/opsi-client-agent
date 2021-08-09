@@ -127,7 +127,7 @@ DefFunc install_opsiclientd(): void
 	del -fs "$BaseDir$\opsiclientd_bin\opsiclientd_data"
 
 	[Files_install_opsiclientd_custom]
-	copy -c "%ScriptPath%\files\custom\opsiclientd\*.*" "$BaseDir$\opsiclientd\"
+	copy -sc "%ScriptPath%\files\custom\opsiclientd\*.*" "$BaseDir$\opsiclientd\"
 
 	[Patches_opsiclientd_conf]
 	Set [global] log_level = 6
