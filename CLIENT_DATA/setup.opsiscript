@@ -147,6 +147,7 @@ DefFunc install_opsiscript() : void
 	Comment "Installing opsi-script"
 	Message "Installing opsi-script"
 	Files_install_opsiscript
+	Files_install_opsiscript_custom
 	Registry_open_with_opsiscript
 	Comment "Creating opsi-winst for compatibility with old netboot products"
 	Files_create_opsi_winst_for_compatibility
@@ -155,6 +156,9 @@ DefFunc install_opsiscript() : void
 	[Files_install_opsiscript]
 	; Do not use -V because it leads to broken winst on downgrade
 	copy -sc "%ScriptPath%\files\opsi-script\*.*" "$BaseDir$\opsi-script\"
+
+	[Files_install_opsiscript_custom]
+	copy -sc "%ScriptPath%\files\custom\opsi-script\*.*" "$BaseDir$\opsi-script\"
 
 	[Registry_open_with_opsiscript]
 	OpenKey [HKEY_CLASSES_ROOT\.opsiscript]
