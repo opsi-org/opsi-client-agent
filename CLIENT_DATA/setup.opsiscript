@@ -414,7 +414,6 @@ DefFunc post_os_installation_tasks() : void
 		Set $TempList2$ = RemoveFromListByMatch('opsi-script', $TempList2$)
 		Set $TempList2$ = RemoveFromListByMatch('opsi-client-agent', $TempList2$)
 		for %TempProductId% in $TempList2$ do OpsiServiceCall_setProductActionRequestWithDependencies_setup
-		Set $Finalize$ = "reboot"
 	endif
 
 	[Registry_set_opsi_general_config]
@@ -487,7 +486,6 @@ DefFunc setup_after_install() : void
 	Set $TempList$ = GetProductPropertyList("setup_after_install", $TempList$)
 	if count($TempList$) > "0"
 		Comment "Setup after install"
-		Set $Finalize$ = "reboot"
 		for %TempProductId% in $TempList$ do OpsiServiceCall_setProductActionRequestWithDependencies_setup
 	endif
 
@@ -831,6 +829,15 @@ else
 	endif
 endif
 
+DefVar $TempString$
+Set $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_pending_installations"))
+Set $TempString$ = stringReplaceRegex($TempString$, '\{[^\}]*opsi-client-agent[^\}]*\}', '')
+; if a product except opsi-client-agent is set to setup, we need to reboot
+if isRegexMatch('"actionRequest":"setup"', $TempString$)
+	comment "Setting Finalize to reboot because there are pending setup action requests"
+	Set $Finalize$ = "reboot"
+endif
+
 Switch $Finalize$
 	Case "reboot"
 		ExitWindows /Reboot
@@ -878,3 +885,10 @@ while ($procid -ge 1) {
 	Start-Sleep -Milliseconds 100
 }
 Exit 1
+
+
+[OpsiServiceCall_pending_installations]
+"method": "getProductActionRequests_listOfHashes"
+"params": [
+	"$ClientId$"
+]
