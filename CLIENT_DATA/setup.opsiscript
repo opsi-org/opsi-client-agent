@@ -820,10 +820,6 @@ else
 		else
 			if Contains($InstallationOptions$, "shutdown")
 				Set $Finalize$ = "shutdown"
-			else
-				if (GetProductProperty("allow_reboot", "true") = "false")
-					Set $Finalize$ = "service_restart"
-				endif
 			endif
 		endif
 	endif
@@ -836,6 +832,10 @@ Set $TempString$ = stringReplaceRegex($TempString$, '\{[^\}]*opsi-client-agent[^
 if isRegexMatch('"actionRequest":"setup"', $TempString$)
 	comment "Setting Finalize to reboot because there are pending setup action requests"
 	Set $Finalize$ = "reboot"
+endif
+
+if (GetProductProperty("allow_reboot", "true") = "false") and (($Finalize$ = "reboot") or ($Finalize$ = "shutdown"))
+	Set $Finalize$ = "service_restart"
 endif
 
 Switch $Finalize$
