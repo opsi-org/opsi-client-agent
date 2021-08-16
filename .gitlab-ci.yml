@@ -72,7 +72,7 @@ package:make_msi:
     - product_id=$(uuidgen | tr a-z A-Z)
     - sed "s/{version}/${version}/g;s/{product_id}/${product_id}/g" msi/opsi-client-agent.wxs > opsi-client-agent.wxs
     - wixl -v opsi-client-agent.wxs
-    #- ./opsi-dev-tool -l info --signserver-sign opsi-client-agent.msi
+    - ./opsi-dev-tool -l info --signserver-sign opsi-client-agent.msi
     # Push to binaryindex
     - '[ "$CI_COMMIT_TAG" = "" ] && ./opsi-dev-tool -l info --binary-push opsi-client-agent.msi opsi-client-agent-msi windows x86 "$version" "$CI_JOB_ID"'
     - '[ "$CI_COMMIT_TAG" = "" ] || ./opsi-dev-tool -l info --binary-push opsi-client-agent.msi opsi-client-agent-msi windows x86 "$version"'

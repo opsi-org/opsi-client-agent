@@ -872,7 +872,6 @@ EndSwitch
 [ExecWith_powershell_running_in_service_context]
 $procid = $PID
 For ($i = 0; $i -le 10; $i++) {
-	Write-Host $procid
 	$parent = (gwmi win32_process -Filter "processid='$procid'")
 	if ($parent.ProcessName -eq "opsiclientd.exe") {
 		Exit 0
