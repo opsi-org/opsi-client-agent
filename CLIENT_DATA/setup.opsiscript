@@ -90,18 +90,9 @@ DefFunc install_opsiclientd(): void
 
 	MarkErrorNumber
 	Files_install_opsiclientd_dir
-	if ErrorsOccuredSinceMark > 0
+	if ErrorsOccurredSinceMark > 0
 		LogError "Failed to install opsiclientd"
 		IsFatalError "Failed to install opsiclientd"
-	endif
-
-	comment "Copy opsiclientd custom files"
-	MarkErrorNumber
-	Files_install_opsiclientd_custom
-	if errorsOccuredSinceMark > 0
-		LogError "failed to install custom_opsiclientd"
-		Message "failed to install custom_opsiclientd"
-		IsFatalError "failed to install custom_opsiclientd"
 	endif
 
 	comment "Patch opsiclientd.conf"
@@ -126,9 +117,6 @@ DefFunc install_opsiclientd(): void
 	copy -s "$BaseDir$\opsiclientd_bin\opsiclientd_data\*.*" "$BaseDir$\opsiclientd\"
 	del -fs "$BaseDir$\opsiclientd_bin\opsiclientd_data"
 
-	[Files_install_opsiclientd_custom]
-	copy -sc "%ScriptPath%\files\custom\opsiclientd\*.*" "$BaseDir$\opsiclientd\"
-
 	[Patches_opsiclientd_conf]
 	Set [global] log_level = 6
 
@@ -147,7 +135,6 @@ DefFunc install_opsiscript() : void
 	Comment "Installing opsi-script"
 	Message "Installing opsi-script"
 	Files_install_opsiscript
-	Files_install_opsiscript_custom
 	Registry_open_with_opsiscript
 	Comment "Creating opsi-winst for compatibility with old netboot products"
 	Files_create_opsi_winst_for_compatibility
@@ -156,9 +143,6 @@ DefFunc install_opsiscript() : void
 	[Files_install_opsiscript]
 	; Do not use -V because it leads to broken winst on downgrade
 	copy -sc "%ScriptPath%\files\opsi-script\*.*" "$BaseDir$\opsi-script\"
-
-	[Files_install_opsiscript_custom]
-	copy -sc "%ScriptPath%\files\custom\opsi-script\*.*" "$BaseDir$\opsi-script\"
 
 	[Registry_open_with_opsiscript]
 	OpenKey [HKEY_CLASSES_ROOT\.opsiscript]
@@ -222,7 +206,7 @@ DefFunc install_loginblocker() : void
 	endif
 	Registry_install_loginblocker /sysnative
 
-	if ErrorsOccuredSinceMark > 0
+	if ErrorsOccurredSinceMark > 0
 		LogError "Failed to install loginblocker"
 		Message "Failed to install loginblocker"
 		IsFatalError "Failed to install loginblocker"
@@ -276,8 +260,6 @@ DefFunc install_opsinotifier() : void
 	[Files_install_opsinotifier]
 	copy -c "%ScriptPath%\files\opsi-notifier\opsi-notifier.exe" "$BaseDir$\"
 	copy -c "%ScriptPath%\files\opsi-notifier\notifier.d\*.*" "$BaseDir$\notifier\"
-	; Copy possible existing custom notifier files
-	copy -sc "%ScriptPath%\files\custom\opsi-notifier\*.*" "$BaseDir$\notifier\"
 EndFunc
 
 
@@ -322,6 +304,22 @@ DefFunc install_opsisystray() : void
 	[Registry_install_opsisystray]
 	OpenKey [HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run]
 	Set "opsi_systray_start" = '"$BaseDir$\opsi-client-systray\opsi-client-systray.exe" --fqdn=$ClientId$ --checkintervall=$CheckInterval$ --notifyformat="$NotifyFormat$"'
+EndFunc
+
+
+; === custom files ==============================================================
+DefFunc install_custom_files(): void
+	comment "Copy custom files"
+	MarkErrorNumber
+	Files_install_custom
+	if errorsOccurredSinceMark > 0
+		LogError "failed to install custom files"
+		Message "failed to install custom files"
+		IsFatalError "failed to install custom files"
+	endif
+
+	[Files_install_custom]
+	copy -sc "%ScriptPath%\files\custom\*.*" "$BaseDir$\"
 EndFunc
 
 
@@ -635,7 +633,7 @@ DefFunc process_wim_capture() : void
 	Comment "Convert modified list to json array"
 	Set $TempString$ = JsonStringListToJsonArray($ProductOnClients$)
 
-	if errorsOccuredSinceMark > 0
+	if errorsOccurredSinceMark > 0
 		LogError "Error while handling productOnClients from captured image"
 		IsFatalError "Error while handling productOnClients from captured image"
 	endif
@@ -793,6 +791,7 @@ install_requirements()
 install_opsinotifier()
 install_opsisystray()
 install_opsiclientd()
+install_custom_files()
 install_directories()
 install_configuration()
 
@@ -872,13 +871,13 @@ EndSwitch
 
 [ExecWith_powershell_running_in_service_context]
 $procid = $PID
-while ($procid -ge 1) {
+For ($i = 0; $i -le 10; $i++) {
 	Write-Host $procid
 	$parent = (gwmi win32_process -Filter "processid='$procid'")
 	if ($parent.ProcessName -eq "opsiclientd.exe") {
 		Exit 0
 	}
-	if ($parent.ParentProcessId -eq $procid) {
+	if ($parent.ParentProcessId -eq 0) {
 		Exit 1
 	}
 	$procid = $parent.ParentProcessId

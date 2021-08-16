@@ -1,4 +1,12 @@
 ﻿[Changelog]
+opsi-client-agent (4.2.0.3-1) stable; urgency=low
+
+  * Update opsiclientd to 4.2.0.84
+  * Fix ExecWith_powershell_running_in_service_context
+  * Always copy all custom files
+
+-- Jan Schneider <j.schneider@uib.de> Mon, 16 Aug 2021 18:54:00 +0100
+
 opsi-client-agent (4.2.0.2-1) stable; urgency=low
 
   * Update opsiclientd to 4.2.0.83
