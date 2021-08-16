@@ -60,6 +60,7 @@ build_installer:windows-x86-installer:
       - opsi-client-agent-installer.exe
 
 package:make_msi:
+  image: debian:bullseye
   stage: package
   dependencies:
     - build_installer:windows-x86-installer
@@ -69,8 +70,8 @@ package:make_msi:
     - apt -y install wixl uuid-runtime
     - version=$(grep OPSI/control -A 10 -e "\[Product\]" | grep "version:" | tr -d "^a-zA-Z :")
     - product_id=$(uuidgen | tr a-z A-Z)
-    - sed -i "s/{version}/${version}/g;s/{product_id}/${product_id}/g" msi/opsi-client-agent.wxs
-    - wixl -v msi/opsi-client-agent.wxs
+    - sed "s/{version}/${version}/g;s/{product_id}/${product_id}/g" msi/opsi-client-agent.wxs > opsi-client-agent.wxs
+    - wixl -v opsi-client-agent.wxs
     #- ./opsi-dev-tool -l info --signserver-sign opsi-client-agent.msi
     # Push to binaryindex
     #- '[ "$CI_COMMIT_TAG" = "" ] && ./opsi-dev-tool -l info --uib-binaryindex-url=http://opsipackages.uib.gmbh --binary-push opsi-client-agent-package opsi-client-agent all all "$version-$package" "$CI_JOB_ID"'
