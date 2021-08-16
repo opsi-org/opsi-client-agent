@@ -59,8 +59,8 @@ build_installer:windows-x86-installer:
     paths:
       - opsi-client-agent-installer.exe
 
-build_installer:windows-x86-msi:
-  stage: build
+package:make_msi:
+  stage: package
   dependencies:
     - build_installer:windows-x86-installer
   script:
