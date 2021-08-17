@@ -18,9 +18,8 @@
         <Directory Id="TEMPDIR" Name="tmp">
           <Component Id="installer" Guid="A3EB4C04-A58F-435F-A252-C238BE72B4A2">
             <File Id="opsi-client-agent-installer.exe"
-                  Name="opsi-client-agent-installer.exe"
-                  Source="opsi-client-agent-installer.exe"
-                  DiskId="1" KeyPath="yes" />
+                  Name="opsi-client-agent-installer.exe" DiskId="1"
+                  Source="opsi-client-agent-installer.exe" KeyPath="yes"/>
           </Component>
         </Directory>
       </Directory>
