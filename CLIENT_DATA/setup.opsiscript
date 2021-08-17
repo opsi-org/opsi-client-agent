@@ -825,13 +825,17 @@ else
 endif
 
 DefVar $TempString$
-Set $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_pending_installations"))
-Set $TempString$ = stringReplaceRegex($TempString$, '\{[^\}]*opsi-client-agent[^\}]*\}', '')
-; if a product except opsi-client-agent is set to setup, we need to reboot
-if isRegexMatch('"actionRequest":"setup"', $TempString$)
-	comment "Setting Finalize to reboot because there are pending setup action requests"
-	Set $Finalize$ = "reboot"
+DefStringList $TempList1$
+Set $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_localboot_setup"))
+if JsonAsArrayCountElements($TempString$) > "0"
+	Set $TempList1$ = JsonAsArrayToStringList($TempString$)
+	Set $TempList1$ = RemoveFromListByMatch('opsi-client-agent', $TempList1$)
+	if count($TempList1$) > "0"
+		comment "Setting Finalize to reboot because there are pending setup action requests"
+		Set $Finalize$ = "reboot"
+	endif
 endif
+
 
 if (GetProductProperty("allow_reboot", "true") = "false") and (($Finalize$ = "reboot") or ($Finalize$ = "shutdown"))
 	Set $Finalize$ = "service_restart"
@@ -885,8 +889,9 @@ For ($i = 0; $i -le 10; $i++) {
 Exit 1
 
 
-[OpsiServiceCall_pending_installations]
-"method": "getProductActionRequests_listOfHashes"
+[OpsiServiceCall_productOnClient_getObjects_localboot_setup]
+"method": "productOnClient_getIdents"
 "params": [
-	"$ClientId$"
+	["string"],
+	{"clientId":"$ClientId$","productType": "LocalbootProduct","actionRequest":"setup"}
 ]
