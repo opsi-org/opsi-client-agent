@@ -892,5 +892,6 @@ Exit 1
 [OpsiServiceCall_productOnClient_getObjects_localboot_setup]
 "method": "productOnClient_getIdents"
 "params": [
-	'["string"],{"clientId":"$ClientId$","productType":"LocalbootProduct","actionRequest":"setup"}'
+	'"string"',
+	'{"clientId":"$ClientId$","productType":"LocalbootProduct","actionRequest":"setup"}'
 ]
