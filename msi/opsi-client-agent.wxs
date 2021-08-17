@@ -20,7 +20,7 @@
             <File Id="opsi-client-agent-installer.exe"
                   Name="opsi-client-agent-installer.exe"
                   Source="opsi-client-agent-installer.exe"
-                  KeyPath="yes" Checksum="yes"/>
+                  KeyPath="yes" Checksum="yes" DiskId="1"/>
           </Component>
         </Directory>
       </Directory>
