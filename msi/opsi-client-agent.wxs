@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="windows-1252"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Product Name="opsi-client-agent {version}"
-           Id="{product_id}"
-           UpgradeCode="B90DB166-A7C6-44F8-B07A-D0070A487ADC"
+           Id="{{product_id}}"
+           UpgradeCode="{B90DB166-A7C6-44F8-B07A-D0070A487ADC}"
            Language="1033" Codepage="1252" Version="{version}" Manufacturer="uib GmbH">
 
     <Package Id="*" Keywords="Installer" Description="opsi-client-agent {version} installer"
              Comments="" Manufacturer="uib GmbH"
-             InstallerVersion="100" Languages="1033" Compressed="yes" SummaryCodepage="1252" />
+             InstallerVersion="200" Languages="1033" Compressed="yes" SummaryCodepage="1252" />
 
     <Media Id="1" Cabinet="oca.cab" EmbedCab="yes" />
 
@@ -16,11 +16,11 @@
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="opsiorgdir" Name="opsi.org">
         <Directory Id="TEMPDIR" Name="tmp">
-          <Component Id="installer" Guid="A3EB4C04-A58F-435F-A252-C238BE72B4A2">
-            <File Id="opsi-client-agent-installer-{version}.exe"
-                  Name="opsi-client-agent-installer-{version}.exe"
+          <Component Id="installer" Guid="{A3EB4C04-A58F-435F-A252-C238BE72B4A2}">
+            <File Id="opsi-client-agent-installer.exe"
+                  Name="opsi-client-agent-installer.exe"
                   Source="opsi-client-agent-installer.exe"
-                  KeyPath="yes"/>
+                  DiskId="1" KeyPath="yes"/>
           </Component>
         </Directory>
       </Directory>
@@ -30,12 +30,21 @@
       <ComponentRef Id="installer" />
     </Feature>
 
-    <CustomAction Id="Install" FileKey="opsi-client-agent-installer-{version}.exe"
+    <CustomAction Id="Install" FileKey="opsi-client-agent-installer.exe"
                   Execute="deferred" Impersonate="no" Return="check"
                   ExeCommand="[INSTALL_PARAMS]" />
 
+    <Property Id="cmd" Value="cmd.exe"/>
+    <CustomAction Id="Cleanup"
+              ExeCommand='/c del "[TEMPDIR]opsi-client-agent-installer.exe"'
+              Execute="deferred"
+              Property="cmd"
+              Impersonate="no"
+              Return="ignore" />
+
     <InstallExecuteSequence>
       <Custom Action="Install" After="InstallFiles">NOT REMOVE</Custom>
+      <Custom Action="Cleanup" Before="InstallFinalize">NOT REMOVE</Custom>
     </InstallExecuteSequence>
   </Product>
 </Wix>
