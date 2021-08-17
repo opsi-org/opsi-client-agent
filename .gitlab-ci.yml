@@ -71,6 +71,7 @@ package:make_msi:
     - version=$(grep OPSI/control -A 10 -e "\[Product\]" | grep "version:" | tr -d "^a-zA-Z :")
     - product_id=$(uuidgen | tr a-z A-Z)
     - sed "s/{version}/${version}/g;s/{product_id}/${product_id}/g" msi/opsi-client-agent.wxs > opsi-client-agent.wxs
+    - cat opsi-client-agent.wxs
     - wixl -v opsi-client-agent.wxs
     - ./opsi-dev-tool -l info --signserver-sign opsi-client-agent.msi
     # Push to binaryindex
