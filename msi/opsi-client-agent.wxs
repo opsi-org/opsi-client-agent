@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="windows-1252"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Product Name="opsi-client-agent {version}"
-           Id="{{product_id}}"
+           Id="*"
            UpgradeCode="{B90DB166-A7C6-44F8-B07A-D0070A487ADC}"
            Language="1033" Codepage="1252" Version="{version}" Manufacturer="uib GmbH">
 
-    <Package Id="*" Keywords="Installer" Description="opsi-client-agent {version} installer"
-             Comments="" Manufacturer="uib GmbH"
+    <Package Id="*" Keywords="Installer" Description="opsi-client-agent {version} installer" Manufacturer="uib GmbH"
              InstallerVersion="200" Languages="1033" Compressed="yes" SummaryCodepage="1252" />
 
     <Media Id="1" Cabinet="oca.cab" EmbedCab="yes" />
@@ -17,7 +16,7 @@
       <Directory Id="opsiorgdir" Name="opsi.org">
         <Directory Id="TEMPDIR" Name="tmp">
           <Component Id="installer" Guid="{A3EB4C04-A58F-435F-A252-C238BE72B4A2}">
-            <File Id="opsi-client-agent-installer.exe"
+            <File Id="opsi_client_agent_installer_exe"
                   Name="opsi-client-agent-installer.exe"
                   Source="opsi-client-agent-installer.exe"
                   DiskId="1" KeyPath="yes"/>
@@ -30,7 +29,7 @@
       <ComponentRef Id="installer" />
     </Feature>
 
-    <CustomAction Id="Install" FileKey="opsi-client-agent-installer.exe"
+    <CustomAction Id="Install" FileKey="opsi_client_agent_installer_exe"
                   Execute="deferred" Impersonate="no" Return="check"
                   ExeCommand="[INSTALL_PARAMS]" />
 

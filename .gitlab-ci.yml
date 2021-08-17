@@ -59,7 +59,9 @@ build_installer:windows-x86-installer:
     paths:
       - opsi-client-agent-installer.exe
 
-package:make_msi:
+package:linux_make_msi:
+  # wixl sometimes produces a corrupt cab file in msi
+  when: manual
   image: debian:bullseye
   stage: package
   dependencies:
@@ -69,8 +71,9 @@ package:make_msi:
     - apt update
     - apt -y install wixl uuid-runtime
     - version=$(grep OPSI/control -A 10 -e "\[Product\]" | grep "version:" | tr -d "^a-zA-Z :")
-    - product_id=$(uuidgen | tr a-z A-Z)
-    - sed "s/{version}/${version}/g;s/{product_id}/${product_id}/g" msi/opsi-client-agent.wxs > opsi-client-agent.wxs
+    #- product_id=$(uuidgen | tr a-z A-Z)
+    #- sed "s/{version}/${version}/g;s/{product_id}/${product_id}/g" msi/opsi-client-agent.wxs > opsi-client-agent.wxs
+    - sed "s/{version}/${version}/g" msi/opsi-client-agent.wxs > opsi-client-agent.wxs
     - cat opsi-client-agent.wxs
     - wixl -v opsi-client-agent.wxs
     - ./opsi-dev-tool -l info --signserver-sign opsi-client-agent.msi
@@ -81,6 +84,36 @@ package:make_msi:
     name: opsi-client-agent-msi
     paths:
       - opsi-client-agent.msi
+
+
+package:windows_make_msi:
+  stage: package
+  tags:
+    - win10
+  script:
+    - Invoke-WebRequest -UseBasicParsing -Uri "$OPSIDEVTOOLS_URL_WINDOWS_X86" -OutFile opsi-dev-tools.zip
+    - Expand-Archive opsi-dev-tools.zip -DestinationPath opsi-dev-tools
+    - Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/wixtoolset/wix3/releases/download/wix3112rtm/wix311-binaries.zip" -OutFile wix-binaries.zip
+    - Expand-Archive wix-binaries.zip -DestinationPath wix
+    # Get version from control file
+    - "$versionLine = Get-Content -Path OPSI\\control | Where-Object { $_ -match 'version: 4.' }"
+    - $version = $versionLine.Split(':')[1].trim()
+    # Patch version
+    - ((Get-Content -path msi\\opsi-client-agent.wxs -Raw) -replace "{version}",$version) | Set-Content -Path opsi-client-agent.wxs
+    - Get-Content opsi-client-agent.wxs
+    # Build msi
+    - wix\\candle.exe opsi-client-agent.wxs
+    - wix\\light.exe opsi-client-agent.wixobj
+    # Sign msi
+    - .\\opsi-dev-tools\\opsi-dev-tool.exe -l info --signserver-sign opsi-client-agent.msi
+    # Push to binaryindex
+    - if (! $CI_COMMIT_TAG) {.\\opsi-dev-tools\\opsi-dev-tool.exe -l info --binary-push opsi-client-agent.msi opsi-client-agent-msi windows x86 $version "$CI_JOB_ID"}
+    - if ($CI_COMMIT_TAG) {.\\opsi-dev-tools\\opsi-dev-tool.exe -l info --binary-push opsi-client-agent.msi opsi-client-agent-msi windows x86 $version }
+  artifacts:
+    name: opsi-client-agent-msi
+    paths:
+      - opsi-client-agent.msi
+
 
 package:make_opsi_package:
   stage: package
