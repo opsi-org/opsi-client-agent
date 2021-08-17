@@ -320,6 +320,8 @@ DefFunc install_custom_files(): void
 
 	[Files_install_custom]
 	copy -sc "%ScriptPath%\files\custom\*.*" "$BaseDir$\"
+	; Copy to old notifier path also
+	copy -sc "%ScriptPath%\files\custom\opsi-notifier\*.*" "$BaseDir$\notifier\"
 EndFunc
 
 
