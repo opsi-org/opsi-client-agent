@@ -16,17 +16,18 @@
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="opsiorgdir" Name="opsi.org">
         <Directory Id="TEMPDIR" Name="tmp">
-          <Component Id="installer" Guid="A3EB4C04-A58F-435F-A252-C238BE72B4A2">
+          <Component Id="opsi-client-agent-installer.exe" Guid="A3EB4C04-A58F-435F-A252-C238BE72B4A2">
             <File Id="opsi-client-agent-installer.exe"
-                  Name="opsi-client-agent-installer.exe" DiskId="1"
-                  Source="opsi-client-agent-installer.exe" KeyPath="yes"/>
+                  Name="opsi-client-agent-installer.exe"
+                  Source="opsi-client-agent-installer.exe"
+                  KeyPath="yes" Checksum="yes"/>
           </Component>
         </Directory>
       </Directory>
     </Directory>
 
     <Feature Id="Complete" Level="1">
-      <ComponentRef Id="installer" />
+      <ComponentRef Id="opsi-client-agent-installer.exe" />
     </Feature>
 
     <CustomAction Id="Install" FileKey="opsi-client-agent-installer.exe"
