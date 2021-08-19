@@ -1,4 +1,10 @@
 ﻿[Changelog]
+opsi-client-agent (4.2.0.5-1) stable; urgency=low
+
+  * Update opsiclientd to 4.2.0.86
+
+-- Jan Schneider <j.schneider@uib.de> Thu, 19 Aug 2021 15:36:00 +0100
+
 opsi-client-agent (4.2.0.4-1) stable; urgency=low
 
   * Update opsiclientd to 4.2.0.85
