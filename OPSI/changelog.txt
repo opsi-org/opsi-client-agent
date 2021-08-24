@@ -3,6 +3,7 @@ opsi-client-agent (4.2.0.6-1) stable; urgency=low
 
   * Update opsiclientd to 4.2.0.87
   * Update oca-installation-helper to 4.2.0.1
+  * Fixed installation finalization. No reboot in bootimage context.
 
 -- Jan Schneider <j.schneider@uib.de> Thu, 24 Aug 2021 08:30:00 +0100
 
