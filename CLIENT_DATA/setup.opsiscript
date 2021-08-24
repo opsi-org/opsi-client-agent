@@ -824,20 +824,18 @@ else
 			endif
 		endif
 	endif
-endif
-
-DefVar $TempString$
-DefStringList $TempList1$
-Set $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_localboot_setup"))
-if JsonAsArrayCountElements($TempString$) > "0"
-	Set $TempList1$ = JsonAsArrayToStringList($TempString$)
-	Set $TempList1$ = removeFromListByContaining('opsi-client-agent;', $TempList1$)
-	if count($TempList1$) > "0"
-		comment "Setting Finalize to reboot because there are pending setup action requests"
-		Set $Finalize$ = "reboot"
+	DefVar $TempString$
+	DefStringList $TempList1$
+	Set $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_localboot_setup"))
+	if JsonAsArrayCountElements($TempString$) > "0"
+		Set $TempList1$ = JsonAsArrayToStringList($TempString$)
+		Set $TempList1$ = removeFromListByContaining('opsi-client-agent;', $TempList1$)
+		if count($TempList1$) > "0"
+			comment "Setting Finalize to reboot because there are pending setup action requests"
+			Set $Finalize$ = "reboot"
+		endif
 	endif
 endif
-
 
 if (GetProductProperty("allow_reboot", "true") = "false") and (($Finalize$ = "reboot") or ($Finalize$ = "shutdown"))
 	Set $Finalize$ = "service_restart"
