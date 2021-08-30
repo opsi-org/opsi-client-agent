@@ -760,9 +760,16 @@ if CompareDotSeparatedNumbers(GetMsVersionInfo, "<", "6.0")
 	isFatalError "Windows version not supported: " + GetMsVersionInfo
 endif
 
-if not (HasMinimumSpace ("%SystemDrive%", "200 MB"))
+if not (HasMinimumSpace("%SystemDrive%", "200 MB"))
 	LogError "Insufficient disk space on %SystemDrive% (200 MB required)"
 	IsFatalError "Insufficient disk space"
+endif
+
+if (strLength($ClientId$) > "64")
+	; A hostname longer than 64 characters may cause problems.
+	; For example, when creating the TLS certificate.
+	LogError "Client ID (FQDN) is longer than 64 chars"
+	IsFatalError "Client FQDN too long"
 endif
 
 Comment "Show product image"
