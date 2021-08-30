@@ -100,7 +100,10 @@ DefFunc install_opsiclientd(): void
 
 	comment "Run opsiclientd setup"
 	ShellCall('"'+ $BaseDir$ + '\opsiclientd_bin\opsiclientd.exe" setup --client-id "' + $ClientId$ + '" --service-address "' + $ServiceAddress$ + '" --service-username "' + $ServiceUsername$ + '" --service-password "' + $ServicePassword$ + '"')
-
+	if not(GetLastExitcode = "0")
+		LogError "opsiclientd setup failed"
+		IsFatalError "opsiclientd setup failed"
+	endif
 
 	[Files_extract_opsiclientd_binaries_to_temp]
 	del -sfc "$BaseDir$\opsiclientd_windows_x86"
