@@ -2,6 +2,7 @@
 opsi-client-agent (4.2.0.7-1) stable; urgency=low
 
   * Update opsiclientd to 4.2.0.88
+  * Update oca-installation-helper to 4.2.0.2
 
 -- Jan Schneider <j.schneider@uib.de> Mon, 30 Aug 2021 11:00:00 +0100
 
