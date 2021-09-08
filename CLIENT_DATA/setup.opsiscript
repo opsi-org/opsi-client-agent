@@ -564,6 +564,8 @@ DefFunc process_wim_capture() : void
 	DefStringList $ProductIds$
 	DefStringList $ErrorList$
 
+	MarkErrorNumber
+
 	Set $ProductIdsInstalled$ = EmptyList($ProductIdsInstalled$)
 
 	Set $SwitchInstalledProductsToSetup$ = Lower(get_config_value("clientconfig.capture.switch_installed_products_to_setup"))
