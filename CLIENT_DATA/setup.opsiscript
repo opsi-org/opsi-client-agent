@@ -522,9 +522,13 @@ DefFunc get_config_value($ConfigName$ : string) : string
 	if $result$ = "__null__"
 		; ConfigState not found, use default from Config
 		Set $TempString$ = TakeString(0, GetReturnListFromSection('OpsiServiceCall_get_config'))
-		Set $TempString$ = JsonAsArrayGetElementByIndex($TempString$, "0")
-		Set $TempString$ = JsonAsObjectGetValueByKey($TempString$, "defaultValues")
-		Set $result$ = JsonAsArrayGetElementByIndex($TempString$, "0")
+		if jsonAsArrayCountElements($TempString$) > "0"
+			Set $TempString$ = JsonAsArrayGetElementByIndex($TempString$, "0")
+			Set $TempString$ = JsonAsObjectGetValueByKey($TempString$, "defaultValues")
+			Set $result$ = JsonAsArrayGetElementByIndex($TempString$, "0")
+		else
+			Set $result$ = ""
+		endif
 	endif
 
 	[OpsiServiceCall_get_config]
