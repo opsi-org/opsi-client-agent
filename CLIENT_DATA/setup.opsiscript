@@ -390,15 +390,23 @@ EndFunc
 
 
 ; === post os installation tasks ================================================
-DefFunc post_os_installation_tasks() : void
-	Comment "Running post os installation tasks"
+DefFunc set_opsi_general_config() : void
+	Registry_set_opsi_general_config
+
+	[Registry_set_opsi_general_config]
+	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\general]
+	Set "bootmode" = "BKSTD"
+	;Set "opsiconf" = REG_DWORD:1
+	;Set "configlocal" = REG_DWORD:0
+EndFunc
+
+DefFunc set_running_netboot_package_to_installed() : void
+	Comment "Setting running netboot package to installed"
+
 	DefStringList $TempList1$
 	DefStringList $TempList2$
 	DefVar $TempString$
 
-	Registry_set_opsi_general_config
-
-	Comment "Setting running netboot package to installed"
 	Set $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_netboot_running"))
 	if JsonAsArrayCountElements($TempString$) > "0"
 		Set $TempList1$ = JsonAsArrayToStringList($TempString$)
@@ -406,39 +414,6 @@ DefFunc post_os_installation_tasks() : void
 		for %ProdOnClient% in $TempList1$ do Set $TempList2$ = addToList($TempList2$, JsonAsObjectGetValueByKey('%ProdOnClient%', "productId"))
 		for %TempProductId% in $TempList2$ do OpsiServiceCall_setProductInstallationStatus_installed
 	endif
-
-	Comment "Setting installed packages to setup"
-	Set $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_localboot_installed"))
-	if JsonAsArrayCountElements($TempString$) > "0"
-		Set $TempList1$ = JsonAsArrayToStringList($TempString$)
-		Set $TempList2$ = EmptyList($TempList2$)
-		for %ProdOnClient% in $TempList1$ do Set $TempList2$ = addToList($TempList2$, JsonAsObjectGetValueByKey('%ProdOnClient%', "productId"))
-		Set $TempList2$ = RemoveFromListByMatch('opsi-winst', $TempList2$)
-		Set $TempList2$ = RemoveFromListByMatch('opsi-script', $TempList2$)
-		Set $TempList2$ = RemoveFromListByMatch('opsi-client-agent', $TempList2$)
-		for %TempProductId% in $TempList2$ do OpsiServiceCall_setProductActionRequestWithDependencies_setup
-	endif
-
-	[Registry_set_opsi_general_config]
-	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\general]
-	Set "bootmode" = "BKSTD"
-	;Set "opsiconf" = REG_DWORD:1
-	;Set "configlocal" = REG_DWORD:0
-
-	[OpsiServiceCall_setProductActionRequestWithDependencies_setup]
-	"method": "setProductActionRequestWithDependencies"
-	"params": [
-		"%TempProductId%",
-		"$ClientId$",
-		"setup"
-	]
-
-	[OpsiServiceCall_productOnClient_getObjects_localboot_installed]
-	"method": "productOnClient_getObjects"
-	"params": [
-		"[]",
-		'{"clientId":"$ClientId$","productType":"LocalbootProduct","installationStatus":"installed"}'
-	]
 
 	[OpsiServiceCall_productOnClient_getObjects_netboot_running]
 	"method": "productOnClient_getObjects"
@@ -453,6 +428,39 @@ DefFunc post_os_installation_tasks() : void
 		"%TempProductId%",
 		"$ClientId$",
 		"installed"
+	]
+EndFunc
+
+DefFunc set_installed_packaged_to_setup() : void
+	Comment "Setting installed packages to setup"
+	DefStringList $TempList1$
+	DefStringList $TempList2$
+	DefVar $TempString$
+
+	Set $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_localboot_installed"))
+	if JsonAsArrayCountElements($TempString$) > "0"
+		Set $TempList1$ = JsonAsArrayToStringList($TempString$)
+		Set $TempList2$ = EmptyList($TempList2$)
+		for %ProdOnClient% in $TempList1$ do Set $TempList2$ = addToList($TempList2$, JsonAsObjectGetValueByKey('%ProdOnClient%', "productId"))
+		Set $TempList2$ = RemoveFromListByMatch('opsi-winst', $TempList2$)
+		Set $TempList2$ = RemoveFromListByMatch('opsi-script', $TempList2$)
+		Set $TempList2$ = RemoveFromListByMatch('opsi-client-agent', $TempList2$)
+		for %TempProductId% in $TempList2$ do OpsiServiceCall_setProductActionRequestWithDependencies_setup
+	endif
+
+	[OpsiServiceCall_setProductActionRequestWithDependencies_setup]
+	"method": "setProductActionRequestWithDependencies"
+	"params": [
+		"%TempProductId%",
+		"$ClientId$",
+		"setup"
+	]
+
+	[OpsiServiceCall_productOnClient_getObjects_localboot_installed]
+	"method": "productOnClient_getObjects"
+	"params": [
+		"[]",
+		'{"clientId":"$ClientId$","productType":"LocalbootProduct","installationStatus":"installed"}'
 	]
 EndFunc
 
@@ -799,7 +807,9 @@ else
 	endif
 
 	if Contains($InstallationOptions$, "bootimage")
-		post_os_installation_tasks()
+		set_opsi_general_config()
+		set_running_netboot_package_to_installed()
+		set_installed_packaged_to_setup()
 	endif
 
 	install_opsiscript()
@@ -816,6 +826,7 @@ install_configuration()
 if FileExists("%opsiTmpDir%\productOnClients.json")
 	comment "Found WIM-capture meta data file. Start processing."
 	process_wim_capture()
+	set_running_netboot_package_to_installed()
 endif
 setup_after_install()
 
