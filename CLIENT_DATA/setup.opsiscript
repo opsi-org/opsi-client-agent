@@ -258,6 +258,8 @@ DefFunc install_opsinotifier() : void
 	Message "Installing opsi-notifier"
 	;KillTask "opsi-notifier.exe"
 	ShellCall("taskkill /f /im opsi-notifier.exe")
+	;VERY old opsi-client-agents use notifier.exe instead of opsi-notifier.exe
+	ShellCall("taskkill /f /im notifier.exe")
 	Files_install_opsinotifier
 
 	[Files_install_opsinotifier]
