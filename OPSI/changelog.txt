@@ -1,4 +1,11 @@
 ﻿[Changelog]
+opsi-client-agent (4.2.0.9-1) stable; urgency=low
+
+  * Fixed cleanup of very old notifier
+  * Fixed setup setting for netbootproducts run on clean machines
+
+-- Nils Doerrer <n.doerrer@uib.de> Thu, 19 Sep 2021 12:40:00 +0100
+
 opsi-client-agent (4.2.0.8-1) stable; urgency=low
 
   * Fix process_wim_capture()

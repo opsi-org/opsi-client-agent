@@ -435,19 +435,24 @@ EndFunc
 
 DefFunc set_installed_packaged_to_setup() : void
 	Comment "Setting installed packages to setup"
+	DefStringList $TempList0$
 	DefStringList $TempList1$
 	DefStringList $TempList2$
 	DefVar $TempString$
 
-	Set $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_localboot_installed"))
-	if JsonAsArrayCountElements($TempString$) > "0"
-		Set $TempList1$ = JsonAsArrayToStringList($TempString$)
-		Set $TempList2$ = EmptyList($TempList2$)
-		for %ProdOnClient% in $TempList1$ do Set $TempList2$ = addToList($TempList2$, JsonAsObjectGetValueByKey('%ProdOnClient%', "productId"))
-		Set $TempList2$ = RemoveFromListByMatch('opsi-winst', $TempList2$)
-		Set $TempList2$ = RemoveFromListByMatch('opsi-script', $TempList2$)
-		Set $TempList2$ = RemoveFromListByMatch('opsi-client-agent', $TempList2$)
-		for %TempProductId% in $TempList2$ do OpsiServiceCall_setProductActionRequestWithDependencies_setup
+	Set $TempList0$ = GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_localboot_installed")
+	; Returns List with either 0 or 1 entry (specific for client)
+	if count(TempList0) = "1"
+		Set $TempString$ = TakeString(0, $TempList0$)
+		if JsonAsArrayCountElements($TempString$) > "0"
+			Set $TempList1$ = JsonAsArrayToStringList($TempString$)
+			Set $TempList2$ = EmptyList($TempList2$)
+			for %ProdOnClient% in $TempList1$ do Set $TempList2$ = addToList($TempList2$, JsonAsObjectGetValueByKey('%ProdOnClient%', "productId"))
+			Set $TempList2$ = RemoveFromListByMatch('opsi-winst', $TempList2$)
+			Set $TempList2$ = RemoveFromListByMatch('opsi-script', $TempList2$)
+			Set $TempList2$ = RemoveFromListByMatch('opsi-client-agent', $TempList2$)
+			for %TempProductId% in $TempList2$ do OpsiServiceCall_setProductActionRequestWithDependencies_setup
+		endif
 	endif
 
 	[OpsiServiceCall_setProductActionRequestWithDependencies_setup]
