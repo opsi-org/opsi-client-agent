@@ -4,6 +4,7 @@ opsi-client-agent (4.2.0.9-1) stable; urgency=low
   * Fixed cleanup of very old notifier
   * Fixed setup setting for netbootproducts run on clean machines
   * Updated opsiclientd to 4.2.0.89
+  * Updated oca-installation-helper to 4.2.0.4
 
 -- Nils Doerrer <n.doerrer@uib.de> Thu, 17 Sep 2021 13:00:00 +0100
 
