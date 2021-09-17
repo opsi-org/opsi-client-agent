@@ -442,7 +442,7 @@ DefFunc set_installed_packaged_to_setup() : void
 
 	Set $TempList0$ = GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_localboot_installed")
 	; Returns List with either 0 or 1 entry (specific for client)
-	if count(TempList0) = "1"
+	if count($TempList0$) = "1"
 		Set $TempString$ = TakeString(0, $TempList0$)
 		if JsonAsArrayCountElements($TempString$) > "0"
 			Set $TempList1$ = JsonAsArrayToStringList($TempString$)
