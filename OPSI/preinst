@@ -28,6 +28,14 @@ if [ -d "${CLIENT_DATA_DIR}/files/custom" ]; then
 	cp -r "${CLIENT_DATA_DIR}/files/custom" $TMP_DIR/ || exit 1
 fi
 
+# Migration of obsolete property on_shutdown_install
+if [ -e "${CLIENT_DATA_DIR}/files/opsi/on_shutdown" ]; then
+	echo "Upgrading from opsi-client-agent < 4.2.0.0"
+	for client_id in $(opsi-admin -dS method productPropertyState_getIdents '[]' '{"productId":"opsi-client-agent","propertyId":"on_shutdown_install","values":"[\"on\"]"}' | cut -d";" -f3); do
+		opsi-admin -d method configState_create "opsiclientd.event_on_shutdown.active" "${client_id}" "true"
+	done
+done
+
 #******************************************
 # START opsi-client-kiosk migration
 #******************************************
