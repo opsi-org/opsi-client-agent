@@ -37,7 +37,7 @@ if [ -e "${CLIENT_DATA_DIR}/files/opsi/on_shutdown" ]; then
 	for client_id in $(opsi-admin -dS method productPropertyState_getIdents null '{"productId":"opsi-client-agent","propertyId":"on_shutdown_install","values":"[\"on\"]"}' | cut -d";" -f3); do
 		opsi-admin -d method configState_create "opsiclientd.event_on_shutdown.active" "${client_id}" "true"
 	done
-done
+fi
 
 #******************************************
 # START opsi-client-kiosk migration
