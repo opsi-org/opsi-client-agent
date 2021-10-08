@@ -2,8 +2,9 @@
 opsi-client-agent (4.2.0.13-1) stable; urgency=low
 
   * Update opsiclientd to 4.2.0.93
+  * Migrate product property on_shutdown_install
 
--- Jan Schneider <j.schneider@uib.de> Wed, 25 Sep 2021 08:52:00 +0100
+-- Jan Schneider <j.schneider@uib.de> Fri, 08 Oct 2021 07:44:00 +0100
 
 opsi-client-agent (4.2.0.12-1) stable; urgency=low
 
