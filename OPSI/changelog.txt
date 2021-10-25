@@ -2,8 +2,9 @@
 opsi-client-agent (4.2.0.14-1) stable; urgency=low
 
   * Update opsiclientd to 4.2.0.94
+  * Update opsi-notifier to 4.2.0.2
 
--- Nils Doerrer <n.doerrer@uib.de> Mo, 18 Oct 2021 13:44:00 +0100
+-- Nils Doerrer <n.doerrer@uib.de> Mo, 25 Oct 2021 16:30:00 +0100
 
 opsi-client-agent (4.2.0.13-1) stable; urgency=low
 
