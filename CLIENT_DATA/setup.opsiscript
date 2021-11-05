@@ -333,9 +333,13 @@ EndFunc
 ; === directories ===============================================================
 DefFunc install_directories() : void
 	DefVar $AdminSID$
+	DefStringList $debugdav$
 	Comment "Creating directories and setting permissions"
 	Message "Creating directories and setting permissions"
 	Files_create_dirs
+
+ 	Comment "TEST MOUNT before getting admin id"
+ 	Set $debugdav$ = shellCall('dir /b "%ScriptPath%"')
 
 	; Get-LocalUser is not available in Powershell 2 (win7)
 	; Some win10 seem to get stuck on Get-WmiObject win32_useraccount
@@ -343,7 +347,16 @@ DefFunc install_directories() : void
 	if not (contains($AdminSID$, "S-1-5-"))
 		Set $AdminSID$ = TakeString(0, PowerShellCall("(Get-WmiObject win32_useraccount | Where-Object {$_.SID -like 'S-1-5-*-500'}).SID"))
 	endif
+	;Set $AdminSID$ = takeString(0, GetSubListByContainingRegex("^S-1-5-21-.*-500$", GetRegistryKeyListSysNative("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList")))
+
+ 	Comment "TEST MOUNT after getting admin id"
+ 	Set $debugdav$ = shellCall('dir /b "%ScriptPath%"')
+
 	DosInAnIcon_set_file_permissions
+
+ 	Comment "TEST MOUNT after set_file_permissions"
+ 	Set $debugdav$ = shellCall('dir /b "%ScriptPath%"')
+
 
 	[Files_create_dirs]
 	CheckTargetPath = "$VarDir$"
