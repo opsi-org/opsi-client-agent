@@ -36,10 +36,10 @@ DefFunc install_requirements() : void
 	Comment "Installing vcredist"
 	Message "Installing vcredist"
 	; Needed for opsi-login-blocker x86 and opsiclientd
-	ShellCall('"%ScriptPath%\files\vcredist2015\vc_redist.x86.exe" /install /passive /norestart')
+	ShellCall('"%ScriptPath%\files\vcredist\VC_redist.x86.exe" /install /passive /norestart')
 	if (GetSystemType = "64 Bit System")
 		; Needed for opsi-login-blocker x64
-		ShellCall('"%ScriptPath%\files\vcredist2015\vc_redist.x64.exe" /install /passive /norestart')
+		ShellCall('"%ScriptPath%\files\vcredist\VC_redist.x64.exe" /install /passive /norestart')
 	endif
 EndFunc
 

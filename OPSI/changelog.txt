@@ -1,6 +1,14 @@
 ﻿[Changelog]
 opsi-client-agent (4.2.0.14-1) stable; urgency=low
 
+  * Update vcredist to 2015-2022 14.30.30528.0
+  *
+
+-- Nils Doerrer <n.doerrer@uib.de> Mo, 08 Nov 2021 16:30:00 +0100
+
+
+opsi-client-agent (4.2.0.14-1) stable; urgency=low
+
   * Update opsiclientd to 4.2.0.94
   * Update opsi-notifier to 4.2.0.2
 
