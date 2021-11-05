@@ -334,6 +334,7 @@ EndFunc
 DefFunc install_directories() : void
 	DefVar $AdminSID$
 	DefStringList $debugdav$
+
 	Comment "Creating directories and setting permissions"
 	Message "Creating directories and setting permissions"
 	Files_create_dirs
@@ -838,8 +839,21 @@ endif
 install_requirements()
 install_opsinotifier()
 install_opsisystray()
+
+DefStringList $debugdav$
+Comment "TEST MOUNT before opsiclientd"
+Set $debugdav$ = shellCall('dir /b "%ScriptPath%"')
+
 install_opsiclientd()
+
+Comment "TEST MOUNT before custom_files"
+Set $debugdav$ = shellCall('dir /b "%ScriptPath%"')
+
 install_custom_files()
+
+Comment "TEST MOUNT before directories"
+Set $debugdav$ = shellCall('dir /b "%ScriptPath%"')
+
 install_directories()
 install_configuration()
 
