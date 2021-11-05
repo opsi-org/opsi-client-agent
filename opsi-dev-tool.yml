@@ -121,6 +121,8 @@ pull-binaries:
     server-type: binaryindex
     destination: CLIENT_DATA/files/vcredist/
     extract: true
+    post-script:
+      - chmod u+x,g+x CLIENT_DATA/files/vcredist/*.exe
     os: windows
     architecture: x86
     version: 14.30.30528.0
@@ -133,6 +135,8 @@ pull-binaries:
     server-type: binaryindex
     destination: CLIENT_DATA/files/vcredist/
     extract: true
+    post-script:
+      - chmod u+x,g+x CLIENT_DATA/files/vcredist/*.exe
     os: windows
     architecture: x64
     version: 14.30.30528.0
