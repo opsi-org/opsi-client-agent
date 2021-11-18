@@ -7,7 +7,7 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x86
-    version: 4.2.0.94
+    version: ~4.2.0.96
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
@@ -19,7 +19,7 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x86
-    version: 4.12.4.26
+    version: 4.12.4.31
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
@@ -37,7 +37,7 @@ pull-binaries:
         - Remove-Item -Recurse -Force CLIENT_DATA\\files\\opsi-script-common
     os: all
     architecture: all
-    version: 4.12.4.26
+    version: 4.12.4.31
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
@@ -99,7 +99,7 @@ pull-binaries:
         - chmod 755 CLIENT_DATA/oca-installation-helper.exe
     os: windows
     architecture: x86
-    version: 4.2.0.4
+    version: 4.2.0.5
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
@@ -111,7 +111,7 @@ pull-binaries:
     post-script: []
     os: linux
     architecture: x64
-    version: 4.2.0.13
+    version: 4.2.0.15
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
