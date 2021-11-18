@@ -104,7 +104,7 @@ pull-binaries:
     server-url: http://binaryindex.uib.gmbh
 
   # opsi deployment script (as binary)
-  - name: opsideployclientagent
+  - name: opsi-deploy-client-agent
     server-type: binaryindex
     destination: CLIENT_DATA
     extract: true
