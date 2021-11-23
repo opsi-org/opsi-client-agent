@@ -1,10 +1,20 @@
 ﻿[Changelog]
+opsi-client-agent (4.2.0.15-1) stable; urgency=low
+
+  * Update vcredist to 2015-2022 14.30.30528.0
+  * Update opsiclientd to 4.2.0.96 (reworked event-handling, minor fixes)
+  * Update oca-installation-helper to 4.2.0.5
+  * Update opsi-script to 4.12.4.31
+  * Update opsi-deploy-client-agent to 4.2.0.15 (isolated from opsicommon python module)
+
+-- Nils Doerrer <n.doerrer@uib.de> Thu, 18 Nov 2021 17:30:00 +0100
+
 opsi-client-agent (4.2.0.14-1) stable; urgency=low
 
   * Update opsiclientd to 4.2.0.94
   * Update opsi-notifier to 4.2.0.2
 
--- Nils Doerrer <n.doerrer@uib.de> Mo, 25 Oct 2021 16:30:00 +0100
+-- Nils Doerrer <n.doerrer@uib.de> Mon, 25 Oct 2021 16:30:00 +0100
 
 opsi-client-agent (4.2.0.13-1) stable; urgency=low
 
