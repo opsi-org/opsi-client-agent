@@ -5,7 +5,7 @@ opsi-client-agent (4.2.0.16-1) stable; urgency=low
   * Update opsi-notifier to 4.2.0.3 (timepicker fix)
   * Update opsiclientd to 4.2.0.97 (new feature: temporary popup notifications)
 
--- Nils Doerrer <n.doerrer@uib.de> Thu, 18 Nov 2021 17:30:00 +0100
+-- Nils Doerrer <n.doerrer@uib.de> Fri, 26 Nov 2021 18:30:00 +0100
 
 opsi-client-agent (4.2.0.15-1) stable; urgency=low
 
