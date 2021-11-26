@@ -802,7 +802,7 @@ if (strLength($ClientId$) > "64")
 	IsFatalError "Client FQDN too long"
 endif
 
-PowerShellCall("echo")
+PowerShellCall('echo ""')
 if not ("0" = GetLastExitcode)
 	LogError "Unable to access Powershell - check ExecutionPolicy restrictions"
 	IsFatalError "Unable to access Powershell"
