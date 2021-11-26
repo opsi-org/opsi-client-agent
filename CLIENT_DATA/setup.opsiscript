@@ -344,8 +344,14 @@ DefFunc install_directories() : void
 	if not (contains($AdminSID$, "S-1-5-"))
 		Set $AdminSID$ = TakeString(0, PowerShellCall("(Get-WmiObject win32_useraccount | Where-Object {$_.SID -like 'S-1-5-*-500'}).SID"))
 	endif
-	;Set $AdminSID$ = takeString(0, GetSubListByContainingRegex("^S-1-5-21-.*-500$", GetRegistryKeyListSysNative("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList")))
-
+	if not (contains($AdminSID$, "S-1-5-"))
+		Set $AdminSID$ = takeString(0, GetSubListByContainingRegex("^S-1-5-21-.*-500$", GetRegistryKeyListSysNative("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList")))
+	endif
+	if not (contains($AdminSID$, "S-1-5-"))
+		LogError "failed to get AdminSID"
+		Message "failed to get AdminSID"
+		IsFatalError "failed to get AdminSID"
+	endif
 	DosInAnIcon_set_file_permissions
 
 	[Files_create_dirs]
@@ -794,6 +800,12 @@ if (strLength($ClientId$) > "64")
 	; For example, when creating the TLS certificate.
 	LogError "Client ID (FQDN) is longer than 64 chars"
 	IsFatalError "Client FQDN too long"
+endif
+
+PowerShellCall("echo")
+if not ("0" = GetLastExitcode)
+	LogError "Unable to access Powershell - check ExecutionPolicy restrictions"
+	IsFatalError "Unable to access Powershell"
 endif
 
 Comment "Show product image"
