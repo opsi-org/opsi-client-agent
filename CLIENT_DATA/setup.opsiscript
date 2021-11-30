@@ -79,10 +79,10 @@ DefFunc install_opsiclientd(): void
 	PowerShellCall('Rename-Item "' + $BaseDir$ + '\opsiclientd_bin" "' + $BaseDir$ + '\opsiclientd_bin_old"')
 	PowerShellCall('Rename-Item "' + $BaseDir$ + '\opsiclientd_windows_x86" "' + $BaseDir$ + '\opsiclientd_bin"')
 
-	;if not (FileExists($BaseDir$ + "\opsiclientd_bin\opsiclientd.exe"))
-	;	LogError "Failed to replace opsiclientd binaries, retry with copy"
-	;	Files_install_opsiclientd_binaries_from_temp
-	;endif
+	if not (FileExists($BaseDir$ + "\opsiclientd_bin\opsiclientd.exe"))
+		LogError "Failed to replace opsiclientd binaries, retry with copy"
+		Files_install_opsiclientd_binaries_from_temp
+	endif
 	if not (FileExists($BaseDir$ + "\opsiclientd_bin\opsiclientd.exe"))
 		LogError "Failed to install opsiclientd binaries"
 		IsFatalError "Failed to install opsiclientd binaries"
@@ -109,10 +109,10 @@ DefFunc install_opsiclientd(): void
 	del -sfc "$BaseDir$\opsiclientd_windows_x86"
 	unzipfile "$BinaryArchiveFile$" "$BaseDir$\"
 
-	;[Files_install_opsiclientd_binaries_from_temp]
-	;del -sfc "$BaseDir$\opsiclientd_bin"
-	;copy -sc "$BaseDir$\opsiclientd_windows_x86\*.*" "$BaseDir$\opsiclientd_bin\"
-	;del -sfc "$BaseDir$\opsiclientd_windows_x86"
+	[Files_install_opsiclientd_binaries_from_temp]
+	del -sfc "$BaseDir$\opsiclientd_bin"
+	copy -sc "$BaseDir$\opsiclientd_windows_x86\*.*" "$BaseDir$\opsiclientd_bin\"
+	del -sfc "$BaseDir$\opsiclientd_windows_x86"
 
 	[Files_install_opsiclientd_dir]
 	; Remove extend.d as workaround to avoid copy errors while copy *.conf
