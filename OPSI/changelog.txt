@@ -4,8 +4,9 @@ opsi-client-agent (4.2.0.16-1) stable; urgency=low
   * Improved checking for Powershell restrictions
   * Update opsi-notifier to 4.2.0.3 (timepicker fix)
   * Update opsiclientd to 4.2.0.97 (new feature: temporary popup notifications)
+  * Workaround for access denied on rename of bin folder
 
--- Nils Doerrer <n.doerrer@uib.de> Fri, 26 Nov 2021 18:30:00 +0100
+-- Nils Doerrer <n.doerrer@uib.de> Tue, 30 Nov 2021 07:30:00 +0100
 
 opsi-client-agent (4.2.0.15-1) stable; urgency=low
 
