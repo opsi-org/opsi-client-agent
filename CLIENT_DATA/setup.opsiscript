@@ -833,7 +833,9 @@ else
 		set_running_netboot_package_to_installed()
 		set_installed_packaged_to_setup()
 	endif
+endif
 
+if not (FileExists("$BaseDir$\opsi-script"))
 	install_opsiscript()
 endif
 
