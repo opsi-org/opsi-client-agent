@@ -835,7 +835,7 @@ else
 	endif
 endif
 
-if not (FileExists("$BaseDir$\opsi-script"))
+if not (FileExists($BaseDir$ + "\opsi-script"))
 	install_opsiscript()
 endif
 
