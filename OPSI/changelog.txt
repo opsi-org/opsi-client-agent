@@ -11,8 +11,9 @@ opsi-client-agent (4.2.0.16-1) stable; urgency=low
   * Workaround for access denied on rename of bin folder
   * Installing opsi-script if not present (ahead of update_action_processor)
   * Updated oca-installation-helper to 4.2.0.6
+  * Add parameter /u to service_setup.cmd
 
--- Nils Doerrer <n.doerrer@uib.de> Tue, 01 Dec 2021 07:30:00 +0100
+-- Nils Doerrer <n.doerrer@uib.de> Tue, 01 Dec 2021 13:30:00 +0100
 
 opsi-client-agent (4.2.0.15-1) stable; urgency=low
 
