@@ -3,7 +3,11 @@ opsi-client-agent (4.2.0.16-1) stable; urgency=low
 
   * Improved checking for Powershell restrictions
   * Update opsi-notifier to 4.2.0.3 (timepicker fix)
-  * Update opsiclientd to 4.2.0.97 (new feature: temporary popup notifications)
+  * Update opsiclientd to 4.2.0.98
+    - feature: temporary popup notifications
+    - fix: event config inheritance
+    - fix: only save current custom skin if it is nonempty
+    - fix: update choices in time select notifier while running
   * Workaround for access denied on rename of bin folder
   * Installing opsi-script if not present (ahead of update_action_processor)
 
