@@ -808,6 +808,15 @@ if not ("0" = GetLastExitcode)
 	IsFatalError "Unable to access Powershell"
 endif
 
+DefVar $PreviousOCD$
+if FileExists($BaseDir$+"\opsiclientd_bin\opsiclientd.exe")
+	DefStringList FileInfo
+	set FileInfo = getFileInfoMap($BaseDir$+"\opsiclientd_bin\opsiclientd.exe")
+	set $PreviousOCD$ = getValue("FileVersion", FileInfo)
+else
+	set $PreviousOCD$ = "0"
+endif
+
 Comment "Show product image"
 ShowBitmap "%ScriptPath%\files\opsi-logo.png" "opsi client agent"
 
@@ -906,9 +915,13 @@ Switch $Finalize$
 	Case "service_restart"
 		; Restart opsiclientd after current event or start opsiclientd without executing events
 		Comment "Creating opsiclientd restart marker"
-		PowerShellCall('New-Item "' + $BaseDir$ + '\.opsiclientd_restart" -ItemType File')
-		if not (ProcessIsRunning("opsiclientd.exe"))
-			ShellCall('sc start opsiclientd')
+		if CompareDotSeparatedStrings($PreviousOCD$, ">=", "4.2.0.0")
+			PowerShellCall('New-Item "' + $BaseDir$ + '\.opsiclientd_restart" -ItemType File')
+			if not (ProcessIsRunning("opsiclientd.exe"))
+				ShellCall('sc start opsiclientd')
+			endif
+		else
+			ExitWindows /Reboot
 		endif
 	EndCase
 EndSwitch
