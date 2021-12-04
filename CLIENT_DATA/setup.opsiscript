@@ -16,6 +16,7 @@ DefVar $ServicePassword$
 DefVar $ClientId$
 DefVar $InstallationOptions$
 DefVar $Finalize$
+DefVar $PreviousOCDVersion$
 
 Set $ProductId$ = "opsi-client-agent"
 Set $BaseDir$ = "%ProgramFiles32Dir%\opsi.org\opsi-client-agent"
@@ -808,14 +809,17 @@ if not ("0" = GetLastExitcode)
 	IsFatalError "Unable to access Powershell"
 endif
 
-DefVar $PreviousOCD$
 if FileExists($BaseDir$+"\opsiclientd_bin\opsiclientd.exe")
-	DefStringList FileInfo
-	set FileInfo = getFileInfoMap($BaseDir$+"\opsiclientd_bin\opsiclientd.exe")
-	set $PreviousOCD$ = getValue("FileVersion", FileInfo)
+	Set $PreviousOCDVersion$ = getValue("FileVersion", getFileInfoMap($BaseDir$+"\opsiclientd_bin\opsiclientd.exe"))
 else
-	set $PreviousOCD$ = "0"
+	if FileExists($BaseDir$+"\opsiclientd.exe")
+		Set $PreviousOCDVersion$ = getValue("FileVersion", getFileInfoMap($BaseDir$+"\opsiclientd.exe"))
+	else
+		; Not installed
+		Set $PreviousOCDVersion$ = "0"
+	endif
 endif
+
 
 Comment "Show product image"
 ShowBitmap "%ScriptPath%\files\opsi-logo.png" "opsi client agent"
@@ -901,6 +905,11 @@ if (GetProductProperty("allow_reboot", "true") = "false") and (($Finalize$ = "re
 	Set $Finalize$ = "service_restart"
 endif
 
+if ($Finalize$ = "service_restart") and (not ($PreviousOCDVersion$ = "0")) and (CompareDotSeparatedStrings($PreviousOCDVersion$, "<", "4.2.0.33"))
+	comment "opsiclientd version " + $PreviousOCDVersion$ + " does not handle restart marker"
+	Set $Finalize$ = "reboot"
+endif
+
 Switch $Finalize$
 	Case "reboot"
 		ExitWindows /Reboot
@@ -915,13 +924,9 @@ Switch $Finalize$
 	Case "service_restart"
 		; Restart opsiclientd after current event or start opsiclientd without executing events
 		Comment "Creating opsiclientd restart marker"
-		if CompareDotSeparatedStrings($PreviousOCD$, ">=", "4.2.0.0")
-			PowerShellCall('New-Item "' + $BaseDir$ + '\.opsiclientd_restart" -ItemType File')
-			if not (ProcessIsRunning("opsiclientd.exe"))
-				ShellCall('sc start opsiclientd')
-			endif
-		else
-			ExitWindows /Reboot
+		PowerShellCall('New-Item "' + $BaseDir$ + '\.opsiclientd_restart" -ItemType File')
+		if not (ProcessIsRunning("opsiclientd.exe"))
+			ShellCall('sc start opsiclientd')
 		endif
 	EndCase
 EndSwitch
