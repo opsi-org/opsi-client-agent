@@ -1,9 +1,10 @@
 ﻿[Changelog]
 opsi-client-agent (4.2.0.17-1) stable; urgency=low
 
-  * Fix: old opsiclientd version does not handle restart marker 
+  * Fix: old opsiclientd version does not handle restart marker
+  * Updated opsiclientd to 4.2.0.99 (WAN mode - fix modules handling)
 
--- Jan Schneider <j.schneider@uib.de> Sat, 04 Dec 2021 08:45:00 +0100
+-- Jan Schneider <j.schneider@uib.de> Mon, 06 Dec 2021 15:45:00 +0100
 
 opsi-client-agent (4.2.0.16-1) stable; urgency=low
 
