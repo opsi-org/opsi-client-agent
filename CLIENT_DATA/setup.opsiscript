@@ -402,6 +402,19 @@ EndFunc
 
 
 ; === post os installation tasks ================================================
+DefFunc rotate_instlog() : void
+	OpsiServiceCall_rotate_instlog
+
+	[OpsiServiceCall_rotate_instlog]
+	"method": "log_write"
+	"params": [
+		"instlog",
+		"",
+		"$ClientId$",
+		""
+	]
+EndFunc
+
 DefFunc set_opsi_general_config() : void
 	Registry_set_opsi_general_config
 
@@ -842,6 +855,8 @@ else
 	endif
 
 	if Contains($InstallationOptions$, "bootimage")
+		; Rotate instlog until opsi-script can be forced to not use appendmode
+		rotate_instlog()
 		set_opsi_general_config()
 		set_running_netboot_package_to_installed()
 		set_installed_packaged_to_setup()
