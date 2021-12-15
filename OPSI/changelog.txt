@@ -1,4 +1,10 @@
 ﻿[Changelog]
+opsi-client-agent (4.2.0.18-1) stable; urgency=low
+
+  * Rotate instlog during os installation
+
+-- Jan Schneider <j.schneider@uib.de> Mon, 15 Dec 2021 08:24:00 +0100
+
 opsi-client-agent (4.2.0.17-1) stable; urgency=low
 
   * Fix: old opsiclientd version does not handle restart marker
