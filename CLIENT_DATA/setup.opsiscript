@@ -854,9 +854,10 @@ else
 		SleepSeconds 5
 	endif
 
+	; Rotate instlog until opsi-script can be forced to not use appendmode
+	rotate_instlog()
+
 	if Contains($InstallationOptions$, "bootimage")
-		; Rotate instlog until opsi-script can be forced to not use appendmode
-		rotate_instlog()
 		set_opsi_general_config()
 		set_running_netboot_package_to_installed()
 		set_installed_packaged_to_setup()
@@ -921,7 +922,7 @@ if (GetProductProperty("allow_reboot", "true") = "false") and (($Finalize$ = "re
 endif
 
 ; with opsiclientd 4.2.0.77 the location of the restart_marker was changed
-if ($Finalize$ = "service_restart") and (not ($PreviousOCDVersion$ = "0")) and (CompareDotSeparatedStrings($PreviousOCDVersion$, "<", "4.2.0.77"))
+if ($Finalize$ = "service_restart") and (CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77"))
 	comment "opsiclientd version " + $PreviousOCDVersion$ + " does not handle restart marker"
 	Set $Finalize$ = "reboot"
 endif
