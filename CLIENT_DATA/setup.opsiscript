@@ -920,7 +920,8 @@ if (GetProductProperty("allow_reboot", "true") = "false") and (($Finalize$ = "re
 	Set $Finalize$ = "service_restart"
 endif
 
-if ($Finalize$ = "service_restart") and (not ($PreviousOCDVersion$ = "0")) and (CompareDotSeparatedStrings($PreviousOCDVersion$, "<", "4.2.0.33"))
+; with opsiclientd 4.2.0.77 the location of the restart_marker was changed
+if ($Finalize$ = "service_restart") and (not ($PreviousOCDVersion$ = "0")) and (CompareDotSeparatedStrings($PreviousOCDVersion$, "<", "4.2.0.77"))
 	comment "opsiclientd version " + $PreviousOCDVersion$ + " does not handle restart marker"
 	Set $Finalize$ = "reboot"
 endif

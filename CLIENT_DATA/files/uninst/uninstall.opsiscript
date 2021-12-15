@@ -19,10 +19,10 @@ Set $ServiceUsername$ = "%opsiserviceUser%"
 Set $ServicePassword$ = "%opsiservicePassword%"
 Set $ClientId$ = "%HostID%"
 
-Registry_uninstall_loginblocker
+Registry_uninstall_loginblocker /sysnative
 ShellCall("taskkill /f /im logonui.exe")
 Sub_uninstall_opsisystray
-Registry_del_keys
+Registry_del_keys /sysnative
 Sub_uninstall_opsiclientdguard
 Files_uninstall
 
