@@ -3,6 +3,7 @@ image: python:3.7-stretch
 stages:
   - build
   - package
+  - test
 
 .install_opsi_dev_tools: &install_opsi_dev_tools |
   apt update
