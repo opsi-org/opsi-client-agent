@@ -8,6 +8,13 @@
 #   CLIENT_DATA_DIR: directory where client data will be installed
 #
 
+# in case of opsi 4.2 (opsi-python present) use python variant of preinst (for efficiency)
+if [ -e "/usr/bin/opsi-python" ]; then
+	SCRIPT_DIR=$(dirname "$0")
+	/usr/bin/opsi-python "$SCRIPT_DIR/preinst.py"
+	exit $?
+fi
+
 TMP_DIR=${CLIENT_DATA_DIR}/../${PRODUCT_ID}.tmp
 
 if [ -d $TMP_DIR ]; then

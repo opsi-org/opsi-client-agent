@@ -18,7 +18,7 @@ if [ -e "${INSTALLER}" -a -d "${PUBLIC_DIR}" ]; then
 		mv "${INSTALLER}" "${PUBLIC_DIR}/opsi-client-agent/" || true
 	fi
 fi
-[ -e "${INSTALLER}" && rm "${INSTALLER}"
+[ -e "${INSTALLER}" ] && rm "${INSTALLER}"
 
 chmod u+x,g+x $CLIENT_DATA_DIR/opsi-deploy-client-agent
 chmod u+x,g+x $CLIENT_DATA_DIR/service_setup.cmd
