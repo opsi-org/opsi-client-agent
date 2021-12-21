@@ -2,9 +2,12 @@
 opsi-client-agent (4.2.0.19-1) stable; urgency=low
 
   * Update opsi-login-blocker to 4.2.0.1
-  * Update opsiclientd to 4.2.0.101
+  * Update opsiclientd to 4.2.0.101 (event handling fix)
+  * Update oca-installation-helper to 4.2.0.9 (windows 7 tempdir fix)
+  * Allsigned compatible powershell calls
+  * Fixed allow_reboot in case of very old previous opsi-client-agent version
 
--- Jan Schneider <j.schneider@uib.de> Sat, 18 Dec 2021 11:30:00 +0100
+-- Jan Schneider <j.schneider@uib.de> Tue, 21 Dec 2021 14:30:00 +0100
 
 opsi-client-agent (4.2.0.18-2) stable; urgency=low
 
