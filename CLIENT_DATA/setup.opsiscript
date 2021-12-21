@@ -76,9 +76,9 @@ DefFunc install_opsiclientd(): void
 	Comment "Opsiclientd archive file: " + $BinaryArchiveFile$
 
 	Files_extract_opsiclientd_binaries_to_temp
-	PowerShellCall('Remove-Item -Recurse -Force "' + $BaseDir$ + '\opsiclientd_bin_old"')
-	PowerShellCall('Rename-Item "' + $BaseDir$ + '\opsiclientd_bin" "' + $BaseDir$ + '\opsiclientd_bin_old"')
-	PowerShellCall('Rename-Item "' + $BaseDir$ + '\opsiclientd_windows_x86" "' + $BaseDir$ + '\opsiclientd_bin"')
+	ShellCall('powershell.exe -command Remove-Item -Recurse -Force "' + $BaseDir$ + '\opsiclientd_bin_old"')
+	ShellCall('powershell.exe -command Rename-Item "' + $BaseDir$ + '\opsiclientd_bin" "' + $BaseDir$ + '\opsiclientd_bin_old"')
+	ShellCall('powershell.exe -command Rename-Item "' + $BaseDir$ + '\opsiclientd_windows_x86" "' + $BaseDir$ + '\opsiclientd_bin"')
 
 	if not (FileExists($BaseDir$ + "\opsiclientd_bin\opsiclientd.exe"))
 		LogError "Failed to replace opsiclientd binaries, retry with copy"
@@ -341,9 +341,9 @@ DefFunc install_directories() : void
 
 	; Get-LocalUser is not available in Powershell 2 (win7)
 	; Some win10 seem to get stuck on Get-WmiObject win32_useraccount
-	Set $AdminSID$ = TakeString(0, PowerShellCall("(Get-LocalUser | Where-Object {$_.SID -like 'S-1-5-*-500'}).SID.Value"))
+	Set $AdminSID$ = TakeString(0, ShellCall("powershell.exe -command (Get-LocalUser | Where-Object {$_.SID -like 'S-1-5-*-500'}).SID.Value"))
 	if not (contains($AdminSID$, "S-1-5-"))
-		Set $AdminSID$ = TakeString(0, PowerShellCall("(Get-WmiObject win32_useraccount | Where-Object {$_.SID -like 'S-1-5-*-500'}).SID"))
+		Set $AdminSID$ = TakeString(0, ShellCall("powershell.exe -command (Get-WmiObject win32_useraccount | Where-Object {$_.SID -like 'S-1-5-*-500'}).SID"))
 	endif
 	if not (contains($AdminSID$, "S-1-5-"))
 		Set $AdminSID$ = takeString(0, GetSubListByContainingRegex("^S-1-5-21-.*-500$", GetRegistryKeyListSysNative("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList")))
@@ -816,7 +816,7 @@ if (strLength($ClientId$) > "64")
 	IsFatalError "Client FQDN too long"
 endif
 
-PowerShellCall('echo ""')
+ShellCall('powershell.exe -command echo test')
 if not ("0" = GetLastExitcode)
 	LogError "Unable to access Powershell - check ExecutionPolicy restrictions"
 	IsFatalError "Unable to access Powershell"
@@ -840,7 +840,8 @@ ShowBitmap "%ScriptPath%\files\opsi-logo.png" "opsi client agent"
 Message "Installing " + $ProductId$ + " ..."
 
 Set $RunningInServiceContext$ = "true"
-ExecWith_powershell_running_in_service_context powershell.exe -ExecutionPolicy Bypass
+;ExecWith_powershell_running_in_service_context powershell.exe -ExecutionPolicy Bypass
+ShellInAnIcon_running_in_service_context
 if ("1" = GetLastExitcode)
 	Set $RunningInServiceContext$ = "false"
 endif
@@ -933,7 +934,7 @@ Switch $Finalize$
 	EndCase
 	Case "shutdown"
 		if ($RunningInServiceContext$ = "false")
-			PowerShellCall("Stop-Computer -ComputerName localhost -Force")
+			ShellCall("powershell.exe -command Stop-Computer -ComputerName localhost -Force")
 		else
 			ExitWindows /ShutdownWanted
 		endif
@@ -941,7 +942,7 @@ Switch $Finalize$
 	Case "service_restart"
 		; Restart opsiclientd after current event or start opsiclientd without executing events
 		Comment "Creating opsiclientd restart marker"
-		PowerShellCall('New-Item "' + $BaseDir$ + '\.opsiclientd_restart" -ItemType File')
+		ShellCall('powershell.exe -command New-Item "' + $BaseDir$ + '\.opsiclientd_restart" -ItemType File')
 		if not (ProcessIsRunning("opsiclientd.exe"))
 			ShellCall('sc start opsiclientd')
 		endif
@@ -959,19 +960,19 @@ EndSwitch
 	'[{"type":"ProductOnClient","productType":"LocalbootProduct","clientId":"$ClientId$","productId":"$ProductId$","installationStatus":"installed","actionRequest":"none","actionResult":"successful"}]'
 ]
 
-[ExecWith_powershell_running_in_service_context]
-$procid = $PID
-For ($i = 0; $i -le 10; $i++) {
-	$parent = (gwmi win32_process -Filter "processid='$procid'")
-	if ($parent.ProcessName -eq "opsiclientd.exe") {
-		Exit 0
-	}
-	if ($parent.ParentProcessId -eq 0) {
-		Exit 1
-	}
-	$procid = $parent.ParentProcessId
-	Start-Sleep -Milliseconds 100
-}
+[ShellInAnIcon_running_in_service_context]
+powershell -command $procid = $PID;^
+For ($i = 0; $i -le 10; $i++) {^
+	$parent = (gwmi win32_process -Filter "processid='$procid'");^
+	if ($parent.ProcessName -eq "opsiclientd.exe") {^
+		Exit 0^
+	}^
+	if ($parent.ParentProcessId -eq 0) {^
+		Exit 1^
+	}^
+	$procid = $parent.ParentProcessId;^
+	Start-Sleep -Milliseconds 100^
+}^
 Exit 1
 
 
