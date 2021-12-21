@@ -22,8 +22,8 @@ stages:
   adduser opsiconfd opsiadmin
 
 .jenkinsintegrationtest: &jenkinsintegrationtest |
-  version=`grep OPSI/control -A 10 -e "\[Product\]" | grep "version:" | tr -d "^a-zA-Z :"`
-  package=`grep OPSI/control -A 5 -e "\[Package\]" | grep "version:" | tr -d "^a-zA-Z :"`
+  version=$(grep OPSI/control -A 10 -e "\[Product\]" | grep "version:" | tr -d "^a-zA-Z :")
+  package=$(grep OPSI/control -A 5 -e "\[Package\]" | grep "version:" | tr -d "^a-zA-Z :")
   version="~$version-$package"
   VERSIONS="$OLDVERSION,$version"
   PRODUCTS="opsi-client-agent-old,opsi-client-agent"
