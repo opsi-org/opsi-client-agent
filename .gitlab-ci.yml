@@ -28,7 +28,8 @@ stages:
   VERSIONS="$OLDVERSION,$version"
   PRODUCTS="opsi-client-agent-old,opsi-client-agent"
   PRODUCTSOURCES="opsi-client-agent,opsi-client-agent"
-  response=$(curl --insecure -v -X POST https://jenkinsttt.uib.gmbh/job/cicd-abo-plus/buildWithParameters --user service_testumgebung_gitlab:$JENKINS_CICD_TOKEN --data PRODUCTS=$PRODUCTS --data ACTIONREQUEST=setup,setup,uninstall,setup --data PROPERTIES="$PROPERTIES" --data SYSTEMS=$SYSTEMS --data VERSIONS=$VERSIONS --data PRODUCTSOURCES=$PRODUCTSOURCES 2>&1)
+  ACTIONREQUEST="setup,setup"
+  response=$(curl --insecure -v -X POST https://jenkinsttt.uib.gmbh/job/cicd-abo-plus/buildWithParameters --user service_testumgebung_gitlab:$JENKINS_CICD_TOKEN --data PRODUCTS=$PRODUCTS --data ACTIONREQUEST=$ACTIONREQUEST --data PROPERTIES="$PROPERTIES" --data SYSTEMS=$SYSTEMS --data VERSIONS=$VERSIONS --data PRODUCTSOURCES=$PRODUCTSOURCES 2>&1)
   url=$(echo "$response" | grep "Location" | grep -o 'https://.*/')   # this is the global queue id
   echo "waiting for start of queue item $url"
   sleep 20
