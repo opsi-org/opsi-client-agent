@@ -456,7 +456,7 @@ DefFunc set_running_netboot_package_to_installed() : void
 	]
 EndFunc
 
-DefFunc set_installed_packaged_to_setup() : void
+DefFunc set_installed_packages_to_setup() : void
 	Comment "Setting installed packages to setup"
 	DefStringList $TempList0$
 	DefStringList $TempList1$
@@ -860,7 +860,7 @@ else
 	if Contains($InstallationOptions$, "bootimage")
 		set_opsi_general_config()
 		set_running_netboot_package_to_installed()
-		set_installed_packaged_to_setup()
+		set_installed_packages_to_setup()
 	endif
 endif
 
@@ -917,14 +917,14 @@ else
 	endif
 endif
 
-if (GetProductProperty("allow_reboot", "true") = "false") and (($Finalize$ = "reboot") or ($Finalize$ = "shutdown"))
-	Set $Finalize$ = "service_restart"
-endif
-
 ; with opsiclientd 4.2.0.77 the location of the restart_marker was changed
 if ($Finalize$ = "service_restart") and (CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77"))
 	comment "opsiclientd version " + $PreviousOCDVersion$ + " does not handle restart marker"
 	Set $Finalize$ = "reboot"
+endif
+
+if (GetProductProperty("allow_reboot", "true") = "false") and (($Finalize$ = "reboot") or ($Finalize$ = "shutdown"))
+	Set $Finalize$ = "service_restart"
 endif
 
 Switch $Finalize$
