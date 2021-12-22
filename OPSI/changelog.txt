@@ -1,4 +1,12 @@
 ﻿[Changelog]
+
+opsi-client-agent (4.2.0.19-2) stable; urgency=low
+
+  * Reverted powershell fix
+  * Updated opsiclientd to 4.2.0.103
+
+-- Nils Doerrer <n.doerrer@uib.de> Wed, 22 Dec 2021 13:00:00 +0100
+
 opsi-client-agent (4.2.0.19-1) stable; urgency=low
 
   * Update opsi-login-blocker to 4.2.0.1
