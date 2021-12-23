@@ -46,7 +46,7 @@ deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org]
 deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\opsi-client-agent]
 deletekey [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\opsiclientd]
 deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\opsi.org]
-deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\opsi-client-agent]
+deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\opsi-client-agent]
 
 [Sub_uninstall_opsiclientdguard]
 Comment "Uninstalling opsiclientdguard"

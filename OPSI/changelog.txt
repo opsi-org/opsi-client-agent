@@ -1,5 +1,14 @@
 ﻿[Changelog]
 
+opsi-client-agent (4.2.0.20-1) stable; urgency=low
+
+  * Dependency to opsi-script >= 4.12.4.34
+  * Improved uninstallation script
+  * Updated oca-installation-helper to 4.2.0.10 (powershell allsigned change)
+  * Improved installation in wim-capture-kontext (not setting installed packages to setup)
+
+-- Nils Doerrer <n.doerrer@uib.de> Thu, 23 Dec 2021 15:00:00 +0100
+
 opsi-client-agent (4.2.0.19-2) stable; urgency=low
 
   * Reverted powershell fix

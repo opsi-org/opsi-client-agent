@@ -3,7 +3,7 @@
 # License: AGPL-3.0
 
 [Actions]
-requiredWinstVersion >= "4.12.4.17"
+requiredWinstVersion >= "4.12.4.34"
 encoding = "UTF-8"
 
 DefVar $ProductId$
@@ -860,7 +860,10 @@ else
 	if Contains($InstallationOptions$, "bootimage")
 		set_opsi_general_config()
 		set_running_netboot_package_to_installed()
-		set_installed_packages_to_setup()
+		; during wim capture, installed products are written to %opsiTmpDir%\productOnClients.json - not setting them to setup
+		if not(FileExists("%opsiTmpDir%\productOnClients.json"))
+			set_installed_packages_to_setup()
+		endif
 	endif
 endif
 
