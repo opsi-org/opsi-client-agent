@@ -840,7 +840,7 @@ ShowBitmap "%ScriptPath%\files\opsi-logo.png" "opsi client agent"
 Message "Installing " + $ProductId$ + " ..."
 
 Set $RunningInServiceContext$ = "true"
-ExecWith_powershell_running_in_service_context powershell.exe -ExecutionPolicy Bypass
+ExecWith_powershell_running_in_service_context powershell.exe
 if ("1" = GetLastExitcode)
 	Set $RunningInServiceContext$ = "false"
 endif
