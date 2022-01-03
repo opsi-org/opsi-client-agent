@@ -25,10 +25,10 @@ stages:
   version=$(grep OPSI/control -A 10 -e "\[Product\]" | grep "version:" | tr -d "^a-zA-Z :")
   package=$(grep OPSI/control -A 5 -e "\[Package\]" | grep "version:" | tr -d "^a-zA-Z :")
   version="~$version-$package"
-  VERSIONS="$OLDVERSION,$version"
-  PRODUCTS="opsi-client-agent-old,opsi-client-agent"
-  PRODUCTSOURCES="opsi-client-agent,opsi-client-agent"
-  ACTIONREQUEST="setup,setup"
+  VERSIONS="$OLDVERSION,$version,$version"
+  PRODUCTS="opsi-client-agent-old,opsi-client-agent,opsi-client-agent"
+  PRODUCTSOURCES="opsi-client-agent,opsi-client-agent,opsi-client-agent"
+  ACTIONREQUEST="setup,setup,setup"
   response=$(curl --insecure -v -X POST https://jenkinsttt.uib.gmbh/job/cicd-abo-plus/buildWithParameters --user service_testumgebung_gitlab:$JENKINS_CICD_TOKEN --data PRODUCTS=$PRODUCTS --data ACTIONREQUEST=$ACTIONREQUEST --data PROPERTIES="$PROPERTIES" --data SYSTEMS=$SYSTEMS --data VERSIONS=$VERSIONS --data PRODUCTSOURCES=$PRODUCTSOURCES 2>&1)
   url=$(echo "$response" | grep "Location" | grep -o 'https://.*/')   # this is the global queue id
   echo "waiting for start of queue item $url"
