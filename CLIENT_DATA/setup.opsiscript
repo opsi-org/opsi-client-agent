@@ -816,7 +816,7 @@ if (strLength($ClientId$) > "64")
 	IsFatalError "Client FQDN too long"
 endif
 
-ShellCall("powershell.exe -command 'echo test'")
+PowerShellCall('echo test')
 if not ("0" = GetLastExitcode)
 	LogError "Unable to access Powershell - check ExecutionPolicy restrictions"
 	IsFatalError "Unable to access Powershell"
@@ -840,7 +840,7 @@ ShowBitmap "%ScriptPath%\files\opsi-logo.png" "opsi client agent"
 Message "Installing " + $ProductId$ + " ..."
 
 Set $RunningInServiceContext$ = "true"
-ExecWith_powershell_running_in_service_context powershell.exe
+ExecWith_powershell_running_in_service_context powershell.exe -ExecutionPolicy Bypass
 if ("1" = GetLastExitcode)
 	Set $RunningInServiceContext$ = "false"
 endif
@@ -920,8 +920,8 @@ else
 	endif
 endif
 
-; with opsiclientd 4.2.0.77 the location of the restart_marker was changed
-if ($Finalize$ = "service_restart") and (CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77"))
+; with opsiclientd 4.2.0.77 the location of the restart_marker was changed (no opsiclientd found -> 0)
+if ($Finalize$ = "service_restart") and CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77") and CompareDotSeparatedNumbers($PreviousOCDVersion$, ">", "0")
 	comment "opsiclientd version " + $PreviousOCDVersion$ + " does not handle restart marker"
 	Set $Finalize$ = "reboot"
 endif
@@ -964,17 +964,7 @@ EndSwitch
 
 [ExecWith_powershell_running_in_service_context]
 $procid = $PID
-For ($i = 0; $i -le 10; $i++) {
-	$parent = (gwmi win32_process -Filter "processid='$procid'")
-	if ($parent.ProcessName -eq "opsiclientd.exe") {
-		Exit 0
-	}
-	if ($parent.ParentProcessId -eq 0) {
-		Exit 1
-	}
-	$procid = $parent.ParentProcessId
-	Start-Sleep -Milliseconds 100
-}
+For ($i = 0; $i -le 10; $i++) {echo "checking process '$procid'"; $parent = (gwmi win32_process -Filter "processid='$procid'");	if ($parent.ProcessName -eq "opsiclientd.exe") {Exit 0}; if ($parent.ParentProcessId -eq 0) {Exit 1}; $procid = $parent.ParentProcessId; Start-Sleep -Milliseconds 100}
 Exit 1
 
 
