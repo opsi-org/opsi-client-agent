@@ -6,27 +6,15 @@
 requiredWinstVersion >= "4.12.4.34"
 encoding = "UTF-8"
 
-DefVar $ProductId$
-DefVar $BaseDir$
-DefVar $VarDir$
-DefVar $RunningInServiceContext$
-DefVar $ServiceAddress$
-DefVar $ServiceUsername$
-DefVar $ServicePassword$
-DefVar $ClientId$
-DefVar $InstallationOptions$
-DefVar $Finalize$
-DefVar $PreviousOCDVersion$
-
-Set $ProductId$ = "opsi-client-agent"
-Set $BaseDir$ = "%ProgramFiles32Dir%\opsi.org\opsi-client-agent"
-Set $VarDir$ = "c:\opsi.org"
-Set $ServiceAddress$ = "%opsiserviceURL%"
-Set $ServiceUsername$ = "%opsiserviceUser%"
-Set $ServicePassword$ = "%opsiservicePassword%"
-Set $ClientId$ = "%HostID%"
-Set $InstallationOptions$ = PARAMSTR
-Set $Finalize$ = "service_restart"
+DefVar $ProductId$ = "opsi-client-agent"
+DefVar $BaseDir$ = "%ProgramFiles32Dir%\opsi.org\opsi-client-agent"
+DefVar $VarDir$ = "c:\opsi.org"
+DefVar $ServiceAddress$ = "%opsiserviceURL%"
+DefVar $ServiceUsername$ = "%opsiserviceUser%"
+DefVar $ServicePassword$ = "%opsiservicePassword%"
+DefVar $ClientId$ = "%HostID%"
+DefVar $InstallationOptions$ = PARAMSTR
+DefVar $Finalize$ = "service_restart"
 
 
 ; === requirements ==============================================================
@@ -822,24 +810,22 @@ if not ("0" = GetLastExitcode)
 	IsFatalError "Unable to access Powershell"
 endif
 
+; PreviousOCDVersion 0 means no opsiclientd installed
+DefVar $PreviousOCDVersion$ = 0
 if FileExists($BaseDir$+"\opsiclientd_bin\opsiclientd.exe")
 	Set $PreviousOCDVersion$ = getValue("FileVersion", getFileInfoMap($BaseDir$+"\opsiclientd_bin\opsiclientd.exe"))
 else
 	if FileExists($BaseDir$+"\opsiclientd.exe")
 		Set $PreviousOCDVersion$ = getValue("FileVersion", getFileInfoMap($BaseDir$+"\opsiclientd.exe"))
-	else
-		; Not installed
-		Set $PreviousOCDVersion$ = "0"
 	endif
 endif
-
 
 Comment "Show product image"
 ShowBitmap "%ScriptPath%\files\opsi-logo.png" "opsi client agent"
 
 Message "Installing " + $ProductId$ + " ..."
 
-Set $RunningInServiceContext$ = "true"
+DefVar $RunningInServiceContext$ = "true"
 ExecWith_powershell_running_in_service_context powershell.exe -ExecutionPolicy Bypass
 if ("1" = GetLastExitcode)
 	Set $RunningInServiceContext$ = "false"
