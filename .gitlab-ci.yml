@@ -24,7 +24,7 @@ stages:
 .jenkinsintegrationtest: &jenkinsintegrationtest |
   version=$(grep OPSI/control -A 10 -e "\[Product\]" | grep "version:" | tr -d "^a-zA-Z :")
   package=$(grep OPSI/control -A 5 -e "\[Package\]" | grep "version:" | tr -d "^a-zA-Z :")
-  version="~$version-$package"
+  version="$version-$(echo $package | tr '.' '~')"
   VERSIONS="$OLDVERSION,$version,$version"
   PRODUCTS="opsi-client-agent-old,opsi-client-agent,opsi-client-agent"
   PRODUCTSOURCES="opsi-client-agent,opsi-client-agent,opsi-client-agent"
@@ -160,6 +160,10 @@ package:make_opsi_package:
     - cp ./opsi-client-agent*.opsi* opsi-client-agent-package/
     - '[ "$CI_COMMIT_TAG" = "" ] && ./opsi-dev-tool -l info --uib-binaryindex-url=http://opsipackages.uib.gmbh --binary-push opsi-client-agent-package opsi-client-agent all all "$version-$package" "$CI_JOB_ID"'
     - '[ "$CI_COMMIT_TAG" = "" ] || ./opsi-dev-tool -l info --uib-binaryindex-url=http://opsipackages.uib.gmbh --binary-push opsi-client-agent-package opsi-client-agent all all "$version-$package"'
+  artifacts:
+    name: controlfile
+    paths:
+      - OPSI/control
 
 test:testwindowsversions:
   stage: test
