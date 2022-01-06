@@ -6,15 +6,25 @@
 requiredWinstVersion >= "4.12.4.34"
 encoding = "UTF-8"
 
-DefVar $ProductId$ = "opsi-client-agent"
-DefVar $BaseDir$ = "%ProgramFiles32Dir%\opsi.org\opsi-client-agent"
-DefVar $VarDir$ = "c:\opsi.org"
-DefVar $ServiceAddress$ = "%opsiserviceURL%"
-DefVar $ServiceUsername$ = "%opsiserviceUser%"
-DefVar $ServicePassword$ = "%opsiservicePassword%"
-DefVar $ClientId$ = "%HostID%"
-DefVar $InstallationOptions$ = PARAMSTR
-DefVar $Finalize$ = "service_restart"
+DefVar $ProductId$
+DefVar $BaseDir$
+DefVar $VarDir$
+DefVar $ServiceAddress$
+DefVar $ServiceUsername$
+DefVar $ServicePassword$
+DefVar $ClientId$
+DefVar $InstallationOptions$
+DefVar $Finalize$
+
+Set $ProductId$ = "opsi-client-agent"
+Set $BaseDir$ = "%ProgramFiles32Dir%\opsi.org\opsi-client-agent"
+Set $VarDir$ = "c:\opsi.org"
+Set $ServiceAddress$ = "%opsiserviceURL%"
+Set $ServiceUsername$ = "%opsiserviceUser%"
+Set $ServicePassword$ = "%opsiservicePassword%"
+Set $ClientId$ = "%HostID%"
+Set $InstallationOptions$ = PARAMSTR
+Set $Finalize$ = "service_restart"
 
 
 ; === requirements ==============================================================
@@ -811,7 +821,8 @@ if not ("0" = GetLastExitcode)
 endif
 
 ; PreviousOCDVersion 0 means no opsiclientd installed
-DefVar $PreviousOCDVersion$ = "0"
+DefVar $PreviousOCDVersion$
+Set $PreviousOCDVersion$ = "0"
 if FileExists($BaseDir$+"\opsiclientd_bin\opsiclientd.exe")
 	Set $PreviousOCDVersion$ = getValue("FileVersion", getFileInfoMap($BaseDir$+"\opsiclientd_bin\opsiclientd.exe"))
 else
@@ -825,7 +836,8 @@ ShowBitmap "%ScriptPath%\files\opsi-logo.png" "opsi client agent"
 
 Message "Installing " + $ProductId$ + " ..."
 
-DefVar $RunningInServiceContext$ = "true"
+DefVar $RunningInServiceContext$
+Set $RunningInServiceContext$ = "true"
 ExecWith_powershell_running_in_service_context powershell.exe -ExecutionPolicy Bypass
 if ("1" = GetLastExitcode)
 	Set $RunningInServiceContext$ = "false"
