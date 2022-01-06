@@ -861,7 +861,7 @@ else
 	; Rotate instlog until opsi-script can be forced to not use appendmode
 	rotate_instlog()
 
-	if Contains($InstallationOptions$, "bootimage")
+	if Contains($InstallationOptions$, "bootimage") or Contains($InstallationOptions$, "BOOTIMAGE")
 		set_opsi_general_config()
 		set_running_netboot_package_to_installed()
 		; during wim capture, installed products are written to %opsiTmpDir%\productOnClients.json - not setting them to setup
