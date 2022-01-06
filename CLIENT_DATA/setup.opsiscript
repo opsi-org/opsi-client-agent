@@ -415,16 +415,6 @@ DefFunc rotate_instlog() : void
 	]
 EndFunc
 
-DefFunc set_opsi_general_config() : void
-	Registry_set_opsi_general_config
-
-	[Registry_set_opsi_general_config]
-	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\general]
-	Set "bootmode" = "BKSTD"
-	;Set "opsiconf" = REG_DWORD:1
-	;Set "configlocal" = REG_DWORD:0
-EndFunc
-
 DefFunc set_running_netboot_package_to_installed() : void
 	Comment "Setting running netboot package to installed"
 
@@ -473,7 +463,7 @@ DefFunc set_installed_packages_to_setup() : void
 			for %ProdOnClient% in $TempList1$ do Set $TempList2$ = addToList($TempList2$, JsonAsObjectGetValueByKey('%ProdOnClient%', "productId"))
 			Set $TempList2$ = RemoveFromListByMatch('opsi-winst', $TempList2$)
 			Set $TempList2$ = RemoveFromListByMatch('opsi-script', $TempList2$)
-			Set $TempList2$ = RemoveFromListByMatch('opsi-client-agent', $TempList2$)
+			Set $TempList2$ = RemoveFromListByMatch($ProductId$, $TempList2$)
 			for %TempProductId% in $TempList2$ do OpsiServiceCall_setProductActionRequestWithDependencies_setup
 		endif
 	endif
@@ -494,6 +484,15 @@ DefFunc set_installed_packages_to_setup() : void
 	]
 EndFunc
 
+DefFunc set_opsi_general_config() : void
+	Registry_set_opsi_general_config
+
+	[Registry_set_opsi_general_config]
+	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\general]
+	Set "bootmode" = "BKSTD"
+	;Set "opsiconf" = REG_DWORD:1
+	;Set "configlocal" = REG_DWORD:0
+EndFunc
 
 ; === configuration ===============================================================
 DefFunc install_configuration() : void
@@ -795,8 +794,8 @@ EndFunc
 
 ; === actions ===================================================================
 if not (GetOS = "Windows_NT")
-	LogError "OS not supoorted: " + GetOS
-	isFatalError "OS not supoorted: " + GetOS
+	LogError "OS not supported: " + GetOS
+	isFatalError "OS not supported: " + GetOS
 endif
 
 if CompareDotSeparatedNumbers(GetMsVersionInfo, "<", "6.0")
@@ -854,6 +853,13 @@ else
 		SleepSeconds 5
 	endif
 
+	MarkErrorNumber
+	OpsiServiceCall_authenticated /serviceurl $ServiceAddress$ /username $ServiceUsername$ /password $ServicePassword$
+	if errorsOccurredSinceMark > 0
+		LogError "Opsi service authentication failed"
+		IsFatalError "Opsi service authentication failed"
+	endif
+
 	; Rotate instlog until opsi-script can be forced to not use appendmode
 	rotate_instlog()
 
@@ -890,7 +896,8 @@ if ($RunningInServiceContext$ = "false")
 	OpsiServiceCall_productOnClient_createObjects_opsiclientagent
 endif
 
-if Contains($InstallationOptions$, "bootimage")
+if Contains($InstallationOptions$, "bootimage") or Contains($InstallationOptions$, "BOOTIMAGE")
+	; Reboot is performed by postinst script in netboot installation
 	Set $Finalize$ = ""
 else
 	if Contains($InstallationOptions$, "noreboot")
