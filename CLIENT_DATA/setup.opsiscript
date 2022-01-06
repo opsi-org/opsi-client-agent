@@ -852,7 +852,7 @@ else
 	endif
 
 	MarkErrorNumber
-	OpsiServiceCall_authenticated /serviceurl $ServiceAddress$ /username $ServiceUsername$ /password $ServicePassword$
+	OpsiServiceCall_authenticated
 	if errorsOccurredSinceMark > 0
 		LogError "Opsi service authentication failed"
 		IsFatalError "Opsi service authentication failed"
