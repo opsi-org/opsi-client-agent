@@ -912,6 +912,7 @@ else
 			endif
 		endif
 	endif
+
 	DefVar $TempString$
 	DefStringList $TempList1$
 	Set $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_localboot_setup"))
@@ -924,21 +925,21 @@ else
 			Set $Finalize$ = "service_restart_no_skip"
 		endif
 	endif
+
+	if (GetProductProperty("allow_reboot", "true") = "false")
+		if ($Finalize$ = "reboot")
+			Set $Finalize$ = "service_restart_no_skip"
+		endif
+		if ($Finalize$ = "shutdown")
+			Set $Finalize$ = "service_restart"
+		endif
+	endif
 endif
 
 ; with opsiclientd 4.2.0.77 the location of the restart_marker was changed (no opsiclientd found -> 0)
 if (($Finalize$ = "service_restart") or ($Finalize$ = "service_restart_no_skip")) and CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77") and CompareDotSeparatedNumbers($PreviousOCDVersion$, ">", "0")
 	comment "opsiclientd version " + $PreviousOCDVersion$ + " does not handle restart marker"
 	Set $Finalize$ = "reboot"
-endif
-
-if (GetProductProperty("allow_reboot", "true") = "false")
-	if ($Finalize$ = "reboot")
-		Set $Finalize$ = "service_restart_no_skip"
-	endif
-	if ($Finalize$ = "shutdown")
-		Set $Finalize$ = "service_restart"
-	endif
 endif
 
 if ($Finalize$ = "reboot")
