@@ -964,7 +964,7 @@ if ($Finalize$ = "service_restart") or ($Finalize$ = "service_restart_no_skip")
 	if ($RunningInServiceContext$ = "false")
 		ShellCall('net stop opsiclientd & net start opsiclientd')
 	endif
-EndSwitch
+endif
 
 
 [OpsiServiceCall_authenticated]
