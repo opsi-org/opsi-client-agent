@@ -902,7 +902,7 @@ if Contains($InstallationOptions$, "bootimage") or Contains($InstallationOptions
 	Set $Finalize$ = ""
 else
 	if Contains($InstallationOptions$, "noreboot")
-		Set $Finalize$ = "service_restart"
+		Set $Finalize$ = "service_restart_no_skip"
 	else
 		if Contains($InstallationOptions$, "reboot")
 			Set $Finalize$ = "reboot"
@@ -919,41 +919,51 @@ else
 		Set $TempList1$ = JsonAsArrayToStringList($TempString$)
 		Set $TempList1$ = removeFromListByContaining('opsi-client-agent;', $TempList1$)
 		if count($TempList1$) > "0"
-			comment "Setting Finalize to reboot because there are pending setup action requests"
-			Set $Finalize$ = "reboot"
+			# Restart service to get notifiers back working
+			comment "Setting Finalize to service_restart_no_skip because there are pending setup action requests"
+			Set $Finalize$ = "service_restart_no_skip"
 		endif
 	endif
 endif
 
 ; with opsiclientd 4.2.0.77 the location of the restart_marker was changed (no opsiclientd found -> 0)
-if ($Finalize$ = "service_restart") and CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77") and CompareDotSeparatedNumbers($PreviousOCDVersion$, ">", "0")
+if (($Finalize$ = "service_restart") or ($Finalize$ = "service_restart_no_skip")) and CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77") and CompareDotSeparatedNumbers($PreviousOCDVersion$, ">", "0")
 	comment "opsiclientd version " + $PreviousOCDVersion$ + " does not handle restart marker"
 	Set $Finalize$ = "reboot"
 endif
 
-if (GetProductProperty("allow_reboot", "true") = "false") and (($Finalize$ = "reboot") or ($Finalize$ = "shutdown"))
-	Set $Finalize$ = "service_restart"
+if (GetProductProperty("allow_reboot", "true") = "false")
+	if ($Finalize$ = "reboot")
+		Set $Finalize$ = "service_restart_no_skip"
+	endif
+	if ($Finalize$ = "shutdown")
+		Set $Finalize$ = "service_restart"
+	endif
 endif
 
-Switch $Finalize$
-	Case "reboot"
-		ExitWindows /Reboot
-	EndCase
-	Case "shutdown"
-		if ($RunningInServiceContext$ = "false")
-			PowerShellCall("Stop-Computer -ComputerName localhost -Force")
-		else
-			ExitWindows /ShutdownWanted
-		endif
-	EndCase
-	Case "service_restart"
-		; Restart opsiclientd after current event or start opsiclientd without executing events
+if ($Finalize$ = "reboot")
+	ExitWindows /Reboot
+endif
+if ($Finalize$ = "shutdown")
+	if ($RunningInServiceContext$ = "false")
+		PowerShellCall("Stop-Computer -ComputerName localhost -Force")
+	else
+		ExitWindows /ShutdownWanted
+	endif
+endif
+if ($Finalize$ = "service_restart") or ($Finalize$ = "service_restart_no_skip")
+	; Restart opsiclientd after current event or (re)start opsiclientd service
+	if ($Finalize$ = "service_restart_no_skip")
 		Comment "Creating opsiclientd restart marker"
-		PowerShellCall('New-Item "' + $BaseDir$ + '\.opsiclientd_restart" -ItemType File')
-		if not (ProcessIsRunning("opsiclientd.exe"))
-			ShellCall('sc start opsiclientd')
-		endif
-	EndCase
+		ShellCall('echo # > "' + $BaseDir$ + '\.opsiclientd_restart"')
+	else
+		; Do not execute events on startup
+		Comment "Creating opsiclientd restart marker, skip events"
+		ShellCall('echo skip_events = gui startup, daemon startup > "' + $BaseDir$ + '\.opsiclientd_restart"')
+	endif
+	if ($RunningInServiceContext$ = "false")
+		ShellCall('net stop opsiclientd & net start opsiclientd')
+	endif
 EndSwitch
 
 
