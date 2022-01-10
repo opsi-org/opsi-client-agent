@@ -6,25 +6,15 @@
 requiredWinstVersion >= "4.12.4.35"
 encoding = "UTF-8"
 
-DefVar $ProductId$
-DefVar $BaseDir$
-DefVar $VarDir$
-DefVar $ServiceAddress$
-DefVar $ServiceUsername$
-DefVar $ServicePassword$
-DefVar $ClientId$
-DefVar $InstallationOptions$
-DefVar $Finalize$
-
-Set $ProductId$ = "opsi-client-agent"
-Set $BaseDir$ = "%ProgramFiles32Dir%\opsi.org\opsi-client-agent"
-Set $VarDir$ = "c:\opsi.org"
-Set $ServiceAddress$ = "%opsiserviceURL%"
-Set $ServiceUsername$ = "%opsiserviceUser%"
-Set $ServicePassword$ = "%opsiservicePassword%"
-Set $ClientId$ = "%HostID%"
-Set $InstallationOptions$ = PARAMSTR
-Set $Finalize$ = "service_restart"
+DefVar $ProductId$ = "opsi-client-agent"
+DefVar $BaseDir$ = "%ProgramFiles32Dir%\opsi.org\opsi-client-agent"
+DefVar $VarDir$ = "c:\opsi.org"
+DefVar $ServiceAddress$ = "%opsiserviceURL%"
+DefVar $ServiceUsername$ = "%opsiserviceUser%"
+DefVar $ServicePassword$ = "%opsiservicePassword%"
+DefVar $ClientId$ = "%HostID%"
+DefVar $InstallationOptions$ = PARAMSTR
+DefVar $Finalize$ = "service_restart"
 
 
 ; === requirements ==============================================================
@@ -45,9 +35,6 @@ EndFunc
 
 ; === opsiclientd ===============================================================
 DefFunc install_opsiclientd(): void
-	DefVar $BinaryArchiveFile$
-	DefStringList $TempList$
-
 	Sub_uninstall_opsiclientdguard
 	Sub_install_opsiclientd
 
@@ -67,9 +54,9 @@ DefFunc install_opsiclientd(): void
 	Comment "Installing opsiclientd"
 	Message "Installing opsiclientd"
 
-	Set $TempList$ = ShellCall('dir /B "%ScriptPath%\files"')
+	DefStringList $TempList$ = ShellCall('dir /B "%ScriptPath%\files"')
 	Set $TempList$ = GetRegexMatchList('(?m)^opsiclientd_windows_\S*.zip', $TempList$)
-	Set $BinaryArchiveFile$ = "%ScriptPath%\files\" + TakeString(0, $TempList$)
+	DefVar $BinaryArchiveFile$ = "%ScriptPath%\files\" + TakeString(0, $TempList$)
 
 	Comment "Opsiclientd archive file: " + $BinaryArchiveFile$
 
@@ -177,10 +164,8 @@ EndFunc
 
 ; === opsi login blocker ========================================================
 DefFunc install_loginblocker() : void
-	DefVar $LoginBlockerLogLevel$
-	DefVar $LoginBlockerTimeoutConnect$
-	Set $LoginBlockerTimeoutConnect$ = "120"
-	Set $LoginBlockerLogLevel$ = "5"
+	DefVar $LoginBlockerTimeoutConnect$ = "120"
+	DefVar $LoginBlockerLogLevel$ = "5"
 
 	Sub_uninstall_loginblocker
 	if GetProductProperty("LoginBlockerStart", "on") = "on"
@@ -269,10 +254,8 @@ EndFunc
 
 ; === opsi-systray ===============================================================
 DefFunc install_opsisystray() : void
-	DefVar $CheckInterval$
-	DefVar $NotifyFormat$
-	Set $CheckInterval$ = GetProductProperty("systray_check_interval", "60")
-	Set $NotifyFormat$ = GetProductProperty("systray_request_notify_format", "productname : request")
+	DefVar $CheckInterval$ = GetProductProperty("systray_check_interval", "60")
+	DefVar $NotifyFormat$ = GetProductProperty("systray_request_notify_format", "productname : request")
 
 	Sub_uninstall_opsisystray
 	if GetProductProperty("systray_install", "true") = "true"
@@ -331,15 +314,13 @@ EndFunc
 
 ; === directories ===============================================================
 DefFunc install_directories() : void
-	DefVar $AdminSID$
-
 	Comment "Creating directories and setting permissions"
 	Message "Creating directories and setting permissions"
 	Files_create_dirs
 
 	; Get-LocalUser is not available in Powershell 2 (win7)
 	; Some win10 seem to get stuck on Get-WmiObject win32_useraccount
-	Set $AdminSID$ = TakeString(0, PowerShellCall("(Get-LocalUser | Where-Object {$_.SID -like 'S-1-5-*-500'}).SID.Value"))
+	DefVar $AdminSID$ = TakeString(0, PowerShellCall("(Get-LocalUser | Where-Object {$_.SID -like 'S-1-5-*-500'}).SID.Value"))
 	if not (contains($AdminSID$, "S-1-5-"))
 		Set $AdminSID$ = TakeString(0, PowerShellCall("(Get-WmiObject win32_useraccount | Where-Object {$_.SID -like 'S-1-5-*-500'}).SID"))
 	endif
@@ -416,14 +397,10 @@ EndFunc
 DefFunc set_running_netboot_package_to_installed() : void
 	Comment "Setting running netboot package to installed"
 
-	DefStringList $TempList1$
-	DefStringList $TempList2$
-	DefVar $TempString$
-
-	Set $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_netboot_running"))
+	DefVar $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_netboot_running"))
 	if JsonAsArrayCountElements($TempString$) > "0"
-		Set $TempList1$ = JsonAsArrayToStringList($TempString$)
-		Set $TempList2$ = EmptyList($TempList2$)
+		DefStringList $TempList1$ = JsonAsArrayToStringList($TempString$)
+		DefStringList $TempList2$ = EmptyList($TempList2$)
 		for %ProdOnClient% in $TempList1$ do Set $TempList2$ = addToList($TempList2$, JsonAsObjectGetValueByKey('%ProdOnClient%', "productId"))
 		for %TempProductId% in $TempList2$ do OpsiServiceCall_setProductInstallationStatus_installed
 	endif
@@ -446,18 +423,14 @@ EndFunc
 
 DefFunc set_installed_packages_to_setup() : void
 	Comment "Setting installed packages to setup"
-	DefStringList $TempList0$
-	DefStringList $TempList1$
-	DefStringList $TempList2$
-	DefVar $TempString$
 
-	Set $TempList0$ = GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_localboot_installed")
+	DefStringList $TempList0$ = GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_localboot_installed")
 	; Returns List with either 0 or 1 entry (specific for client)
 	if count($TempList0$) = "1"
-		Set $TempString$ = TakeString(0, $TempList0$)
+		DefVar $TempString$ = TakeString(0, $TempList0$)
 		if JsonAsArrayCountElements($TempString$) > "0"
-			Set $TempList1$ = JsonAsArrayToStringList($TempString$)
-			Set $TempList2$ = EmptyList($TempList2$)
+			DefStringList $TempList1$ = JsonAsArrayToStringList($TempString$)
+			DefStringList $TempList2$ = EmptyList($TempList2$)
 			for %ProdOnClient% in $TempList1$ do Set $TempList2$ = addToList($TempList2$, JsonAsObjectGetValueByKey('%ProdOnClient%', "productId"))
 			Set $TempList2$ = RemoveFromListByMatch('opsi-winst', $TempList2$)
 			Set $TempList2$ = RemoveFromListByMatch('opsi-script', $TempList2$)
@@ -518,9 +491,7 @@ EndFunc
 
 ; === setup after install ========================================================
 DefFunc setup_after_install() : void
-	DefStringList $TempList$
-
-	Set $TempList$ = createStringList()
+	DefStringList $TempList$ = createStringList()
 	Set $TempList$ = GetProductPropertyList("setup_after_install", $TempList$)
 	if count($TempList$) > "0"
 		Comment "Setup after install"
@@ -539,15 +510,12 @@ EndFunc
 
 ; === wim-capture ================================================================
 DefFunc get_config_value($ConfigName$ : string) : string
-	DefVar $TempString$
-	DefStringList $TempList$
-
 	Set $result$ = "__null__"
 
 	Comment "Get configState " + $ConfigName$
-	Set $TempList$ = GetReturnListFromSection('OpsiServiceCall_get_configState')
+	DefStringList $TempList$ = GetReturnListFromSection('OpsiServiceCall_get_configState')
 	if Count($TempList$) > "0"
-		Set $TempString$ = TakeString(0, $TempList$)
+		DefVar $TempString$ = TakeString(0, $TempList$)
 		if jsonAsArrayCountElements($TempString$) > "0"
 			Set $TempString$ = JsonAsArrayGetElementByIndex($TempString$, "0")
 			Set $TempString$ = JsonAsObjectGetValueByKey($TempString$, "values")
@@ -594,22 +562,18 @@ DefFunc process_wim_capture() : void
 
 	DefVar $TempString$
 	DefStringList $TempList$
-	DefVar $DoNotChangeSetupRequests$
-	DefVar $SwitchInstalledProductsToSetup$
 	DefStringList $ProductOnClients$
-	DefStringList $ProductIdsInstalled$
 	DefStringList $ProductIdsSetup$
 	DefStringList $ProductIdsOnce$
 	DefStringList $ProductIds$
-	DefStringList $ErrorList$
 
 	MarkErrorNumber
 
-	Set $ProductIdsInstalled$ = EmptyList($ProductIdsInstalled$)
+	DefStringList $ProductIdsInstalled$ = EmptyList($ProductIdsInstalled$)
 
-	Set $SwitchInstalledProductsToSetup$ = Lower(get_config_value("clientconfig.capture.switch_installed_products_to_setup"))
+	DefVar $SwitchInstalledProductsToSetup$ = Lower(get_config_value("clientconfig.capture.switch_installed_products_to_setup"))
 	Comment "Mode: switch_installed_products_to_setup = " + $SwitchInstalledProductsToSetup$
-	Set $DoNotChangeSetupRequests$ = "true"
+	DefVar $DoNotChangeSetupRequests$ = "true"
 
 	if $SwitchInstalledProductsToSetup$ = "true"
 		Set $DoNotChangeSetupRequests$ = Lower(get_config_value("clientconfig.capture.do_not_change_setup_requests"))
@@ -820,8 +784,7 @@ if not ("0" = GetLastExitcode)
 endif
 
 ; PreviousOCDVersion 0 means no opsiclientd installed
-DefVar $PreviousOCDVersion$
-Set $PreviousOCDVersion$ = "0"
+DefVar $PreviousOCDVersion$ = "0"
 if FileExists($BaseDir$+"\opsiclientd_bin\opsiclientd.exe")
 	Set $PreviousOCDVersion$ = getValue("FileVersion", getFileInfoMap($BaseDir$+"\opsiclientd_bin\opsiclientd.exe"))
 else
@@ -913,11 +876,9 @@ else
 		endif
 	endif
 
-	DefVar $TempString$
-	DefStringList $TempList1$
-	Set $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_localboot_setup"))
+	DefVar $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_localboot_setup"))
 	if JsonAsArrayCountElements($TempString$) > "0"
-		Set $TempList1$ = JsonAsArrayToStringList($TempString$)
+		DefStringList $TempList1$ = JsonAsArrayToStringList($TempString$)
 		Set $TempList1$ = removeFromListByContaining('opsi-client-agent;', $TempList1$)
 		if count($TempList1$) > "0"
 			# Restart service to get notifiers back working
