@@ -35,6 +35,8 @@ EndFunc
 
 ; === opsiclientd ===============================================================
 DefFunc install_opsiclientd(): void
+	DefStringList $TempList$
+
 	Sub_uninstall_opsiclientdguard
 	Sub_install_opsiclientd
 
@@ -54,7 +56,6 @@ DefFunc install_opsiclientd(): void
 	Comment "Installing opsiclientd"
 	Message "Installing opsiclientd"
 
-	DefStringList $TempList$
 	Set $TempList$ = ShellCall('dir /B "%ScriptPath%\files"')
 	Set $TempList$ = GetRegexMatchList('(?m)^opsiclientd_windows_\S*.zip', $TempList$)
 	DefVar $BinaryArchiveFile$ = "%ScriptPath%\files\" + TakeString(0, $TempList$)
