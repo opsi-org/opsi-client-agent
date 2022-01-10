@@ -54,7 +54,8 @@ DefFunc install_opsiclientd(): void
 	Comment "Installing opsiclientd"
 	Message "Installing opsiclientd"
 
-	DefStringList $TempList$ = ShellCall('dir /B "%ScriptPath%\files"')
+	DefStringList $TempList$
+	Set $TempList$ = ShellCall('dir /B "%ScriptPath%\files"')
 	Set $TempList$ = GetRegexMatchList('(?m)^opsiclientd_windows_\S*.zip', $TempList$)
 	DefVar $BinaryArchiveFile$ = "%ScriptPath%\files\" + TakeString(0, $TempList$)
 
@@ -397,10 +398,13 @@ EndFunc
 DefFunc set_running_netboot_package_to_installed() : void
 	Comment "Setting running netboot package to installed"
 
+	DefStringList $TempList1$
+	DefStringList $TempList2$
+
 	DefVar $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_netboot_running"))
 	if JsonAsArrayCountElements($TempString$) > "0"
-		DefStringList $TempList1$ = JsonAsArrayToStringList($TempString$)
-		DefStringList $TempList2$ = EmptyList($TempList2$)
+		Set $TempList1$ = JsonAsArrayToStringList($TempString$)
+		Set $TempList2$ = EmptyList($TempList2$)
 		for %ProdOnClient% in $TempList1$ do Set $TempList2$ = addToList($TempList2$, JsonAsObjectGetValueByKey('%ProdOnClient%', "productId"))
 		for %TempProductId% in $TempList2$ do OpsiServiceCall_setProductInstallationStatus_installed
 	endif
@@ -423,14 +427,17 @@ EndFunc
 
 DefFunc set_installed_packages_to_setup() : void
 	Comment "Setting installed packages to setup"
+	DefStringList $TempList0$
+	DefStringList $TempList1$
+	DefStringList $TempList2$
 
-	DefStringList $TempList0$ = GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_localboot_installed")
+	Set $TempList0$ = GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_localboot_installed")
 	; Returns List with either 0 or 1 entry (specific for client)
 	if count($TempList0$) = "1"
 		DefVar $TempString$ = TakeString(0, $TempList0$)
 		if JsonAsArrayCountElements($TempString$) > "0"
-			DefStringList $TempList1$ = JsonAsArrayToStringList($TempString$)
-			DefStringList $TempList2$ = EmptyList($TempList2$)
+			Set $TempList1$ = JsonAsArrayToStringList($TempString$)
+			Set $TempList2$ = EmptyList($TempList2$)
 			for %ProdOnClient% in $TempList1$ do Set $TempList2$ = addToList($TempList2$, JsonAsObjectGetValueByKey('%ProdOnClient%', "productId"))
 			Set $TempList2$ = RemoveFromListByMatch('opsi-winst', $TempList2$)
 			Set $TempList2$ = RemoveFromListByMatch('opsi-script', $TempList2$)
@@ -491,7 +498,9 @@ EndFunc
 
 ; === setup after install ========================================================
 DefFunc setup_after_install() : void
-	DefStringList $TempList$ = createStringList()
+	DefStringList $TempList$
+
+	Set $TempList$ = createStringList()
 	Set $TempList$ = GetProductPropertyList("setup_after_install", $TempList$)
 	if count($TempList$) > "0"
 		Comment "Setup after install"
@@ -510,10 +519,12 @@ EndFunc
 
 ; === wim-capture ================================================================
 DefFunc get_config_value($ConfigName$ : string) : string
+	DefStringList $TempList$
+
 	Set $result$ = "__null__"
 
 	Comment "Get configState " + $ConfigName$
-	DefStringList $TempList$ = GetReturnListFromSection('OpsiServiceCall_get_configState')
+	Set $TempList$ = GetReturnListFromSection('OpsiServiceCall_get_configState')
 	if Count($TempList$) > "0"
 		DefVar $TempString$ = TakeString(0, $TempList$)
 		if jsonAsArrayCountElements($TempString$) > "0"
@@ -563,13 +574,14 @@ DefFunc process_wim_capture() : void
 	DefVar $TempString$
 	DefStringList $TempList$
 	DefStringList $ProductOnClients$
+	DefStringList $ProductIdsInstalled$
 	DefStringList $ProductIdsSetup$
 	DefStringList $ProductIdsOnce$
 	DefStringList $ProductIds$
 
 	MarkErrorNumber
 
-	DefStringList $ProductIdsInstalled$ = EmptyList($ProductIdsInstalled$)
+	Set $ProductIdsInstalled$ = EmptyList($ProductIdsInstalled$)
 
 	DefVar $SwitchInstalledProductsToSetup$ = Lower(get_config_value("clientconfig.capture.switch_installed_products_to_setup"))
 	Comment "Mode: switch_installed_products_to_setup = " + $SwitchInstalledProductsToSetup$
@@ -876,9 +888,10 @@ else
 		endif
 	endif
 
+	DefStringList $TempList1$
 	DefVar $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_localboot_setup"))
 	if JsonAsArrayCountElements($TempString$) > "0"
-		DefStringList $TempList1$ = JsonAsArrayToStringList($TempString$)
+		Set $TempList1$ = JsonAsArrayToStringList($TempString$)
 		Set $TempList1$ = removeFromListByContaining('opsi-client-agent;', $TempList1$)
 		if count($TempList1$) > "0"
 			# Restart service to get notifiers back working
