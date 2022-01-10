@@ -3,7 +3,7 @@
 # License: AGPL-3.0
 
 [Actions]
-requiredWinstVersion >= "4.12.4.34"
+requiredWinstVersion >= "4.12.4.35"
 encoding = "UTF-8"
 
 DefVar $ProductId$
@@ -836,10 +836,10 @@ ShowBitmap "%ScriptPath%\files\opsi-logo.png" "opsi client agent"
 Message "Installing " + $ProductId$ + " ..."
 
 DefVar $RunningInServiceContext$
-Set $RunningInServiceContext$ = "true"
-ExecWith_powershell_running_in_service_context powershell.exe -ExecutionPolicy Bypass
-if ("1" = GetLastExitcode)
-	Set $RunningInServiceContext$ = "false"
+if isProcessChildOf('%opsiscriptprocname%','opsiclientd.exe')
+    Set $RunningInServiceContext$ = "true"
+else
+    Set $RunningInServiceContext$ = "flase"
 endif
 
 if ($RunningInServiceContext$ = "true")
@@ -977,23 +977,6 @@ endif
 "params": [
 	'[{"type":"ProductOnClient","productType":"LocalbootProduct","clientId":"$ClientId$","productId":"$ProductId$","installationStatus":"installed","actionRequest":"none","actionResult":"successful"}]'
 ]
-
-[ExecWith_powershell_running_in_service_context]
-$procid = $PID
-For ($i = 0; $i -le 10; $i++) {
-	echo "checking process '$procid'"
-	$parent = (gwmi win32_process -Filter "processid='$procid'")
-	if ($parent.ProcessName -eq "opsiclientd.exe") {
-		Exit 0
-	}
-	if ($parent.ParentProcessId -eq 0) {
-		Exit 1
-	}
-	$procid = $parent.ParentProcessId
-	Start-Sleep -Milliseconds 100
-}
-Exit 1
-
 
 [OpsiServiceCall_productOnClient_getObjects_localboot_setup]
 "method": "productOnClient_getIdents"
