@@ -837,9 +837,9 @@ Message "Installing " + $ProductId$ + " ..."
 
 DefVar $RunningInServiceContext$
 if isProcessChildOf('%opsiscriptprocname%','opsiclientd.exe')
-    Set $RunningInServiceContext$ = "true"
+	Set $RunningInServiceContext$ = "true"
 else
-    Set $RunningInServiceContext$ = "flase"
+	Set $RunningInServiceContext$ = "false"
 endif
 
 if ($RunningInServiceContext$ = "true")
