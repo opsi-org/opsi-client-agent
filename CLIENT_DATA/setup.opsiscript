@@ -889,18 +889,28 @@ else
 		endif
 	endif
 
-	DefStringList $TempList1$
-	DefVar $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_localboot_setup"))
-	if JsonAsArrayCountElements($TempString$) > "0"
-		Set $TempList1$ = JsonAsArrayToStringList($TempString$)
-		Set $TempList1$ = removeFromListByContaining('opsi-client-agent;', $TempList1$)
-		if count($TempList1$) > "0"
-			# Restart service to get notifiers back working
-			comment "Setting Finalize to service_restart_no_skip because there are pending setup action requests"
-			Set $Finalize$ = "service_restart_no_skip"
+	; if not in service_context and not in bootimage mode: keep value of Finalize (except if no_reboot prohibits it)
+	if $RunningInServiceContext$ = "true"
+		DefStringList $TempList1$
+		DefVar $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_localboot_setup"))
+		if JsonAsArrayCountElements($TempString$) > "0"
+			Set $TempList1$ = JsonAsArrayToStringList($TempString$)
+			Set $TempList1$ = removeFromListByContaining('opsi-client-agent;', $TempList1$)
+			if count($TempList1$) > "0"
+				; Restart service to get notifiers back working
+				comment "Setting Finalize to service_restart_no_skip because there are pending setup action requests"
+				Set $Finalize$ = "service_restart_no_skip"
+			endif
+		endif
+
+		; with opsiclientd 4.2.0.77 the location of the restart_marker was changed (no opsiclientd found -> 0)
+		if (($Finalize$ = "service_restart") or ($Finalize$ = "service_restart_no_skip")) and CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77") and CompareDotSeparatedNumbers($PreviousOCDVersion$, ">", "0")
+			comment "opsiclientd version " + $PreviousOCDVersion$ + " does not handle restart marker"
+			Set $Finalize$ = "reboot"
 		endif
 	endif
 
+	;Prohibit reboot and shutdown if allow_reboot is false
 	if (GetProductProperty("allow_reboot", "true") = "false")
 		if ($Finalize$ = "reboot")
 			Set $Finalize$ = "service_restart_no_skip"
@@ -909,12 +919,6 @@ else
 			Set $Finalize$ = "service_restart"
 		endif
 	endif
-endif
-
-; with opsiclientd 4.2.0.77 the location of the restart_marker was changed (no opsiclientd found -> 0)
-if (($Finalize$ = "service_restart") or ($Finalize$ = "service_restart_no_skip")) and CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77") and CompareDotSeparatedNumbers($PreviousOCDVersion$, ">", "0")
-	comment "opsiclientd version " + $PreviousOCDVersion$ + " does not handle restart marker"
-	Set $Finalize$ = "reboot"
 endif
 
 if ($Finalize$ = "reboot")
