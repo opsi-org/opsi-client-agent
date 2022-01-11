@@ -8,7 +8,6 @@ opsi-client-agent (4.2.0.20-1) stable; urgency=low
   * Improved installation in wim-capture-kontext (not setting installed packages to setup)
   * Connectivity check during setup
   * Updated opsiclientd to 4.2.0.104
-  * Use service_restart_no_skip instead of reboot
 
 -- Nils Doerrer <n.doerrer@uib.de> Thu, 06 Jan 2022 16:30:00 +0100
 

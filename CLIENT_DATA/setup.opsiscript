@@ -898,8 +898,10 @@ else
 			Set $TempList1$ = removeFromListByContaining('opsi-client-agent;', $TempList1$)
 			if count($TempList1$) > "0"
 				; Restart service to get notifiers back working
-				comment "Setting Finalize to service_restart_no_skip because there are pending setup action requests"
-				Set $Finalize$ = "service_restart_no_skip"
+				; comment "Setting Finalize to service_restart_no_skip because there are pending setup action requests"
+				; Set $Finalize$ = "service_restart_no_skip"
+				comment "Setting Finalize to reboot because there are pending setup action requests"
+				Set $Finalize$ = "reboot"
 			endif
 		endif
 
