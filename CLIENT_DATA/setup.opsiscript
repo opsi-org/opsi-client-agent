@@ -941,7 +941,7 @@ if ($Finalize$ = "service_restart") or ($Finalize$ = "service_restart_no_skip")
 	else
 		; Do not execute events on startup
 		Comment "Creating opsiclientd restart marker, skip events"
-		ShellCall('echo skip_events = gui startup, daemon startup > "' + $BaseDir$ + '\.opsiclientd_restart"')
+		ShellCall('echo disabled_event_types = gui startup, daemon startup > "' + $BaseDir$ + '\.opsiclientd_restart"')
 	endif
 	if ($RunningInServiceContext$ = "false")
 		ShellCall('net stop opsiclientd & net start opsiclientd')
