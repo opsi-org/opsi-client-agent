@@ -24,11 +24,11 @@ stages:
 .jenkinsintegrationtest: &jenkinsintegrationtest |
   version=$(grep OPSI/control -A 10 -e "\[Product\]" | grep "version:" | tr -d "^a-zA-Z :")
   package=$(grep OPSI/control -A 5 -e "\[Package\]" | grep "version:" | tr -d "^a-zA-Z :")
-  version="~$version-$package"
-  VERSIONS="$OLDVERSION,$version"
-  PRODUCTS="opsi-client-agent-old,opsi-client-agent"
-  PRODUCTSOURCES="opsi-client-agent,opsi-client-agent"
-  ACTIONREQUEST="setup,setup"
+  version="$version-$(echo $package | tr '.' '~')"
+  VERSIONS="$OLDVERSION,$version,$version"
+  PRODUCTS="opsi-client-agent-old,opsi-client-agent,opsi-client-agent"
+  PRODUCTSOURCES="opsi-client-agent,opsi-client-agent,opsi-client-agent"
+  ACTIONREQUEST="setup,setup,setup"
   response=$(curl --insecure -v -X POST https://jenkinsttt.uib.gmbh/job/cicd-abo-plus/buildWithParameters --user service_testumgebung_gitlab:$JENKINS_CICD_TOKEN --data PRODUCTS=$PRODUCTS --data ACTIONREQUEST=$ACTIONREQUEST --data PROPERTIES="$PROPERTIES" --data SYSTEMS=$SYSTEMS --data VERSIONS=$VERSIONS --data PRODUCTSOURCES=$PRODUCTSOURCES 2>&1)
   url=$(echo "$response" | grep "Location" | grep -o 'https://.*/')   # this is the global queue id
   echo "waiting for start of queue item $url"
@@ -160,10 +160,25 @@ package:make_opsi_package:
     - cp ./opsi-client-agent*.opsi* opsi-client-agent-package/
     - '[ "$CI_COMMIT_TAG" = "" ] && ./opsi-dev-tool -l info --uib-binaryindex-url=http://opsipackages.uib.gmbh --binary-push opsi-client-agent-package opsi-client-agent all all "$version-$package" "$CI_JOB_ID"'
     - '[ "$CI_COMMIT_TAG" = "" ] || ./opsi-dev-tool -l info --uib-binaryindex-url=http://opsipackages.uib.gmbh --binary-push opsi-client-agent-package opsi-client-agent all all "$version-$package"'
+  artifacts:
+    name: controlfile
+    paths:
+      - OPSI/control
 
-test:win10:
+test:testwindowsversions:
   stage: test
   when: manual
+  script:
+    - echo "starting jenkins job via POST request"
+    - PROPERTIES=""
+    - OLDVERSION="4.1.1.0-1"
+    - SYSTEMS="win10-21h1,win10-x64-21h1,win7,win7-x64,win81,win81-x64"
+    - *jenkinsintegrationtest
+
+test:testontag:
+  stage: test
+  only:
+    - tags
   script:
     - echo "starting jenkins job via POST request"
     - PROPERTIES=""

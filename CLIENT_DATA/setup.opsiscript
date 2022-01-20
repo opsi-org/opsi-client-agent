@@ -3,30 +3,18 @@
 # License: AGPL-3.0
 
 [Actions]
-requiredWinstVersion >= "4.12.4.17"
+requiredWinstVersion >= "4.12.4.35"
 encoding = "UTF-8"
 
-DefVar $ProductId$
-DefVar $BaseDir$
-DefVar $VarDir$
-DefVar $RunningInServiceContext$
-DefVar $ServiceAddress$
-DefVar $ServiceUsername$
-DefVar $ServicePassword$
-DefVar $ClientId$
-DefVar $InstallationOptions$
-DefVar $Finalize$
-DefVar $PreviousOCDVersion$
-
-Set $ProductId$ = "opsi-client-agent"
-Set $BaseDir$ = "%ProgramFiles32Dir%\opsi.org\opsi-client-agent"
-Set $VarDir$ = "c:\opsi.org"
-Set $ServiceAddress$ = "%opsiserviceURL%"
-Set $ServiceUsername$ = "%opsiserviceUser%"
-Set $ServicePassword$ = "%opsiservicePassword%"
-Set $ClientId$ = "%HostID%"
-Set $InstallationOptions$ = PARAMSTR
-Set $Finalize$ = "service_restart"
+DefVar $ProductId$ = "opsi-client-agent"
+DefVar $BaseDir$ = "%ProgramFiles32Dir%\opsi.org\opsi-client-agent"
+DefVar $VarDir$ = "c:\opsi.org"
+DefVar $ServiceAddress$ = "%opsiserviceURL%"
+DefVar $ServiceUsername$ = "%opsiserviceUser%"
+DefVar $ServicePassword$ = "%opsiservicePassword%"
+DefVar $ClientId$ = "%HostID%"
+DefVar $InstallationOptions$ = PARAMSTR
+DefVar $Finalize$ = "service_restart"
 
 
 ; === requirements ==============================================================
@@ -47,7 +35,6 @@ EndFunc
 
 ; === opsiclientd ===============================================================
 DefFunc install_opsiclientd(): void
-	DefVar $BinaryArchiveFile$
 	DefStringList $TempList$
 
 	Sub_uninstall_opsiclientdguard
@@ -71,7 +58,7 @@ DefFunc install_opsiclientd(): void
 
 	Set $TempList$ = ShellCall('dir /B "%ScriptPath%\files"')
 	Set $TempList$ = GetRegexMatchList('(?m)^opsiclientd_windows_\S*.zip', $TempList$)
-	Set $BinaryArchiveFile$ = "%ScriptPath%\files\" + TakeString(0, $TempList$)
+	DefVar $BinaryArchiveFile$ = "%ScriptPath%\files\" + TakeString(0, $TempList$)
 
 	Comment "Opsiclientd archive file: " + $BinaryArchiveFile$
 
@@ -179,10 +166,8 @@ EndFunc
 
 ; === opsi login blocker ========================================================
 DefFunc install_loginblocker() : void
-	DefVar $LoginBlockerLogLevel$
-	DefVar $LoginBlockerTimeoutConnect$
-	Set $LoginBlockerTimeoutConnect$ = "120"
-	Set $LoginBlockerLogLevel$ = "5"
+	DefVar $LoginBlockerTimeoutConnect$ = "120"
+	DefVar $LoginBlockerLogLevel$ = "5"
 
 	Sub_uninstall_loginblocker
 	if GetProductProperty("LoginBlockerStart", "on") = "on"
@@ -271,10 +256,8 @@ EndFunc
 
 ; === opsi-systray ===============================================================
 DefFunc install_opsisystray() : void
-	DefVar $CheckInterval$
-	DefVar $NotifyFormat$
-	Set $CheckInterval$ = GetProductProperty("systray_check_interval", "60")
-	Set $NotifyFormat$ = GetProductProperty("systray_request_notify_format", "productname : request")
+	DefVar $CheckInterval$ = GetProductProperty("systray_check_interval", "60")
+	DefVar $NotifyFormat$ = GetProductProperty("systray_request_notify_format", "productname : request")
 
 	Sub_uninstall_opsisystray
 	if GetProductProperty("systray_install", "true") = "true"
@@ -333,15 +316,13 @@ EndFunc
 
 ; === directories ===============================================================
 DefFunc install_directories() : void
-	DefVar $AdminSID$
-
 	Comment "Creating directories and setting permissions"
 	Message "Creating directories and setting permissions"
 	Files_create_dirs
 
 	; Get-LocalUser is not available in Powershell 2 (win7)
 	; Some win10 seem to get stuck on Get-WmiObject win32_useraccount
-	Set $AdminSID$ = TakeString(0, PowerShellCall("(Get-LocalUser | Where-Object {$_.SID -like 'S-1-5-*-500'}).SID.Value"))
+	DefVar $AdminSID$ = TakeString(0, PowerShellCall("(Get-LocalUser | Where-Object {$_.SID -like 'S-1-5-*-500'}).SID.Value"))
 	if not (contains($AdminSID$, "S-1-5-"))
 		Set $AdminSID$ = TakeString(0, PowerShellCall("(Get-WmiObject win32_useraccount | Where-Object {$_.SID -like 'S-1-5-*-500'}).SID"))
 	endif
@@ -415,24 +396,13 @@ DefFunc rotate_instlog() : void
 	]
 EndFunc
 
-DefFunc set_opsi_general_config() : void
-	Registry_set_opsi_general_config
-
-	[Registry_set_opsi_general_config]
-	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\general]
-	Set "bootmode" = "BKSTD"
-	;Set "opsiconf" = REG_DWORD:1
-	;Set "configlocal" = REG_DWORD:0
-EndFunc
-
 DefFunc set_running_netboot_package_to_installed() : void
 	Comment "Setting running netboot package to installed"
 
 	DefStringList $TempList1$
 	DefStringList $TempList2$
-	DefVar $TempString$
 
-	Set $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_netboot_running"))
+	DefVar $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_netboot_running"))
 	if JsonAsArrayCountElements($TempString$) > "0"
 		Set $TempList1$ = JsonAsArrayToStringList($TempString$)
 		Set $TempList2$ = EmptyList($TempList2$)
@@ -461,19 +431,18 @@ DefFunc set_installed_packages_to_setup() : void
 	DefStringList $TempList0$
 	DefStringList $TempList1$
 	DefStringList $TempList2$
-	DefVar $TempString$
 
 	Set $TempList0$ = GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_localboot_installed")
 	; Returns List with either 0 or 1 entry (specific for client)
 	if count($TempList0$) = "1"
-		Set $TempString$ = TakeString(0, $TempList0$)
+		DefVar $TempString$ = TakeString(0, $TempList0$)
 		if JsonAsArrayCountElements($TempString$) > "0"
 			Set $TempList1$ = JsonAsArrayToStringList($TempString$)
 			Set $TempList2$ = EmptyList($TempList2$)
 			for %ProdOnClient% in $TempList1$ do Set $TempList2$ = addToList($TempList2$, JsonAsObjectGetValueByKey('%ProdOnClient%', "productId"))
 			Set $TempList2$ = RemoveFromListByMatch('opsi-winst', $TempList2$)
 			Set $TempList2$ = RemoveFromListByMatch('opsi-script', $TempList2$)
-			Set $TempList2$ = RemoveFromListByMatch('opsi-client-agent', $TempList2$)
+			Set $TempList2$ = RemoveFromListByMatch($ProductId$, $TempList2$)
 			for %TempProductId% in $TempList2$ do OpsiServiceCall_setProductActionRequestWithDependencies_setup
 		endif
 	endif
@@ -494,6 +463,15 @@ DefFunc set_installed_packages_to_setup() : void
 	]
 EndFunc
 
+DefFunc set_opsi_general_config() : void
+	Registry_set_opsi_general_config
+
+	[Registry_set_opsi_general_config]
+	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org\general]
+	Set "bootmode" = "BKSTD"
+	;Set "opsiconf" = REG_DWORD:1
+	;Set "configlocal" = REG_DWORD:0
+EndFunc
 
 ; === configuration ===============================================================
 DefFunc install_configuration() : void
@@ -542,7 +520,6 @@ EndFunc
 
 ; === wim-capture ================================================================
 DefFunc get_config_value($ConfigName$ : string) : string
-	DefVar $TempString$
 	DefStringList $TempList$
 
 	Set $result$ = "__null__"
@@ -550,7 +527,7 @@ DefFunc get_config_value($ConfigName$ : string) : string
 	Comment "Get configState " + $ConfigName$
 	Set $TempList$ = GetReturnListFromSection('OpsiServiceCall_get_configState')
 	if Count($TempList$) > "0"
-		Set $TempString$ = TakeString(0, $TempList$)
+		DefVar $TempString$ = TakeString(0, $TempList$)
 		if jsonAsArrayCountElements($TempString$) > "0"
 			Set $TempString$ = JsonAsArrayGetElementByIndex($TempString$, "0")
 			Set $TempString$ = JsonAsObjectGetValueByKey($TempString$, "values")
@@ -597,22 +574,19 @@ DefFunc process_wim_capture() : void
 
 	DefVar $TempString$
 	DefStringList $TempList$
-	DefVar $DoNotChangeSetupRequests$
-	DefVar $SwitchInstalledProductsToSetup$
 	DefStringList $ProductOnClients$
 	DefStringList $ProductIdsInstalled$
 	DefStringList $ProductIdsSetup$
 	DefStringList $ProductIdsOnce$
 	DefStringList $ProductIds$
-	DefStringList $ErrorList$
 
 	MarkErrorNumber
 
 	Set $ProductIdsInstalled$ = EmptyList($ProductIdsInstalled$)
 
-	Set $SwitchInstalledProductsToSetup$ = Lower(get_config_value("clientconfig.capture.switch_installed_products_to_setup"))
+	DefVar $SwitchInstalledProductsToSetup$ = Lower(get_config_value("clientconfig.capture.switch_installed_products_to_setup"))
 	Comment "Mode: switch_installed_products_to_setup = " + $SwitchInstalledProductsToSetup$
-	Set $DoNotChangeSetupRequests$ = "true"
+	DefVar $DoNotChangeSetupRequests$ = "true"
 
 	if $SwitchInstalledProductsToSetup$ = "true"
 		Set $DoNotChangeSetupRequests$ = Lower(get_config_value("clientconfig.capture.do_not_change_setup_requests"))
@@ -795,8 +769,8 @@ EndFunc
 
 ; === actions ===================================================================
 if not (GetOS = "Windows_NT")
-	LogError "OS not supoorted: " + GetOS
-	isFatalError "OS not supoorted: " + GetOS
+	LogError "OS not supported: " + GetOS
+	isFatalError "OS not supported: " + GetOS
 endif
 
 if CompareDotSeparatedNumbers(GetMsVersionInfo, "<", "6.0")
@@ -816,32 +790,31 @@ if (strLength($ClientId$) > "64")
 	IsFatalError "Client FQDN too long"
 endif
 
-PowerShellCall('echo ""')
+PowerShellCall('echo test')
 if not ("0" = GetLastExitcode)
 	LogError "Unable to access Powershell - check ExecutionPolicy restrictions"
 	IsFatalError "Unable to access Powershell"
 endif
 
+; PreviousOCDVersion 0 means no opsiclientd installed
+DefVar $PreviousOCDVersion$ = "0"
 if FileExists($BaseDir$+"\opsiclientd_bin\opsiclientd.exe")
 	Set $PreviousOCDVersion$ = getValue("FileVersion", getFileInfoMap($BaseDir$+"\opsiclientd_bin\opsiclientd.exe"))
 else
 	if FileExists($BaseDir$+"\opsiclientd.exe")
 		Set $PreviousOCDVersion$ = getValue("FileVersion", getFileInfoMap($BaseDir$+"\opsiclientd.exe"))
-	else
-		; Not installed
-		Set $PreviousOCDVersion$ = "0"
 	endif
 endif
-
 
 Comment "Show product image"
 ShowBitmap "%ScriptPath%\files\opsi-logo.png" "opsi client agent"
 
 Message "Installing " + $ProductId$ + " ..."
 
-Set $RunningInServiceContext$ = "true"
-ExecWith_powershell_running_in_service_context powershell.exe -ExecutionPolicy Bypass
-if ("1" = GetLastExitcode)
+DefVar $RunningInServiceContext$
+if isProcessChildOf('%opsiscriptprocname%','opsiclientd.exe')
+	Set $RunningInServiceContext$ = "true"
+else
 	Set $RunningInServiceContext$ = "false"
 endif
 
@@ -854,13 +827,23 @@ else
 		SleepSeconds 5
 	endif
 
+	MarkErrorNumber
+	OpsiServiceCall_authenticated
+	if errorsOccurredSinceMark > 0
+		LogError "Opsi service authentication failed"
+		IsFatalError "Opsi service authentication failed"
+	endif
+
 	; Rotate instlog until opsi-script can be forced to not use appendmode
 	rotate_instlog()
 
-	if Contains($InstallationOptions$, "bootimage")
+	if Contains($InstallationOptions$, "bootimage") or Contains($InstallationOptions$, "BOOTIMAGE")
 		set_opsi_general_config()
 		set_running_netboot_package_to_installed()
-		set_installed_packages_to_setup()
+		; during wim capture, installed products are written to %opsiTmpDir%\productOnClients.json - not setting them to setup
+		if not(FileExists("%opsiTmpDir%\productOnClients.json"))
+			set_installed_packages_to_setup()
+		endif
 	endif
 endif
 
@@ -890,7 +873,8 @@ if ($RunningInServiceContext$ = "false")
 	OpsiServiceCall_productOnClient_createObjects_opsiclientagent
 endif
 
-if Contains($InstallationOptions$, "bootimage")
+if Contains($InstallationOptions$, "bootimage") or Contains($InstallationOptions$, "BOOTIMAGE")
+	; Reboot is performed by postinst script in netboot installation
 	Set $Finalize$ = ""
 else
 	if Contains($InstallationOptions$, "noreboot")
@@ -904,49 +888,65 @@ else
 			endif
 		endif
 	endif
-	DefVar $TempString$
-	DefStringList $TempList1$
-	Set $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_localboot_setup"))
-	if JsonAsArrayCountElements($TempString$) > "0"
-		Set $TempList1$ = JsonAsArrayToStringList($TempString$)
-		Set $TempList1$ = removeFromListByContaining('opsi-client-agent;', $TempList1$)
-		if count($TempList1$) > "0"
-			comment "Setting Finalize to reboot because there are pending setup action requests"
+
+	; if not in service_context and not in bootimage mode: keep value of Finalize (except if no_reboot prohibits it)
+	if $RunningInServiceContext$ = "true"
+		DefStringList $TempList1$
+		DefVar $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_localboot_setup"))
+		if JsonAsArrayCountElements($TempString$) > "0"
+			Set $TempList1$ = JsonAsArrayToStringList($TempString$)
+			Set $TempList1$ = removeFromListByContaining('opsi-client-agent;', $TempList1$)
+			if count($TempList1$) > "0"
+				; Restart service to get notifiers back working
+				; comment "Setting Finalize to service_restart_no_skip because there are pending setup action requests"
+				; Set $Finalize$ = "service_restart_no_skip"
+				comment "Setting Finalize to reboot because there are pending setup action requests"
+				Set $Finalize$ = "reboot"
+			endif
+		endif
+
+		; with opsiclientd 4.2.0.77 the location of the restart_marker was changed (no opsiclientd found -> 0)
+		if (($Finalize$ = "service_restart") or ($Finalize$ = "service_restart_no_skip")) and CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77") and CompareDotSeparatedNumbers($PreviousOCDVersion$, ">", "0")
+			comment "opsiclientd version " + $PreviousOCDVersion$ + " does not handle restart marker"
 			Set $Finalize$ = "reboot"
+		endif
+	endif
+
+	;Prohibit reboot and shutdown if allow_reboot is false
+	if (GetProductProperty("allow_reboot", "true") = "false")
+		if ($Finalize$ = "reboot")
+			Set $Finalize$ = "service_restart_no_skip"
+		endif
+		if ($Finalize$ = "shutdown")
+			Set $Finalize$ = "service_restart"
 		endif
 	endif
 endif
 
-; with opsiclientd 4.2.0.77 the location of the restart_marker was changed
-if ($Finalize$ = "service_restart") and (CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77"))
-	comment "opsiclientd version " + $PreviousOCDVersion$ + " does not handle restart marker"
-	Set $Finalize$ = "reboot"
+if ($Finalize$ = "reboot")
+	ExitWindows /Reboot
 endif
-
-if (GetProductProperty("allow_reboot", "true") = "false") and (($Finalize$ = "reboot") or ($Finalize$ = "shutdown"))
-	Set $Finalize$ = "service_restart"
+if ($Finalize$ = "shutdown")
+	if ($RunningInServiceContext$ = "false")
+		PowerShellCall("Stop-Computer -ComputerName localhost -Force")
+	else
+		ExitWindows /ShutdownWanted
+	endif
 endif
-
-Switch $Finalize$
-	Case "reboot"
-		ExitWindows /Reboot
-	EndCase
-	Case "shutdown"
-		if ($RunningInServiceContext$ = "false")
-			PowerShellCall("Stop-Computer -ComputerName localhost -Force")
-		else
-			ExitWindows /ShutdownWanted
-		endif
-	EndCase
-	Case "service_restart"
-		; Restart opsiclientd after current event or start opsiclientd without executing events
+if ($Finalize$ = "service_restart") or ($Finalize$ = "service_restart_no_skip")
+	; Restart opsiclientd after current event or (re)start opsiclientd service
+	if ($Finalize$ = "service_restart_no_skip")
 		Comment "Creating opsiclientd restart marker"
-		PowerShellCall('New-Item "' + $BaseDir$ + '\.opsiclientd_restart" -ItemType File')
-		if not (ProcessIsRunning("opsiclientd.exe"))
-			ShellCall('sc start opsiclientd')
-		endif
-	EndCase
-EndSwitch
+		ShellCall('echo # > "' + $BaseDir$ + '\.opsiclientd_restart"')
+	else
+		; Do not execute events on startup
+		Comment "Creating opsiclientd restart marker, skip events"
+		ShellCall('echo disabled_event_types = gui startup, daemon startup > "' + $BaseDir$ + '\.opsiclientd_restart"')
+	endif
+	if ($RunningInServiceContext$ = "false")
+		ShellCall('net stop opsiclientd & net start opsiclientd')
+	endif
+endif
 
 
 [OpsiServiceCall_authenticated]
@@ -958,22 +958,6 @@ EndSwitch
 "params": [
 	'[{"type":"ProductOnClient","productType":"LocalbootProduct","clientId":"$ClientId$","productId":"$ProductId$","installationStatus":"installed","actionRequest":"none","actionResult":"successful"}]'
 ]
-
-[ExecWith_powershell_running_in_service_context]
-$procid = $PID
-For ($i = 0; $i -le 10; $i++) {
-	$parent = (gwmi win32_process -Filter "processid='$procid'")
-	if ($parent.ProcessName -eq "opsiclientd.exe") {
-		Exit 0
-	}
-	if ($parent.ParentProcessId -eq 0) {
-		Exit 1
-	}
-	$procid = $parent.ParentProcessId
-	Start-Sleep -Milliseconds 100
-}
-Exit 1
-
 
 [OpsiServiceCall_productOnClient_getObjects_localboot_setup]
 "method": "productOnClient_getIdents"

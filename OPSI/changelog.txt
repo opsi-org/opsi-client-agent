@@ -1,10 +1,32 @@
 ﻿[Changelog]
+
+opsi-client-agent (4.2.0.20-1) stable; urgency=low
+
+  * Dependency to opsi-script >= 4.12.4.35
+  * Improved uninstallation script
+  * Updated oca-installation-helper to 4.2.0.11 (powershell allsigned change, adapted proxy handling)
+  * Improved installation in wim-capture-kontext (not setting installed packages to setup)
+  * Connectivity check during setup
+  * Updated opsiclientd to 4.2.0.104
+
+-- Nils Doerrer <n.doerrer@uib.de> Thu, 06 Jan 2022 16:30:00 +0100
+
+opsi-client-agent (4.2.0.19-2) stable; urgency=low
+
+  * Reverted powershell fix
+  * Updated opsiclientd to 4.2.0.103
+
+-- Nils Doerrer <n.doerrer@uib.de> Wed, 22 Dec 2021 13:00:00 +0100
+
 opsi-client-agent (4.2.0.19-1) stable; urgency=low
 
   * Update opsi-login-blocker to 4.2.0.1
-  * Update opsiclientd to 4.2.0.101
+  * Update opsiclientd to 4.2.0.102 (event handling fix)
+  * Update oca-installation-helper to 4.2.0.9 (windows 7 tempdir fix)
+  * Allsigned compatible powershell calls
+  * Fixed allow_reboot in case of very old previous opsi-client-agent version
 
--- Jan Schneider <j.schneider@uib.de> Sat, 18 Dec 2021 11:30:00 +0100
+-- Jan Schneider <j.schneider@uib.de> Tue, 21 Dec 2021 14:30:00 +0100
 
 opsi-client-agent (4.2.0.18-2) stable; urgency=low
 
