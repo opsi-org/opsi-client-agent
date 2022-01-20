@@ -20,7 +20,7 @@ backend = BackendManager(
 )
 
 
-print("starting preinst")
+print("starting preinst (python)")
 if os.path.exists(tmp_dir):
 	print(f"Temporary directory {tmp_dir} already exists, aborting")
 	sys.exit(1)
