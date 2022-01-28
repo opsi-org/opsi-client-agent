@@ -459,7 +459,7 @@ DefFunc set_installed_packages_to_setup() : void
 	"method": "productOnClient_getObjects"
 	"params": [
 		"[]",
-		'{"clientId":"$ClientId$","productType":"LocalbootProduct","installationStatus":"installed"}'
+		'{"clientId":"$ClientId$","productType":"LocalbootProduct","installationStatus":"installed","actionRequest":"none"}'
 	]
 EndFunc
 
