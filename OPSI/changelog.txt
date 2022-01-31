@@ -5,7 +5,7 @@ opsi-client-agent (4.2.0.21-1) stable; urgency=low
   * Updated opsi-deploy-client-agent to 4.2.0.16
   * Updated oca-isntallation-helper to 4.2.0.12
   * On reinstallation via netboot, keep pending actionRequests (like always)
-  * Removed Kiosk Migration. Do not install this package over opsi-client-agent < 4.1.1.18 (serverside) if using kiosk!
+  * Removed Kiosk Migration. Do not install this package over opsi-client-agent < 4.1.1.12 (serverside) if using kiosk!
 
 -- Nils Doerrer <n.doerrer@uib.de> Fri, 28 Jan 2022 15:40:00 +0100
 
