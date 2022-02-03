@@ -819,11 +819,6 @@ if CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77") and contain
 	IsFatalError "opsiclientd too old"
 endif
 
-if CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77") and CompareDotSeparatedNumbers($PreviousOCDVersion$, ">", "0") and contains($ServiceAddress$, "localhost")
-	LogError "opsiclientd too old for upgrade in WAN mode. Please install opsi-client-agent >= 4.1.1.x first."
-	IsFatalError "opsiclientd too old"
-endif
-
 Comment "Show product image"
 ShowBitmap "%ScriptPath%\files\opsi-logo.png" "opsi client agent"
 
