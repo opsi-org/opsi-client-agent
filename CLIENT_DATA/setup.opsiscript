@@ -796,7 +796,7 @@ if not ("0" = GetLastExitcode)
 	IsFatalError "Unable to access Powershell"
 endif
 
-; PreviousOCDVersion 0 means no opsiclientd installed
+; PreviousOCDVersion 0 means no opsiclientd installed (or really really old)
 DefVar $PreviousOCDVersion$ = "0"
 if FileExists($BaseDir$+"\opsiclientd_bin\opsiclientd.exe")
 	Set $PreviousOCDVersion$ = getValue("FileVersion", getFileInfoMap($BaseDir$+"\opsiclientd_bin\opsiclientd.exe"))
@@ -804,6 +804,14 @@ else
 	if FileExists($BaseDir$+"\opsiclientd.exe")
 		Set $PreviousOCDVersion$ = getValue("FileVersion", getFileInfoMap($BaseDir$+"\opsiclientd.exe"))
 	endif
+endif
+if $PreviousOCDVersion$ = ""
+	Set $PreviousOCDVersion$ = "0"
+endif
+
+if CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77") and contains($ServiceAddress$, "localhost")
+	LogError "opsiclientd too old for upgrade in WAN mode. Please install opsi-client-agent >= 4.1.1.x first."
+	IsFatalError "opsiclientd too old"
 endif
 
 Comment "Show product image"
@@ -878,7 +886,7 @@ if Contains($InstallationOptions$, "bootimage") or Contains($InstallationOptions
 	Set $Finalize$ = ""
 else
 	if Contains($InstallationOptions$, "noreboot")
-		Set $Finalize$ = "service_restart_no_skip"
+		Set $Finalize$ = "service_restart"
 	else
 		if Contains($InstallationOptions$, "reboot")
 			Set $Finalize$ = "reboot"
@@ -889,18 +897,30 @@ else
 		endif
 	endif
 
-	DefStringList $TempList1$
-	DefVar $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_localboot_setup"))
-	if JsonAsArrayCountElements($TempString$) > "0"
-		Set $TempList1$ = JsonAsArrayToStringList($TempString$)
-		Set $TempList1$ = removeFromListByContaining('opsi-client-agent;', $TempList1$)
-		if count($TempList1$) > "0"
-			# Restart service to get notifiers back working
-			comment "Setting Finalize to service_restart_no_skip because there are pending setup action requests"
-			Set $Finalize$ = "service_restart_no_skip"
+	; if not in service_context and not in bootimage mode: keep value of Finalize (except if no_reboot prohibits it)
+	if $RunningInServiceContext$ = "true"
+		DefStringList $TempList1$
+		DefVar $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_localboot_setup"))
+		if JsonAsArrayCountElements($TempString$) > "0"
+			Set $TempList1$ = JsonAsArrayToStringList($TempString$)
+			Set $TempList1$ = removeFromListByContaining('opsi-client-agent;', $TempList1$)
+			if count($TempList1$) > "0"
+				; Restart service to get notifiers back working
+				; comment "Setting Finalize to service_restart_no_skip because there are pending setup action requests"
+				; Set $Finalize$ = "service_restart_no_skip"
+				comment "Setting Finalize to reboot because there are pending setup action requests"
+				Set $Finalize$ = "reboot"
+			endif
+		endif
+
+		; with opsiclientd 4.2.0.77 the location of the restart_marker was changed (no opsiclientd found -> 0)
+		if (($Finalize$ = "service_restart") or ($Finalize$ = "service_restart_no_skip")) and CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77")
+			comment "opsiclientd version " + $PreviousOCDVersion$ + " does not handle restart marker"
+			Set $Finalize$ = "reboot"
 		endif
 	endif
 
+	;Prohibit reboot and shutdown if allow_reboot is false
 	if (GetProductProperty("allow_reboot", "true") = "false")
 		if ($Finalize$ = "reboot")
 			Set $Finalize$ = "service_restart_no_skip"
@@ -909,12 +929,6 @@ else
 			Set $Finalize$ = "service_restart"
 		endif
 	endif
-endif
-
-; with opsiclientd 4.2.0.77 the location of the restart_marker was changed (no opsiclientd found -> 0)
-if (($Finalize$ = "service_restart") or ($Finalize$ = "service_restart_no_skip")) and CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77") and CompareDotSeparatedNumbers($PreviousOCDVersion$, ">", "0")
-	comment "opsiclientd version " + $PreviousOCDVersion$ + " does not handle restart marker"
-	Set $Finalize$ = "reboot"
 endif
 
 if ($Finalize$ = "reboot")
@@ -935,7 +949,7 @@ if ($Finalize$ = "service_restart") or ($Finalize$ = "service_restart_no_skip")
 	else
 		; Do not execute events on startup
 		Comment "Creating opsiclientd restart marker, skip events"
-		ShellCall('echo skip_events = gui startup, daemon startup > "' + $BaseDir$ + '\.opsiclientd_restart"')
+		ShellCall('echo disabled_event_types = gui startup, daemon startup > "' + $BaseDir$ + '\.opsiclientd_restart"')
 	endif
 	if ($RunningInServiceContext$ = "false")
 		ShellCall('net stop opsiclientd & net start opsiclientd')
