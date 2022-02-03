@@ -3,7 +3,7 @@
 opsi-client-agent (4.2.0.21-1) stable; urgency=low
 
   * Updated opsiclientd to 4.2.0.105
-  * Updated opsi-deploy-client-agent to 4.2.0.16
+  * Updated opsi-deploy-client-agent to 4.2.0.17 (set timeouts, added parameter --install-timeout)
   * Updated oca-installation-helper to 4.2.0.12
   * On reinstallation via netboot, keep pending actionRequests (like always)
 

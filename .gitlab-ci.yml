@@ -1,25 +1,10 @@
-image: python:3.7-stretch
+image: docker.uib.gmbh/opsi/dev/pybuilder:uib-python-3.10
 
 stages:
   - build
   - package
   - test
 
-.install_opsi_dev_tools: &install_opsi_dev_tools |
-  apt update
-  apt -y install wget cpio unar
-  wget "$OPSIDEVTOOLS_URL_LINUX_X64" -O opsi-dev-tools.tar.gz
-  tar -xvf opsi-dev-tools.tar.gz
-
-.install_opsi_utils: &install_opsi_utils |
-  apt update
-  apt -y install zsync librsync-dev cpio
-  ./opsi-dev-tool --binary-pull development opsi-utils linux x64 latest ./
-  useradd opsiconfd
-  groupadd pcpatch
-  groupadd opsiadmin
-  adduser opsiconfd pcpatch
-  adduser opsiconfd opsiadmin
 
 .jenkinsintegrationtest: &jenkinsintegrationtest |
   version=$(grep OPSI/control -A 10 -e "\[Product\]" | grep "version:" | tr -d "^a-zA-Z :")
@@ -95,9 +80,10 @@ package:linux_make_msi:
   dependencies:
     - build_installer:windows-x86-installer
   script:
-    - *install_opsi_dev_tools
     - apt update
-    - apt -y install wixl uuid-runtime
+    - apt -y install wget cpio unar wixl uuid-runtime
+    - wget "$OPSIDEVTOOLS_URL_LINUX_X64" -O opsi-dev-tools.tar.gz
+    - tar -xvf opsi-dev-tools.tar.gz
     - version=$(grep OPSI/control -A 10 -e "\[Product\]" | grep "version:" | tr -d "^a-zA-Z :")
     #- product_id=$(uuidgen | tr a-z A-Z)
     #- sed "s/{version}/${version}/g;s/{product_id}/${product_id}/g" msi/opsi-client-agent.wxs > opsi-client-agent.wxs
@@ -148,18 +134,16 @@ package:make_opsi_package:
   dependencies:
     - build_installer:windows-x86-installer
   script:
-    - *install_opsi_dev_tools
-    - *install_opsi_utils
-    - ./opsi-dev-tool -l debug --binary-pull
+    - opsi-dev-tool -l debug --binary-pull
     - version=$(grep OPSI/control -A 10 -e "\[Product\]" | grep "version:" | tr -d "^a-zA-Z :")
     - package=$(grep OPSI/control -A 5 -e "\[Package\]" | grep "version:" | tr -d "^a-zA-Z :")
     - '[ "$CI_COMMIT_TAG" = "" ] && sed -i "s/version: $package/version: $package.$CI_JOB_ID/" OPSI/control'
     - mv opsi-client-agent-installer.exe CLIENT_DATA/
-    - opsi-utils/opsi-makepackage --no-set-rights -l 6
+    - opsi-makepackage --no-set-rights -l 6
     - mkdir opsi-client-agent-package
     - cp ./opsi-client-agent*.opsi* opsi-client-agent-package/
-    - '[ "$CI_COMMIT_TAG" = "" ] && ./opsi-dev-tool -l info --uib-binaryindex-url=http://opsipackages.uib.gmbh --binary-push opsi-client-agent-package opsi-client-agent all all "$version-$package" "$CI_JOB_ID"'
-    - '[ "$CI_COMMIT_TAG" = "" ] || ./opsi-dev-tool -l info --uib-binaryindex-url=http://opsipackages.uib.gmbh --binary-push opsi-client-agent-package opsi-client-agent all all "$version-$package"'
+    - '[ "$CI_COMMIT_TAG" = "" ] && opsi-dev-tool -l info --uib-binaryindex-url=http://opsipackages.uib.gmbh --binary-push opsi-client-agent-package opsi-client-agent all all "$version-$package" "$CI_JOB_ID"'
+    - '[ "$CI_COMMIT_TAG" = "" ] || opsi-dev-tool -l info --uib-binaryindex-url=http://opsipackages.uib.gmbh --binary-push opsi-client-agent-package opsi-client-agent all all "$version-$package"'
   artifacts:
     name: controlfile
     paths:

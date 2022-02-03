@@ -335,6 +335,11 @@ DefFunc install_directories() : void
 		IsFatalError "failed to get AdminSID"
 	endif
 	DosInAnIcon_set_file_permissions
+	if not ("0" = GetLastExitcode)
+		LogError "failed to set permissions"
+		Message "failed to set permissions"
+		IsFatalError "failed to set permissions"
+	endif
 
 	[Files_create_dirs]
 	CheckTargetPath = "$VarDir$"
@@ -349,36 +354,36 @@ DefFunc install_directories() : void
 
 	[DosInAnIcon_set_file_permissions]
 	; Take ownership, redirect stdout to nul for speedup
-	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$VarDir$" > nul
+	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$VarDir$" > nul || exit 1
 	; Remove all explicit permissions from the folder recursively (inheritance only)
-	icacls "$VarDir$" /q /c /t /reset
+	icacls "$VarDir$" /q /c /t /reset || exit 1
 	; Allow full access to local admin group, system user and admin user inherit to all objects (OI) and containers (CI)
 	; Allow read access to local users for folder only
-	icacls "$VarDir$" /grant:r *S-1-5-32-544:(OI)(CI)F /grant:r *S-1-5-18:(OI)(CI)F /grant:r *$AdminSID$:(OI)(CI)F /grant:r *S-1-5-32-545:RX
+	icacls "$VarDir$" /grant:r *S-1-5-32-544:(OI)(CI)F /grant:r *S-1-5-18:(OI)(CI)F /grant:r *$AdminSID$:(OI)(CI)F /grant:r *S-1-5-32-545:RX || exit 1
 	; Disable inheritance from parent folder
-	icacls "$VarDir$" /inheritance:r
+	icacls "$VarDir$" /inheritance:r || exit 1
 	; Set owner to SYSTEM
-	icacls "$VarDir$" /setowner SYSTEM
+	icacls "$VarDir$" /setowner SYSTEM || exit 1
 	; Add full permission for local users on applog
-	icacls "$VarDir$\applog" /grant *S-1-5-32-545:(OI)(CI)F
+	icacls "$VarDir$\applog" /grant *S-1-5-32-545:(OI)(CI)F || exit 1
 	; Add full permission for local users on usertmp
-	icacls "$VarDir$\usertmp" /grant *S-1-5-32-545:(OI)(CI)F
+	icacls "$VarDir$\usertmp" /grant *S-1-5-32-545:(OI)(CI)F || exit 1
 
 	; Take ownership, redirect stdout to nul for speedup
-	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$BaseDir$" > nul
+	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$BaseDir$" > nul || exit 1
 	; Remove all explicit permissions from the folder recursively (inheritance only)
-	icacls "$BaseDir$" /q /c /t /reset
+	icacls "$BaseDir$" /q /c /t /reset || exit 1
 	; Allow full access to local admin group, system user and admin user inherit to all objects (OI) and containers (CI)
 	; Allow read access to local users for folder only
-	icacls "$BaseDir$" /grant:r *S-1-5-32-544:(OI)(CI)F /grant:r *S-1-5-18:(OI)(CI)F /grant:r *$AdminSID$:(OI)(CI)F /grant:r *S-1-5-32-545:RX
+	icacls "$BaseDir$" /grant:r *S-1-5-32-544:(OI)(CI)F /grant:r *S-1-5-18:(OI)(CI)F /grant:r *$AdminSID$:(OI)(CI)F /grant:r *S-1-5-32-545:RX || exit 1
 	; Disable inheritance from parent folder
-	icacls "$BaseDir$" /inheritance:r
+	icacls "$BaseDir$" /inheritance:r || exit 1
 	; Set owner to SYSTEM
-	icacls "$BaseDir$" /setowner SYSTEM
+	icacls "$BaseDir$" /setowner SYSTEM || exit 1
 	; Add read and exceute permission for local users on opsi-script
-	icacls "$BaseDir$\opsi-script" /grant *S-1-5-32-545:(OI)(CI)RX
+	icacls "$BaseDir$\opsi-script" /grant *S-1-5-32-545:(OI)(CI)RX || exit 1
 	; Add read and exceute permission for local users on opsi-client-systray
-	icacls "$BaseDir$\opsi-client-systray" /grant *S-1-5-32-545:(OI)(CI)RX
+	icacls "$BaseDir$\opsi-client-systray" /grant *S-1-5-32-545:(OI)(CI)RX || exit 1
 EndFunc
 
 
@@ -810,11 +815,6 @@ if $PreviousOCDVersion$ = ""
 endif
 
 if CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77") and contains($ServiceAddress$, "localhost")
-	LogError "opsiclientd too old for upgrade in WAN mode. Please install opsi-client-agent >= 4.1.1.x first."
-	IsFatalError "opsiclientd too old"
-endif
-
-if CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77") and CompareDotSeparatedNumbers($PreviousOCDVersion$, ">", "0") and contains($ServiceAddress$, "localhost")
 	LogError "opsiclientd too old for upgrade in WAN mode. Please install opsi-client-agent >= 4.1.1.x first."
 	IsFatalError "opsiclientd too old"
 endif
