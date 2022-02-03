@@ -796,7 +796,7 @@ if not ("0" = GetLastExitcode)
 	IsFatalError "Unable to access Powershell"
 endif
 
-; PreviousOCDVersion 0 means no opsiclientd installed
+; PreviousOCDVersion 0 means no opsiclientd installed (or really really old)
 DefVar $PreviousOCDVersion$ = "0"
 if FileExists($BaseDir$+"\opsiclientd_bin\opsiclientd.exe")
 	Set $PreviousOCDVersion$ = getValue("FileVersion", getFileInfoMap($BaseDir$+"\opsiclientd_bin\opsiclientd.exe"))
@@ -804,6 +804,14 @@ else
 	if FileExists($BaseDir$+"\opsiclientd.exe")
 		Set $PreviousOCDVersion$ = getValue("FileVersion", getFileInfoMap($BaseDir$+"\opsiclientd.exe"))
 	endif
+endif
+if $PreviousOCDVersion$ = ""
+	Set $PreviousOCDVersion$ = "0"
+endif
+
+if CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77") and contains($ServiceAddress$, "localhost")
+	LogError "opsiclientd too old for upgrade in WAN mode. Please install opsi-client-agent >= 4.1.1.x first."
+	IsFatalError "opsiclientd too old"
 endif
 
 if CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77") and CompareDotSeparatedNumbers($PreviousOCDVersion$, ">", "0") and contains($ServiceAddress$, "localhost")
@@ -911,7 +919,7 @@ else
 		endif
 
 		; with opsiclientd 4.2.0.77 the location of the restart_marker was changed (no opsiclientd found -> 0)
-		if (($Finalize$ = "service_restart") or ($Finalize$ = "service_restart_no_skip")) and CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77") and CompareDotSeparatedNumbers($PreviousOCDVersion$, ">", "0")
+		if (($Finalize$ = "service_restart") or ($Finalize$ = "service_restart_no_skip")) and CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77")
 			comment "opsiclientd version " + $PreviousOCDVersion$ + " does not handle restart marker"
 			Set $Finalize$ = "reboot"
 		endif
