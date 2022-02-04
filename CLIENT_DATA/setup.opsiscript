@@ -15,7 +15,7 @@ DefVar $ServicePassword$ = "%opsiservicePassword%"
 DefVar $ClientId$ = "%HostID%"
 DefVar $InstallationOptions$ = PARAMSTR
 DefVar $Finalize$ = "service_restart"
-DefVar $PermissionSetFailed$ = "False"
+DefVar $PermissionSetFailed$ = "false"
 
 
 ; === requirements ==============================================================
@@ -888,8 +888,8 @@ setup_after_install()
 install_loginblocker()
 
 if $PermissionSetFailed$ = "true"
-		LogError "Failed to set Permissions after installation"
-		IsFatalError "Failed to set Permissions"
+		LogError "Failed to set permissions after installation"
+		IsFatalError "Failed to set permissions"
 endif
 
 if ($RunningInServiceContext$ = "false")
