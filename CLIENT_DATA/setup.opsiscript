@@ -383,7 +383,7 @@ DefFunc install_directories() : void
 	; Add read and exceute permission for local users on opsi-script
 	icacls "$BaseDir$\opsi-script" /grant *S-1-5-32-545:(OI)(CI)RX || exit 1
 	; Add read and exceute permission for local users on opsi-client-systray
-	icacls "$BaseDir$\opsi-client-systray" /grant *S-1-5-32-545:(OI)(CI)RX || exit 1
+	icacls "$BaseDir$\opsi-client-systray" /grant *S-1-5-32-545:(OI)(CI)RX
 EndFunc
 
 
