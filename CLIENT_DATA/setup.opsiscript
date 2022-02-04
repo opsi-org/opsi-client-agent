@@ -15,6 +15,7 @@ DefVar $ServicePassword$ = "%opsiservicePassword%"
 DefVar $ClientId$ = "%HostID%"
 DefVar $InstallationOptions$ = PARAMSTR
 DefVar $Finalize$ = "service_restart"
+DefVar $PermissionSetFailed$ = "False"
 
 
 ; === requirements ==============================================================
@@ -337,8 +338,7 @@ DefFunc install_directories() : void
 	DosInAnIcon_set_file_permissions
 	if not ("0" = GetLastExitcode)
 		LogError "failed to set permissions"
-		Message "failed to set permissions"
-		IsFatalError "failed to set permissions"
+		Set $PermissionSetFailed$ = "true"
 	endif
 
 	[Files_create_dirs]
@@ -354,36 +354,38 @@ DefFunc install_directories() : void
 
 	[DosInAnIcon_set_file_permissions]
 	; Take ownership, redirect stdout to nul for speedup
-	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$VarDir$" > nul || exit 1
+	set returncode="0"
+	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$VarDir$" > nul || set returncode="1"
 	; Remove all explicit permissions from the folder recursively (inheritance only)
-	icacls "$VarDir$" /q /c /t /reset || exit 1
+	icacls "$VarDir$" /q /c /t /reset || set returncode="1"
 	; Allow full access to local admin group, system user and admin user inherit to all objects (OI) and containers (CI)
 	; Allow read access to local users for folder only
-	icacls "$VarDir$" /grant:r *S-1-5-32-544:(OI)(CI)F /grant:r *S-1-5-18:(OI)(CI)F /grant:r *$AdminSID$:(OI)(CI)F /grant:r *S-1-5-32-545:RX || exit 1
+	icacls "$VarDir$" /grant:r *S-1-5-32-544:(OI)(CI)F /grant:r *S-1-5-18:(OI)(CI)F /grant:r *$AdminSID$:(OI)(CI)F /grant:r *S-1-5-32-545:RX || set returncode="1"
 	; Disable inheritance from parent folder
-	icacls "$VarDir$" /inheritance:r || exit 1
+	icacls "$VarDir$" /inheritance:r || set returncode="1"
 	; Set owner to SYSTEM
-	icacls "$VarDir$" /setowner SYSTEM || exit 1
+	icacls "$VarDir$" /setowner SYSTEM || set returncode="1"
 	; Add full permission for local users on applog
-	icacls "$VarDir$\applog" /grant *S-1-5-32-545:(OI)(CI)F || exit 1
+	icacls "$VarDir$\applog" /grant *S-1-5-32-545:(OI)(CI)F || set returncode="1"
 	; Add full permission for local users on usertmp
-	icacls "$VarDir$\usertmp" /grant *S-1-5-32-545:(OI)(CI)F || exit 1
+	icacls "$VarDir$\usertmp" /grant *S-1-5-32-545:(OI)(CI)F || set returncode="1"
 
 	; Take ownership, redirect stdout to nul for speedup
-	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$BaseDir$" > nul || exit 1
+	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$BaseDir$" > nul || set returncode="1"
 	; Remove all explicit permissions from the folder recursively (inheritance only)
-	icacls "$BaseDir$" /q /c /t /reset || exit 1
+	icacls "$BaseDir$" /q /c /t /reset || set returncode="1"
 	; Allow full access to local admin group, system user and admin user inherit to all objects (OI) and containers (CI)
 	; Allow read access to local users for folder only
-	icacls "$BaseDir$" /grant:r *S-1-5-32-544:(OI)(CI)F /grant:r *S-1-5-18:(OI)(CI)F /grant:r *$AdminSID$:(OI)(CI)F /grant:r *S-1-5-32-545:RX || exit 1
+	icacls "$BaseDir$" /grant:r *S-1-5-32-544:(OI)(CI)F /grant:r *S-1-5-18:(OI)(CI)F /grant:r *$AdminSID$:(OI)(CI)F /grant:r *S-1-5-32-545:RX || set returncode="1"
 	; Disable inheritance from parent folder
-	icacls "$BaseDir$" /inheritance:r || exit 1
+	icacls "$BaseDir$" /inheritance:r || set returncode="1"
 	; Set owner to SYSTEM
-	icacls "$BaseDir$" /setowner SYSTEM || exit 1
+	icacls "$BaseDir$" /setowner SYSTEM || set returncode="1"
 	; Add read and exceute permission for local users on opsi-script
-	icacls "$BaseDir$\opsi-script" /grant *S-1-5-32-545:(OI)(CI)RX || exit 1
+	icacls "$BaseDir$\opsi-script" /grant *S-1-5-32-545:(OI)(CI)RX || set returncode="1"
 	; Add read and exceute permission for local users on opsi-client-systray
 	icacls "$BaseDir$\opsi-client-systray" /grant *S-1-5-32-545:(OI)(CI)RX
+	exit %returncode%
 EndFunc
 
 
@@ -860,6 +862,9 @@ else
 	endif
 endif
 
+; Initial call to install_directory to fix permissions
+install_directories()
+
 if not (FileExists($BaseDir$ + "\opsi-script"))
 	install_opsiscript()
 endif
@@ -881,6 +886,11 @@ setup_after_install()
 
 ; Installation of opsi-login-blocker will kill/restart LogonUI => last step
 install_loginblocker()
+
+if $PermissionSetFailed$ = "true"
+		LogError "Failed to set Permissions"
+		IsFatalError "Failed to set Permissions"
+endif
 
 if ($RunningInServiceContext$ = "false")
 	OpsiServiceCall_productOnClient_createObjects_opsiclientagent
