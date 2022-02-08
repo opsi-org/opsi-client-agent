@@ -315,7 +315,7 @@ EndFunc
 
 
 ; === directories ===============================================================
-DefFunc install_directories($FixVarDir$ : string, $BaseDir$ : string) : string
+DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : string
 	Comment "Creating directories and setting permissions"
 	Message "Creating directories and setting permissions"
 	Files_create_dirs
@@ -876,7 +876,7 @@ else
 endif
 
 DefVar $PermissionSetSuccess$
-if not (%Username% = "SYSTEM")
+if not ("%Username%" = "SYSTEM")
 	; if not running as system: fix permissions on BaseDir (not VarDir)
 	Set $PermissionSetSuccess$ = install_directories("false", "true")
 endif
