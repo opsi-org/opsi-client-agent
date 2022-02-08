@@ -15,7 +15,6 @@ DefVar $ServicePassword$ = "%opsiservicePassword%"
 DefVar $ClientId$ = "%HostID%"
 DefVar $InstallationOptions$ = PARAMSTR
 DefVar $Finalize$ = "service_restart"
-DefVar $PermissionSetFailed$ = "false"
 
 
 ; === requirements ==============================================================
@@ -316,7 +315,7 @@ EndFunc
 
 
 ; === directories ===============================================================
-DefFunc install_directories() : void
+DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : string
 	Comment "Creating directories and setting permissions"
 	Message "Creating directories and setting permissions"
 	Files_create_dirs
@@ -335,10 +334,21 @@ DefFunc install_directories() : void
 		Message "failed to get AdminSID"
 		IsFatalError "failed to get AdminSID"
 	endif
-	DosInAnIcon_set_file_permissions
-	if not ("0" = GetLastExitcode)
-		LogError "failed to set permissions"
-		Set $PermissionSetFailed$ = "true"
+
+	Set $result$ = "true"
+	if $FixVarDir$ = "true"
+		DosInAnIcon_set_file_permissions_vardir
+		if not ("0" = GetLastExitcode)
+			LogError "failed to set permissions on VarDir"
+			Set $result$ = "false"
+		endif
+	endif
+	if $FixBaseDir$ = "true"
+		DosInAnIcon_set_file_permissions_basedir
+		if not ("0" = GetLastExitcode)
+			LogError "failed to set permissions on BaseDir"
+			Set $result$ = "false"
+		endif
 	endif
 
 	[Files_create_dirs]
@@ -352,9 +362,9 @@ DefFunc install_directories() : void
 	CheckTargetPath = "$VarDir$\tls"
 	CheckTargetPath = "$VarDir$\data"
 
-	[DosInAnIcon_set_file_permissions]
-	; Take ownership, redirect stdout to nul for speedup
+	[DosInAnIcon_set_file_permissions_vardir]
 	set returncode=0
+	; Take ownership, redirect stdout to nul for speedup
 	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$VarDir$" > nul || set returncode=1
 	; Remove all explicit permissions from the folder recursively (inheritance only)
 	icacls "$VarDir$" /q /c /t /reset || set returncode=1
@@ -369,7 +379,10 @@ DefFunc install_directories() : void
 	icacls "$VarDir$\applog" /grant *S-1-5-32-545:(OI)(CI)F || set returncode=1
 	; Add full permission for local users on usertmp
 	icacls "$VarDir$\usertmp" /grant *S-1-5-32-545:(OI)(CI)F || set returncode=1
+	exit %returncode%
 
+	[DosInAnIcon_set_file_permissions_basedir]
+	set returncode=0
 	; Take ownership, redirect stdout to nul for speedup
 	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$BaseDir$" > nul || set returncode=1
 	; Remove all explicit permissions from the folder recursively (inheritance only)
@@ -862,8 +875,11 @@ else
 	endif
 endif
 
-; Initial call to install_directory to fix permissions
-install_directories()
+DefVar $PermissionSetSuccess$
+if not ("%Username%" = "SYSTEM")
+	; if not running as system: fix permissions on BaseDir (not VarDir)
+	Set $PermissionSetSuccess$ = install_directories("false", "true")
+endif
 
 if not (FileExists($BaseDir$ + "\opsi-script"))
 	install_opsiscript()
@@ -874,7 +890,8 @@ install_opsinotifier()
 install_opsisystray()
 install_opsiclientd()
 install_custom_files()
-install_directories()
+; Second call to install_directory to fix permissions on VarDir and BaseDir
+Set $PermissionSetSuccess$ = install_directories("true", "true")
 install_configuration()
 
 if FileExists("%opsiTmpDir%\productOnClients.json")
@@ -887,7 +904,7 @@ setup_after_install()
 ; Installation of opsi-login-blocker will kill/restart LogonUI => last step
 install_loginblocker()
 
-if $PermissionSetFailed$ = "true"
+if $PermissionSetSuccess$ = "false"
 		LogError "Failed to set permissions after installation"
 		IsFatalError "Failed to set permissions"
 endif
