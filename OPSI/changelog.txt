@@ -2,6 +2,7 @@
 
 opsi-client-agent (4.2.0.22-1) stable; urgency=low
 
+  * Updated opsi-login-blocker to 4.2.0.2
   * Updated opsiclientd to 4.2.0.107 (improved logging output, possibility to skip firewall setup, updated packages)
   * Updated oca-installation-helper to 4.2.0.13 (fix for macos, new parameter --force-recreate-client)
   * Avoid duplicate permission setting if not neccessary.
