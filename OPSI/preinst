@@ -51,4 +51,5 @@ if [ -d ${CLIENT_DATA_DIR}/files/opsiclientkiosk ] && [ ! -d ${CLIENT_DATA_DIR}/
 	exit 1
 fi
 
+echo "Finished preinst"
 exit 0

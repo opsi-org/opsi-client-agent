@@ -44,7 +44,8 @@ productPropertyStates = backend.productPropertyState_getObjects(productId="opsi-
 configStates = []
 for pps in productPropertyStates:
 	configStates.append(ConfigState("opsiclientd.event_on_shutdown.active", pps.objectId, values=True))
-print(f"Setting new configStates for {len(configStates)} clients")
+if len(configStates):
+	print(f"Setting new configStates for {len(configStates)} clients")
 backend.configState_updateObjects(configStates)
 
 if (client_data_dir / "files" / "opsiclientkiosk").is_dir() and not (client_data_dir / ".." / "opsi-client-kiosk").is_dir():
