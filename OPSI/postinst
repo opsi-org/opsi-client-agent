@@ -18,7 +18,7 @@ if [ -e "${INSTALLER}" -a -d "${PUBLIC_DIR}" ]; then
 		mv "${INSTALLER}" "${PUBLIC_DIR}/opsi-client-agent/" || true
 	fi
 fi
-[ -e "${INSTALLER}" && rm "${INSTALLER}"
+[ -e "${INSTALLER}" ] && rm "${INSTALLER}"
 
 chmod u+x,g+x $CLIENT_DATA_DIR/opsi-deploy-client-agent
 chmod u+x,g+x $CLIENT_DATA_DIR/service_setup.cmd
@@ -47,13 +47,5 @@ fi
 [ -e "${CLIENT_DATA_DIR}/files/custom/notifier" ] || mkdir -p "${CLIENT_DATA_DIR}/files/custom/notifier"
 [ -e "${CLIENT_DATA_DIR}/files/custom/opsiclientd" ] || mkdir -p "${CLIENT_DATA_DIR}/files/custom/opsiclientd"
 [ -e "${CLIENT_DATA_DIR}/files/custom/opsi-script/skin" ] || mkdir -p "${CLIENT_DATA_DIR}/files/custom/opsi-script/skin"
-
-# install opsi-client-kiosk package on depot (only if migration folder exists)
-if [ -d ${CLIENT_DATA_DIR}/../opsi-client-kiosk/migration ]; then
-	rm -df ${CLIENT_DATA_DIR}/../opsi-client-kiosk/migration
-	opsi-package-manager -iq ${CLIENT_DATA_DIR}/files/kiosk-package/opsi-client-kiosk_*.opsi
-fi
-# remove kiosk package from client-agent
-rm -rf ${CLIENT_DATA_DIR}/files/kiosk-package
 
 exit 0
