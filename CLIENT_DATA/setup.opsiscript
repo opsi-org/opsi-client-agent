@@ -315,7 +315,7 @@ EndFunc
 
 
 ; === directories ===============================================================
-DefFunc install_directories() : void
+DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : string
 	Comment "Creating directories and setting permissions"
 	Message "Creating directories and setting permissions"
 	Files_create_dirs
@@ -334,7 +334,22 @@ DefFunc install_directories() : void
 		Message "failed to get AdminSID"
 		IsFatalError "failed to get AdminSID"
 	endif
-	DosInAnIcon_set_file_permissions
+
+	Set $result$ = "true"
+	if $FixVarDir$ = "true"
+		DosInAnIcon_set_file_permissions_vardir
+		if not ("0" = GetLastExitcode)
+			LogError "failed to set permissions on VarDir"
+			Set $result$ = "false"
+		endif
+	endif
+	if $FixBaseDir$ = "true"
+		DosInAnIcon_set_file_permissions_basedir
+		if not ("0" = GetLastExitcode)
+			LogError "failed to set permissions on BaseDir"
+			Set $result$ = "false"
+		endif
+	endif
 
 	[Files_create_dirs]
 	CheckTargetPath = "$VarDir$"
@@ -347,38 +362,43 @@ DefFunc install_directories() : void
 	CheckTargetPath = "$VarDir$\tls"
 	CheckTargetPath = "$VarDir$\data"
 
-	[DosInAnIcon_set_file_permissions]
+	[DosInAnIcon_set_file_permissions_vardir]
+	set returncode=0
 	; Take ownership, redirect stdout to nul for speedup
-	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$VarDir$" > nul
+	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$VarDir$" > nul || set returncode=1
 	; Remove all explicit permissions from the folder recursively (inheritance only)
-	icacls "$VarDir$" /q /c /t /reset
+	icacls "$VarDir$" /q /c /t /reset || set returncode=1
 	; Allow full access to local admin group, system user and admin user inherit to all objects (OI) and containers (CI)
 	; Allow read access to local users for folder only
-	icacls "$VarDir$" /grant:r *S-1-5-32-544:(OI)(CI)F /grant:r *S-1-5-18:(OI)(CI)F /grant:r *$AdminSID$:(OI)(CI)F /grant:r *S-1-5-32-545:RX
+	icacls "$VarDir$" /grant:r *S-1-5-32-544:(OI)(CI)F /grant:r *S-1-5-18:(OI)(CI)F /grant:r *$AdminSID$:(OI)(CI)F /grant:r *S-1-5-32-545:RX || set returncode=1
 	; Disable inheritance from parent folder
-	icacls "$VarDir$" /inheritance:r
+	icacls "$VarDir$" /inheritance:r || set returncode=1
 	; Set owner to SYSTEM
-	icacls "$VarDir$" /setowner SYSTEM
+	icacls "$VarDir$" /setowner SYSTEM || set returncode=1
 	; Add full permission for local users on applog
-	icacls "$VarDir$\applog" /grant *S-1-5-32-545:(OI)(CI)F
+	icacls "$VarDir$\applog" /grant *S-1-5-32-545:(OI)(CI)F || set returncode=1
 	; Add full permission for local users on usertmp
-	icacls "$VarDir$\usertmp" /grant *S-1-5-32-545:(OI)(CI)F
+	icacls "$VarDir$\usertmp" /grant *S-1-5-32-545:(OI)(CI)F || set returncode=1
+	exit %returncode%
 
+	[DosInAnIcon_set_file_permissions_basedir]
+	set returncode=0
 	; Take ownership, redirect stdout to nul for speedup
-	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$BaseDir$" > nul
+	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$BaseDir$" > nul || set returncode=1
 	; Remove all explicit permissions from the folder recursively (inheritance only)
-	icacls "$BaseDir$" /q /c /t /reset
+	icacls "$BaseDir$" /q /c /t /reset || set returncode=1
 	; Allow full access to local admin group, system user and admin user inherit to all objects (OI) and containers (CI)
 	; Allow read access to local users for folder only
-	icacls "$BaseDir$" /grant:r *S-1-5-32-544:(OI)(CI)F /grant:r *S-1-5-18:(OI)(CI)F /grant:r *$AdminSID$:(OI)(CI)F /grant:r *S-1-5-32-545:RX
+	icacls "$BaseDir$" /grant:r *S-1-5-32-544:(OI)(CI)F /grant:r *S-1-5-18:(OI)(CI)F /grant:r *$AdminSID$:(OI)(CI)F /grant:r *S-1-5-32-545:RX || set returncode=1
 	; Disable inheritance from parent folder
-	icacls "$BaseDir$" /inheritance:r
+	icacls "$BaseDir$" /inheritance:r || set returncode=1
 	; Set owner to SYSTEM
-	icacls "$BaseDir$" /setowner SYSTEM
+	icacls "$BaseDir$" /setowner SYSTEM || set returncode=1
 	; Add read and exceute permission for local users on opsi-script
-	icacls "$BaseDir$\opsi-script" /grant *S-1-5-32-545:(OI)(CI)RX
+	icacls "$BaseDir$\opsi-script" /grant *S-1-5-32-545:(OI)(CI)RX || set returncode=1
 	; Add read and exceute permission for local users on opsi-client-systray
 	icacls "$BaseDir$\opsi-client-systray" /grant *S-1-5-32-545:(OI)(CI)RX
+	exit %returncode%
 EndFunc
 
 
@@ -796,7 +816,7 @@ if not ("0" = GetLastExitcode)
 	IsFatalError "Unable to access Powershell"
 endif
 
-; PreviousOCDVersion 0 means no opsiclientd installed
+; PreviousOCDVersion 0 means no opsiclientd installed (or really really old)
 DefVar $PreviousOCDVersion$ = "0"
 if FileExists($BaseDir$+"\opsiclientd_bin\opsiclientd.exe")
 	Set $PreviousOCDVersion$ = getValue("FileVersion", getFileInfoMap($BaseDir$+"\opsiclientd_bin\opsiclientd.exe"))
@@ -804,6 +824,14 @@ else
 	if FileExists($BaseDir$+"\opsiclientd.exe")
 		Set $PreviousOCDVersion$ = getValue("FileVersion", getFileInfoMap($BaseDir$+"\opsiclientd.exe"))
 	endif
+endif
+if $PreviousOCDVersion$ = ""
+	Set $PreviousOCDVersion$ = "0"
+endif
+
+if CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77") and contains($ServiceAddress$, "localhost")
+	LogError "opsiclientd too old for upgrade in WAN mode. Please install opsi-client-agent >= 4.1.1.x first."
+	IsFatalError "opsiclientd too old"
 endif
 
 Comment "Show product image"
@@ -847,6 +875,12 @@ else
 	endif
 endif
 
+DefVar $PermissionSetSuccess$
+if not ("%Username%" = "SYSTEM")
+	; if not running as system: fix permissions on BaseDir (not VarDir)
+	Set $PermissionSetSuccess$ = install_directories("false", "true")
+endif
+
 if not (FileExists($BaseDir$ + "\opsi-script"))
 	install_opsiscript()
 endif
@@ -856,7 +890,8 @@ install_opsinotifier()
 install_opsisystray()
 install_opsiclientd()
 install_custom_files()
-install_directories()
+; Second call to install_directory to fix permissions on VarDir and BaseDir
+Set $PermissionSetSuccess$ = install_directories("true", "true")
 install_configuration()
 
 if FileExists("%opsiTmpDir%\productOnClients.json")
@@ -868,6 +903,11 @@ setup_after_install()
 
 ; Installation of opsi-login-blocker will kill/restart LogonUI => last step
 install_loginblocker()
+
+if $PermissionSetSuccess$ = "false"
+		LogError "Failed to set permissions after installation"
+		IsFatalError "Failed to set permissions"
+endif
 
 if ($RunningInServiceContext$ = "false")
 	OpsiServiceCall_productOnClient_createObjects_opsiclientagent
@@ -906,7 +946,7 @@ else
 		endif
 
 		; with opsiclientd 4.2.0.77 the location of the restart_marker was changed (no opsiclientd found -> 0)
-		if (($Finalize$ = "service_restart") or ($Finalize$ = "service_restart_no_skip")) and CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77") and CompareDotSeparatedNumbers($PreviousOCDVersion$, ">", "0")
+		if (($Finalize$ = "service_restart") or ($Finalize$ = "service_restart_no_skip")) and CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77")
 			comment "opsiclientd version " + $PreviousOCDVersion$ + " does not handle restart marker"
 			Set $Finalize$ = "reboot"
 		endif

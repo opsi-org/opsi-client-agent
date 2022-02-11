@@ -7,7 +7,7 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x86
-    version: 4.2.0.104
+    version: 4.2.0.107
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
@@ -49,7 +49,7 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: all
-    version: 4.2.0.1
+    version: 4.2.0.2
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
@@ -87,7 +87,7 @@ pull-binaries:
         - chmod 755 CLIENT_DATA/oca-installation-helper.exe
     os: windows
     architecture: x86
-    version: 4.2.0.12
+    version: 4.2.0.13
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
@@ -99,7 +99,7 @@ pull-binaries:
     post-script: []
     os: linux
     architecture: x64
-    version: 4.2.0.16
+    version: 4.2.0.17
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
