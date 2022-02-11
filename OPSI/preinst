@@ -46,4 +46,9 @@ if [ -e "${CLIENT_DATA_DIR}/files/opsi/on_shutdown" ]; then
 	done
 fi
 
+if [ -d ${CLIENT_DATA_DIR}/files/opsiclientkiosk ] && [ ! -d ${CLIENT_DATA_DIR}/../opsi-client-kiosk ]; then
+	echo "Detected old opsi-client-agent and no kiosk package, aborting - install opsi-client-agent >=4.2.0.0 and <4.2.0.23 for migration"
+	exit 1
+fi
+
 exit 0

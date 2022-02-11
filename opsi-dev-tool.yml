@@ -41,18 +41,6 @@ pull-binaries:
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
-  # opsi kiosk included in opsipackage
-  - name: kiosk-package
-    server-type: binaryindex
-    destination: CLIENT_DATA/files
-    extract: true
-    post-script: []
-    os: windows
-    architecture: all
-    version: 4.1.1.8-8
-    branch: development
-    server-url: http://binaryindex.uib.gmbh
-
   # opsi-login-blocker - prevents login during opsi task execution
   - name: opsi-login-blocker
     server-type: binaryindex

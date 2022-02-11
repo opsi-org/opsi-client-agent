@@ -48,12 +48,4 @@ fi
 [ -e "${CLIENT_DATA_DIR}/files/custom/opsiclientd" ] || mkdir -p "${CLIENT_DATA_DIR}/files/custom/opsiclientd"
 [ -e "${CLIENT_DATA_DIR}/files/custom/opsi-script/skin" ] || mkdir -p "${CLIENT_DATA_DIR}/files/custom/opsi-script/skin"
 
-# install opsi-client-kiosk package on depot (only if migration folder exists)
-if [ -d ${CLIENT_DATA_DIR}/../opsi-client-kiosk/migration ]; then
-	rm -df ${CLIENT_DATA_DIR}/../opsi-client-kiosk/migration
-	opsi-package-manager -iq ${CLIENT_DATA_DIR}/files/kiosk-package/opsi-client-kiosk_*.opsi
-fi
-# remove kiosk package from client-agent
-rm -rf ${CLIENT_DATA_DIR}/files/kiosk-package
-
 exit 0
