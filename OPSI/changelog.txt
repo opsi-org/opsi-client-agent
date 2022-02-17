@@ -1,6 +1,7 @@
 ﻿[Changelog]
 opsi-client-agent (4.2.0.23-1) stable; urgency=low
 
+  * Updated oca-installation-helper to 4.2.0.14 (new parameters --dns-domain, --finalize)
   * Updated opsiclientd to 4.2.0.108 (reworked opsi-setup-user cleanup)
   * Removed Kiosk Migration. Do not install this package over opsi-client-agent < 4.1.1.18 (serverside) if using kiosk!
 
