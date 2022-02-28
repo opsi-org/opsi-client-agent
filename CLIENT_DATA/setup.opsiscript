@@ -499,10 +499,14 @@ DefFunc install_configuration() : void
 	Message "Setting and applying configurations"
 
 	Files_copy_uninst
+	Files_copy_versionfile
 	Registry_SetUninstallEntries
 
 	[Files_copy_uninst]
 	copy -s "%ScriptPath%\files\uninst\*.*" "$BaseDir$\uninst\"
+
+	[Files_copy_versionfile]
+	copy "%ScriptPath%\files\opsi-client-agent.version" "$BaseDir$\"
 
 	[Registry_SetUninstallEntries]
 	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\opsi-client-agent]

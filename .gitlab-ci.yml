@@ -1,6 +1,7 @@
 image: docker.uib.gmbh/opsi/dev/pybuilder:uib-python-3.10
 
 stages:
+  - prepare
   - build
   - package
   - test
@@ -33,6 +34,22 @@ stages:
   exit 1
 
 
+prepare:prepare_files:
+  stage: prepare
+  script:
+    - opsi-dev-tool -l info --binary-pull
+    - version=$(grep OPSI/control -A 10 -e "\[Product\]" | grep "version:" | tr -d "^a-zA-Z :")
+    - package=$(grep OPSI/control -A 5 -e "\[Package\]" | grep "version:" | tr -d "^a-zA-Z :")
+    - '[ "$CI_COMMIT_TAG" = "" ] && package="$package.$CI_JOB_ID"
+    - sed -i "s/version: $package/version: $package" OPSI/control'
+    - echo "$version-$package" > CLIENT_DATA/file/opsi-client-agent.version
+  artifacts:
+    name: prepared_files
+    paths:
+      - OPSI/control
+      - CLIENT_DATA/
+
+
 build_installer:windows-x86-installer:
   stage: build
   tags:
@@ -42,7 +59,6 @@ build_installer:windows-x86-installer:
     - Expand-Archive opsi-dev-tools.zip -DestinationPath opsi-dev-tools
     - Invoke-WebRequest -UseBasicParsing -Uri "http://binaryindex.uib.gmbh/mirror/resource_hacker/windows/x86/resource_hacker_windows_x86_5.1.8.zip" -OutFile resource_hacker.zip
     - Expand-Archive resource_hacker.zip -DestinationPath .
-    - .\\opsi-dev-tools\\opsi-dev-tool.exe -l debug --binary-pull
     # Get version from control file
     - "$versionLine = Get-Content -Path OPSI\\control | Where-Object { $_ -match 'version: 4.' }"
     - $version = $versionLine.Split(':')[1].trim()
@@ -72,13 +88,12 @@ build_installer:windows-x86-installer:
     paths:
       - opsi-client-agent-installer.exe
 
+
 package:linux_make_msi:
   # wixl sometimes produces a corrupt cab file in msi
   when: manual
   image: debian:bullseye
   stage: package
-  dependencies:
-    - build_installer:windows-x86-installer
   script:
     - apt update
     - apt -y install wget cpio unar wixl uuid-runtime
@@ -131,23 +146,11 @@ package:windows_make_msi:
 
 package:make_opsi_package:
   stage: package
-  dependencies:
-    - build_installer:windows-x86-installer
   script:
-    - opsi-dev-tool -l debug --binary-pull
-    - version=$(grep OPSI/control -A 10 -e "\[Product\]" | grep "version:" | tr -d "^a-zA-Z :")
-    - package=$(grep OPSI/control -A 5 -e "\[Package\]" | grep "version:" | tr -d "^a-zA-Z :")
-    - '[ "$CI_COMMIT_TAG" = "" ] && sed -i "s/version: $package/version: $package.$CI_JOB_ID/" OPSI/control'
     - mv opsi-client-agent-installer.exe CLIENT_DATA/
     - opsi-makepackage --no-set-rights -l 6
-    - mkdir opsi-client-agent-package
-    - cp ./opsi-client-agent*.opsi* opsi-client-agent-package/
-    - '[ "$CI_COMMIT_TAG" = "" ] && opsi-dev-tool -l info --uib-binaryindex-url=http://opsipackages.uib.gmbh --binary-push opsi-client-agent-package opsi-client-agent all all "$version-$package" "$CI_JOB_ID"'
-    - '[ "$CI_COMMIT_TAG" = "" ] || opsi-dev-tool -l info --uib-binaryindex-url=http://opsipackages.uib.gmbh --binary-push opsi-client-agent-package opsi-client-agent all all "$version-$package"'
-  artifacts:
-    name: controlfile
-    paths:
-      - OPSI/control
+    - upload-package opsi-client-agent_*.opsi
+
 
 test:testwindowsversions:
   stage: test
@@ -158,6 +161,7 @@ test:testwindowsversions:
     - OLDVERSION="4.1.1.0-1"
     - SYSTEMS="win10-21h1,win10-x64-21h1,win7,win7-x64,win81,win81-x64"
     - *jenkinsintegrationtest
+
 
 test:testontag:
   stage: test
