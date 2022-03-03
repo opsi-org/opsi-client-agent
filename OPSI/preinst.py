@@ -24,8 +24,8 @@ if tmp_dir.exists():
 	print(f"Temporary directory {tmp_dir} already exists, aborting")
 	sys.exit(1)
 
-tmp_dir.mkdir()
 client_data_dir.mkdir(exist_ok=True)
+tmp_dir.mkdir()
 
 if (client_data_dir / "files" / "opsi" / "custom").exists():
 	print("Saving old custom dir")
