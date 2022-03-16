@@ -512,7 +512,7 @@ DefFunc install_configuration() : void
 	[Registry_SetUninstallEntries]
 	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\opsi-client-agent]
 	set "DisplayName" = "opsi-client-agent"
-	set "DisplayVersion" = $InstallingVersion$
+	set "DisplayVersion" = "$InstallingVersion$"
 	set "DisplayIcon" = "$BaseDir$\opsi-script\opsi-script.exe"
 	set "DisplayPublisher" = "uib gmbh, Mainz, Germany"
 	set "Publisher" = "uib gmbh, Mainz, Germany"
