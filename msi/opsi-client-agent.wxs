@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="windows-1252"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <Product Name="opsi-client-agent {version}"
+  <Product Name="opsi-client-agent"
            Id="*"
            UpgradeCode="{B90DB166-A7C6-44F8-B07A-D0070A487ADC}"
            Language="1033" Codepage="1252" Version="{version}" Manufacturer="uib GmbH">
