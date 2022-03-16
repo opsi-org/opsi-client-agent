@@ -500,6 +500,7 @@ DefFunc install_configuration() : void
 
 	Files_copy_uninst
 	Files_copy_versionfile
+	Defvar $InstallingVersion$ = strLoadTextFileWithEncoding("%ScriptPath%\files\opsi-client-agent.version", "utf-8")
 	Registry_SetUninstallEntries
 
 	[Files_copy_uninst]
