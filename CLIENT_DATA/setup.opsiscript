@@ -510,7 +510,7 @@ DefFunc install_configuration() : void
 	copy "%ScriptPath%\files\opsi-client-agent.version" "$BaseDir$\"
 
 	[Registry_SetUninstallEntries]
-	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\opsi-client-agent]
+	OpenKey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{8441CC3B-CF6B-4E54-8BB1-48E8DD247ECF}]
 	set "DisplayName" = "opsi-client-agent"
 	set "DisplayVersion" = "$InstallingVersion$"
 	set "DisplayIcon" = "$BaseDir$\opsi-script\opsi-script.exe"
