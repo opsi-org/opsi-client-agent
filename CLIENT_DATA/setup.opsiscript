@@ -950,6 +950,12 @@ else
 			endif
 		endif
 
+		; in case of systray install set finalize to reboot (to get systray running in user context)
+		if GetProductProperty("systray_install", "true") = "true"
+			comment "systray installed setting finalize to reboot"
+			Set $Finalize$ = "reboot"
+		endif
+
 		; with opsiclientd 4.2.0.77 the location of the restart_marker was changed (no opsiclientd found -> 0)
 		if (($Finalize$ = "service_restart") or ($Finalize$ = "service_restart_no_skip")) and CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77")
 			comment "opsiclientd version " + $PreviousOCDVersion$ + " does not handle restart marker"

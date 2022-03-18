@@ -61,5 +61,5 @@ if FileExists($BaseDir$ + "\opsiclientdguard")
 endif
 
 [Files_uninstall]
-del -fr "%System%\OpsiLoginBlocker.dll"
-del -sfr "$BaseDir$"
+del -frc "%System%\OpsiLoginBlocker.dll"
+del -sfrc "$BaseDir$"
