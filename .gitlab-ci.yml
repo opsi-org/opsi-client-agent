@@ -77,7 +77,7 @@ build_installer:windows-x86-installer:
     - Get-Content reshack.log
     # Replace icon in exe
     - .\\resourcehacker\\ResourceHacker.exe -open opsi-client-agent-installer.exe -save opsi-client-agent-installer.exe -action addoverwrite -res oca-installer\\opsi.ico -mask "ICONGROUP,MAINICON," -log reshack.log
-    - Start-Sleep -s 5
+    - Start-Sleep -s 10
     - Get-Content reshack.log
     # Sign exe
     - .\\opsi-dev-tools\\opsi-dev-tool.exe -l info --signserver-sign opsi-client-agent-installer.exe
