@@ -44,11 +44,9 @@ DeleteVar "opsi_systray_start"
 [Registry_del_keys]
 deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\opsi.org]
 deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\opsi-client-agent]
-deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{8441CC3B-CF6B-4E54-8BB1-48E8DD247ECF}]
 deletekey [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\opsiclientd]
 deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\opsi.org]
 deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\opsi-client-agent]
-deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{8441CC3B-CF6B-4E54-8BB1-48E8DD247ECF}]
 
 [Sub_uninstall_opsiclientdguard]
 Comment "Uninstalling opsiclientdguard"
