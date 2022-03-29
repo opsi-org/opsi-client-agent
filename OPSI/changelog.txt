@@ -1,5 +1,12 @@
 ﻿[Changelog]
 
+opsi-client-agent (4.2.0.29-1) stable; urgency=low
+
+  * Updated opsiclientd to 4.2.0.113
+  * Updates opsi-notifier to 4.2.0.5
+
+-- Jan Schneider <j.schneider@uib.de> Tue, 29 Mar 2022 11:07:00 +0100
+
 opsi-client-agent (4.2.0.28-1) stable; urgency=low
 
   * Updated oca-installation-helper to 4.2.0.17 (new option --no-set-mac-address, fixed evaluation of files/custom/install.conf)
