@@ -3,7 +3,7 @@
 opsi-client-agent (4.2.0.29-1) stable; urgency=low
 
   * Updated opsiclientd to 4.2.0.113
-  * Updates opsi-notifier to 4.2.0.5
+  * Updated opsi-notifier to 4.2.0.5
 
 -- Jan Schneider <j.schneider@uib.de> Tue, 29 Mar 2022 11:07:00 +0100
 
