@@ -373,8 +373,8 @@ DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : strin
 	icacls "$VarDir$" /grant:r *S-1-5-32-544:(OI)(CI)F /grant:r *S-1-5-18:(OI)(CI)F /grant:r *$AdminSID$:(OI)(CI)F /grant:r *S-1-5-32-545:RX || set returncode=1
 	; Disable inheritance from parent folder
 	icacls "$VarDir$" /inheritance:r || set returncode=1
-	; Set owner to SYSTEM
-	icacls "$VarDir$" /setowner SYSTEM || set returncode=1
+	; Set owner to SYSTEM - may fail
+	icacls "$VarDir$" /setowner SYSTEM
 	; Add full permission for local users on applog
 	icacls "$VarDir$\applog" /grant *S-1-5-32-545:(OI)(CI)F || set returncode=1
 	; Add full permission for local users on usertmp
@@ -392,8 +392,8 @@ DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : strin
 	icacls "$BaseDir$" /grant:r *S-1-5-32-544:(OI)(CI)F /grant:r *S-1-5-18:(OI)(CI)F /grant:r *$AdminSID$:(OI)(CI)F /grant:r *S-1-5-32-545:RX || set returncode=1
 	; Disable inheritance from parent folder
 	icacls "$BaseDir$" /inheritance:r || set returncode=1
-	; Set owner to SYSTEM
-	icacls "$BaseDir$" /setowner SYSTEM || set returncode=1
+	; Set owner to SYSTEM - may fail
+	icacls "$BaseDir$" /setowner SYSTEM
 	; Add read and exceute permission for local users on opsi-script
 	icacls "$BaseDir$\opsi-script" /grant *S-1-5-32-545:(OI)(CI)RX || set returncode=1
 	; Add read and exceute permission for local users on opsi-client-systray
