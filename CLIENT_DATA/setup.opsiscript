@@ -821,20 +821,22 @@ if not ("0" = GetLastExitcode)
 	IsFatalError "Unable to access Powershell"
 endif
 
-; PreviousOCDVersion 0 means no opsiclientd installed (or really really old)
-DefVar $PreviousOCDVersion$ = "0"
+; PreviousOCDVersion -1 means no opsiclientd installed
 if FileExists($BaseDir$+"\opsiclientd_bin\opsiclientd.exe")
 	Set $PreviousOCDVersion$ = getValue("FileVersion", getFileInfoMap($BaseDir$+"\opsiclientd_bin\opsiclientd.exe"))
 else
 	if FileExists($BaseDir$+"\opsiclientd.exe")
 		Set $PreviousOCDVersion$ = getValue("FileVersion", getFileInfoMap($BaseDir$+"\opsiclientd.exe"))
+	else
+		Set $PreviousOCDVersion$ = "-1"
 	endif
 endif
 if $PreviousOCDVersion$ = ""
+	; getFileInfoMap can produce emptystring on really old binaries -> 0
 	Set $PreviousOCDVersion$ = "0"
 endif
 
-if CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77") and contains($ServiceAddress$, "localhost")
+if not($PreviousOCDVersion$ = "-1") and CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77") and contains($ServiceAddress$, "localhost")
 	LogError "opsiclientd too old for upgrade in WAN mode. Please install opsi-client-agent >= 4.1.1.x first."
 	IsFatalError "opsiclientd too old"
 endif
