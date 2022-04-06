@@ -822,6 +822,7 @@ if not ("0" = GetLastExitcode)
 endif
 
 ; PreviousOCDVersion -1 means no opsiclientd installed
+DefVar $PreviousOCDVersion$ = ""
 if FileExists($BaseDir$+"\opsiclientd_bin\opsiclientd.exe")
 	Set $PreviousOCDVersion$ = getValue("FileVersion", getFileInfoMap($BaseDir$+"\opsiclientd_bin\opsiclientd.exe"))
 else
