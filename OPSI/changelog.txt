@@ -4,7 +4,7 @@ opsi-client-agent (4.2.0.30-1) stable; urgency=low
 
   * Updated opsi-notifier to 4.2.0.6
   * Improved error handling in case of unreachable configserver
-  * Updated opsiclientd to 4.2.0.115
+  * Updated opsiclientd to 4.2.0.116
 
 -- Jan Schneider <j.schneider@uib.de> Fri, 01 Apr 2022 16:17:00 +0100
 
