@@ -130,3 +130,29 @@ pull-binaries:
     version: 14.30.30528.0
     branch: development
     server-url: http://binaryindex.uib.gmbh
+
+  # api-ms-win-core-path-l1-1-0.dll needed for python >= 3.9 on windows < 10
+  # https://bugs.python.org/issue40740
+  # https://github.com/nalexandru/api-ms-win-core-path-HACK
+  - name: api-ms-win-core-path
+    server-type: binaryindex
+    destination: CLIENT_DATA/files/api-ms-win-core-path/x86/
+    extract: true
+    os: windows
+    architecture: x86
+    version: 0.3.1
+    branch: development
+    server-url: http://binaryindex.uib.gmbh
+
+  # api-ms-win-core-path-l1-1-0.dll needed for python >= 3.9 on windows < 10
+  # https://bugs.python.org/issue40740
+  # https://github.com/nalexandru/api-ms-win-core-path-HACK
+  - name: api-ms-win-core-path
+    server-type: binaryindex
+    destination: CLIENT_DATA/files/api-ms-win-core-path/x64/
+    extract: true
+    os: windows
+    architecture: x64
+    version: 0.3.1
+    branch: development
+    server-url: http://binaryindex.uib.gmbh

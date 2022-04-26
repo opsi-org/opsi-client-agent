@@ -1,5 +1,11 @@
 ﻿[Changelog]
 
+opsi-client-agent (4.2.0.32-1) stable; urgency=low
+
+  * Add api-ms-win-core-path-l1-1-0.dll
+
+-- Jan Schneider <j.schneider@uib.de> Tue, 26 Apr 2022 13:16:00 +0100
+
 opsi-client-agent (4.2.0.31-1) stable; urgency=low
 
   * Updated opsiclientd to 4.2.0.117 (fix win7 compatibility)

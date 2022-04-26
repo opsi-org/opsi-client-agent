@@ -20,6 +20,10 @@ DefVar $Finalize$ = "service_restart"
 ; === requirements ==============================================================
 DefFunc install_requirements() : void
 	Sub_install_vcredist
+	if CompareDotSeparatedNumbers(GetMsVersionInfo, "<", "10.0")
+		; Needed for python >= 3.9 on windows < 10
+		Sub_install_api-ms-win-core-path
+	endif
 
 	[Sub_install_vcredist]
 	Comment "Installing vcredist"
@@ -30,6 +34,23 @@ DefFunc install_requirements() : void
 		; Needed for opsi-login-blocker x64
 		ShellCall('"%ScriptPath%\files\vcredist\VC_redist.x64.exe" /install /quiet /norestart')
 	endif
+
+	[Sub_install_api-ms-win-core-path]
+	Message "Installing api-ms-win-core-path"
+
+	Comment "Installing api-ms-win-core-path x86"
+	Files_install_api-ms-win-core-path_x86 /32bit
+
+	if (GetSystemType = "64 Bit System")
+		Comment "Installing api-ms-win-core-path x64"
+		Files_install_api-ms-win-core-path_x64 /64bit
+	endif
+
+	[Files_install_api-ms-win-core-path_x86]
+	copy "%ScriptPath%\files\api-ms-win-core-path\x86\api-ms-win-core-path-l1-1-0.dll" "%System%\"
+
+	[Files_install_api-ms-win-core-path_x64]
+	copy "%ScriptPath%\files\api-ms-win-core-path\x64\api-ms-win-core-path-l1-1-0.dll" "%System%\"
 EndFunc
 
 
