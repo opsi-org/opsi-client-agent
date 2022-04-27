@@ -882,6 +882,10 @@ if ($RunningInServiceContext$ = "true")
 	Comment "Running in service context"
 else
 	Comment "Not running in service context"
+	if FileExists($BaseDir$ + "\opsiclientdguard")
+		ShellCall('sc stop opsiclientdguard')
+		SleepSeconds 5
+	endif
 	if ProcessIsRunning("opsiclientd.exe")
 		ShellCall("sc stop opsiclientd")
 		SleepSeconds 5
