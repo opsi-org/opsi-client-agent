@@ -160,7 +160,7 @@ test:testwindowsversions:
     - echo "starting jenkins job via POST request"
     - PROPERTIES=""
     - OLDVERSION="4.1.1.0-1"
-    - SYSTEMS="win10-21h1,win10-x64-21h1,win7,win7-x64,win81,win81-x64"
+    - SYSTEMS="win10-21h1,win10-x64-21h1,win7,win7-x64,win81,win81-x64,win2012,win2022"
     - *jenkinsintegrationtest
 
 

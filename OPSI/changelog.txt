@@ -1,4 +1,9 @@
 ﻿[Changelog]
+opsi-client-agent (4.2.0.32-3) stable; urgency=low
+
+  * Installing WebDAV-Redirector for windows server systems.
+
+-- Nils Doerrer <n.doerrer@uib.de> Tue, 28 Apr 2022 14:00:00 +0100
 
 opsi-client-agent (4.2.0.32-2) stable; urgency=low
 

@@ -27,6 +27,11 @@ DefFunc install_requirements() : void
 		; Needed for python >= 3.9 on windows < 10
 		Sub_install_api-ms-win-core-path
 	endif
+	; If this is a windows server system (desktop has WebDav-redirector installed by default)
+	if takeString(1,splitString(takeString(8, GetMsVersionInfo),"=")) = "3"
+		; Needed for webdav mode
+		Sub_install_webdav_redirector
+	endif
 
 	[Sub_install_vcredist]
 	Comment "Installing vcredist"
@@ -54,6 +59,11 @@ DefFunc install_requirements() : void
 
 	[Files_install_api-ms-win-core-path_x64]
 	copy "%ScriptPath%\files\api-ms-win-core-path\x64\api-ms-win-core-path-l1-1-0.dll" "%System%\"
+
+	[Sub_install_webdav_redirector]
+	Message "Installing WebDav-Redirector"
+	PowerShellCall("Install-WindowsFeature WebDav-Redirector")
+	warning "WebDav-Redirector installation requires a reboot to complete"
 EndFunc
 
 
