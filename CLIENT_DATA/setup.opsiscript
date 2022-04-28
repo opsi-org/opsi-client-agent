@@ -28,7 +28,8 @@ DefFunc install_requirements() : void
 		Sub_install_api-ms-win-core-path
 	endif
 	; If this is a windows server system (desktop has WebDav-redirector installed by default)
-	if takeString(1,splitString(takeString(8, GetMsVersionInfo),"=")) = "3"
+	comment "Checking for windows server - product_type_nr is " + takeString(1,splitString(takeString(8, GetMsVersionMap),"="))
+	if takeString(1,splitString(takeString(8, GetMsVersionMap),"=")) = "3"
 		; Needed for webdav mode
 		Sub_install_webdav_redirector
 	endif
