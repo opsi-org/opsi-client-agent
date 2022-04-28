@@ -64,7 +64,7 @@ DefFunc install_requirements() : void
 	[Sub_install_webdav_redirector]
 	Message "Installing WebDav-Redirector"
 	PowerShellCall("Install-WindowsFeature WebDav-Redirector")
-	warning "WebDav-Redirector installation requires a reboot to complete"
+	LogWarning "WebDav-Redirector installation requires a reboot to complete"
 EndFunc
 
 
