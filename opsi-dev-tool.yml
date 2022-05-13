@@ -41,6 +41,20 @@ pull-binaries:
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
+ # openssl library for opsi-script
+  - name: ssl-libs
+    server-type: binaryindex
+    destination: CLIENT_DATA/files/opsi-script
+    extract: true
+    post-script:
+      - cp CLIENT_DATA/files/opsi-script/ssl-libs/* CLIENT_DATA/files/opsi-script
+      - rm -r CLIENT_DATA/files/opsi-script/ssl-libs
+    os: windows
+    architecture: x86
+    version: 1.1.1n
+    branch: development
+    server-url: http://binaryindex.uib.gmbh
+
   # opsi-login-blocker - prevents login during opsi task execution
   - name: opsi-login-blocker
     server-type: binaryindex

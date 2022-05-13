@@ -1,6 +1,7 @@
 ﻿[Changelog]
 opsi-client-agent (4.2.0.33-1) stable; urgency=low
 
+  * Updated openssl to 1.1.1n
   * Updated opsi-script to 4.12.5.0 (fixed isProcessChildOf function)
   * Updated opsiclientd to 4.2.0.119 (updated dependencies, changed logging behaviour)
   * Updated opsi-deploy-client-agent to 4.2.0.21 (fixed winexe test and cleanup on windows)
