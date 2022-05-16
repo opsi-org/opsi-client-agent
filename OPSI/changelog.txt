@@ -9,6 +9,12 @@ opsi-client-agent (4.2.0.33-1) stable; urgency=low
 
 -- Nils Doerrer <n.doerrer@uib.de> Fri, 6 May 2022 13:00:00 +0100
 
+opsi-client-agent (4.2.0.32-4) stable; urgency=low
+
+  * Updated opsiclientd to 4.2.0.119
+
+-- Jan Schneider <j.schneider@uib.de> Mon, 16 May 2022 12:14:00 +0100
+
 opsi-client-agent (4.2.0.32-3) stable; urgency=low
 
   * Installing WebDAV-Redirector for windows server systems.
