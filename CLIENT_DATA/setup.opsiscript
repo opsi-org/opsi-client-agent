@@ -56,10 +56,10 @@ DefFunc install_requirements() : void
 	endif
 
 	[Files_install_api-ms-win-core-path_x86]
-	copy "%ScriptPath%\files\api-ms-win-core-path\x86\api-ms-win-core-path-l1-1-0.dll" "%System%\"
+	copy -n "%ScriptPath%\files\api-ms-win-core-path\x86\api-ms-win-core-path-l1-1-0.dll" "%System%\"
 
 	[Files_install_api-ms-win-core-path_x64]
-	copy "%ScriptPath%\files\api-ms-win-core-path\x64\api-ms-win-core-path-l1-1-0.dll" "%System%\"
+	copy -n "%ScriptPath%\files\api-ms-win-core-path\x64\api-ms-win-core-path-l1-1-0.dll" "%System%\"
 
 	[Sub_install_webdav_redirector]
 	Message "Installing WebDav-Redirector"
