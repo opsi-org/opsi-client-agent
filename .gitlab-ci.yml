@@ -56,6 +56,8 @@ build_installer:windows-x86-installer:
   tags:
     - win10
   script:
+    # Speedup Invoke-WebRequest
+    - $ProgressPreference = 'SilentlyContinue'
     - Invoke-WebRequest -UseBasicParsing -Uri "$OPSIDEVTOOLS_URL_WINDOWS_X86" -OutFile opsi-dev-tools.zip
     - Expand-Archive opsi-dev-tools.zip -DestinationPath opsi-dev-tools
     - Invoke-WebRequest -UseBasicParsing -Uri "http://binaryindex.uib.gmbh/mirror/resource_hacker/windows/x86/resource_hacker_windows_x86_5.1.8.zip" -OutFile resource_hacker.zip
