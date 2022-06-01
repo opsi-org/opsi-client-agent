@@ -341,11 +341,15 @@ DefFunc install_custom_files(): void
 		Message "failed to install custom files"
 		IsFatalError "failed to install custom files"
 	endif
+	Files_remove_old_custom
 
 	[Files_install_custom]
 	copy -sc "%ScriptPath%\files\custom\*.*" "$BaseDir$\"
 	; Copy to old notifier path also
 	copy -sc "%ScriptPath%\files\custom\opsi-notifier\*.*" "$BaseDir$\notifier\"
+
+	[Files_remove_old_custom]
+	del "$BaseDir$\custom\"
 EndFunc
 
 
