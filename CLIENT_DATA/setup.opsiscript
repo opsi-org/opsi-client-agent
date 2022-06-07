@@ -349,7 +349,7 @@ DefFunc install_custom_files(): void
 	copy -sc "%ScriptPath%\files\custom\opsi-notifier\*.*" "$BaseDir$\notifier\"
 
 	[Files_remove_old_custom]
-	del "$BaseDir$\custom\"
+	del -s "$BaseDir$\custom\"
 EndFunc
 
 
