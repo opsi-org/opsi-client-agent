@@ -1,4 +1,11 @@
 ﻿[Changelog]
+opsi-client-agent (4.2.0.34-1) stable; urgency=low
+
+  * Updated opsiclientd to 4.2.0.120
+  * Fetching custom files from opsi-client-agent-custom
+
+-- Jan Schneider <j.schneider@uib.de> Thu, 9 Jun 2022 15:38:00 +0100
+
 opsi-client-agent (4.2.0.33-1) stable; urgency=low
 
   * Updated openssl to 1.1.1n
