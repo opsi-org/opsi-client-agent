@@ -337,11 +337,23 @@ DefFunc install_custom_files(): void
 	MarkErrorNumber
 	Files_install_custom
 	if errorsOccurredSinceMark > 0
-		LogError "failed to install custom files"
-		Message "failed to install custom files"
-		IsFatalError "failed to install custom files"
+		LogError "Failed to install custom files"
+		Message "Failed to install custom files"
+		IsFatalError "Failed to install custom files"
 	endif
 	Files_remove_old_custom
+
+	DefVar $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_product_getIdents_opsi-client-agent-custom"))
+	if JsonAsArrayCountElements($TempString$) > "0"
+		comment "Package opsi-client-agent-custom available, downloading custom files"
+		ShellCall('"'+ $BaseDir$ + '\opsiclientd_bin\opsiclientd.exe" --log-level 6 download-from-depot opsi-client-agent-custom "' + $BaseDir$ + '" "custom/*"')
+		if not(GetLastExitcode = "0")
+			LogError "Failed to fetch files from opsi-client-agent-custom"
+			Message "Failed to fetch files from opsi-client-agent-custom"
+		endif
+	else
+		comment "Package opsi-client-agent-custom not available"
+	endif
 
 	[Files_install_custom]
 	copy -sc "%ScriptPath%\files\custom\*.*" "$BaseDir$\"
@@ -350,6 +362,13 @@ DefFunc install_custom_files(): void
 
 	[Files_remove_old_custom]
 	del -s "$BaseDir$\custom\"
+
+	[OpsiServiceCall_product_getIdents_opsi-client-agent-custom]
+	"method": "product_getIdents"
+	"params": [
+		"str",
+		'{"id":"opsi-client-agent-custom"}'
+	]
 EndFunc
 
 
