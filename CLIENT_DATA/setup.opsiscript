@@ -343,10 +343,12 @@ DefFunc install_custom_files(): void
 	endif
 	Files_remove_old_custom
 
-	DefVar $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_product_getIdents_opsi-client-agent-custom"))
+	DefStringList $TempList$
+	Set $TempList$ = GetReturnListFromSection("OpsiServiceCall_product_getIdents_opsi-client-agent-custom")
+	DefVar $TempString$ = TakeString(0, $TempList$)
 	if JsonAsArrayCountElements($TempString$) > "0"
 		comment "Package opsi-client-agent-custom available, downloading custom files"
-		ShellCall('"'+ $BaseDir$ + '\opsiclientd_bin\opsiclientd.exe" --log-level 6 download-from-depot opsi-client-agent-custom "' + $BaseDir$ + '" "common/*"')
+		ShellCall('"'+ $BaseDir$ + '\opsiclientd_bin\opsiclientd.exe" --log-level 5 download-from-depot opsi-client-agent-custom "' + $BaseDir$ + '" "common/*"')
 		if not(GetLastExitcode = "0")
 			LogError "Failed to fetch files from opsi-client-agent-custom"
 			Message "Failed to fetch files from opsi-client-agent-custom"
