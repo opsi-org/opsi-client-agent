@@ -343,7 +343,7 @@ DefFunc install_custom_files(): void
 	endif
 	Files_remove_old_custom
 
-	if (not runningInWanMode)
+	if not (runningInWanMode)
 		DefStringList $TempList$
 		Set $TempList$ = GetReturnListFromSection("OpsiServiceCall_product_getIdents_opsi-client-agent-custom")
 		DefVar $TempString$ = TakeString(0, $TempList$)
