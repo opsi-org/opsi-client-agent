@@ -7,7 +7,7 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x86
-    version: 4.2.0.120
+    version: 4.2.0.121
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
@@ -75,7 +75,7 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x86
-    version: 4.2.0.6
+    version: 4.2.0.7
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
