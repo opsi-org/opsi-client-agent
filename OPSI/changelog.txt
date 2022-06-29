@@ -1,4 +1,10 @@
 ﻿[Changelog]
+opsi-client-agent (4.2.0.36-1) stable; urgency=low
+
+  * Updated opsi-login-blocker to 4.2.0.3 (fix login crash)
+
+-- Jan Schneider <j.schneider@uib.de> Wed, 29 Jun 2022 15:30:00 +0100
+
 opsi-client-agent (4.2.0.35-1) stable; urgency=low
 
   * Updated opsiclientd to 4.2.0.121 (killing stuck notifiers, longer opsisetupuser password)
