@@ -333,13 +333,17 @@ EndFunc
 
 ; === custom files ==============================================================
 DefFunc install_custom_files(): void
-	comment "Copy custom files"
-	MarkErrorNumber
-	Files_install_custom
-	if errorsOccurredSinceMark > 0
-		LogError "Failed to install custom files"
-		Message "Failed to install custom files"
-		IsFatalError "Failed to install custom files"
+	if FileExists("%ScriptPath%\files\custom")
+		comment "Copy custom files"
+		MarkErrorNumber
+		Files_install_custom
+		if errorsOccurredSinceMark > 0
+			LogError "Failed to install custom files"
+			Message "Failed to install custom files"
+			IsFatalError "Failed to install custom files"
+		endif
+	else
+		comment "No custom files found"
 	endif
 	Files_remove_old_custom
 
