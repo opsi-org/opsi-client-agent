@@ -128,6 +128,8 @@ DefFunc install_opsiclientd(): void
 		IsFatalError "opsiclientd setup failed"
 	endif
 
+	Files_remove_old_opsiclientd
+
 	[Files_extract_opsiclientd_binaries_to_temp]
 	del -sfc "$BaseDir$\opsiclientd_windows_x86"
 	unzipfile "$BinaryArchiveFile$" "$BaseDir$\"
@@ -139,7 +141,8 @@ DefFunc install_opsiclientd(): void
 
 	[Files_install_opsiclientd_dir]
 	; Remove extend.d as workaround to avoid copy errors while copy *.conf
-	del -f "$BaseDir$\opsiclientd\extend.d\*.conf"
+	move "$BaseDir$\opsiclientd\extend.d\" "$BaseDir$\opsiclientd\extend.d.old\"
+	del -rcs "$BaseDir$\opsiclientd\extend.d.old\"
 	copy -s "$BaseDir$\opsiclientd_bin\opsiclientd_data\*.*" "$BaseDir$\opsiclientd\"
 	del -fs "$BaseDir$\opsiclientd_bin\opsiclientd_data"
 
@@ -150,6 +153,15 @@ DefFunc install_opsiclientd(): void
 	Set [action_processor] remote_dir = opsi-script\\windows\\x86
 	Set [action_processor] remote_common_dir = opsi-script\\common
 	Set [action_processor] filename = opsi-script.exe
+
+	[Files_remove_old_opsiclientd]
+	del -rc "$BaseDir$\opsiclientd.exe"
+	del -s "$BaseDir$\openssl"
+	del -s "$BaseDir$\on_shutdown"
+	del -s "$BaseDir$\utilities"
+	del -s "$BaseDir$\prelogin"
+	del -s "$BaseDir$\custom\"
+	del -s "$BaseDir$\images\"
 EndFunc
 
 
@@ -345,7 +357,6 @@ DefFunc install_custom_files(): void
 	else
 		comment "No custom files found"
 	endif
-	Files_remove_old_custom
 
 	if not (runningInWanMode)
 		DefStringList $TempList$
@@ -370,9 +381,6 @@ DefFunc install_custom_files(): void
 
 	[Files_install_custom]
 	copy -sc "%ScriptPath%\files\custom\*.*" "$BaseDir$\"
-
-	[Files_remove_old_custom]
-	del -s "$BaseDir$\custom\"
 
 	[OpsiServiceCall_product_getIdents_opsi-client-agent-custom]
 	"method": "product_getIdents"
