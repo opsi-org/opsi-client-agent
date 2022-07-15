@@ -4,7 +4,8 @@ opsi-client-agent (4.2.0.37-1) stable; urgency=low
   * Updated opsi-deploy-client-agent to 4.2.0.22 (removed deprecated options, implementation working without winexe)
   * Updated oca-installation-helper to 4.2.0.21
   * Improved cleanup from very old opsi-client-agent remains
-  * Updated opsiclientd to 4.2.0.123
+  * Updated opsiclientd to 4.2.0.124 (using alternatives for deprecated methods)
+  * Updated opsi-script to 4.12.5.5
 
 -- Nils Doerrer <n.doerrer@uib.de> Wed, 13 Jul 2022 11:00:00 +0100
 
