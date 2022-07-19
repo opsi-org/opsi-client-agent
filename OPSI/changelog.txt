@@ -2,6 +2,7 @@
 opsi-client-agent (4.2.0.37-2) stable; urgency=low
 
   * Fixed setup opsiscript for netboot-context
+  * Updated opsiclientd to 4.2.0.125 (no relevant changes)
 
 -- Nils Doerrer <n.doerrer@uib.de> Wed, 19 Jul 2022 09:00:00 +0100
 
