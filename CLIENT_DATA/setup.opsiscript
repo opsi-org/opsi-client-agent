@@ -114,8 +114,7 @@ DefFunc install_opsiclientd(): void
 	MarkErrorNumber
 	Files_install_opsiclientd_dir
 	if ErrorsOccurredSinceMark > 0
-		LogError "Failed to install opsiclientd"
-		IsFatalError "Failed to install opsiclientd"
+		LogError "Failed to install opsiclientd data directory"
 	endif
 
 	comment "Patch opsiclientd.conf"
@@ -140,9 +139,6 @@ DefFunc install_opsiclientd(): void
 	del -sfc "$BaseDir$\opsiclientd_windows_x86"
 
 	[Files_install_opsiclientd_dir]
-	; Remove extend.d as workaround to avoid copy errors while copy *.conf
-	move "$BaseDir$\opsiclientd\extend.d\" "$BaseDir$\opsiclientd\extend.d.old\"
-	del -rcs "$BaseDir$\opsiclientd\extend.d.old\"
 	copy -s "$BaseDir$\opsiclientd_bin\opsiclientd_data\*.*" "$BaseDir$\opsiclientd\"
 	del -fs "$BaseDir$\opsiclientd_bin\opsiclientd_data"
 
