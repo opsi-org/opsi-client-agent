@@ -7,37 +7,10 @@ stages:
   - test
 
 
-.jenkinsintegrationtest: &jenkinsintegrationtest |
-  version=$(grep OPSI/control -A 10 -e "\[Product\]" | grep "version:" | tr -d "^a-zA-Z :")
-  package=$(grep OPSI/control -A 5 -e "\[Package\]" | grep "version:" | tr -d "^a-zA-Z :")
-  version="$version-$(echo $package | tr '.' '~')"
-  VERSIONS="$OLDVERSION,$version,$version"
-  PRODUCTS="opsi-client-agent-old,opsi-client-agent,opsi-client-agent"
-  PRODUCTSOURCES="opsi-client-agent,opsi-client-agent,opsi-client-agent"
-  ACTIONREQUEST="setup,setup,setup"
-  response=$(curl --insecure -v -X POST https://jenkinsttt.uib.gmbh/job/cicd-abo-plus/buildWithParameters --user service_testumgebung_gitlab:$JENKINS_CICD_TOKEN --data PRODUCTS=$PRODUCTS --data ACTIONREQUEST=$ACTIONREQUEST --data PROPERTIES="$PROPERTIES" --data SYSTEMS=$SYSTEMS --data VERSIONS=$VERSIONS --data PRODUCTSOURCES=$PRODUCTSOURCES 2>&1)
-  url=$(echo "$response" | grep "Location" | grep -o 'https://.*/')   # this is the global queue id
-  echo "waiting for start of queue item $url"
-  sleep 20
-  response=$(curl --insecure "$url/api/json" 2> /dev/null)
-  echo "$response"
-  while echo "$response" | grep -q '"blocked":true'; do echo "waiting for job start"; sleep 20; response=$(curl --insecure "$url/api/json" 2> /dev/null); done
-  url=$(echo "$response" | grep -o 'https://[^"]*[0-9]\+/')           # this is the specific build id for the pipeline
-  echo "waiting for completion of job $url"
-  response=$(curl --insecure "$url/api/json" 2> /dev/null)
-  while echo "$response" | grep -q '"result":null'; do echo "still waiting"; sleep 20; response=$(curl --insecure "$url/api/json" 2> /dev/null); done
-  echo "$response"
-  if echo "$response" | grep -q '"result":"SUCCESS"'; then echo 'result:SUCCESS'; exit 0; fi
-  echo 'NOT successful'
-  response=$(curl --insecure "$url/consoleText/api/json" 2> /dev/null)
-  echo "$response" | grep "Failed in branch"
-  exit 1
-
-
-prepare:prepare_files:
+prepare_files:
   stage: prepare
   script:
-    - opsi-dev-tool -l info --binary-pull
+    - opsi-dev-cli -l info binary pull
     - version=$(grep OPSI/control -A 10 -e "\[Product\]" | grep "version:" | tr -d "^a-zA-Z :")
     - package=$(grep OPSI/control -A 5 -e "\[Package\]" | grep "version:" | tr -d "^a-zA-Z :")
     - newpackage="$package"
@@ -51,7 +24,7 @@ prepare:prepare_files:
       - CLIENT_DATA/
 
 
-build_installer:windows-x86-installer:
+windows-x86-installer:
   stage: build
   tags:
     - win10
@@ -59,7 +32,8 @@ build_installer:windows-x86-installer:
     # Speedup Invoke-WebRequest
     - $ProgressPreference = 'SilentlyContinue'
     - Invoke-WebRequest -UseBasicParsing -Uri "$OPSIDEVTOOLS_URL_WINDOWS_X86" -OutFile opsi-dev-tools.zip
-    - Expand-Archive opsi-dev-tools.zip -DestinationPath opsi-dev-tools
+    - Expand-Archive opsi-dev-tools.zip -DestinationPath .
+    - .\opsi-dev-tool.exe --self-install -l info
     - Invoke-WebRequest -UseBasicParsing -Uri "http://binaryindex.uib.gmbh/mirror/resource_hacker/windows/x86/resource_hacker_windows_x86_5.1.8.zip" -OutFile resource_hacker.zip
     - Expand-Archive resource_hacker.zip -DestinationPath .
     # Get version from control file
@@ -82,17 +56,17 @@ build_installer:windows-x86-installer:
     - Start-Sleep -s 10
     - Get-Content reshack.log
     # Sign exe
-    - .\\opsi-dev-tools\\opsi-dev-tool.exe -l info --signserver-sign opsi-client-agent-installer.exe
+    - .\opsi-dev-tool.exe -l info --signserver-sign opsi-client-agent-installer.exe
     # Push to binaryindex
-    - if (! $CI_COMMIT_TAG) {.\\opsi-dev-tools\\opsi-dev-tool.exe -l info --binary-push opsi-client-agent-installer.exe opsi-client-agent-installer windows x86 $version "$CI_JOB_ID"}
-    - if ($CI_COMMIT_TAG) {.\\opsi-dev-tools\\opsi-dev-tool.exe -l info --binary-push opsi-client-agent-installer.exe opsi-client-agent-installer windows x86 $version }
+    - if (! $CI_COMMIT_TAG) {.\opsi-dev-cli.exe -l info binary push opsi-client-agent-installer.exe --product=opsi-client-agent-installer --system=windows --architecture=x86 --version=$version --prerelease="$CI_JOB_ID"}
+    - if ($CI_COMMIT_TAG) {.\opsi-dev-cli.exe -l info binary push opsi-client-agent-installer.exe --product=opsi-client-agent-installer --system=windows --architecture=x86 --version=$version }
   artifacts:
     name: opsi-client-agent-installer
     paths:
       - opsi-client-agent-installer.exe
 
 
-package:linux_make_msi:
+linux_make_msi:
   # wixl sometimes produces a corrupt cab file in msi
   when: manual
   image: debian:bullseye
@@ -100,31 +74,30 @@ package:linux_make_msi:
   script:
     - apt update
     - apt -y install wget cpio unar wixl uuid-runtime
-    - wget "$OPSIDEVTOOLS_URL_LINUX_X64" -O opsi-dev-tools.tar.gz
-    - tar -xvf opsi-dev-tools.tar.gz
     - version=$(grep OPSI/control -A 10 -e "\[Product\]" | grep "version:" | tr -d "^a-zA-Z :")
     #- product_id=$(uuidgen | tr a-z A-Z)
     #- sed "s/{version}/${version}/g;s/{product_id}/${product_id}/g" msi/opsi-client-agent.wxs > opsi-client-agent.wxs
     - sed "s/{version}/${version}/g" msi/opsi-client-agent.wxs > opsi-client-agent.wxs
     - cat opsi-client-agent.wxs
     - wixl -v opsi-client-agent.wxs
-    - ./opsi-dev-tool -l info --signserver-sign opsi-client-agent.msi
+    - opsi-dev-tool -l info --signserver-sign opsi-client-agent.msi
     # Push to binaryindex
-    - '[ "$CI_COMMIT_TAG" = "" ] && ./opsi-dev-tool -l info --binary-push opsi-client-agent.msi opsi-client-agent-msi windows x86 "$version" "$CI_JOB_ID"'
-    - '[ "$CI_COMMIT_TAG" = "" ] || ./opsi-dev-tool -l info --binary-push opsi-client-agent.msi opsi-client-agent-msi windows x86 "$version"'
+    - '[ "$CI_COMMIT_TAG" = "" ] && opsi-dev-cli -l info binary push opsi-client-agent.msi --product=opsi-client-agent-msi --system=windows --architecture=x86 --version="$version" --prerelease"$CI_JOB_ID"'
+    - '[ "$CI_COMMIT_TAG" = "" ] || opsi-dev-cli -l info binary push opsi-client-agent.msi --product=opsi-client-agent-msi --system=windows --architecture=x86 --version="$version"'
   artifacts:
     name: opsi-client-agent-msi
     paths:
       - opsi-client-agent.msi
 
 
-package:windows_make_msi:
+windows_make_msi:
   stage: package
   tags:
     - win10
   script:
     - Invoke-WebRequest -UseBasicParsing -Uri "$OPSIDEVTOOLS_URL_WINDOWS_X86" -OutFile opsi-dev-tools.zip
-    - Expand-Archive opsi-dev-tools.zip -DestinationPath opsi-dev-tools
+    - Expand-Archive opsi-dev-tools.zip -DestinationPath .
+    - .\opsi-dev-tool.exe --self-install -l info
     - Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/wixtoolset/wix3/releases/download/wix3112rtm/wix311-binaries.zip" -OutFile wix-binaries.zip
     - Expand-Archive wix-binaries.zip -DestinationPath wix
     # Get version from control file
@@ -137,17 +110,12 @@ package:windows_make_msi:
     - wix\\candle.exe opsi-client-agent.wxs
     - wix\\light.exe opsi-client-agent.wixobj
     # Sign msi
-    - .\\opsi-dev-tools\\opsi-dev-tool.exe -l info --signserver-sign opsi-client-agent.msi
+    - .\opsi-dev-tool.exe -l info --signserver-sign opsi-client-agent.msi
     # Push to binaryindex
-    - if (! $CI_COMMIT_TAG) {.\\opsi-dev-tools\\opsi-dev-tool.exe -l info --binary-push opsi-client-agent.msi opsi-client-agent-msi windows x86 $version "$CI_JOB_ID"}
-    - if ($CI_COMMIT_TAG) {.\\opsi-dev-tools\\opsi-dev-tool.exe -l info --binary-push opsi-client-agent.msi opsi-client-agent-msi windows x86 $version }
-  artifacts:
-    name: opsi-client-agent-msi
-    paths:
-      - opsi-client-agent.msi
+    - if (! $CI_COMMIT_TAG) {.\opsi-dev-cli.exe -l info binary push opsi-client-agent.msi --product=opsi-client-agent-msi --system=windows --architecture=x86 --version=$version --prerelease="$CI_JOB_ID"}
+    - if ($CI_COMMIT_TAG) {.\opsi-dev-cli.exe -l info binary push opsi-client-agent.msi --product=opsi-client-agent-msi --system=windows --architecture=x86 --version=$version }
 
-
-package:make_opsi_package:
+make_opsi_package:
   stage: package
   script:
     - mv opsi-client-agent-installer.exe CLIENT_DATA/
@@ -155,24 +123,23 @@ package:make_opsi_package:
     - upload-package opsi-client-agent_*.opsi
 
 
-test:testwindowsversions:
+test_windows_versions:
   stage: test
   when: manual
   script:
-    - echo "starting jenkins job via POST request"
-    - PROPERTIES=""
     - OLDVERSION="4.1.1.0-1"
-    - SYSTEMS="win10-21h1,win10-x64-21h1,win7,win7-x64,win81,win81-x64,win2012,win2022"
-    - *jenkinsintegrationtest
+    - version=$(grep OPSI/control -A 10 -e "\[Product\]" | grep "version:" | tr -d "^a-zA-Z :")
+    - package=$(grep OPSI/control -A 5 -e "\[Package\]" | grep "version:" | tr -d "^a-zA-Z :")
+    - version="$version-$(echo $package | tr '.' '~')"
+    - opsi-dev-cli -l info jenkins test --systems=win10-21h1,win10-x64-21h1,win7,win7-x64,win81,win81-x64,win2012,win2022 --versions="$OLDVERSION,$version,$version"
 
-
-test:testontag:
+test_tagged:
   stage: test
   only:
     - tags
   script:
-    - echo "starting jenkins job via POST request"
-    - PROPERTIES=""
     - OLDVERSION="4.1.1.0-1"
-    - SYSTEMS="win10-21h1,win10-x64-21h1"
-    - *jenkinsintegrationtest
+    - version=$(grep OPSI/control -A 10 -e "\[Product\]" | grep "version:" | tr -d "^a-zA-Z :")
+    - package=$(grep OPSI/control -A 5 -e "\[Package\]" | grep "version:" | tr -d "^a-zA-Z :")
+    - version="$version-$(echo $package | tr '.' '~')"
+    - opsi-dev-cli -l info jenkins test --versions="$OLDVERSION,$version,$version"

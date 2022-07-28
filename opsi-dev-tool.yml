@@ -170,3 +170,12 @@ pull-binaries:
     version: 0.3.1
     branch: mirror
     server-url: http://binaryindex.uib.gmbh
+
+
+jenkins-test:
+  ACTIONREQUEST: setup,setup,setup
+  PRODUCTS: opsi-client-agent-old,opsi-client-agent,opsi-client-agent
+  PRODUCTSOURCES: opsi-client-agent,opsi-client-agent,opsi-client-agent
+  PROPERTIES: {}
+  SNAPSHOT: mshotfix
+  SYSTEMS: win10-21h1,win10-x64-21h1
