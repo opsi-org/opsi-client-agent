@@ -142,4 +142,4 @@ test_tagged:
     - version=$(grep OPSI/control -A 10 -e "\[Product\]" | grep "version:" | tr -d "^a-zA-Z :")
     - package=$(grep OPSI/control -A 5 -e "\[Package\]" | grep "version:" | tr -d "^a-zA-Z :")
     - version="$version-$(echo $package | tr '.' '~')"
-    - opsi-dev-cli -l info jenkins test --systems=win10-21h1,win10-x64-21h1,win7,win7-x64,win81,win81-x64,win2012,win2022 --versions="$OLDVERSION,$version,$version"
+    - opsi-dev-cli -l info jenkins test --versions="$OLDVERSION,$version,$version"
