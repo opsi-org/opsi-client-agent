@@ -1,4 +1,10 @@
 ﻿[Changelog]
+opsi-client-agent (4.2.0.39-1) stable; urgency=low
+
+  * Updated opsiclientd to 4.2.0.128 (fixed colliding startup event handling, fixed handling of opsiclientd.depot_server.url)
+
+-- Nils Doerrer <n.doerrer@uib.de> Mon, 15 Aug 2022 12:00:00 +0100
+
 opsi-client-agent (4.2.0.38-1) stable; urgency=low
 
   * Updated oca-installation-helper to 4.2.0.22
