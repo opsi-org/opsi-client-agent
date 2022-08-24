@@ -911,7 +911,7 @@ if $PreviousOCDVersion$ = ""
 endif
 
 if not($PreviousOCDVersion$ = "-1") and CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77") and contains($ServiceAddress$, "localhost")
-	LogError "opsiclientd too old for upgrade in WAN mode. Please install opsi-client-agent >= 4.1.1.x first."
+	LogError "opsiclientd too old for upgrade in WAN mode. Please install opsi-client-agent >= 4.1.1.39 first."
 	IsFatalError "opsiclientd too old"
 endif
 
