@@ -2,8 +2,9 @@
 opsi-client-agent (4.2.0.40-1) stable; urgency=low
 
   * Updated opsi-notifier to 4.2.0.10 (block-login-notifier fix)
+  * Updated opsiclientd to 4.2.0.129 (clear_product_cache datastructure cleanup)
 
--- Nils Doerrer <n.doerrer@uib.de> Mon, 29 Aug 2022 16:00:00 +0100
+-- Nils Doerrer <n.doerrer@uib.de> Tue, 30 Aug 2022 17:00:00 +0100
 
 opsi-client-agent (4.2.0.39-1) stable; urgency=low
 
