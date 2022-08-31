@@ -177,5 +177,5 @@ jenkins-test:
   PRODUCTS: opsi-client-agent-old,opsi-client-agent,opsi-client-agent
   PRODUCTSOURCES: opsi-client-agent,opsi-client-agent,opsi-client-agent
   PROPERTIES: {}
-  SNAPSHOT: mshotfix
+  SNAPSHOT: patched
   SYSTEMS: win10-21h1,win10-x64-21h1
