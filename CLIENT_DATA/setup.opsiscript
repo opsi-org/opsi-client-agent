@@ -394,11 +394,8 @@ DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : strin
 	Files_create_dirs
 
 	; Get-LocalUser is not available in Powershell 2 (win7)
-	; Some win10 seem to get stuck on Get-WmiObject win32_useraccount
+	; Some win10 seem to get stuck on Get-WmiObject win32_useraccount, do not use!
 	DefVar $AdminSID$ = TakeString(0, PowerShellCall("(Get-LocalUser | Where-Object {$_.SID -like 'S-1-5-*-500'}).SID.Value"))
-	if not (contains($AdminSID$, "S-1-5-"))
-		Set $AdminSID$ = TakeString(0, PowerShellCall("(Get-WmiObject win32_useraccount | Where-Object {$_.SID -like 'S-1-5-*-500'}).SID"))
-	endif
 	if not (contains($AdminSID$, "S-1-5-"))
 		Set $AdminSID$ = takeString(0, GetSubListByContainingRegex("^S-1-5-21-.*-500$", GetRegistryKeyListSysNative("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList")))
 	endif
