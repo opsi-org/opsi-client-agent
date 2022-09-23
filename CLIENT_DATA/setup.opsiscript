@@ -401,7 +401,7 @@ DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : strin
 	endif
 	if not (contains($AdminSID$, "S-1-5-"))
 		LogWarning "Failed to get AdminSID."
-		$AdminSID$ = ""
+		Set $AdminSID$ = ""
 	endif
 
 	Set $result$ = "true"
