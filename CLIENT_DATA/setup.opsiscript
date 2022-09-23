@@ -1,4 +1,4 @@
-# Copyright (c) 2021 uib GmbH <info@uib.de>
+# Copyright (c) 2021-2022 uib GmbH <info@uib.de>
 # All rights reserved.
 # License: AGPL-3.0
 #
@@ -403,23 +403,22 @@ DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : strin
 		Set $AdminSID$ = takeString(0, GetSubListByContainingRegex("^S-1-5-21-.*-500$", GetRegistryKeyListSysNative("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList")))
 	endif
 	if not (contains($AdminSID$, "S-1-5-"))
-		LogError "failed to get AdminSID"
-		Message "failed to get AdminSID"
-		IsFatalError "failed to get AdminSID"
+		LogWarning "Failed to get AdminSID, using Local System SID."
+		Set $AdminSID$ = "S-1-5-18"
 	endif
 
 	Set $result$ = "true"
 	if $FixVarDir$ = "true"
 		DosInAnIcon_set_file_permissions_vardir
 		if not ("0" = GetLastExitcode)
-			LogError "failed to set permissions on VarDir"
+			LogError "Failed to set permissions on VarDir"
 			Set $result$ = "false"
 		endif
 	endif
 	if $FixBaseDir$ = "true"
 		DosInAnIcon_set_file_permissions_basedir
 		if not ("0" = GetLastExitcode)
-			LogError "failed to set permissions on BaseDir"
+			LogError "Failed to set permissions on BaseDir"
 			Set $result$ = "false"
 		endif
 	endif
