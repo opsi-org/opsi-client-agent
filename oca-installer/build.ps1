@@ -25,7 +25,7 @@ Copy-Item -Path $srcDir -Destination $workDir\opsi-client-agent -Recurse
 
 Write-Host "Download 7zip..."
 $WebClient = New-Object System.Net.WebClient
-$WebClient.DownloadFile("https://7-zip.org/a/7z2101.exe", $workDir + "\7z-installer.exe")
+$WebClient.DownloadFile("https://7-zip.org/a/7z2201.exe", $workDir + "\7z-installer.exe")
 $WebClient.DownloadFile("https://7-zip.org/a/7z920_extra.7z", $workDir + "\7z-extra.7z")
 
 Write-Host "Install 7zip..."
