@@ -1,7 +1,7 @@
 ﻿[Changelog]
 opsi-client-agent (4.2.0.42-1) stable; urgency=low
 
-  * Update opsi-script to 4.12.6.1
+  * Update opsi-script to 4.12.6.2
   * Update opsi-login-blocker to 4.2.0.4 (more robust timeouts)
   * Update opsiclientd to 4.2.0.131 (cleanup tmpdir, opsisetupuser related changes)
   * Update oca-installation-helper to 4.2.0.23 (optimized for use in script context)
