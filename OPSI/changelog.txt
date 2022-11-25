@@ -1,7 +1,7 @@
 ﻿[Changelog]
 opsi-client-agent (4.2.0.43-1) stable; urgency=low
 
-  * Update opsiclientd to 4.2.0.132 (win11 mshotfix caching, blocking runAsOpsiSetupUser, Webdav fix)
+  * Update opsiclientd to 4.2.0.132 (win11 mshotfix caching, blocking runAsOpsiSetupUser)
   * Update opsi-deploy-client-agent to 4.2.0.23 (fixed --use-ip-address)
   * Update oca-installation-helper to 4.2.0.24 (create host groups if not existing, delete WAN cache on install)
 
