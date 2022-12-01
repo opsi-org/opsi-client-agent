@@ -1,4 +1,11 @@
 ﻿[Changelog]
+opsi-client-agent (4.2.0.43-2) stable; urgency=low
+
+  * Rebuilt opsiclientd with proper meta information ahd sha256 hash in signature
+  * Rebuilt oca-installation-helper with proper meta information ahd sha256 hash in signature
+
+-- Nils Doerrer <n.doerrer@uib.de> Thu, 01 Dec 2022 10:30:00 +0100
+
 opsi-client-agent (4.2.0.43-1) stable; urgency=low
 
   * Update opsiclientd to 4.2.0.132 (win11 mshotfix caching, blocking runAsOpsiSetupUser)
