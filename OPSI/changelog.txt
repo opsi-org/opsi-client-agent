@@ -1,4 +1,11 @@
 ﻿[Changelog]
+opsi-client-agent (4.2.0.43-3) stable; urgency=low
+
+  * Rebuilt opsi-notifier with proper meta information ahd sha256 hash in signature
+  * Rebuilt opsi-systray with proper meta information ahd sha256 hash in signature
+
+-- Nils Doerrer <n.doerrer@uib.de> Mon, 05 Dec 2022 17:00:00 +0100
+
 opsi-client-agent (4.2.0.43-2) stable; urgency=low
 
   * Rebuilt opsiclientd with proper meta information ahd sha256 hash in signature
