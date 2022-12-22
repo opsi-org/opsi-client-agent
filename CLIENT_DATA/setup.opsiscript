@@ -121,7 +121,7 @@ DefFunc install_opsiclientd(): void
 	Patches_opsiclientd_conf $BaseDir$ + "\opsiclientd\opsiclientd.conf"
 
 	comment "Run opsiclientd setup"
-	ShellCall('"'+ $BaseDir$ + '\opsiclientd_bin\opsiclientd.exe" setup --log-level 6 --client-id "' + $ClientId$ + '" --service-address "' + $ServiceAddress$ + '" --service-username "' + $ServiceUsername$ + '" --service-password "' + $ServicePassword$ + '"')
+	DosInAnIcon_opsiclientd_setup
 	if not(GetLastExitcode = "0")
 		LogError "opsiclientd setup failed"
 		IsFatalError "opsiclientd setup failed"
@@ -149,6 +149,12 @@ DefFunc install_opsiclientd(): void
 	Set [action_processor] remote_dir = opsi-script\\windows\\x86
 	Set [action_processor] remote_common_dir = opsi-script\\common
 	Set [action_processor] filename = opsi-script.exe
+
+	[DosInAnIcon_opsiclientd_setup]
+	"$BaseDir$\opsiclientd_bin\opsiclientd.exe" setup --log-level 6 --client-id "$ClientId$" --service-address "$ServiceAddress$" --service-username "$ServiceUsername$" --service-password "$ServicePassword$"
+	set EXITCODE=%ERRORLEVEL%
+	echo "opsiclientd setup had errorlevel %EXITCODE%"
+	exit %EXITCODE%
 
 	[Files_remove_old_opsiclientd]
 	del -rc "$BaseDir$\opsiclientd.exe"
