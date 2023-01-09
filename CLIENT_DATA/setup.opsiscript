@@ -1011,6 +1011,8 @@ endif
 if Contains($InstallationOptions$, "bootimage") or Contains($InstallationOptions$, "BOOTIMAGE")
 	; Reboot is performed by postinst script in netboot installation
 	Set $Finalize$ = ""
+	; As oobe starts services, suppress event execution for first opsiclientd start
+	ShellCall('echo disabled_event_types = gui startup, daemon startup > "' + $BaseDir$ + '\.opsiclientd_restart"')
 else
 	if Contains($InstallationOptions$, "noreboot")
 		Set $Finalize$ = "service_restart"
