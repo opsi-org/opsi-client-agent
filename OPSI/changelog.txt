@@ -1,9 +1,9 @@
 ﻿[Changelog]
-opsi-client-agent (4.2.0.43-4) stable; urgency=low
+opsi-client-agent (4.2.0.44-1) stable; urgency=low
 
   * Using DosInAnIcon section for opsiclientd setup
 
--- Nils Doerrer <n.doerrer@uib.de> Mon, 05 Dec 2022 17:00:00 +0100
+-- Nils Doerrer <n.doerrer@uib.de> Mon, 22 Dec 2022 17:00:00 +0100
 
 opsi-client-agent (4.2.0.43-3) stable; urgency=low
 
