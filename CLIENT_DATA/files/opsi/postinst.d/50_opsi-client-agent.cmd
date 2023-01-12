@@ -3,7 +3,7 @@ echo [%date% %time%] Starting opsi-client-agent installation as user %USERNAME%
 
 set client_id={{client_id}}
 rem if client_id is not automatically replaced by patcha, use old method
-if %client_id:~0,2%=="{{" (
+if %client_id:~0,2%=={{ (
 	setlocal EnableDelayedExpansion
 	if exist "%script_drive%\opsi\opsi-client-agent\install.conf" (
 		echo [%date% %time%] install.conf found
@@ -28,12 +28,9 @@ if %client_id:~0,2%=="{{" (
 		set client_id=!client_hostname!.!client_domain!
 	)
 
-	echo [%date% %time%] Executing: "%script_drive%\opsi\opsi-client-agent\files\opsi-script\opsi-script.exe" "%script_drive%\opsi\opsi-client-agent\setup.opsiscript" "%sys_drive%\opsi.org\log\opsi-client-agent.log" /batch /productid "opsi-client-agent" /opsiservice "%service_address%" /clientid "%client_id%" /username "%client_id%" /password "%client_key%" /parameter "bootimage"
-	"%script_drive%\opsi\opsi-client-agent\files\opsi-script\opsi-script.exe" "%script_drive%\opsi\opsi-client-agent\setup.opsiscript" "%sys_drive%\opsi.org\log\opsi-client-agent.log" /batch /productid "opsi-client-agent" /opsiservice "%service_address%" /clientid "%client_id%" /username "%client_id%" /password "%client_key%" /parameter "bootimage"
-)
-else (
+	echo [%date% %time%] Executing: "%script_drive%\opsi\opsi-client-agent\files\opsi-script\opsi-script.exe" "%script_drive%\opsi\opsi-client-agent\setup.opsiscript" "%sys_drive%\opsi.org\log\opsi-client-agent.log" /batch /productid "opsi-client-agent" /opsiservice "!service_address!" /clientid "!client_id!" /username "!client_id!" /password "!client_key!" /parameter "bootimage"
+	"%script_drive%\opsi\opsi-client-agent\files\opsi-script\opsi-script.exe" "%script_drive%\opsi\opsi-client-agent\setup.opsiscript" "%sys_drive%\opsi.org\log\opsi-client-agent.log" /batch /productid "opsi-client-agent" /opsiservice "!service_address!" /clientid "!client_id!" /username "!client_id!" /password "!client_key!" /parameter "bootimage"
+) else (
 	echo [%date% %time%] Executing: "{{client_agent_dir}}\files\opsi-script\opsi-script.exe" "{{client_agent_dir}}\setup.opsiscript" "%sys_drive%\opsi.org\log\opsi-client-agent.log" /batch /productid "opsi-client-agent" /opsiservice "{{service_address}}" /clientid "{{client_id}}" /username "{{client_id}}" /password "{{client_key}}" /parameter "bootimage"
 	"{{client_agent_dir}}\files\opsi-script\opsi-script.exe" "{{client_agent_dir}}\setup.opsiscript" "%sys_drive%\opsi.org\log\opsi-client-agent.log" /batch /productid "opsi-client-agent" /opsiservice "{{service_address}}" /clientid "{{client_id}}" /username "{{client_id}}" /password "{{client_key}}" /parameter "bootimage"
-	rem echo [%date% %time%] Executing: "{{client_agent_dir}}\oca-installation-helper.exe" --service-address "{{service_address}}" --service-username "{{client_id}}" --service-password "{{client_key}}" --client-id "{{client_id}}" --non-interactive
-	rem "{{client_agent_dir}}\oca-installation-helper.exe" --service-address "{{service_address}}" --service-username "{{client_id}}" --service-password "{{client_key}}" --client-id "{{client_id}}" --non-interactive
 )
