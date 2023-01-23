@@ -1,4 +1,11 @@
 ﻿[Changelog]
+opsi-client-agent (4.2.0.45-1) stable; urgency=low
+
+  * Rework installation for newer netboot products
+  * Update opsiclientd to 4.2.0.133
+
+-- Nils Doerrer <n.doerrer@uib.de> Mon, 23 Jan 2023 07:30:00 +0100
+
 opsi-client-agent (4.2.0.44-1) stable; urgency=low
 
   * Using DosInAnIcon section for opsiclientd setup

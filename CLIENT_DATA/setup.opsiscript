@@ -961,11 +961,14 @@ else
 	rotate_instlog()
 
 	if Contains($InstallationOptions$, "bootimage") or Contains($InstallationOptions$, "BOOTIMAGE")
-		set_opsi_general_config()
-		set_running_netboot_package_to_installed()
-		; during wim capture, installed products are written to %opsiTmpDir%\productOnClients.json - not setting them to setup
-		if not(FileExists("%opsiTmpDir%\productOnClients.json"))
-			set_installed_packages_to_setup()
+		; Not required for newer netboot products
+		if not (FileExists("%ScriptDrive%\opsi.org\postinst\postinst.ps1"))
+			set_opsi_general_config()
+			set_running_netboot_package_to_installed()
+			; during wim capture, installed products are written to %opsiTmpDir%\productOnClients.json - not setting them to setup
+			if not (FileExists("%opsiTmpDir%\productOnClients.json"))
+				set_installed_packages_to_setup()
+			endif
 		endif
 	endif
 endif
