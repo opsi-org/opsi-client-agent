@@ -9,6 +9,7 @@ from pathlib import Path
 from OPSI.Backend.BackendManager import BackendManager
 from OPSI.Object import ConfigState
 
+depot_id = os.environ.get("DEPOT_ID") or socket.getfqdn()
 client_data_dir = Path(os.environ.get("CLIENT_DATA_DIR"))
 tmp_dir = (client_data_dir / ".." / os.environ.get("PRODUCT_ID")).with_suffix(".tmp")
 
@@ -39,7 +40,7 @@ config = backend.config_getIdents(id="opsiclientd.event_on_shutdown.active")
 if not config:
 	backend.config_createBool("opsiclientd.event_on_shutdown.active", defaultValues=False)
 
-clients_on_depot = backend.getClientsOnDepot(socket.getfqdn())
+clients_on_depot = backend.getClientsOnDepot(depot_id)
 productPropertyStates = backend.productPropertyState_getObjects(productId="opsi-client-agent", propertyId="on_shutdown_install", values=["on", "\"[on]\""], objectId=clients_on_depot)
 configStates = []
 for pps in productPropertyStates:
