@@ -1,9 +1,10 @@
 ﻿[Changelog]
 opsi-client-agent (4.2.0.46-1) stable; urgency=low
 
-  * Update opsiclientd to 4.2.0.135
+  * Update opsiclientd to 4.2.0.136
+  * Use DEPOT_ID from env
 
--- Jan Schneider <j.schneider@uib.de> Fri, 10 Feb 2023 13:40:00 +0100
+-- Jan Schneider <j.schneider@uib.de> Fri, 22 Feb 2023 15:30:00 +0100
 
 opsi-client-agent (4.2.0.45-1) stable; urgency=low
 
