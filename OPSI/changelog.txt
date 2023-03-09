@@ -1,4 +1,11 @@
 ﻿[Changelog]
+
+opsi-client-agent (4.2.0.47-1) stable; urgency=low
+
+  * Update opsiclientd to 4.2.0.137
+
+-- Nils Doerrer <n.doerrer@uib.de> Thu, 09 Mar 2023 17:30:00 +0100
+
 opsi-client-agent (4.2.0.46-1) stable; urgency=low
 
   * Update opsiclientd to 4.2.0.136
