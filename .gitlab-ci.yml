@@ -115,7 +115,7 @@ windows_make_msi:
     # Push to binaryindex
     - if (! $CI_COMMIT_TAG) {.\opsi-dev-cli.exe -l info binary push opsi-client-agent.msi --product=opsi-client-agent-msi --system=windows --architecture=x86 --version=$version --prerelease="$CI_JOB_ID"}
     - if ($CI_COMMIT_TAG) {.\opsi-dev-cli.exe -l info binary push opsi-client-agent.msi --product=opsi-client-agent-msi --system=windows --architecture=x86 --version=$version }
-    - if ($CI_COMMIT_TAG) {.\opsi-dev-cli.exe -l info release-service register-package-version opsi-client-agent-msi MISC --files=opsi-client-agent.msi --version=$version --changelog-file=OPSI\\changelog}
+    - if ($CI_COMMIT_TAG) {.\opsi-dev-cli.exe -l info release-service register-package-version opsi-client-agent-msi MISC --files=opsi-client-agent.msi --version=$version --changelog-file=OPSI\\changelog.txt}
 
 make_opsi_package:
   stage: package
