@@ -42,8 +42,6 @@ windows-x86-installer:
     # Download ziplaunch for windows
     - .\opsi-dev-cli.exe binary pull ziplaunch
     # Build installer
-    - New-Item -Path "opsi-client-agent-installer" -Type Directory
-    #- Copy-Item -Path "CLIENT_DATA" -Destination "opsi-client-agent-installer" -Recurse
     - Start-Process ".\ziplaunch\ziplaunch.exe" -ArgumentList "CLIENT_DATA",".\oca-installer\ziplaunch.ini","opsi-client-agent-installer.exe" -Wait
     # Compile versioninfo resource
     - $versionComma = $version -replace "\.",","
