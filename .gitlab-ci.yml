@@ -39,8 +39,10 @@ windows-x86-installer:
     # Get version from control file
     - "$versionLine = Get-Content -Path OPSI\\control | Where-Object { $_ -match 'version: 4.' }"
     - $version = $versionLine.Split(':')[1].trim()
-    # Build 7z sfx installer
-    - .\\oca-installer\\build.ps1 CLIENT_DATA opsi-client-agent-installer.exe $version
+    # Download ziplaunch for windows
+    - .\opsi-dev-cli.exe binary pull ziplaunch
+    # Build installer
+    - Start-Process ".\ziplaunch\ziplaunch.exe" -ArgumentList "CLIENT_DATA",".\oca-installer\ziplaunch.ini","opsi-client-agent-installer.exe" -Wait
     # Compile versioninfo resource
     - $versionComma = $version -replace "\.",","
     - ((Get-Content -path oca-installer\\versioninfo.rc -Raw) -replace "{version}",$version -replace "{version_comma}",$versionComma) | Set-Content -Path oca-installer\\versioninfo.rc
