@@ -33,7 +33,7 @@ windows-x86-installer:
     - $ProgressPreference = 'SilentlyContinue'
     - Invoke-WebRequest -UseBasicParsing -Uri "$OPSIDEVTOOLS_URL_WINDOWS_X86" -OutFile opsi-dev-tools.zip
     - Expand-Archive opsi-dev-tools.zip -DestinationPath .
-    - .\opsi-dev-tool.exe --self-install -l info
+    - Copy-Item -Path .\opsi-dev-tool.exe -Destination .\opsi-dev-cli.exe
     # Download ziplaunch for windows
     - .\opsi-dev-cli.exe binary pull ziplaunch
     # Get version from control file and patch ziplaunch.ini
