@@ -34,15 +34,13 @@ windows-x86-installer:
     - Invoke-WebRequest -UseBasicParsing -Uri "$OPSIDEVTOOLS_URL_WINDOWS_X86" -OutFile opsi-dev-tools.zip
     - Expand-Archive opsi-dev-tools.zip -DestinationPath .
     - .\opsi-dev-tool.exe --self-install -l info
-    - Invoke-WebRequest -UseBasicParsing -Uri "http://binaryindex.uib.gmbh/mirror/resource_hacker/windows/x86/resource_hacker_windows_x86_5.1.8.zip" -OutFile resource_hacker.zip
-    - Expand-Archive resource_hacker.zip -DestinationPath .
-    # Get version from control file
-    - "$versionLine = Get-Content -Path OPSI\\control | Where-Object { $_ -match 'version: 4.' }"
-    - $version = $versionLine.Split(':')[1].trim()
     # Download ziplaunch for windows
     - .\opsi-dev-cli.exe binary pull ziplaunch
-    # Build installer
+    # Get version from control file and patch ziplaunch.ini
+    - "$versionLine = Get-Content -Path OPSI\\control | Where-Object { $_ -match 'version: 4.' }"
+    - $version = $versionLine.Split(':')[1].trim()
     - ((Get-Content -path .\oca-installer\ziplaunch.ini -Raw) -replace "{version}",$version) | Set-Content -Path .\oca-installer\ziplaunch.ini
+    # Build installer
     - Start-Process ".\ziplaunch\ziplaunch.exe" -ArgumentList "CLIENT_DATA",".\oca-installer\ziplaunch.ini","opsi-client-agent-installer.exe" -Wait
     # Sign exe
     - .\opsi-dev-tool.exe -l info --signserver-sign opsi-client-agent-installer.exe
