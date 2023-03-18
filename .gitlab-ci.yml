@@ -42,21 +42,8 @@ windows-x86-installer:
     # Download ziplaunch for windows
     - .\opsi-dev-cli.exe binary pull ziplaunch
     # Build installer
+    - ((Get-Content -path .\oca-installer\ziplaunch.ini -Raw) -replace "{version}",$version | Set-Content -Path .\oca-installer\ziplaunch.ini
     - Start-Process ".\ziplaunch\ziplaunch.exe" -ArgumentList "CLIENT_DATA",".\oca-installer\ziplaunch.ini","opsi-client-agent-installer.exe" -Wait
-    # Compile versioninfo resource
-    - $versionComma = $version -replace "\.",","
-    - ((Get-Content -path oca-installer\\versioninfo.rc -Raw) -replace "{version}",$version -replace "{version_comma}",$versionComma) | Set-Content -Path oca-installer\\versioninfo.rc
-    - .\\resourcehacker\\ResourceHacker.exe -open oca-installer\\versioninfo.rc -save oca-installer\\versioninfo.res -action compile -log reshack.log
-    - Start-Sleep -s 5
-    - Get-Content reshack.log
-    # Replace versioninfo resource in exe
-    - .\\resourcehacker\\ResourceHacker.exe -resource oca-installer\\versioninfo.res -open opsi-client-agent-installer.exe -save opsi-client-agent-installer.exe -action addoverwrite -log reshack.log
-    - Start-Sleep -s 5
-    - Get-Content reshack.log
-    # Replace icon in exe
-    - .\\resourcehacker\\ResourceHacker.exe -open opsi-client-agent-installer.exe -save opsi-client-agent-installer.exe -action addoverwrite -res oca-installer\\opsi.ico -mask "ICONGROUP,MAINICON," -log reshack.log
-    - Start-Sleep -s 10
-    - Get-Content reshack.log
     # Sign exe
     - .\opsi-dev-tool.exe -l info --signserver-sign opsi-client-agent-installer.exe
     # Push to binaryindex
