@@ -935,8 +935,10 @@ Message "Installing " + $ProductId$ + " ..."
 
 DefVar $RunningInServiceContext$
 if isProcessChildOf('%opsiscriptprocname%','opsiclientd.exe')
+	Comment "Running in service context"
 	Set $RunningInServiceContext$ = "true"
 else
+	Comment "Not running in service context"
 	Set $RunningInServiceContext$ = "false"
 endif
 
@@ -1001,14 +1003,9 @@ else
 	endif
 endif
 
+; Please do not change $Finalize$ after this marker
 
-if ($RunningInServiceContext$ = "true")
-	Comment "Running in service context"
-else
-	Comment "Not running in service context"
-endif
-
-if (not ($RunningInServiceContext$ = "true")) or ($Finalize$ = "reboot") or ($Finalize$ = "restart")
+if not ($RunningInServiceContext$ = "true")
 	if FileExists($BaseDir$ + "\opsiclientdguard")
 		ShellCall('sc stop opsiclientdguard')
 		SleepSeconds 5
@@ -1017,9 +1014,7 @@ if (not ($RunningInServiceContext$ = "true")) or ($Finalize$ = "reboot") or ($Fi
 		ShellCall("sc stop opsiclientd")
 		SleepSeconds 5
 	endif
-endif
 
-if not ($RunningInServiceContext$ = "true")
 	MarkErrorNumber
 	OpsiServiceCall_authenticated
 	if errorsOccurredSinceMark > 0
