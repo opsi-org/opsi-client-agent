@@ -98,16 +98,22 @@ DefFunc install_opsiclientd(): void
 	Comment "Opsiclientd archive file: " + $BinaryArchiveFile$
 
 	Files_extract_opsiclientd_binaries_to_temp
-	PowerShellCall('Remove-Item -Recurse -Force "' + $BaseDir$ + '\opsiclientd_bin_old"')
-	PowerShellCall('Rename-Item "' + $BaseDir$ + '\opsiclientd_bin" "' + $BaseDir$ + '\opsiclientd_bin_old"')
-	PowerShellCall('Rename-Item "' + $BaseDir$ + '\opsiclientd_windows_x86" "' + $BaseDir$ + '\opsiclientd_bin"; if ($?) { exit 0 } else { exit 1 }')
-	if (not (GetLastExitcode = "0")) or (not (FileExists($BaseDir$ + "\opsiclientd_bin\opsiclientd.exe")))
-		LogError "Failed to replace opsiclientd binaries, retry with copy"
-		Files_install_opsiclientd_binaries_from_temp
-	endif
-	if not (FileExists($BaseDir$ + "\opsiclientd_bin\opsiclientd.exe"))
-		LogError "Failed to install opsiclientd binaries"
-		IsFatalError "Failed to install opsiclientd binaries"
+
+	if ($Finalize$ = "service_restart") or ($Finalize$ = "service_restart_no_skip")
+		; opsiclientd will rename opsiclientd_bin_new to opsiclientd_bin on restart
+		PowerShellCall('Rename-Item "' + $BaseDir$ + '\opsiclientd_windows_x86" "' + $BaseDir$ + '\opsiclientd_bin_new"')
+	else
+		PowerShellCall('Remove-Item -Recurse -Force "' + $BaseDir$ + '\opsiclientd_bin_old"')
+		PowerShellCall('Rename-Item "' + $BaseDir$ + '\opsiclientd_bin" "' + $BaseDir$ + '\opsiclientd_bin_old"')
+		PowerShellCall('Rename-Item "' + $BaseDir$ + '\opsiclientd_windows_x86" "' + $BaseDir$ + '\opsiclientd_bin"; if ($?) { exit')
+		if (not (GetLastExitcode = "0")) or (not (FileExists($BaseDir$ + "\opsiclientd_bin\opsiclientd.exe")))
+			LogError "Failed to replace opsiclientd binaries, retry with copy"
+			Files_install_opsiclientd_binaries_from_temp
+		endif
+		if not (FileExists($BaseDir$ + "\opsiclientd_bin\opsiclientd.exe"))
+			LogError "Failed to install opsiclientd binaries"
+			IsFatalError "Failed to install opsiclientd binaries"
+		endif
 	endif
 
 	MarkErrorNumber
@@ -797,8 +803,6 @@ DefFunc process_wim_capture() : void
 	Comment "Rename productOnClients.json"
 	Files_rename_productOnClients_json
 
-	Set $Finalize$ = "reboot"
-
 
 	[sub_set_clientId_in_ProductOnClients]
 	Comment "Get object from array"
@@ -936,10 +940,75 @@ else
 	Set $RunningInServiceContext$ = "false"
 endif
 
+if Contains($InstallationOptions$, "bootimage") or Contains($InstallationOptions$, "BOOTIMAGE")
+	; Reboot is performed by postinst script in netboot installation
+	Set $Finalize$ = ""
+else
+	if Contains($InstallationOptions$, "noreboot")
+		Set $Finalize$ = "service_restart"
+	else
+		if Contains($InstallationOptions$, "reboot")
+			Set $Finalize$ = "reboot"
+		else
+			if Contains($InstallationOptions$, "shutdown")
+				Set $Finalize$ = "shutdown"
+			endif
+		endif
+	endif
+
+	; if not in service_context and not in bootimage mode: keep value of Finalize (except if no_reboot prohibits it)
+	if $RunningInServiceContext$ = "true"
+		;
+		DefStringList $TempList1$
+		DefVar $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_localboot_setup"))
+		if JsonAsArrayCountElements($TempString$) > "0"
+			Set $TempList1$ = JsonAsArrayToStringList($TempString$)
+			Set $TempList1$ = removeFromListByContaining('opsi-client-agent;', $TempList1$)
+			if count($TempList1$) > "0"
+				; Restart service to get notifiers back working
+				; comment "Setting Finalize to service_restart_no_skip because there are pending setup action requests"
+				; Set $Finalize$ = "service_restart_no_skip"
+				comment "Setting Finalize to reboot because there are pending setup action requests"
+				Set $Finalize$ = "reboot"
+			endif
+		endif
+
+		; in case of systray install set finalize to reboot (to get systray running in user context)
+		if GetProductProperty("systray_install", "true") = "true"
+			comment "systray installed setting finalize to reboot"
+			Set $Finalize$ = "reboot"
+		endif
+
+		; with opsiclientd 4.2.0.77 the location of the restart_marker was changed (no opsiclientd found -> 0)
+		if (($Finalize$ = "service_restart") or ($Finalize$ = "service_restart_no_skip")) and CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77")
+			comment "opsiclientd version " + $PreviousOCDVersion$ + " does not handle restart marker"
+			Set $Finalize$ = "reboot"
+		endif
+	endif
+
+	if FileExists("%opsiTmpDir%\productOnClients.json")
+		Set $Finalize$ = "reboot"
+	endif
+
+	;Prohibit reboot and shutdown if allow_reboot is false
+	if (GetProductProperty("allow_reboot", "true") = "false")
+		if ($Finalize$ = "reboot")
+			Set $Finalize$ = "service_restart_no_skip"
+		endif
+		if ($Finalize$ = "shutdown")
+			Set $Finalize$ = "service_restart"
+		endif
+	endif
+endif
+
+
 if ($RunningInServiceContext$ = "true")
 	Comment "Running in service context"
 else
 	Comment "Not running in service context"
+endif
+
+if (not ($RunningInServiceContext$ = "true")) or ($Finalize$ = "reboot") or ($Finalize$ = "restart")
 	if FileExists($BaseDir$ + "\opsiclientdguard")
 		ShellCall('sc stop opsiclientdguard')
 		SleepSeconds 5
@@ -949,6 +1018,7 @@ else
 		SleepSeconds 5
 	endif
 
+if not ($RunningInServiceContext$ = "true")
 	MarkErrorNumber
 	OpsiServiceCall_authenticated
 	if errorsOccurredSinceMark > 0
@@ -1010,61 +1080,6 @@ if ($RunningInServiceContext$ = "false")
 	OpsiServiceCall_productOnClient_createObjects_opsiclientagent
 endif
 
-if Contains($InstallationOptions$, "bootimage") or Contains($InstallationOptions$, "BOOTIMAGE")
-	; Reboot is performed by postinst script in netboot installation
-	Set $Finalize$ = ""
-else
-	if Contains($InstallationOptions$, "noreboot")
-		Set $Finalize$ = "service_restart"
-	else
-		if Contains($InstallationOptions$, "reboot")
-			Set $Finalize$ = "reboot"
-		else
-			if Contains($InstallationOptions$, "shutdown")
-				Set $Finalize$ = "shutdown"
-			endif
-		endif
-	endif
-
-	; if not in service_context and not in bootimage mode: keep value of Finalize (except if no_reboot prohibits it)
-	if $RunningInServiceContext$ = "true"
-		DefStringList $TempList1$
-		DefVar $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_localboot_setup"))
-		if JsonAsArrayCountElements($TempString$) > "0"
-			Set $TempList1$ = JsonAsArrayToStringList($TempString$)
-			Set $TempList1$ = removeFromListByContaining('opsi-client-agent;', $TempList1$)
-			if count($TempList1$) > "0"
-				; Restart service to get notifiers back working
-				; comment "Setting Finalize to service_restart_no_skip because there are pending setup action requests"
-				; Set $Finalize$ = "service_restart_no_skip"
-				comment "Setting Finalize to reboot because there are pending setup action requests"
-				Set $Finalize$ = "reboot"
-			endif
-		endif
-
-		; in case of systray install set finalize to reboot (to get systray running in user context)
-		if GetProductProperty("systray_install", "true") = "true"
-			comment "systray installed setting finalize to reboot"
-			Set $Finalize$ = "reboot"
-		endif
-
-		; with opsiclientd 4.2.0.77 the location of the restart_marker was changed (no opsiclientd found -> 0)
-		if (($Finalize$ = "service_restart") or ($Finalize$ = "service_restart_no_skip")) and CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77")
-			comment "opsiclientd version " + $PreviousOCDVersion$ + " does not handle restart marker"
-			Set $Finalize$ = "reboot"
-		endif
-	endif
-
-	;Prohibit reboot and shutdown if allow_reboot is false
-	if (GetProductProperty("allow_reboot", "true") = "false")
-		if ($Finalize$ = "reboot")
-			Set $Finalize$ = "service_restart_no_skip"
-		endif
-		if ($Finalize$ = "shutdown")
-			Set $Finalize$ = "service_restart"
-		endif
-	endif
-endif
 
 if ($Finalize$ = "reboot")
 	ExitWindows /Reboot
