@@ -100,7 +100,7 @@ DefFunc install_opsiclientd(): void
 	Files_extract_opsiclientd_binaries_to_temp
 	PowerShellCall('Remove-Item -Recurse -Force "' + $BaseDir$ + '\opsiclientd_bin_old"')
 	PowerShellCall('Rename-Item "' + $BaseDir$ + '\opsiclientd_bin" "' + $BaseDir$ + '\opsiclientd_bin_old"')
-	PowerShellCall('Rename-Item "' + $BaseDir$ + '\opsiclientd_windows_x86" "' + $BaseDir$ + '\opsiclientd_bin"')
+	PowerShellCall('Rename-Item "' + $BaseDir$ + '\opsiclientd_windows_x86" "' + $BaseDir$ + '\opsiclientd_bin"; if ($?) { exit 0 } else { exit 1 }')
 	if (not (GetLastExitcode = "0")) or (not (FileExists($BaseDir$ + "\opsiclientd_bin\opsiclientd.exe")))
 		LogError "Failed to replace opsiclientd binaries, retry with copy"
 		Files_install_opsiclientd_binaries_from_temp
