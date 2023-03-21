@@ -1017,6 +1017,7 @@ if (not ($RunningInServiceContext$ = "true")) or ($Finalize$ = "reboot") or ($Fi
 		ShellCall("sc stop opsiclientd")
 		SleepSeconds 5
 	endif
+endif
 
 if not ($RunningInServiceContext$ = "true")
 	MarkErrorNumber
