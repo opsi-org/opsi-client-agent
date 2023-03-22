@@ -109,7 +109,8 @@ DefFunc install_opsiclientd(): void
 	Set $TempList$ = PowershellCall('Get-Item "' + $BinDir$ + '" | Select-Object -ExpandProperty Target')
 	DefVar $LinkTarget$ = TakeString(0, $TempList$)
 
-	if ($LinkTarget$ = "")
+	# on win < 10 LinkTarget may become Select-Object: Property "Target" cannot be found (or a localized equivalent)
+	if ($LinkTarget$ = "") or contains($LinkTarget$, "Select-Object")
 		Comment $BinDir$ + "is not a link"
 		if FileExists($BinDir$)
 			if FileExists($BinDir1$)
