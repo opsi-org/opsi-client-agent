@@ -3,8 +3,9 @@
 opsi-client-agent (4.2.0.48-1) stable; urgency=low
 
   * Update opsiclientd to 4.2.0.138
+  * Use two binary dirs and a junction for opsiclientd update
 
--- Jan Schneider <j.schneider@uib.de> Mon, 20 Feb 2023 22:00:00 +0100
+-- Jan Schneider <j.schneider@uib.de> Mon, 22 Feb 2023 08:30:00 +0100
 
 opsi-client-agent (4.2.0.47-1) stable; urgency=low
 

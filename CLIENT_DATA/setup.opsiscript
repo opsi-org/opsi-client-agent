@@ -95,25 +95,56 @@ DefFunc install_opsiclientd(): void
 	Set $TempList$ = GetRegexMatchList('(?m)^opsiclientd_windows_\S*.zip', $TempList$)
 	DefVar $BinaryArchiveFile$ = "%ScriptPath%\files\" + TakeString(0, $TempList$)
 
-	Comment "Opsiclientd archive file: " + $BinaryArchiveFile$
-
+	Comment "Extracting opsiclientd archive file: " + $BinaryArchiveFile$
 	Files_extract_opsiclientd_binaries_to_temp
 
-	if ($Finalize$ = "service_restart") or ($Finalize$ = "service_restart_no_skip")
-		; opsiclientd will rename opsiclientd_bin_new to opsiclientd_bin on restart
-		PowerShellCall('Rename-Item "' + $BaseDir$ + '\opsiclientd_windows_x86" "' + $BaseDir$ + '\opsiclientd_bin_new"')
+	Comment "Installing opsiclientd binary files"
+	DefVar $BinDir$ = $BaseDir$ + "\opsiclientd_bin"
+	DefVar $BinDir1$ = $BaseDir$ + "\opsiclientd_bin1"
+	DefVar $BinDir2$ = $BaseDir$ + "\opsiclientd_bin2"
+	DefVar $BinDirOld$ = $BaseDir$ + "\opsiclientd_bin_old"
+	DefVar $NewDir$ = $BinDir2$
+
+	MarkErrorNumber
+	Set $TempList$ = PowershellCall('Get-Item "' + $BinDir$ + '" | Select-Object -ExpandProperty Target')
+	DefVar $LinkTarget$ = TakeString(0, $TempList$)
+
+	if ($LinkTarget$ = "")
+		Comment $BinDir$ + "is not a link"
+		if FileExists($BinDir$)
+			if FileExists($BinDir1$)
+				Comment "Removing " + $BinDir1$
+				PowershellCall('Remove-Item "' + $BinDir1$ + '" -Recurse')
+			endif
+			Comment "Moving " + $BinDir$ + " to " + $BinDir1$
+			PowershellCall('Rename-Item "' + $BinDir$ + '" "' + $BinDir1$ + '"')
+		endif
 	else
-		PowerShellCall('Remove-Item -Recurse -Force "' + $BaseDir$ + '\opsiclientd_bin_old"')
-		PowerShellCall('Rename-Item "' + $BaseDir$ + '\opsiclientd_bin" "' + $BaseDir$ + '\opsiclientd_bin_old"')
-		PowerShellCall('Rename-Item "' + $BaseDir$ + '\opsiclientd_windows_x86" "' + $BaseDir$ + '\opsiclientd_bin"; if ($?) { exit')
-		if (not (GetLastExitcode = "0")) or (not (FileExists($BaseDir$ + "\opsiclientd_bin\opsiclientd.exe")))
-			LogError "Failed to replace opsiclientd binaries, retry with copy"
-			Files_install_opsiclientd_binaries_from_temp
+		Comment $BinDir$ + " is a link to " + $LinkTarget$
+		if (TakeString(-1, SplitString($LinkTarget$, "\")) = "opsiclientd_bin2")
+			Set $NewDir$ = $BinDir1$
 		endif
-		if not (FileExists($BaseDir$ + "\opsiclientd_bin\opsiclientd.exe"))
-			LogError "Failed to install opsiclientd binaries"
-			IsFatalError "Failed to install opsiclientd binaries"
-		endif
+	endif
+
+	if FileExists($NewDir$)
+		Comment "Removing " + $NewDir$
+		PowershellCall('Remove-Item "' + $NewDir$ + '" -Recurse')
+	endif
+
+	Comment "Moving " + $BaseDir$ + "'\opsiclientd_windows_x86 to " + $NewDir$
+	PowershellCall('Rename-Item "' + $BaseDir$ + '\opsiclientd_windows_x86" "' + $NewDir$ + '"')
+
+	Comment "Creating link " + $BinDir$ + " pointing to " + $NewDir$
+	ShellInAnIcon_mklink
+
+	if ErrorsOccurredSinceMark > 0
+		LogError "Failed to install opsiclientd binaries"
+		IsFatalError "Failed to install opsiclientd binaries"
+	endif
+
+	if FileExists($BinDirOld$)
+		Comment "Removing " + $BinDirOld$
+		PowershellCall('Remove-Item "' + $BinDirOld$ + '" -Recurse')
 	endif
 
 	MarkErrorNumber
@@ -133,6 +164,13 @@ DefFunc install_opsiclientd(): void
 	endif
 
 	Files_remove_old_opsiclientd
+
+
+	[ShellInAnIcon_mklink]
+	rmdir "$BinDir$"
+	mklink /j "$BinDir$" "$NewDir$"
+	;mklink /d "$BaseDir$\opsiclientd_bin" "$NewDir$"
+	;Powershell -ExecutionPolicy Bypass -NoProfile -Command "New-Item -ItemType SymbolicLink -Path \"$BaseDir$\opsiclientd_bin\" -Target \"$NewDir$\""
 
 	[Files_extract_opsiclientd_binaries_to_temp]
 	del -sfc "$BaseDir$\opsiclientd_windows_x86"
@@ -169,6 +207,44 @@ DefFunc install_opsiclientd(): void
 	del -s "$BaseDir$\prelogin"
 	del -s "$BaseDir$\custom\"
 	del -s "$BaseDir$\images\"
+
+	[ExecWith_powershell_install_binaries]
+	$bin_dir = "$BaseDir$\opsiclientd_windows_x86"
+	$inst_dir = "$BaseDir$\opsiclientd_bin"
+
+	$target = Get-Item $inst_dir | Select-Object -ExpandProperty Target
+	$new_dir = "${inst_dir}2"
+	if ($target) {
+		Write-Host "${inst_dir} is a symbolic link"
+		if ((Get-Item($target)).Name -eq "opsiclientd_bin2") {
+			$new_dir = "${inst_dir}1"
+		}
+		Write-Host "Removing link ${inst_dir}"
+		Remove-Item $inst_dir
+	}
+	else {
+		Write-Host "${inst_dir} is not a symbolic link"
+		if (Test-Path $inst_dir) {
+			if (Test-Path "${inst_dir}1") {
+				Write-Host "Deleting ${inst_dir}1"
+				Remove-Item "${inst_dir}1" -Recurse
+			}
+			Write-Host "Moving ${inst_dir} to ${inst_dir}1"
+			Rename-Item $inst_dir "${inst_dir}1"
+		}
+	}
+
+	if (Test-Path $new_dir) {
+		Write-Host "Deleting ${new_dir}"
+		Remove-Item $new_dir -Recurse
+	}
+
+	Write-Host "Moving ${bin_dir} to ${new_dir}"
+	Rename-Item $bin_dir $new_dir
+
+	Write-Host "Creating link ${inst_dir} to ${new_dir}"
+	$arglist = "/c mklink /d `"${inst_dir}`" `"${new_dir}`""
+	Start-Process -Wait -WindowStyle Hidden -Verb RunAs -FilePath "cmd.exe" -ArgumentList $arglist
 EndFunc
 
 
@@ -803,6 +879,8 @@ DefFunc process_wim_capture() : void
 	Comment "Rename productOnClients.json"
 	Files_rename_productOnClients_json
 
+	Set $Finalize$ = "reboot"
+
 
 	[sub_set_clientId_in_ProductOnClients]
 	Comment "Get object from array"
@@ -935,77 +1013,15 @@ Message "Installing " + $ProductId$ + " ..."
 
 DefVar $RunningInServiceContext$
 if isProcessChildOf('%opsiscriptprocname%','opsiclientd.exe')
-	Comment "Running in service context"
 	Set $RunningInServiceContext$ = "true"
 else
-	Comment "Not running in service context"
 	Set $RunningInServiceContext$ = "false"
 endif
 
-if Contains($InstallationOptions$, "bootimage") or Contains($InstallationOptions$, "BOOTIMAGE")
-	; Reboot is performed by postinst script in netboot installation
-	Set $Finalize$ = ""
+if ($RunningInServiceContext$ = "true")
+	Comment "Running in service context"
 else
-	if Contains($InstallationOptions$, "noreboot")
-		Set $Finalize$ = "service_restart"
-	else
-		if Contains($InstallationOptions$, "reboot")
-			Set $Finalize$ = "reboot"
-		else
-			if Contains($InstallationOptions$, "shutdown")
-				Set $Finalize$ = "shutdown"
-			endif
-		endif
-	endif
-
-	; if not in service_context and not in bootimage mode: keep value of Finalize (except if no_reboot prohibits it)
-	if $RunningInServiceContext$ = "true"
-		;
-		DefStringList $TempList1$
-		DefVar $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_localboot_setup"))
-		if JsonAsArrayCountElements($TempString$) > "0"
-			Set $TempList1$ = JsonAsArrayToStringList($TempString$)
-			Set $TempList1$ = removeFromListByContaining('opsi-client-agent;', $TempList1$)
-			if count($TempList1$) > "0"
-				; Restart service to get notifiers back working
-				; comment "Setting Finalize to service_restart_no_skip because there are pending setup action requests"
-				; Set $Finalize$ = "service_restart_no_skip"
-				comment "Setting Finalize to reboot because there are pending setup action requests"
-				Set $Finalize$ = "reboot"
-			endif
-		endif
-
-		; in case of systray install set finalize to reboot (to get systray running in user context)
-		if GetProductProperty("systray_install", "true") = "true"
-			comment "systray installed setting finalize to reboot"
-			Set $Finalize$ = "reboot"
-		endif
-
-		; with opsiclientd 4.2.0.77 the location of the restart_marker was changed (no opsiclientd found -> 0)
-		if (($Finalize$ = "service_restart") or ($Finalize$ = "service_restart_no_skip")) and CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77")
-			comment "opsiclientd version " + $PreviousOCDVersion$ + " does not handle restart marker"
-			Set $Finalize$ = "reboot"
-		endif
-	endif
-
-	if FileExists("%opsiTmpDir%\productOnClients.json")
-		Set $Finalize$ = "reboot"
-	endif
-
-	;Prohibit reboot and shutdown if allow_reboot is false
-	if (GetProductProperty("allow_reboot", "true") = "false")
-		if ($Finalize$ = "reboot")
-			Set $Finalize$ = "service_restart_no_skip"
-		endif
-		if ($Finalize$ = "shutdown")
-			Set $Finalize$ = "service_restart"
-		endif
-	endif
-endif
-
-; Please do not change $Finalize$ after this marker
-
-if not ($RunningInServiceContext$ = "true")
+	Comment "Not running in service context"
 	if FileExists($BaseDir$ + "\opsiclientdguard")
 		ShellCall('sc stop opsiclientdguard')
 		SleepSeconds 5
@@ -1076,6 +1092,61 @@ if ($RunningInServiceContext$ = "false")
 	OpsiServiceCall_productOnClient_createObjects_opsiclientagent
 endif
 
+if Contains($InstallationOptions$, "bootimage") or Contains($InstallationOptions$, "BOOTIMAGE")
+	; Reboot is performed by postinst script in netboot installation
+	Set $Finalize$ = ""
+else
+	if Contains($InstallationOptions$, "noreboot")
+		Set $Finalize$ = "service_restart"
+	else
+		if Contains($InstallationOptions$, "reboot")
+			Set $Finalize$ = "reboot"
+		else
+			if Contains($InstallationOptions$, "shutdown")
+				Set $Finalize$ = "shutdown"
+			endif
+		endif
+	endif
+
+	; if not in service_context and not in bootimage mode: keep value of Finalize (except if no_reboot prohibits it)
+	if $RunningInServiceContext$ = "true"
+		DefStringList $TempList1$
+		DefVar $TempString$ = TakeString(0, GetReturnListFromSection("OpsiServiceCall_productOnClient_getObjects_localboot_setup"))
+		if JsonAsArrayCountElements($TempString$) > "0"
+			Set $TempList1$ = JsonAsArrayToStringList($TempString$)
+			Set $TempList1$ = removeFromListByContaining('opsi-client-agent;', $TempList1$)
+			if count($TempList1$) > "0"
+				; Restart service to get notifiers back working
+				; comment "Setting Finalize to service_restart_no_skip because there are pending setup action requests"
+				; Set $Finalize$ = "service_restart_no_skip"
+				comment "Setting Finalize to reboot because there are pending setup action requests"
+				Set $Finalize$ = "reboot"
+			endif
+		endif
+
+		; in case of systray install set finalize to reboot (to get systray running in user context)
+		if GetProductProperty("systray_install", "true") = "true"
+			comment "systray installed setting finalize to reboot"
+			Set $Finalize$ = "reboot"
+		endif
+
+		; with opsiclientd 4.2.0.77 the location of the restart_marker was changed (no opsiclientd found -> 0)
+		if (($Finalize$ = "service_restart") or ($Finalize$ = "service_restart_no_skip")) and CompareDotSeparatedNumbers($PreviousOCDVersion$, "<", "4.2.0.77")
+			comment "opsiclientd version " + $PreviousOCDVersion$ + " does not handle restart marker"
+			Set $Finalize$ = "reboot"
+		endif
+	endif
+
+	;Prohibit reboot and shutdown if allow_reboot is false
+	if (GetProductProperty("allow_reboot", "true") = "false")
+		if ($Finalize$ = "reboot")
+			Set $Finalize$ = "service_restart_no_skip"
+		endif
+		if ($Finalize$ = "shutdown")
+			Set $Finalize$ = "service_restart"
+		endif
+	endif
+endif
 
 if ($Finalize$ = "reboot")
 	ExitWindows /Reboot
