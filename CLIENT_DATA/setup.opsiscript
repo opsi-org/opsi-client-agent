@@ -104,10 +104,17 @@ DefFunc install_opsiclientd(): void
 	DefVar $BinDir2$ = $BaseDir$ + "\opsiclientd_bin2"
 	DefVar $BinDirOld$ = $BaseDir$ + "\opsiclientd_bin_old"
 	DefVar $NewDir$ = $BinDir2$
+	DefVar $LinkTarget$
 
 	MarkErrorNumber
-	Set $TempList$ = PowershellCall('Get-Item "' + $BinDir$ + '" | Select-Object -ExpandProperty Target')
-	DefVar $LinkTarget$ = TakeString(0, $TempList$)
+	if CompareDotSeparatedNumbers(GetMsVersionInfo, "<", "10.0")
+		Set $TempList$ = ShellCall('fsutil reparsePoint query "' + $BinDir$ + '"')
+		DefVar $Line$ = takeFirstStringContaining($TempList$, "opsiclientd_bin")
+		Set $LinkTarget$ = $BaseDir$ + "\" + TakeString(-1, SplitString($Line$, "\"))
+	else
+		Set $TempList$ = PowershellCall('Get-Item "' + $BinDir$ + '" | Select-Object -ExpandProperty Target')
+		Set $LinkTarget$ = TakeString(0, $TempList$)
+	endif
 
 	; on win < 10 LinkTarget may become Select-Object: Property "Target" cannot be found (or a localized equivalent)
 	if ($LinkTarget$ = "") or contains($LinkTarget$, "Select-Object")
