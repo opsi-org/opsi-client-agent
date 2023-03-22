@@ -104,13 +104,16 @@ DefFunc install_opsiclientd(): void
 	DefVar $BinDir2$ = $BaseDir$ + "\opsiclientd_bin2"
 	DefVar $BinDirOld$ = $BaseDir$ + "\opsiclientd_bin_old"
 	DefVar $NewDir$ = $BinDir2$
-	DefVar $LinkTarget$
+	DefVar $LinkTarget$ = ""
 
 	MarkErrorNumber
 	if CompareDotSeparatedNumbers(GetMsVersionInfo, "<", "10.0")
 		Set $TempList$ = ShellCall('fsutil reparsePoint query "' + $BinDir$ + '"')
-		DefVar $Line$ = takeFirstStringContaining($TempList$, "opsiclientd_bin")
-		Set $LinkTarget$ = $BaseDir$ + "\" + TakeString(-1, SplitString($Line$, "\"))
+		DefVar $TempStr$ = takeFirstStringContaining($TempList$, "opsiclientd_bin")
+		Set $TempStr$ = TakeString(-1, SplitString($TempStr$, "\"))
+		if not ($TempStr$ = "")
+			Set $LinkTarget$ = $BaseDir$ + "\" + $TempStr$
+		endif
 	else
 		Set $TempList$ = PowershellCall('Get-Item "' + $BinDir$ + '" | Select-Object -ExpandProperty Target')
 		Set $LinkTarget$ = TakeString(0, $TempList$)
