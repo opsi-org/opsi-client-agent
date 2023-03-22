@@ -120,7 +120,7 @@ DefFunc install_opsiclientd(): void
 	endif
 
 	if ($LinkTarget$ = "")
-		Comment $BinDir$ + "is not a link"
+		Comment $BinDir$ + " is not a link"
 		if FileExists($BinDir$)
 			if FileExists($BinDir1$)
 				Comment "Removing " + $BinDir1$
