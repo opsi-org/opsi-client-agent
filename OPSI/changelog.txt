@@ -1,11 +1,18 @@
 ﻿[Changelog]
 
+opsi-client-agent (4.2.0.49-1) stable; urgency=low
+
+  * Update opsiclientd to 4.2.0.139
+  * Update opsi-deploy-client-agent to 4.3.0.0
+
+-- Jan Schneider <j.schneider@uib.de> Thu, 23 Mar 2023 23:50:00 +0100
+
 opsi-client-agent (4.2.0.48-1) stable; urgency=low
 
   * Update opsiclientd to 4.2.0.138
   * Use two binary dirs and a junction for opsiclientd update
 
--- Jan Schneider <j.schneider@uib.de> Mon, 22 Feb 2023 08:30:00 +0100
+-- Jan Schneider <j.schneider@uib.de> Wed, 22 Mar 2023 08:30:00 +0100
 
 opsi-client-agent (4.2.0.47-1) stable; urgency=low
 
