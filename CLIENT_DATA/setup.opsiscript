@@ -423,7 +423,7 @@ DefFunc install_opsisystray() : void
 	if GetProductProperty("systray_install", "true") = "true"
 		Sub_install_opsisystray
 	endif
-systra
+
 	Message "Uninstalling opsi-systray"
 	;KillTask "opsi-client-systray.exe"
 	ShellCall("taskkill /f /im opsi-client-systray.exe")
