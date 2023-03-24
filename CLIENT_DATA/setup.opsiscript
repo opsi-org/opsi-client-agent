@@ -423,9 +423,7 @@ DefFunc install_opsisystray() : void
 	if GetProductProperty("systray_install", "true") = "true"
 		Sub_install_opsisystray
 	endif
-
-	[Sub_uninstall_opsisystray]
-	Comment "Uninstalling opsi-systray"
+systra
 	Message "Uninstalling opsi-systray"
 	;KillTask "opsi-client-systray.exe"
 	ShellCall("taskkill /f /im opsi-client-systray.exe")
@@ -1156,12 +1154,6 @@ else
 				comment "Setting Finalize to reboot because there are pending setup action requests"
 				Set $Finalize$ = "reboot"
 			endif
-		endif
-
-		; in case of systray install set finalize to reboot (to get systray running in user context)
-		if GetProductProperty("systray_install", "true") = "true"
-			comment "systray installed setting finalize to reboot"
-			Set $Finalize$ = "reboot"
 		endif
 
 		; with opsiclientd 4.2.0.77 the location of the restart_marker was changed (no opsiclientd found -> 0)
