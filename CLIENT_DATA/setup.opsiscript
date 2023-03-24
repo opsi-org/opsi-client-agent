@@ -127,7 +127,25 @@ DefFunc install_opsiclientd(): void
 				PowershellCall('Remove-Item "' + $BinDir1$ + '" -Recurse')
 			endif
 			Comment "Moving " + $BinDir$ + " to " + $BinDir1$
-			PowershellCall('Rename-Item "' + $BinDir$ + '" "' + $BinDir1$ + '"')
+			DefVar $exit$ = PowershellCall('if (Rename-Item "' + $BinDir$ + '" "' + $BinDir1$ + '") { exit 0 } else { exit 1 }')
+			if ($exit$ = "1")
+				LogError "Failed to move " + $BinDir$ + " to " + $BinDir1$
+				if FileExists($BinDir$ + '\move_failed_marker')
+					IsFatalError "Failed to move opsiclientd binaries"
+				else
+					LogError "Killing all opsiclientd binaries and retrying"
+					Set $Finalize$ = "opsiclientd_killed_force_reboot"
+					ShellCall("taskkill /f /im opsiclientd.exe")
+					ShellCall("taskkill /f /im action_processor_starter.exe")
+					ShellCall("taskkill /f /im opsiclientd_rpc.exe")
+					SleepSeconds 5
+					Set $exit$ = PowershellCall('if (Rename-Item "' + $BinDir$ + '" "' + $BinDir1$ + '") { exit 0 } else { exit 1 }')
+					if ($exit$ = "1")
+						LogError "Failed to move " + $BinDir$ + " to " + $BinDir1$ + " again"
+						PowershellCall('New-Item -ItemType file "' + $BinDir$ + '\move_failed_marker"')
+					endif
+				endif
+			endif
 		endif
 	else
 		Comment $BinDir$ + " is a link to " + $LinkTarget$
@@ -147,30 +165,32 @@ DefFunc install_opsiclientd(): void
 	Comment "Creating link " + $BinDir$ + " pointing to " + $NewDir$
 	ShellInAnIcon_mklink
 
-	if ErrorsOccurredSinceMark > 0
-		LogError "Failed to install opsiclientd binaries"
-		IsFatalError "Failed to install opsiclientd binaries"
-	endif
+	if not ($Finalize$ = "opsiclientd_killed_force_reboot")
+		if ErrorsOccurredSinceMark > 0
+			LogError "Failed to install opsiclientd binaries"
+			IsFatalError "Failed to install opsiclientd binaries"
+		endif
 
-	if FileExists($BinDirOld$)
-		Comment "Removing " + $BinDirOld$
-		PowershellCall('Remove-Item "' + $BinDirOld$ + '" -Recurse')
-	endif
+		if FileExists($BinDirOld$)
+			Comment "Removing " + $BinDirOld$
+			PowershellCall('Remove-Item "' + $BinDirOld$ + '" -Recurse')
+		endif
 
-	MarkErrorNumber
-	Files_install_opsiclientd_dir
-	if ErrorsOccurredSinceMark > 0
-		LogError "Failed to install opsiclientd data directory"
-	endif
+		MarkErrorNumber
+		Files_install_opsiclientd_dir
+		if ErrorsOccurredSinceMark > 0
+			LogError "Failed to install opsiclientd data directory"
+		endif
 
-	comment "Patch opsiclientd.conf"
-	Patches_opsiclientd_conf $BaseDir$ + "\opsiclientd\opsiclientd.conf"
+		comment "Patch opsiclientd.conf"
+		Patches_opsiclientd_conf $BaseDir$ + "\opsiclientd\opsiclientd.conf"
 
-	comment "Run opsiclientd setup"
-	DosInAnIcon_opsiclientd_setup
-	if not(GetLastExitcode = "0")
-		LogError "opsiclientd setup failed"
-		IsFatalError "opsiclientd setup failed"
+		comment "Run opsiclientd setup"
+		DosInAnIcon_opsiclientd_setup
+		if not(GetLastExitcode = "0")
+			LogError "opsiclientd setup failed"
+			IsFatalError "opsiclientd setup failed"
+		endif
 	endif
 
 	Files_remove_old_opsiclientd
@@ -1078,6 +1098,10 @@ install_requirements()
 install_opsinotifier()
 install_opsisystray()
 install_opsiclientd()
+if ($Finalize$ = "opsiclientd_killed_force_reboot")
+	ShellCall("shutdown /r /t 5")
+	ExitWindows /ImmediateReboot
+endif
 install_custom_files()
 ; Second call to install_directory to fix permissions on VarDir and BaseDir
 Set $PermissionSetSuccess$ = install_directories("true", "true")
