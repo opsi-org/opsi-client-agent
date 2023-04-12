@@ -1,10 +1,18 @@
 ﻿[Changelog]
 
+opsi-client-agent (4.2.0.52-1) stable; urgency=low
+
+  * Update opsiclientd to 4.2.0.142 (improvement in product caching)
+  * Update opsi-script to 4.12.9.0 (compatibility with opsi 4.3)
+  * Some improvements in installation procedure rebustness
+
+-- Nils Doerrer <n.doerrer@uib.de> Wed, 12 Apr 2023 13:30:00 +0100
+
 opsi-client-agent (4.2.0.51-1) stable; urgency=low
 
   * Update opsiclientd to 4.2.0.141
 
--- Jan Schneider <j.schneider@uib.de> Thu, 02 Mar 2023 10:00:00 +0100
+-- Jan Schneider <j.schneider@uib.de> Thu, 02 Apr 2023 10:00:00 +0100
 
 opsi-client-agent (4.2.0.50-1) stable; urgency=low
 
