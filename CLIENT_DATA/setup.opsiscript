@@ -93,7 +93,7 @@ DefFunc install_opsiclientd(): void
 
 	Set $TempList$ = ShellCall('dir /B "%ScriptPath%\files"')
 	Set $TempList$ = GetRegexMatchList('(?m)^opsiclientd_windows_\S*.zip', $TempList$)
-	if count($TempList$) = 0
+	if count($TempList$) = "0"
 		LogError "Did not find opsiclientd binary archive in installation files"
 		isFatalError "No opsiclientd archive"
 	endif
