@@ -93,6 +93,10 @@ DefFunc install_opsiclientd(): void
 
 	Set $TempList$ = ShellCall('dir /B "%ScriptPath%\files"')
 	Set $TempList$ = GetRegexMatchList('(?m)^opsiclientd_windows_\S*.zip', $TempList$)
+	if count($TempList$) = 0
+		LogError "Did not find opsiclientd binary archive in installation files"
+		isFatalError "No opsiclientd archive"
+	endif
 	DefVar $BinaryArchiveFile$ = "%ScriptPath%\files\" + TakeString(0, $TempList$)
 
 	Comment "Extracting opsiclientd archive file: " + $BinaryArchiveFile$
@@ -171,7 +175,7 @@ DefFunc install_opsiclientd(): void
 			IsFatalError "Failed to install opsiclientd binaries"
 		endif
 
-		if FileExists($BinDirOld$)
+		if FileExists($BinDirOld$)Files_remove_old_opsiclientd
 			Comment "Removing " + $BinDirOld$
 			PowershellCall('Remove-Item "' + $BinDirOld$ + '" -Recurse')
 		endif
@@ -419,22 +423,16 @@ DefFunc install_opsisystray() : void
 	DefVar $CheckInterval$ = GetProductProperty("systray_check_interval", "60")
 	DefVar $NotifyFormat$ = GetProductProperty("systray_request_notify_format", "productname : request")
 
-	Sub_uninstall_opsisystray
-	if GetProductProperty("systray_install", "true") = "true"
-		Sub_install_opsisystray
-	endif
-
 	Message "Uninstalling opsi-systray"
-	;KillTask "opsi-client-systray.exe"
 	ShellCall("taskkill /f /im opsi-client-systray.exe")
 	Registry_uninstall_opsisystray
 	Files_uninstall_opsisystray
-
-	[Sub_install_opsisystray]
-	Comment "Installing opsi-systray"
-	Message "Installing opsi-systray"
-	Files_install_opsisystray
-	Registry_install_opsisystray
+	if GetProductProperty("systray_install", "true") = "true"
+		Comment "Installing opsi-systray"
+		Message "Installing opsi-systray"
+		Files_install_opsisystray
+		Registry_install_opsisystray
+	endif
 
 	[Files_uninstall_opsisystray]
 	del -sfc "$BaseDir$\opsi-systray"
