@@ -175,7 +175,7 @@ DefFunc install_opsiclientd(): void
 			IsFatalError "Failed to install opsiclientd binaries"
 		endif
 
-		if FileExists($BinDirOld$)Files_remove_old_opsiclientd
+		if FileExists($BinDirOld$)
 			Comment "Removing " + $BinDirOld$
 			PowershellCall('Remove-Item "' + $BinDirOld$ + '" -Recurse')
 		endif
