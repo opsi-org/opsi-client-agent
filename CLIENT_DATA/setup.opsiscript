@@ -1095,7 +1095,7 @@ install_opsinotifier()
 install_opsisystray()
 install_opsiclientd()
 if ($Finalize$ = "opsiclientd_killed_force_reboot")
-	ShellCall("shutdown /r /t 5")
+	ShellCall("shutdown /r /t 60")
 	ExitWindows /ImmediateReboot
 endif
 install_custom_files()
