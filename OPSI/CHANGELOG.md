@@ -1,5 +1,11 @@
 ﻿# Changelog
 
+## [4.2.0.55-1] - 2023-04-20
+
+### Fixed
+
+- Update opsiclientd to 4.2.0.145 (fixes hardware audit with config cache) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.2.0.54-1] - 2023-04-18
 
 ### Changed
