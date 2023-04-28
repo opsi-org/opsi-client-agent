@@ -1,5 +1,12 @@
 ﻿# Changelog
 
+## [4.2.0.56-1] - 2023-04-28
+
+### Fixed
+
+- Stop the opsiclientd service before killing processes so that Windows does not restart the failed opsiclientd (Jan Schneider <j.schneider@uib.de>)
+- Improve checking bin dir move for success
+
 ## [4.2.0.55-1] - 2023-04-20
 
 ### Fixed
