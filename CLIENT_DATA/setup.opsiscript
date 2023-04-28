@@ -143,10 +143,14 @@ DefFunc install_opsiclientd(): void
 					ShellCall("taskkill /f /im action_processor_starter.exe")
 					ShellCall("taskkill /f /im opsiclientd_rpc.exe")
 					SleepSeconds 5
-					Set $exit$ = PowershellCall('if (Rename-Item "' + $BinDir$ + '" "' + $BinDir1$ + '") { exit 0 } else { exit 1 }')
-					if ($exit$ = "1")
-						LogError "Failed to move " + $BinDir$ + " to " + $BinDir1$ + " again"
-						PowershellCall('New-Item -ItemType file "' + $BinDir$ + '\move_failed_marker"')
+					if FileExists($BinDir$)
+						Set $exit$ = PowershellCall('if (Rename-Item "' + $BinDir$ + '" "' + $BinDir1$ + '") { exit 0 } else { exit 1 }')
+						if ($exit$ = "1")
+							LogError "Failed to move " + $BinDir$ + " to " + $BinDir1$ + " again"
+							PowershellCall('New-Item -ItemType file "' + $BinDir$ + '\move_failed_marker"')
+						endif
+					else
+						Comment "Somehow the directory " + $BinDir$ + " disappeared after sleep"
 					endif
 				endif
 			endif
