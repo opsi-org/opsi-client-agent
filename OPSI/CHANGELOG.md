@@ -1,5 +1,12 @@
 ﻿# Changelog
 
+## [4.2.0.56-2] - 2023-05-10
+
+### Changed
+
+- Avoiding reboot at stuck opsi-client-agent upgrade - force restarting opsiclientd instead
+
+
 ## [4.2.0.56-1] - 2023-04-28
 
 ### Fixed

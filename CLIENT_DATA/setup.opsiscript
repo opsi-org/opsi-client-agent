@@ -139,7 +139,7 @@ DefFunc install_opsiclientd(): void
 					IsFatalError "Failed to move opsiclientd binaries"
 				else
 					LogError "Killing all opsiclientd binaries and retrying"
-					Set $Finalize$ = "opsiclientd_killed_force_reboot"
+					Set $Finalize$ = "opsiclientd_killed_force_service_start"
 					ShellCall("net stop opsiclientd")
 					SleepSeconds 5
 					ShellCall("taskkill /f /im opsiclientd.exe")
@@ -177,7 +177,7 @@ DefFunc install_opsiclientd(): void
 	Comment "Creating link " + $BinDir$ + " pointing to " + $NewDir$
 	ShellInAnIcon_mklink
 
-	if not ($Finalize$ = "opsiclientd_killed_force_reboot")
+	if not ($Finalize$ = "opsiclientd_killed_force_service_start")
 		if ErrorsOccurredSinceMark > 0
 			LogError "Failed to install opsiclientd binaries"
 			IsFatalError "Failed to install opsiclientd binaries"
@@ -1102,9 +1102,9 @@ install_requirements()
 install_opsinotifier()
 install_opsisystray()
 install_opsiclientd()
-if ($Finalize$ = "opsiclientd_killed_force_reboot")
-	ShellCall("shutdown /r /t 60")
-	ExitWindows /ImmediateReboot
+if ($Finalize$ = "opsiclientd_killed_force_service_start")
+	ShellCall("net start opsiclientd")
+	ExitWindows /ImmediateLogout
 endif
 install_custom_files()
 ; Second call to install_directory to fix permissions on VarDir and BaseDir
