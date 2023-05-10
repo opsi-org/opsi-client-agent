@@ -27,7 +27,7 @@ prepare_files:
 windows-x86-installer:
   stage: build
   tags:
-    - win10
+    - windows
   script:
     # Speedup Invoke-WebRequest
     - $ProgressPreference = 'SilentlyContinue'
@@ -81,7 +81,7 @@ linux_make_msi:
 windows_make_msi:
   stage: package
   tags:
-    - win10
+    - windows
   script:
     - Invoke-WebRequest -UseBasicParsing -Uri "$OPSIDEVTOOLS_URL_WINDOWS_X86" -OutFile opsi-dev-tools.zip
     - Expand-Archive opsi-dev-tools.zip -DestinationPath .
