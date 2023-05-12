@@ -178,7 +178,7 @@ DefFunc install_opsiclientd(): void
 	ShellInAnIcon_mklink
 
 	if not ($Finalize$ = "opsiclientd_killed_force_service_start")
-		if ErrorsOccurredSinceMark > 0
+		if (ErrorsOccurredSinceMark > 0) or (not (FileExists($NewDir$)))
 			LogError "Failed to install opsiclientd binaries"
 			IsFatalError "Failed to install opsiclientd binaries"
 		endif
