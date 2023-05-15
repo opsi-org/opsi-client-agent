@@ -6,6 +6,7 @@
 
 - Update opsiclientd to 4.2.0.146 - more robust event handling with login-events, never decreasing ServicesPipeTimeout on setup (Nils Doerrer <n.doerrer@uib.de>)
 - Aborting with isfatalerror in case that extracted new opsiclientd dir cannot be moved
+
 ## [4.2.0.56-2] - 2023-05-10
 
 ### Changed
