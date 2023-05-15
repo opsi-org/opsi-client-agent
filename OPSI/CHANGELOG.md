@@ -1,11 +1,16 @@
 ﻿# Changelog
 
+## [4.2.0.57-1] - 2023-05-15
+
+### Changed
+
+- Update opsiclientd to 4.2.0.146 - more robust event handling with login-events, never decreasing ServicesPipeTimeout on setup (Nils Doerrer <n.doerrer@uib.de>)
+- Aborting with isfatalerror in case that extracted new opsiclientd dir cannot be moved
 ## [4.2.0.56-2] - 2023-05-10
 
 ### Changed
 
-- Avoiding reboot at stuck opsi-client-agent upgrade - force restarting opsiclientd instead
-
+- Avoiding reboot at stuck opsi-client-agent upgrade - force restarting opsiclientd instead (Nils Doerrer <n.doerrer@uib.de>)
 
 ## [4.2.0.56-1] - 2023-04-28
 
