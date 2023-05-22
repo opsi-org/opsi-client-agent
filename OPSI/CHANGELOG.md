@@ -1,5 +1,11 @@
 ﻿# Changelog
 
+## [4.2.0.57-2] - 2023-05-22
+
+### Changed
+
+- Improved robustness of setup on slow machines and with antivir software
+
 ## [4.2.0.57-1] - 2023-05-15
 
 ### Changed
