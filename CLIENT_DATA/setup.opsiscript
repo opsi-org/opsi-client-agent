@@ -101,6 +101,8 @@ DefFunc install_opsiclientd(): void
 
 	Comment "Extracting opsiclientd archive file: " + $BinaryArchiveFile$
 	Files_extract_opsiclientd_binaries_to_temp
+	; Give antivir time to lock and unlock new directory
+	sleepSeconds 2
 
 	Comment "Installing opsiclientd binary files"
 	DefVar $BinDir$ = $BaseDir$ + "\opsiclientd_bin"
@@ -169,6 +171,11 @@ DefFunc install_opsiclientd(): void
 	if FileExists($NewDir$)
 		Comment "Removing " + $NewDir$
 		PowershellCall('Remove-Item "' + $NewDir$ + '" -Recurse')
+	endif
+	; In case removal failed (or partially successful) do not change link target
+	if FileExists($NewDir$)
+		LogError "Failed to remove old opsiclientd"
+		IsFatalError "Failed to remove old opsiclientd"
 	endif
 
 	Comment "Moving " + $BaseDir$ + "'\opsiclientd_windows_x86 to " + $NewDir$
