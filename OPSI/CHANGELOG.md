@@ -1,5 +1,16 @@
 ﻿# Changelog
 
+## [4.2.0.58-1] - 2023-05-26
+
+### Fixed
+- Fixed installation in WAN-Mode (Nils Doerrer <n.doerrer@uib.de>)
+- Fixed caching issue in case a directory is exchanged by a file in package update (Jan Schneider <j.schneider@uib.de>)
+
+### Changed
+
+- Showing package versions in opsiclientd events in timeline (Nils Doerrer <n.doerrer@uib.de>)
+- Update opsiclientd to 4.2.0.147 - see fixed
+
 ## [4.2.0.57-2] - 2023-05-22
 
 ### Changed
