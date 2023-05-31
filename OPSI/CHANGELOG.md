@@ -1,5 +1,13 @@
 ﻿# Changelog
 
+## [4.2.0.59-1] - 2023-05-31
+
+### Fixed
+- Fixed caching for special case sync_products_with_actions_only = False"
+
+### Changed
+- Update opsiclientd to 4.2.0.148 - see fixed (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.2.0.58-1] - 2023-05-26
 
 ### Fixed
