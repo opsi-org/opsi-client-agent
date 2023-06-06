@@ -1,5 +1,13 @@
 ﻿# Changelog
 
+## [4.2.0.60-1] - 2023-06-06
+
+### Changed
+- Update opsi-script to 4.12.9.1 (Nils Doerrer <n.doerrer@uib.de>)
+- Update opsi-script-common files to 4.12.4.45 (Nils Doerrer <n.doerrer@uib.de>)
+- Update opsi-notifier to 4.2.0.11 (codesigned)
+- Update opsi-systray to 4.2.0.0 (codesigned)
+
 ## [4.2.0.59-1] - 2023-05-31
 
 ### Fixed
