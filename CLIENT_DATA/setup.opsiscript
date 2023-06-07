@@ -133,7 +133,7 @@ DefFunc install_opsiclientd(): void
 				PowershellCall('Remove-Item "' + $BinDir1$ + '" -Recurse')
 			endif
 			Comment "Moving " + $BinDir$ + " to " + $BinDir1$
-			PowershellCall('Rename-Item "' + $BinDir$ + '" "' + $BinDir1$ + '")
+			PowershellCall('Rename-Item "' + $BinDir$ + '" "' + $BinDir1$ + '"')
 			SleepSeconds 3
 			if FileExists($BinDir$)
 				LogError "Failed to move " + $BinDir$ + " to " + $BinDir1$
@@ -178,7 +178,7 @@ DefFunc install_opsiclientd(): void
 		IsFatalError "Failed to remove old opsiclientd"
 	endif
 
-	Comment "Moving " + $BaseDir$ + "'\opsiclientd_windows_x86 to " + $NewDir$
+	Comment "Moving " + $BaseDir$ + "\opsiclientd_windows_x86 to " + $NewDir$
 	PowershellCall('Rename-Item "' + $BaseDir$ + '\opsiclientd_windows_x86" "' + $NewDir$ + '"')
 
 	Comment "Creating link " + $BinDir$ + " pointing to " + $NewDir$

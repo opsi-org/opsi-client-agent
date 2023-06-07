@@ -1,5 +1,11 @@
 ﻿# Changelog
 
+## [4.2.0.60-2] - 2023-06-06
+
+### Fixed
+- Fixed missing single quote in powershell call (Nils Doerrer <n.doerrer@uib.de>)
+
+
 ## [4.2.0.60-1] - 2023-06-06
 
 ### Changed
