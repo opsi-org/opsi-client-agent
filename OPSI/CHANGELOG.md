@@ -1,5 +1,10 @@
 ﻿# Changelog
 
+## [4.2.0.61-1] - 2023-06-14
+
+### Fixed
+- Update opsiclientd to 4.2.0.149, fixing bug in logging while resolving product cache inconsistencies (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.2.0.60-2] - 2023-06-06
 
 ### Fixed
