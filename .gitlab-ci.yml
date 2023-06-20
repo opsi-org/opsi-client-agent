@@ -1,4 +1,4 @@
-image: docker.uib.gmbh/opsi/dev/pybuilder:uib-python-3.10
+image: docker.uib.gmbh/opsi/dev/pybuilder:uib-python-default
 
 stages:
   - prepare
@@ -11,11 +11,11 @@ prepare_files:
   stage: prepare
   script:
     - opsi-dev-cli -l info binary pull
-    - version=$(grep OPSI/control -A 10 -e "\[Product\]" | grep "version:" | tr -d "^a-zA-Z :")
-    - package=$(grep OPSI/control -A 5 -e "\[Package\]" | grep "version:" | tr -d "^a-zA-Z :")
+    - version=$(opsi-dev-cli opsi-package get-value productVersion)
+    - package=$(opsi-dev-cli opsi-package get-value packageVersion)
     - newpackage="$package"
     - '[ "$CI_COMMIT_TAG" = "" ] && newpackage="$package.$CI_JOB_ID"'
-    - 'sed -i "s/version: $package/version: $newpackage/" OPSI/control'
+    - opsi-dev-cli opsi-package set-value packageVersion "$newpackage"
     - echo "$version-$newpackage" > CLIENT_DATA/files/opsi-client-agent.version
   artifacts:
     name: prepared_files
@@ -34,19 +34,19 @@ windows-x86-installer:
     - Invoke-WebRequest -UseBasicParsing -Uri "$OPSIDEVTOOLS_URL_WINDOWS_X86" -OutFile opsi-dev-tools.zip
     - Expand-Archive opsi-dev-tools.zip -DestinationPath .
     - .\opsi-dev-tool.exe --self-install -l info
+    - $env:Path += ';C:\opsi.org\opsi-dev-cli'  # To immediately have it in PATH
     # Download ziplaunch for windows
-    - .\opsi-dev-cli.exe binary pull ziplaunch
+    - opsi-dev-cli binary pull ziplaunch
     # Get version from control file and patch ziplaunch.ini
-    - "$versionLine = Get-Content -Path OPSI\\control | Where-Object { $_ -match 'version: 4.' }"
-    - $version = $versionLine.Split(':')[1].trim()
+    - $version = opsi-dev-cli opsi-package get-value productVersion
     - ((Get-Content -path .\oca-installer\ziplaunch.ini -Raw) -replace "{version}",$version) | Set-Content -Path .\oca-installer\ziplaunch.ini
     # Build installer
     - Start-Process ".\ziplaunch\ziplaunch.exe" -ArgumentList "CLIENT_DATA",".\oca-installer\ziplaunch.ini","opsi-client-agent-installer.exe" -Wait
     # Sign exe
-    - .\opsi-dev-tool.exe -l info --signserver-sign opsi-client-agent-installer.exe
+    - opsi-dev-tool -l info --signserver-sign opsi-client-agent-installer.exe
     # Push to binaryindex
-    - if (! $CI_COMMIT_TAG) {.\opsi-dev-cli.exe -l info binary push opsi-client-agent-installer.exe --product=opsi-client-agent-installer --system=windows --architecture=x86 --version=$version --prerelease="$CI_JOB_ID"}
-    - if ($CI_COMMIT_TAG) {.\opsi-dev-cli.exe -l info binary push opsi-client-agent-installer.exe --product=opsi-client-agent-installer --system=windows --architecture=x86 --version=$version }
+    - if (! $CI_COMMIT_TAG) {opsi-dev-cli -l info binary push opsi-client-agent-installer.exe --product=opsi-client-agent-installer --system=windows --architecture=x86 --version=$version --prerelease="$CI_JOB_ID"}
+    - if ($CI_COMMIT_TAG) {opsi-dev-cli -l info binary push opsi-client-agent-installer.exe --product=opsi-client-agent-installer --system=windows --architecture=x86 --version=$version }
   artifacts:
     name: opsi-client-agent-installer
     paths:
@@ -86,11 +86,11 @@ windows_make_msi:
     - Invoke-WebRequest -UseBasicParsing -Uri "$OPSIDEVTOOLS_URL_WINDOWS_X86" -OutFile opsi-dev-tools.zip
     - Expand-Archive opsi-dev-tools.zip -DestinationPath .
     - .\opsi-dev-tool.exe --self-install -l info
+    - $env:Path += ';C:\opsi.org\opsi-dev-cli'  # To immediately have it in PATH
     - Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/wixtoolset/wix3/releases/download/wix3112rtm/wix311-binaries.zip" -OutFile wix-binaries.zip
     - Expand-Archive wix-binaries.zip -DestinationPath wix
     # Get version from control file
-    - "$versionLine = Get-Content -Path OPSI\\control | Where-Object { $_ -match 'version: 4.' }"
-    - $version = $versionLine.Split(':')[1].trim()
+    - $version = opsi-dev-cli opsi-package get-value productVersion
     # Patch version
     - ((Get-Content -path msi\\opsi-client-agent.wxs -Raw) -replace "{version}",$version) | Set-Content -Path opsi-client-agent.wxs
     - Get-Content opsi-client-agent.wxs
@@ -98,11 +98,11 @@ windows_make_msi:
     - wix\\candle.exe opsi-client-agent.wxs
     - wix\\light.exe opsi-client-agent.wixobj
     # Sign msi
-    - .\opsi-dev-tool.exe -l info --signserver-sign opsi-client-agent.msi
+    - opsi-dev-tool -l info --signserver-sign opsi-client-agent.msi
     # Push to binaryindex
-    - if (! $CI_COMMIT_TAG) {.\opsi-dev-cli.exe -l info binary push opsi-client-agent.msi --product=opsi-client-agent-msi --system=windows --architecture=x86 --version=$version --prerelease="$CI_JOB_ID"}
-    - if ($CI_COMMIT_TAG) {.\opsi-dev-cli.exe -l info binary push opsi-client-agent.msi --product=opsi-client-agent-msi --system=windows --architecture=x86 --version=$version }
-    - if ($CI_COMMIT_TAG) {.\opsi-dev-cli.exe -l info release-service register-package-version opsi-client-agent-msi TOOL --files=opsi-client-agent.msi --version=$version --changelog-file=OPSI\\CHANGELOG.md}
+    - if (! $CI_COMMIT_TAG) {opsi-dev-cli -l info binary push opsi-client-agent.msi --product=opsi-client-agent-msi --system=windows --architecture=x86 --version=$version --prerelease="$CI_JOB_ID"}
+    - if ($CI_COMMIT_TAG) {opsi-dev-cli -l info binary push opsi-client-agent.msi --product=opsi-client-agent-msi --system=windows --architecture=x86 --version=$version }
+    - if ($CI_COMMIT_TAG) {opsi-dev-cli -l info release-service register-package-version opsi-client-agent-msi TOOL --files=opsi-client-agent.msi --version=$version --changelog-file=OPSI\\CHANGELOG.md}
 
 make_opsi_package:
   stage: package
@@ -117,8 +117,8 @@ test_windows_versions:
   when: manual
   script:
     - OLDVERSION="4.1.1.0-1"
-    - version=$(grep OPSI/control -A 10 -e "\[Product\]" | grep "version:" | tr -d "^a-zA-Z :")
-    - package=$(grep OPSI/control -A 5 -e "\[Package\]" | grep "version:" | tr -d "^a-zA-Z :")
+    - version=$(opsi-dev-cli opsi-package get-value productVersion)
+    - package=$(opsi-dev-cli opsi-package get-value packageVersion)
     - version="$version-$(echo $package | tr '.' '~')"
     - opsi-dev-cli -l info jenkins test --systems=win10-21h1,win10-x64-21h1,win7,win7-x64,win81,win81-x64,win2012,win2022 --versions="$OLDVERSION,$version,$version"
 
@@ -128,7 +128,7 @@ test_tagged:
     - tags
   script:
     - OLDVERSION="4.1.1.0-1"
-    - version=$(grep OPSI/control -A 10 -e "\[Product\]" | grep "version:" | tr -d "^a-zA-Z :")
-    - package=$(grep OPSI/control -A 5 -e "\[Package\]" | grep "version:" | tr -d "^a-zA-Z :")
+    - version=$(opsi-dev-cli opsi-package get-value productVersion)
+    - package=$(opsi-dev-cli opsi-package get-value packageVersion)
     - version="$version-$(echo $package | tr '.' '~')"
     - opsi-dev-cli -l info jenkins test --versions="$OLDVERSION,$version,$version"
