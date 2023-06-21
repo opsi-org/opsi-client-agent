@@ -182,7 +182,7 @@ DefFunc install_opsiclientd(): void
 	PowershellCall('Rename-Item "' + $BaseDir$ + '\opsiclientd_windows_x86" "' + $NewDir$ + '"')
 
 	Comment "Removing old " + $BinDir$
-	PowershellCall('Remove-Item "' + $BinDir$ + '" -Recurse')
+	PowershellCall('Remove-Item "' + $BinDir$ + '" -Recurse -Force')
 	Comment "Creating link " + $BinDir$ + " pointing to " + $NewDir$
 	ShellInAnIcon_mklink
 
