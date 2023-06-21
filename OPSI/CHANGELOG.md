@@ -1,6 +1,6 @@
 ﻿# Changelog
 
-## [4.2.0.62-1] - 2023-06-14
+## [4.2.0.61-2] - 2023-06-21
 
 ### Fixed
 - Fixed cleanup before link creation in stuck opsiclientd update (from older opsi-client-agent) (Nils Doerrer <n.doerrer@uib.de>)
