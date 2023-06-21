@@ -216,7 +216,7 @@ DefFunc install_opsiclientd(): void
 
 
 	[ShellInAnIcon_mklink]
-	rmdir "$BinDir$"
+	rmdir /S "$BinDir$"
 	mklink /j "$BinDir$" "$NewDir$"
 	;mklink /d "$BaseDir$\opsiclientd_bin" "$NewDir$"
 	;Powershell -ExecutionPolicy Bypass -NoProfile -Command "New-Item -ItemType SymbolicLink -Path \"$BaseDir$\opsiclientd_bin\" -Target \"$NewDir$\""
