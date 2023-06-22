@@ -147,7 +147,7 @@ DefFunc install_opsiclientd(): void
 					ShellCall("taskkill /f /im opsiclientd.exe")
 					ShellCall("taskkill /f /im action_processor_starter.exe")
 					ShellCall("taskkill /f /im opsiclientd_rpc.exe")
-					SleepSeconds 5
+					SleepSeconds 10
 					if FileExists($BinDir$)
 						PowershellCall('Rename-Item "' + $BinDir$ + '" "' + $BinDir1$ + '"')
 						SleepSeconds 3
