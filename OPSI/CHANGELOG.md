@@ -1,5 +1,14 @@
 ﻿# Changelog
 
+## [4.2.0.62-1] - 2023-06-22
+
+### Fixed
+- Aborting installation attempt if unable to move bin after killing opsiclientd (Nils Doerrer <n.doerrer@uib.de>)
+
+### Changed
+- Update opsiclientd to 4.2.0.150 (Nils Doerrer <n.doerrer@uib.de>)
+
+
 ## [4.2.0.61-2] - 2023-06-21
 
 ### Fixed
