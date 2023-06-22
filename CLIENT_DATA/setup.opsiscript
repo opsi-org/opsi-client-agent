@@ -154,6 +154,9 @@ DefFunc install_opsiclientd(): void
 						if FileExists($BinDir$)
 							LogError "Failed to move " + $BinDir$ + " to " + $BinDir1$ + " again"
 							PowershellCall('New-Item -ItemType file "' + $BinDir$ + '\move_failed_marker"')
+							LogError "Could not access " + $BinDir$ + " - restarting opsiclientd for retry"
+							ShellCall("net start opsiclientd")
+							ExitWindows /ImmediateLogout
 						endif
 					else
 						Comment "Somehow the directory " + $BinDir$ + " disappeared after stopping processes"
@@ -181,8 +184,6 @@ DefFunc install_opsiclientd(): void
 	Comment "Moving " + $BaseDir$ + "\opsiclientd_windows_x86 to " + $NewDir$
 	PowershellCall('Rename-Item "' + $BaseDir$ + '\opsiclientd_windows_x86" "' + $NewDir$ + '"')
 
-	Comment "Removing old " + $BinDir$
-	PowershellCall('Remove-Item "' + $BinDir$ + '" -Recurse -Force')
 	Comment "Creating link " + $BinDir$ + " pointing to " + $NewDir$
 	ShellInAnIcon_mklink
 
@@ -218,6 +219,7 @@ DefFunc install_opsiclientd(): void
 
 
 	[ShellInAnIcon_mklink]
+	rmdir "$BinDir$"
 	mklink /j "$BinDir$" "$NewDir$"
 	;mklink /d "$BaseDir$\opsiclientd_bin" "$NewDir$"
 	;Powershell -ExecutionPolicy Bypass -NoProfile -Command "New-Item -ItemType SymbolicLink -Path \"$BaseDir$\opsiclientd_bin\" -Target \"$NewDir$\""
