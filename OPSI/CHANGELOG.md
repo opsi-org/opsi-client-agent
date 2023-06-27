@@ -1,5 +1,11 @@
 ﻿# Changelog
 
+## [4.2.0.63-1] - 2023-06-27
+
+### Changed
+- Update opsi-login-blocker to 4.2.0.5 (automatically built and signed) (Nils Doerrer <n.doerrer@uib.de>)
+
+
 ## [4.2.0.62-1] - 2023-06-22
 
 ### Fixed
