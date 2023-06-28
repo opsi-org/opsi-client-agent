@@ -1,10 +1,16 @@
 ﻿# Changelog
 
-## [4.2.0.63-1] - 2023-06-27
+## [4.2.0.63-1] - 2023-06-28
+
+### New
+- New feature: notifying open posix terminals before shutdown/reboot
+
+### Fixed
+- Fixed event handling after disrupted event (ExitWindows /ImmediateReboot)
 
 ### Changed
 - Update opsi-login-blocker to 4.2.0.5 (automatically built and signed) (Nils Doerrer <n.doerrer@uib.de>)
-
+- Update opsiclientd to 4.2.0.151 (Nils Doerrer <n.doerrer@uib.de>)
 
 ## [4.2.0.62-1] - 2023-06-22
 
