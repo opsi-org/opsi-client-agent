@@ -7,6 +7,7 @@
 
 ### Fixed
 - Fixed event handling after disrupted event (ExitWindows /ImmediateReboot)
+- Fixed macos repeated depot mounts
 
 ### Changed
 - Update opsi-login-blocker to 4.2.0.5 (automatically built and signed) (Nils Doerrer <n.doerrer@uib.de>)
