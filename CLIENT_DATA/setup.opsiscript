@@ -1137,7 +1137,8 @@ if $PermissionSetSuccess$ = "false"
 endif
 
 if ($RunningInServiceContext$ = "false")
-	OpsiServiceCall_productOnClient_createObjects_opsiclientagent
+	; Use setProductInstallationStatus to set installationStatus,lastAction and version
+	OpsiServiceCall_setProductInstallationStatus_opsiclientagent
 endif
 
 if Contains($InstallationOptions$, "bootimage") or Contains($InstallationOptions$, "BOOTIMAGE")
@@ -1220,10 +1221,10 @@ endif
 "method": "authenticated"
 "params": []
 
-[OpsiServiceCall_productOnClient_createObjects_opsiclientagent]
-"method": "productOnClient_createObjects"
+[OpsiServiceCall_setProductInstallationStatus_opsiclientagent]
+"method": "setProductInstallationStatus"
 "params": [
-	'[{"type":"ProductOnClient","productType":"LocalbootProduct","clientId":"$ClientId$","productId":"$ProductId$","installationStatus":"installed","actionRequest":"none","actionResult":"successful"}]'
+	'"$ProductId$","$ClientId$","installed"'
 ]
 
 [OpsiServiceCall_productOnClient_getObjects_localboot_setup]

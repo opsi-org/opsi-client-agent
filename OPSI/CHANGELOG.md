@@ -1,5 +1,10 @@
 ﻿# Changelog
 
+## [4.2.0.64-1] - 2023-07-06
+
+### Fixed
+- Use setProductInstallationStatus to set productVersion and packageVersion in ProductOnClient
+
 ## [4.2.0.63-1] - 2023-06-28
 
 ### New
