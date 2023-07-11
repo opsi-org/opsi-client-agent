@@ -3,7 +3,10 @@
 ## [4.2.0.64-1] - 2023-07-06
 
 ### Fixed
-- Use setProductInstallationStatus to set productVersion and packageVersion in ProductOnClient
+- Use setProductInstallationStatus to set productVersion and packageVersion in ProductOnClient (Jan Schneider <j.schneider@uib.de>)
+
+### Changed
+- Update opsiclientd to 4.2.0.153 (Jan Schneider <j.schneider@uib.de>)
 
 ## [4.2.0.63-1] - 2023-06-28
 
