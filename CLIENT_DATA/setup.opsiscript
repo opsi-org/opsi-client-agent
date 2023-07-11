@@ -1224,9 +1224,9 @@ endif
 [OpsiServiceCall_setProductInstallationStatus_opsiclientagent]
 "method": "setProductInstallationStatus"
 "params": [
-	'"$ProductId$"',
-	'"$ClientId$"',
-	'"installed"'
+	"$ProductId$",
+	"$ClientId$",
+	"installed"
 ]
 
 [OpsiServiceCall_productOnClient_getObjects_localboot_setup]
