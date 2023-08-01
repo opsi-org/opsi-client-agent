@@ -1,4 +1,13 @@
-﻿# Changelog
+﻿# Changelog opsi-client-agent
+
+## [4.2.0.65-1] - 2023-08-01
+
+### Fixed
+- Use servicebatch opsi-script parameter on installation in bootimage context (Jan Schneider <j.schneider@uib.de>)
+
+### Changed
+- Update opsiclientd to 4.2.0.154 (Jan Schneider <j.schneider@uib.de>)
+- Update opsi-script-common to 4.12.4.46 (Nils Doerrer <n.doerrer@uib.de>)
 
 ## [4.2.0.64-1] - 2023-07-06
 
