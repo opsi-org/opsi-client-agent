@@ -6,7 +6,7 @@
 #
 
 [Actions]
-requiredWinstVersion >= "4.12.5.1"
+requiredOpsiscriptVersion >= "4.12.5.1"
 encoding = "UTF-8"
 
 DefVar $ProductId$ = "opsi-client-agent"
