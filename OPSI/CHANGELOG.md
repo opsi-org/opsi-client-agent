@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.2.0.65-2] - 2023-08-09
+
+### Changed
+- Set requiredOpsiscriptVersion to 4.12.5.1
+
 ## [4.2.0.65-1] - 2023-08-01
 
 ### Fixed
