@@ -3,6 +3,11 @@
 ## [4.2.0.65-2] - 2023-08-09
 
 ### Changed
+- Retrying move of new opsiclientd if failed and aborting if failed twice
+
+## [4.2.0.65-2] - 2023-08-07
+
+### Changed
 - Set requiredOpsiscriptVersion to 4.12.5.1
 
 ## [4.2.0.65-1] - 2023-08-01

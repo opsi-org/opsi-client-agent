@@ -184,6 +184,17 @@ DefFunc install_opsiclientd(): void
 	Comment "Moving " + $BaseDir$ + "\opsiclientd_windows_x86 to " + $NewDir$
 	PowershellCall('Rename-Item "' + $BaseDir$ + '\opsiclientd_windows_x86" "' + $NewDir$ + '"')
 
+	if not(FileExists($NewDir$))
+		Comment "Failed to move " + $BaseDir$ + "\opsiclientd_windows_x86 to " + $NewDir$ + " retrying after 3 seconds"
+		sleepSeconds 3
+		PowershellCall('Remove-Item "' + $NewDir$ + '" -Recurse')
+	endif
+
+	if not(FileExists($NewDir$))
+		Comment "Failed to move " + $BaseDir$ + "\opsiclientd_windows_x86 to " + $NewDir$ + " after retry"
+		isFatalError "Failed to access new opsiclientd - check Antivirus software"
+	endif
+
 	Comment "Creating link " + $BinDir$ + " pointing to " + $NewDir$
 	ShellInAnIcon_mklink
 
