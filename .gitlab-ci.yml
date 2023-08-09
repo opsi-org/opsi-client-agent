@@ -33,20 +33,19 @@ windows-x86-installer:
     - $ProgressPreference = 'SilentlyContinue'
     - Invoke-WebRequest -UseBasicParsing -Uri "$OPSIDEVTOOLS_URL_WINDOWS_X86" -OutFile opsi-dev-tools.zip
     - Expand-Archive opsi-dev-tools.zip -DestinationPath .
-    - .\opsi-dev-tool.exe --self-install -l info
-    - $env:Path += ';C:\opsi.org\opsi-dev-cli'  # To immediately have it in PATH
+    - Copy-Item .\opsi-dev-tools.exe -Destination .\opsi-dev-cli.exe
     # Download ziplaunch for windows
-    - opsi-dev-cli binary pull ziplaunch
+    - .\opsi-dev-cli.exe binary pull ziplaunch
     # Get version from control file and patch ziplaunch.ini
-    - $version = opsi-dev-cli opsi-package get-value productVersion
+    - $version = .\opsi-dev-cli.exe opsi-package get-value productVersion
     - ((Get-Content -path .\oca-installer\ziplaunch.ini -Raw) -replace "{version}",$version) | Set-Content -Path .\oca-installer\ziplaunch.ini
     # Build installer
     - Start-Process ".\ziplaunch\ziplaunch.exe" -ArgumentList "CLIENT_DATA",".\oca-installer\ziplaunch.ini","opsi-client-agent-installer.exe" -Wait
     # Sign exe
-    - opsi-dev-tool -l info --signserver-sign opsi-client-agent-installer.exe
+    - .\opsi-dev-tool.exe -l info --signserver-sign opsi-client-agent-installer.exe
     # Push to binaryindex
-    - if (! $CI_COMMIT_TAG) {opsi-dev-cli -l info binary push opsi-client-agent-installer.exe --product=opsi-client-agent-installer --system=windows --architecture=x86 --version=$version --prerelease="$CI_JOB_ID"}
-    - if ($CI_COMMIT_TAG) {opsi-dev-cli -l info binary push opsi-client-agent-installer.exe --product=opsi-client-agent-installer --system=windows --architecture=x86 --version=$version }
+    - if (! $CI_COMMIT_TAG) {.\opsi-dev-cli.exe -l info binary push opsi-client-agent-installer.exe --product=opsi-client-agent-installer --system=windows --architecture=x86 --version=$version --prerelease="$CI_JOB_ID"}
+    - if ($CI_COMMIT_TAG) {.\opsi-dev-cli.exe -l info binary push opsi-client-agent-installer.exe --product=opsi-client-agent-installer --system=windows --architecture=x86 --version=$version }
   artifacts:
     name: opsi-client-agent-installer
     paths:
@@ -85,12 +84,11 @@ windows_make_msi:
   script:
     - Invoke-WebRequest -UseBasicParsing -Uri "$OPSIDEVTOOLS_URL_WINDOWS_X86" -OutFile opsi-dev-tools.zip
     - Expand-Archive opsi-dev-tools.zip -DestinationPath .
-    - .\opsi-dev-tool.exe --self-install -l info
-    - $env:Path += ';C:\opsi.org\opsi-dev-cli'  # To immediately have it in PATH
+    - Copy-Item .\opsi-dev-tools.exe -Destination .\opsi-dev-cli.exe
     - Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/wixtoolset/wix3/releases/download/wix3112rtm/wix311-binaries.zip" -OutFile wix-binaries.zip
     - Expand-Archive wix-binaries.zip -DestinationPath wix
     # Get version from control file
-    - $version = opsi-dev-cli opsi-package get-value productVersion
+    - $version = .\opsi-dev-cli.exe opsi-package get-value productVersion
     # Patch version
     - ((Get-Content -path msi\\opsi-client-agent.wxs -Raw) -replace "{version}",$version) | Set-Content -Path opsi-client-agent.wxs
     - Get-Content opsi-client-agent.wxs
@@ -98,11 +96,11 @@ windows_make_msi:
     - wix\\candle.exe opsi-client-agent.wxs
     - wix\\light.exe opsi-client-agent.wixobj
     # Sign msi
-    - opsi-dev-tool -l info --signserver-sign opsi-client-agent.msi
+    - .\opsi-dev-tool.exe -l info --signserver-sign opsi-client-agent.msi
     # Push to binaryindex
-    - if (! $CI_COMMIT_TAG) {opsi-dev-cli -l info binary push opsi-client-agent.msi --product=opsi-client-agent-msi --system=windows --architecture=x86 --version=$version --prerelease="$CI_JOB_ID"}
-    - if ($CI_COMMIT_TAG) {opsi-dev-cli -l info binary push opsi-client-agent.msi --product=opsi-client-agent-msi --system=windows --architecture=x86 --version=$version }
-    - if ($CI_COMMIT_TAG) {opsi-dev-cli -l info release-service register-package-version opsi-client-agent-msi TOOL --files=opsi-client-agent.msi --version=$version --changelog-file=OPSI\\CHANGELOG.md}
+    - if (! $CI_COMMIT_TAG) {.\opsi-dev-cli.exe -l info binary push opsi-client-agent.msi --product=opsi-client-agent-msi --system=windows --architecture=x86 --version=$version --prerelease="$CI_JOB_ID"}
+    - if ($CI_COMMIT_TAG) {.\opsi-dev-cli.exe -l info binary push opsi-client-agent.msi --product=opsi-client-agent-msi --system=windows --architecture=x86 --version=$version }
+    - if ($CI_COMMIT_TAG) {.\opsi-dev-cli.exe -l info release-service register-package-version opsi-client-agent-msi TOOL --files=opsi-client-agent.msi --version=$version --changelog-file=OPSI\\CHANGELOG.md}
 
 make_opsi_package:
   stage: package
