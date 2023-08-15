@@ -7,7 +7,7 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x86
-    version: 4.2.0.154
+    version: 4.2.0.157
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
@@ -19,7 +19,7 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x86
-    version: 4.12.9.1
+    version: 4.12.11.0
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
@@ -51,7 +51,7 @@ pull-binaries:
       - rm -r CLIENT_DATA/files/opsi-script/ssl-libs
     os: windows
     architecture: x86
-    version: 1.1.1n
+    version: 3.0.9
     branch: development
     server-url: http://binaryindex.uib.gmbh
 

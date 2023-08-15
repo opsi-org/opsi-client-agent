@@ -1,6 +1,12 @@
 ﻿# Changelog opsi-client-agent
 
-## [4.2.0.65-2] - 2023-08-09
+## [4.2.0.66-1] - 2023-08-15
+
+### Changed
+- Update opsiclientd to 4.2.0.157 (Jan Schneider <j.schneider@uib.de>)
+- Update opsi-script to 4.12.11.0
+
+## [4.2.0.65-3] - 2023-08-09
 
 ### Changed
 - Retrying move of new opsiclientd if failed and aborting if failed twice
