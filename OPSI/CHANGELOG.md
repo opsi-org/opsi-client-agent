@@ -4,17 +4,17 @@
 
 ### Changed
 - Update opsiclientd to 4.2.0.157 (Jan Schneider <j.schneider@uib.de>)
-- Update opsi-script to 4.12.11.0
+- Update opsi-script to 4.12.11.0 (Jan Schneider <j.schneider@uib.de>)
 
 ## [4.2.0.65-3] - 2023-08-09
 
 ### Changed
-- Retrying move of new opsiclientd if failed and aborting if failed twice
+- Retrying move of new opsiclientd if failed and aborting if failed twice (Nils Doerrer <n.doerrer@uib.de>)
 
 ## [4.2.0.65-2] - 2023-08-07
 
 ### Changed
-- Set requiredOpsiscriptVersion to 4.12.5.1
+- Set requiredOpsiscriptVersion to 4.12.5.1 (Nils Doerrer <n.doerrer@uib.de>)
 
 ## [4.2.0.65-1] - 2023-08-01
 
@@ -36,11 +36,11 @@
 ## [4.2.0.63-1] - 2023-06-28
 
 ### New
-- New feature: notifying open posix terminals before shutdown/reboot
+- New feature: notifying open posix terminals before shutdown/reboot (Nils Doerrer <n.doerrer@uib.de>)
 
 ### Fixed
-- Fixed event handling after disrupted event (ExitWindows /ImmediateReboot)
-- Fixed macos repeated depot mounts
+- Fixed event handling after disrupted event (ExitWindows /ImmediateReboot) (Nils Doerrer <n.doerrer@uib.de>)
+- Fixed macos repeated depot mounts (Nils Doerrer <n.doerrer@uib.de>)
 
 ### Changed
 - Update opsi-login-blocker to 4.2.0.5 (automatically built and signed) (Nils Doerrer <n.doerrer@uib.de>)
