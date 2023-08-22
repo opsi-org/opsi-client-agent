@@ -5,6 +5,7 @@
 ### Changed
 - Update opsiclientd to 4.2.0.157 (Jan Schneider <j.schneider@uib.de>)
 - Update opsi-script to 4.12.11.0 (Jan Schneider <j.schneider@uib.de>)
+- Update oca-installation-helper to 4.2.0.25 (Jan Schneider <j.schneider@uib.de>)
 
 ## [4.2.0.65-3] - 2023-08-09
 

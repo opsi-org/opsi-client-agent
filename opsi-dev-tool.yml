@@ -101,7 +101,7 @@ pull-binaries:
         - chmod 755 CLIENT_DATA/oca-installation-helper.exe
     os: windows
     architecture: x86
-    version: 4.2.0.24
+    version: 4.2.0.25
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
