@@ -1,5 +1,14 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.2.0.67-1] - 2023-08-28
+
+### Changed
+- Update opsiclientd to 4.2.0.158 (Nils Doerrer <n.doerrer@uib.de>)
+- Improved logging at loginOpsiSetupUser function (Jan Schneider <j.schneider@uib.de>)
+
+### Fixed
+- Fixed event handling for complex sync scenarios and simplified sync event handling
+
 ## [4.2.0.66-1] - 2023-08-15
 
 ### Changed
