@@ -4,6 +4,7 @@
 
 ### Changed
 - Update opsiclientd to 4.2.0.159 (Jan Schneider <j.schneider@uib.de>)
+- Update opsi-systray to 4.2.1.0 (Nils Doerrer <n.doerrer@uib.de>)
 
 ## [4.2.0.67-1] - 2023-08-28
 
