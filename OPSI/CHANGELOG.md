@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.2.0.69-1] - 2023-09-11
+
+### Changed
+- Update oca-installation-helper to 4.2.0.26 (add mac-address if not set) (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.2.0.68-1] - 2023-08-29
 
 ### Changed
