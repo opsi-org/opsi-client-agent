@@ -1,24 +1,24 @@
 [Package]
 version: 1
-depends:
+depends: 
 
 [Product]
 type: localboot
 id: opsi-client-agent
 name: opsi.org client agent
 description: opsi windows client agent
-advice:
-version: 4.3.0.0
+advice: 
+version: 4.3.0.0.post1
 priority: 95
 licenseRequired: False
-productClasses:
+productClasses: 
 setupScript: setup.opsiscript
 uninstallScript: files/uninst/uninstall.opsiscript
-updateScript:
-alwaysScript:
-onceScript:
-customScript:
-userLoginScript:
+updateScript: 
+alwaysScript: 
+onceScript: 
+customScript: 
+userLoginScript: 
 
 [ProductProperty]
 type: unicode
@@ -26,7 +26,7 @@ name: loginblockerstart
 multivalue: False
 editable: False
 description: Install opsi login blocker (credential provider / filter)?
-values: ["off", "on"]
+values: ["off","on"]
 default: ["on"]
 
 [ProductProperty]
@@ -56,7 +56,7 @@ name: systray_check_interval
 multivalue: False
 editable: True
 description: Interval in minutes in which checks are made for pending action requests (0 = no check).
-values: ["0", "120", "180", "240", "300", "60"]
+values: ["0","120","180","240","300","60"]
 default: ["180"]
 
 [ProductProperty]
@@ -65,6 +65,5 @@ name: systray_request_notify_format
 multivalue: False
 editable: False
 description: Action request message format
-values: ["productid : request", "productname : request", "productname productversion : request"]
+values: ["productid : request","productname : request","productname productversion : request"]
 default: ["productname : request"]
-
