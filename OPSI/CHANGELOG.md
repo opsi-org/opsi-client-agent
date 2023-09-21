@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.0.0-1] - 2023-09-21
+
+### Changed
+- Update opsi-notifier to 4.3.0.0 (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.2.0.69-1] - 2023-09-11
 
 ### Changed
