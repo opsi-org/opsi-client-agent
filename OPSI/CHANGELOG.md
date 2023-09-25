@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.0.1-1] - 2023-09-25
+
+### Changed
+- Update opsi-script to 4.12.11.1 (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.3.0.0-1] - 2023-09-21
 
 ### Changed
