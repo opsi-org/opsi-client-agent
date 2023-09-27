@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.0.1-2] - 2023-09-27
+
+### Changed
+- installing default opsi-script skin even if not reinstalling opsi-script. Possibly overridden by custom part (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.3.0.1-1] - 2023-09-25
 
 ### Changed
