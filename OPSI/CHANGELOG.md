@@ -6,6 +6,9 @@
 - Using new logo (Nils Doerrer <n.doerrer@uib.de>)
 - Updated opsiclientd to 4.2.0.160 (Nils Doerrer <n.doerrer@uib.de>)
 
+### Fixed
+- Fixed default skin installation
+
 ## [4.3.0.1-2] - 2023-09-27
 
 ### Changed
