@@ -1127,7 +1127,7 @@ if not (FileExists($BaseDir$ + "\opsi-script"))
 	install_opsiscript()
 else
 	; Install default skin, possibly overridden by custom part later
-	install_opsiscript_skin
+	install_opsiscript_skin()
 endif
 
 install_requirements()
