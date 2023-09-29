@@ -1,5 +1,11 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.0.2-1] - 2023-09-29
+
+### Changed
+- Using new logo (Nils Doerrer <n.doerrer@uib.de>)
+- Updated opsiclientd to 4.2.0.160 (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.3.0.1-2] - 2023-09-27
 
 ### Changed
