@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.0.3-1] - 2023-10-05
+
+### Changed
+- New login blocker icon (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.0.2-1] - 2023-09-29
 
 ### Changed
