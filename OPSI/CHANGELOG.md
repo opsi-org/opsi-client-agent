@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.0.4-1] - 2023-10-10
+
+### Changed
+- Update opsi-notifier to 4.3.0.1 (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.3.0.3-1] - 2023-10-05
 
 ### Changed
