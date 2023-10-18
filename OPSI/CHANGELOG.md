@@ -1,6 +1,6 @@
 ﻿# Changelog opsi-client-agent
 
-## [4.3.0.4-1] - 2023-10-18
+## [4.3.0.5-1] - 2023-10-18
 
 ### Changed
 - Update opsiclientd to 4.2.0.161 (reconnect messagebus after client rename) (Nils Doerrer <n.doerrer@uib.de>)
