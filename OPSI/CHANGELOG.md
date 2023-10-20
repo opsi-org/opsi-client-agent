@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.0.5-2] - 2023-10-20
+
+### Fixed
+- Fixed retry of moving extracted opsiclientd after it was denied by virus scanner lock (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.3.0.5-1] - 2023-10-18
 
 ### Changed

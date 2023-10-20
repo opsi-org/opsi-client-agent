@@ -187,7 +187,7 @@ DefFunc install_opsiclientd(): void
 	if not(FileExists($NewDir$))
 		Comment "Failed to move " + $BaseDir$ + "\opsiclientd_windows_x86 to " + $NewDir$ + " retrying after 3 seconds"
 		sleepSeconds 3
-		PowershellCall('Remove-Item "' + $NewDir$ + '" -Recurse')
+		PowershellCall('Rename-Item "' + $BaseDir$ + '\opsiclientd_windows_x86" "' + $NewDir$ + '"')
 	endif
 
 	if not(FileExists($NewDir$))
