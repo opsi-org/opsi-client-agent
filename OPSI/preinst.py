@@ -6,7 +6,7 @@ import shutil
 import socket
 from pathlib import Path
 
-from opsicommon.client import get_service_client
+from opsicommon.client.opsiservice import get_service_client
 from opsicommon.objects import ConfigState
 
 depot_id = os.environ.get("DEPOT_ID") or socket.getfqdn()
