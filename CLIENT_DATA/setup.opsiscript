@@ -1242,7 +1242,7 @@ endif
 
 
 [OpsiServiceCall_authenticated]
-"method": "authenticated"
+"method": "accessControl_authenticated"
 "params": []
 
 [OpsiServiceCall_setProductInstallationStatus_opsiclientagent]

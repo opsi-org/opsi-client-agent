@@ -35,14 +35,16 @@ if [ -d "${CLIENT_DATA_DIR}/files/custom" ]; then
 	cp -r "${CLIENT_DATA_DIR}/files/custom" $TMP_DIR/ || exit 1
 fi
 
-if [ -z $(opsi-admin -dS method config_getIdents null '{"id":"opsiclientd.event_on_shutdown.active"}') ]; then
-	opsi-admin -d method config_createBool "opsiclientd.event_on_shutdown.active" "event on_shutdown active" "false"
+if [ -z $(opsi-cli --output-format=csv --no-header jsonrpc execute config_getIdents null '{"id":"opsiclientd.event_on_shutdown.active"}') ]; then
+	opsi-cli jsonrpc execute config_createBool "opsiclientd.event_on_shutdown.active" "event on_shutdown active" "false"
 fi
+
+# TODO: remove a few versions after opsi4.3 went stable
 # Migration of legacy property "on_shutdown_install": on/off
 if [ -e "${CLIENT_DATA_DIR}/files/opsi/on_shutdown" ]; then
 	echo "Upgrading from opsi-client-agent < 4.2.0.0"
 	for client_id in $(opsi-admin -dS method productPropertyState_getIdents null '{"productId":"opsi-client-agent","propertyId":"on_shutdown_install","values":"[\"on\"]"}' | cut -d";" -f3); do
-		opsi-admin -d method configState_create "opsiclientd.event_on_shutdown.active" "${client_id}" "true"
+		opsi-cli jsonrpc execute configState_create "opsiclientd.event_on_shutdown.active" "${client_id}" "true"
 	done
 fi
 
