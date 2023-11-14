@@ -35,17 +35,6 @@ config = backend.config_getIdents(id="opsiclientd.event_on_shutdown.active")
 if not config:
 	backend.config_createBool("opsiclientd.event_on_shutdown.active", defaultValues=False)
 
-# TODO: remove a few versions after opsi4.3 went stable
-# Migration of legacy property "on_shutdown_install": on/off
-clients_on_depot = backend.getClientsOnDepot(depot_id)
-productPropertyStates = backend.productPropertyState_getObjects(productId="opsi-client-agent", propertyId="on_shutdown_install", values=["on", "\"[on]\""], objectId=clients_on_depot)
-configStates = []
-for pps in productPropertyStates:
-	configStates.append(ConfigState("opsiclientd.event_on_shutdown.active", pps.objectId, values=True))
-if len(configStates):
-	print(f"Setting new configStates for {len(configStates)} clients")
-backend.configState_updateObjects(configStates)
-
 if (client_data_dir / "files" / "opsiclientkiosk").is_dir() and not (client_data_dir / ".." / "opsi-client-kiosk").is_dir():
 	print("Detected old opsi-client-agent and no kiosk package, aborting - install opsi-client-agent >=4.2.0.0 and <4.2.0.23 for migration")
 	sys.exit(1)

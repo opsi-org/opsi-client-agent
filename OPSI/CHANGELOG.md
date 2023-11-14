@@ -1,5 +1,13 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.0.6-1] - 2023-11-14
+
+### Changed
+- Replaced the last old logos (Nils Doerrer <n.doerrer@uib.de>)
+- Updated components to use 4.3 versions (Nils Doerrer <n.doerrer@uib.de>)
+- Simplified preinst script - removed migration of 4.1 on_shutdown property (Nils Doerrer <n.doerrer@uib.de>)
+- Removed deprecated calls from scripts (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.3.0.5-2] - 2023-10-20
 
 ### Fixed

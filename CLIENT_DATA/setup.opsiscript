@@ -1,9 +1,9 @@
-# Copyright (c) 2021-2022 uib GmbH <info@uib.de>
-# All rights reserved.
-# License: AGPL-3.0
-#
-# Needs KB4457144 on Windows 7
-#
+; Copyright (c) 2021-2022 uib GmbH <info@uib.de>
+; All rights reserved.
+; License: AGPL-3.0
+;
+; Needs KB4457144 on Windows 7
+;
 
 [Actions]
 requiredOpsiscriptVersion >= "4.12.5.1"
