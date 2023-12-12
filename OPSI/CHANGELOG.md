@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.0.7-1] - 2023-12-12
+
+### Fixed
+- Update opsiclientd to 4.3.0.2 (fix wan/vpn on_demand selected product actions) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.0.6-1] - 2023-11-14
 
 ### Changed
