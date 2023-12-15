@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.0.10-2] - 2023-12-15
+
+### Changed
+- Made preinst compatible with 4.2 servers (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.3.0.10-1] - 2023-12-14
 
 ### Changed

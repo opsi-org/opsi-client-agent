@@ -9,7 +9,7 @@
 #
 
 # in case of opsi 4.2 (opsi-python present) use python variant of preinst (for efficiency)
-if [ -e "/usr/bin/opsi-python" ]; then
+if [ -e "/usr/bin/opsi-python" ] && [[ "$OPSI_SERVER_VERSION" = 4.3*]]; then
 	SCRIPT_DIR=$(dirname "$0")
 	/usr/bin/opsi-python "$SCRIPT_DIR/preinst.py"
 	exit $?
