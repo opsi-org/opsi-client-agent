@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.0.11-1] - 2023-12-19
+
+### Fixed
+- Updated opsiclientd to 4.3.0.6 (fixed upgrade in WAN-mode) (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.3.0.10-2] - 2023-12-15
 
 ### Changed
