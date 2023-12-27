@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.0.12-1] - 2023-12-27
+
+### Changed
+- Update opsiclientd to 4.3.0.7 (registry environment PATH cleanup) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.0.11-1] - 2023-12-19
 
 ### Fixed
