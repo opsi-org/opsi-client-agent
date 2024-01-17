@@ -37,7 +37,7 @@ pull-binaries:
         - Remove-Item -Recurse -Force CLIENT_DATA\\files\\opsi-script-common
     os: all
     architecture: all
-    version: 4.12.11.1
+    version: 4.12.12.2
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
