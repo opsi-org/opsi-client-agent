@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.0.13-1] - 2024-01-17
+
+### Changed
+- Update oca-installation-helper to 4.3.0.1 (check if powershell is in PATH) (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.3.0.12-1] - 2023-12-27
 
 ### Changed
