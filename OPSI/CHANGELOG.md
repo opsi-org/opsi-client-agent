@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.1.1-1] - 2024-02-15
+
+### Changed
+- Update opsiclientd to 4.3.1.2 (More robust trusted installer reboot handling) (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.3.1.0-1] - 2024-02-06
 
 ### Changed
