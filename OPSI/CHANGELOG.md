@@ -5,6 +5,9 @@
 ### Changed
 - Update opsiclientd to 4.3.1.2 (More robust trusted installer reboot handling) (Nils Doerrer <n.doerrer@uib.de>)
 
+### Fixed
+- Fixed websocket connection timeout problem (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.1.0-1] - 2024-02-06
 
 ### Changed
