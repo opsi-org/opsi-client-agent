@@ -450,10 +450,14 @@ DefFunc install_opsinotifier() : void
 	;VERY old opsi-client-agents use notifier.exe instead of opsi-notifier.exe
 	ShellCall("taskkill /f /im notifier.exe")
 	Files_install_opsinotifier
+	Files_install_motd_notifier
 
 	[Files_install_opsinotifier]
 	copy -c "%ScriptPath%\files\opsi-notifier\opsi-notifier.exe" "$BaseDir$\"
 	copy -c "%ScriptPath%\files\opsi-notifier\notifier.d\*.*" "$BaseDir$\notifier\"
+
+	[Files_install_opsinotifier]
+	copy -c "%ScriptPath%\files\motd-notifier.exe" "$BaseDir$\"
 EndFunc
 
 
