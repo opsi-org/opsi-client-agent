@@ -454,7 +454,6 @@ DefFunc install_opsinotifier() : void
 	[Files_install_opsinotifier]
 	copy -c "%ScriptPath%\files\opsi-notifier\opsi-notifier.exe" "$BaseDir$\"
 	copy -c "%ScriptPath%\files\opsi-notifier\notifier.d\*.*" "$BaseDir$\notifier\"
-	copy -c "%ScriptPath%\files\motd-notifier.exe" "$BaseDir$\"
 EndFunc
 
 
