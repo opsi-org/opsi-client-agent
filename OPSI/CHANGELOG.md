@@ -1,9 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
-## [4.3.1.2-1] - 2024-03-04
+## [4.3.2.0-1] - 2024-03-04
 
 ### Changed
 - Updated opsiclientd to 4.3.2.0 (message of the day handling) (Nils Doerrer <n.doerrer@uib.de>)
+- Update opsi-login-blocker to 4.3.0.0 (Jan Schneider <j.schneider@uib.de>)
 
 ### Fixed
 - Updated oca-installation-helper to 4.3.0.2 (Refactored and fixed linux-related issues with dynamic libraries) (Nils Doerrer <n.doerrer@uib.de>)
