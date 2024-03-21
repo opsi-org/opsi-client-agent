@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.2.1-1] - 2024-03-21
+
+### Changed
+- Updated opsiclientd to 4.3.2.1 (control server interface and start_delay) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.2.0-1] - 2024-03-19
 
 ### Changed
