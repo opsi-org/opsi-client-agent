@@ -1,5 +1,11 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.2.3-1] - 2024-03-26
+
+### Changed
+- Updated opsiclientd to 4.3.2.4 (fixes, lazy import reactor) (Jan Schneider <j.schneider@uib.de>)
+
+
 ## [4.3.2.2-1] - 2024-03-22
 
 ### Changed
