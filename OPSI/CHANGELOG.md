@@ -1,5 +1,12 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.3.0-1] - 2024-04-02
+
+### Changed
+- TEST VERSION NOT FOR PRODUCTION!
+- Updated opsiclientd to 4.3.3.0 (replace twisted with FastAPI) (Jan Schneider <j.schneider@uib.de>)
+
+
 ## [4.3.2.3-1] - 2024-03-26
 
 ### Changed
