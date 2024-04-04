@@ -1,9 +1,15 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.3.1-1] - 2024-04-04
+
+### Changed
+- Updated opsiclientd to 4.3.3.1 (Jan Schneider <j.schneider@uib.de>)
+- Logon desktop is now the default for event notifier and action processor
+
+
 ## [4.3.3.0-1] - 2024-04-02
 
 ### Changed
-- TEST VERSION NOT FOR PRODUCTION!
 - Updated opsiclientd to 4.3.3.0 (replace twisted with FastAPI) (Jan Schneider <j.schneider@uib.de>)
 
 
