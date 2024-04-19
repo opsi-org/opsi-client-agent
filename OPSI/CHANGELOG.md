@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.3.5-2] - 2024-04-19
+
+### Changed
+- Updated opsi-script/opsi-script-common to 4.12.14.0 (Jan Werner <j.werner@uib.de>)
+
 ## [4.3.3.5-1] - 2024-04-16
 
 ### Changed
