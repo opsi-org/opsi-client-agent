@@ -85,7 +85,7 @@ windows_make_msi:
     - Invoke-WebRequest -UseBasicParsing -Uri "$OPSIDEVTOOLS_URL_WINDOWS_X86" -OutFile opsi-dev-tools.zip
     - Expand-Archive opsi-dev-tools.zip -DestinationPath .
     - Copy-Item .\opsi-dev-tool.exe -Destination .\opsi-dev-cli.exe
-    - Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/wixtoolset/wix3/releases/download/wix3112rtm/wix311-binaries.zip" -OutFile wix-binaries.zip
+    - Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/wixtoolset/wix3/releases/download/wix3141rtm/wix314-binaries.zip" -OutFile wix-binaries.zip
     - Expand-Archive wix-binaries.zip -DestinationPath wix
     # Get version from control file
     - $version = .\opsi-dev-cli.exe opsi-package get-value productVersion
