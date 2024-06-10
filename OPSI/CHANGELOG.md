@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.3.11-1] - 2024-06-10
+
+### Changed
+- Updated opsiclientd to 4.3.3.11 (popup notifier fix) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.3.10-1] - 2024-04-29
 
 ### Changed
