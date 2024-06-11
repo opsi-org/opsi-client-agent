@@ -620,9 +620,9 @@ DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : strin
 	; Allow full access to local admin group, system user and admin user inherit to all objects (OI) and containers (CI)
 	; Allow read access to local users for folder only
 	if "$AdminSID$"=="" (
-		icacls "$BaseDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F" /grant:r "*S-1-5-18:(OI)(CI)F" /grant:r "*S-1-5-32-545:RX" || set returncode=1
+		icacls "$BaseDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F" /grant:r "*S-1-5-18:(OI)(CI)F" /grant:r "*S-1-5-32-545:(OI)RX" || set returncode=1
 	) else (
-		icacls "$BaseDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F" /grant:r "*S-1-5-18:(OI)(CI)F" /grant:r "*$AdminSID$:(OI)(CI)F" /grant:r "*S-1-5-32-545:RX" || set returncode=1
+		icacls "$BaseDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F" /grant:r "*S-1-5-18:(OI)(CI)F" /grant:r "*$AdminSID$:(OI)(CI)F" /grant:r "*S-1-5-32-545:(OI)RX" || set returncode=1
 	)
 	; Disable inheritance from parent folder
 	icacls "$BaseDir$" /inheritance:r || set returncode=1
@@ -632,9 +632,6 @@ DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : strin
 	icacls "$BaseDir$\opsi-script" /grant "*S-1-5-32-545:(OI)(CI)RX" || set returncode=1
 	; Add read and exceute permission for local users on opsi-client-systray
 	icacls "$BaseDir$\opsi-client-systray" /grant "*S-1-5-32-545:(OI)(CI)RX"
-	; Add read and exceute permission for local users on opsi-notifer and motd-notifier
-	icacls "$BaseDir$\opsi-notifier.exe" /grant "*S-1-5-32-545:(OI)(CI)RX"
-	icacls "$BaseDir$\motd-notifier.exe" /grant "*S-1-5-32-545:(OI)(CI)RX"
 	exit %returncode%
 EndFunc
 
