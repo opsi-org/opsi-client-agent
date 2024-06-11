@@ -1,5 +1,11 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.3.12-1] - 2024-06-11
+
+### Changed
+- Add read and exceute permission for local users on opsi-notifer and motd-notifier (Jan Schneider <j.schneider@uib.de>)
+- Update opsiclientd to 4.3.3.12 (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.3.11-1] - 2024-06-10
 
 ### Changed
