@@ -5,6 +5,7 @@
 ### Changed
 - Add read and exceute permission for local users on opsi-notifer and motd-notifier (Jan Schneider <j.schneider@uib.de>)
 - Update opsiclientd to 4.3.3.12 (Jan Schneider <j.schneider@uib.de>)
+- Update motd-notifier to 0.2 (Jan Schneider <j.schneider@uib.de>)
 
 ## [4.3.3.11-1] - 2024-06-10
 
