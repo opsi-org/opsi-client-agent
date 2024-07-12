@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.3.17-1] - 2024-07-12
+
+### Changed
+- Update opsiclientd to 4.3.3.17 (provide placeholders for product_info) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.3.16-1] - 2024-07-12
 
 ### Changed
