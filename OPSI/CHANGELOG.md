@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.3.16-1] - 2024-07-12
+
+### Changed
+- Update opsiclientd to 4.3.3.16 (Display product names in notifier) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.3.14-1] - 2024-06-24
 
 ### Changed
