@@ -3,6 +3,11 @@
 ## [4.3.3.18-2] - 2024-07-15
 
 ### Changed
+- Set opsiclientd.event_user_login.action_processor_desktop to default
+
+## [4.3.3.18-1] - 2024-07-15
+
+### Changed
 - Update opsiclientd to 4.3.3.18 (clientconfig.wan_vpn) (Jan Schneider <j.schneider@uib.de>)
 
 ## [4.3.3.17-2] - 2024-07-12
