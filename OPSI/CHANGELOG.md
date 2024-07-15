@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.3.18-1] - 2024-07-15
+
+### Changed
+- Update opsiclientd to 4.3.3.18 (clientconfig.wan_vpn) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.3.17-2] - 2024-07-12
 
 ### Fixed
