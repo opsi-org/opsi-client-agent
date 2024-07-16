@@ -1,9 +1,14 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.3.18-3] - 2024-07-16
+
+### Changed
+- Update opsi-deploy-client-agent to 4.3.0.1 (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.3.18-2] - 2024-07-15
 
 ### Changed
-- Set opsiclientd.event_user_login.action_processor_desktop to default
+- Set opsiclientd.event_user_login.action_processor_desktop to default (Jan Schneider <j.schneider@uib.de>)
 
 ## [4.3.3.18-1] - 2024-07-15
 
