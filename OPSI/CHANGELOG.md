@@ -1,5 +1,11 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.3.18-4] - 2024-07-16
+
+### Changed
+- Update opsi-deploy-client-agent to 4.3.0.2 (do not use smbclient) (Jan Schneider <j.schneider@uib.de>)
+- Update opsi-notifier to 4.3.1.0 (periodically bring to foreground) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.3.18-3] - 2024-07-16
 
 ### Changed
