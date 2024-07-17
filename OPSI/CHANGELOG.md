@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.3.19-1] - 2024-07-17
+
+### Changed
+- Update opsiclientd to 4.3.3.19 (Set service failure actions on Windows) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.3.18-4] - 2024-07-16
 
 ### Changed
