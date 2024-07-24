@@ -42,7 +42,7 @@ pull-binaries:
     server-url: http://binaryindex.uib.gmbh
 
  # openssl library for opsi-script
-  - name: ssl-libs
+  - name: openssl
     server-type: binaryindex
     destination: CLIENT_DATA/files/opsi-script
     extract: true
@@ -51,7 +51,7 @@ pull-binaries:
       - rm -r CLIENT_DATA/files/opsi-script/ssl-libs
     os: windows
     architecture: x86
-    version: 3.0.9
+    version: 3.0.14
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
