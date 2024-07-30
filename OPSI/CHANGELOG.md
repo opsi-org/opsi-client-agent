@@ -1,5 +1,15 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.3.21-2] - 2024-07-30
+
+### Changed
+- Update opsi-notifier to 4.3.1.1 (Fabian Kalweit <f.kalweit@uib.de>)
+
+## [4.3.3.21-1] - 2024-07-23
+
+### Changed
+- Update opsiclientd to 4.3.3.21 (Fabian Kalweit <f.kalweit@uib.de>)
+
 ## [4.3.3.20-1] - 2024-07-18
 
 ### Changed
