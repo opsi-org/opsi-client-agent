@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.3.22-1] - 2024-08-02
+
+### Fixed
+- Updated opsiclientd to 4.3.3.22  (resolved cors issues) (Nils Doerrer <n.doerrerer@uib.de>)
+
 ## [4.3.3.21-2] - 2024-07-30
 
 ### Changed
