@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.4.0-1] - 2024-08-07
+
+### Fixed
+- Updated opsiclientd to 4.3.4.0  (more robust certificate handling and fixed kiosk/systray authentication) (Nils Doerrer <n.doerrerer@uib.de>)
+
 ## [4.3.3.22-1] - 2024-08-02
 
 ### Fixed
