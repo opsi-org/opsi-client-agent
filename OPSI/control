@@ -8,7 +8,7 @@ id: opsi-client-agent
 name: opsi.org client agent
 description: opsi windows client agent
 advice: 
-version: 4.3.4.0
+version: 4.3.4.1
 priority: 95
 licenseRequired: False
 productClasses: 

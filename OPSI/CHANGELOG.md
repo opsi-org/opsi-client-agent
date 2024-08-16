@@ -1,5 +1,11 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.4.1-1] - 2024-08-16
+
+### Fixed
+- Updated opsiclientd to 4.3.4.1  (fixed log sync in posix WAN mode, more robust opsi-script upgrade, fixed notification server connection for linux) (Nils Doerrer <n.doerrerer@uib.de>)
+
+
 ## [4.3.4.0-1] - 2024-08-07
 
 ### Fixed
