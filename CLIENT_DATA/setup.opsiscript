@@ -617,12 +617,14 @@ DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : strin
 	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$BaseDir$" > nul || set returncode=1
 	; Remove all explicit permissions from the folder recursively (inheritance only)
 	icacls "$BaseDir$" /q /c /t /reset || set returncode=1
+	; Remove all permissions for local/domain users 
+	icacls "$BaseDir$" /remove:g "*S-1-5-32-545" /q /c /t
 	; Allow full access to local admin group, system user and admin user inherit to all objects (OI) and containers (CI)
-	; Allow read access to local users for folder only
+	; Allow read access to local/domain users for folder only
 	if "$AdminSID$"=="" (
-		icacls "$BaseDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F" /grant:r "*S-1-5-18:(OI)(CI)F" /grant:r "*S-1-5-32-545:(OI)RX" || set returncode=1
+		icacls "$BaseDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F" /grant:r "*S-1-5-18:(OI)(CI)F" /grant:r "*S-1-5-32-545:(CI)RX" || set returncode=1
 	) else (
-		icacls "$BaseDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F" /grant:r "*S-1-5-18:(OI)(CI)F" /grant:r "*$AdminSID$:(OI)(CI)F" /grant:r "*S-1-5-32-545:(OI)RX" || set returncode=1
+		icacls "$BaseDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F" /grant:r "*S-1-5-18:(OI)(CI)F" /grant:r "*$AdminSID$:(OI)(CI)F" /grant:r "*S-1-5-32-545:(CI)RX" || set returncode=1
 	)
 	; Disable inheritance from parent folder
 	icacls "$BaseDir$" /inheritance:r || set returncode=1
