@@ -113,16 +113,18 @@ DefFunc install_opsiclientd(): void
 	DefVar $LinkTarget$ = ""
 
 	MarkErrorNumber
-	if CompareDotSeparatedNumbers(GetMsVersionInfo, "<", "10.0")
-		Set $TempList$ = ShellCall('fsutil reparsePoint query "' + $BinDir$ + '"')
-		DefVar $TempStr$ = takeFirstStringContaining($TempList$, "opsiclientd_bin")
-		Set $TempStr$ = TakeString(-1, SplitString($TempStr$, "\"))
-		if not ($TempStr$ = "")
-			Set $LinkTarget$ = $BaseDir$ + "\" + $TempStr$
+	if FileExists($BinDir$)
+		if CompareDotSeparatedNumbers(GetMsVersionInfo, "<", "10.0")
+			Set $TempList$ = ShellCall('fsutil reparsePoint query "' + $BinDir$ + '"')
+			DefVar $TempStr$ = takeFirstStringContaining($TempList$, "opsiclientd_bin")
+			Set $TempStr$ = TakeString(-1, SplitString($TempStr$, "\"))
+			if not ($TempStr$ = "")
+				Set $LinkTarget$ = $BaseDir$ + "\" + $TempStr$
+			endif
+		else
+			Set $TempList$ = PowershellCall('Get-Item "' + $BinDir$ + '" | Select-Object -ExpandProperty Target')
+			Set $LinkTarget$ = TakeString(0, $TempList$)
 		endif
-	else
-		Set $TempList$ = PowershellCall('Get-Item "' + $BinDir$ + '" | Select-Object -ExpandProperty Target')
-		Set $LinkTarget$ = TakeString(0, $TempList$)
 	endif
 
 	if ($LinkTarget$ = "")
@@ -617,7 +619,7 @@ DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : strin
 	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$BaseDir$" > nul || set returncode=1
 	; Remove all explicit permissions from the folder recursively (inheritance only)
 	icacls "$BaseDir$" /q /c /t /reset || set returncode=1
-	; Remove all permissions for local/domain users 
+	; Remove all permissions for local/domain users
 	icacls "$BaseDir$" /remove:g "*S-1-5-32-545" /q /c /t
 	; Allow full access to local admin group, system user and admin user inherit to all objects (OI) and containers (CI)
 	; Allow read access to local/domain users for folder only
