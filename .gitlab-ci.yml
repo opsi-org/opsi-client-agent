@@ -119,6 +119,7 @@ test_windows_versions:
     - package=$(opsi-dev-cli opsi-package get-value packageVersion)
     - version="$version-$(echo $package | tr '.' '~')"
     - opsi-dev-cli -l info jenkins test --systems=win10-21h1,win10-x64-21h1,win7,win7-x64,win81,win81-x64,win2012,win2022 --versions="$OLDVERSION,$version,$version"
+    - opsi-dev-cli -l info jenkins test --versions="$version,1.0-1" --systems=win11-x64-23h2 --products=opsi-client-agent,oca-access-test --actionrequest=setup,setup --productsources=opsi-client-agent,oca-access-test
 
 test_tagged:
   stage: test
@@ -130,3 +131,4 @@ test_tagged:
     - package=$(opsi-dev-cli opsi-package get-value packageVersion)
     - version="$version-$(echo $package | tr '.' '~')"
     - opsi-dev-cli -l info jenkins test --versions="$OLDVERSION,$version,$version"
+    - opsi-dev-cli -l info jenkins test --versions="$version,1.0-1" --systems=win11-x64-23h2 --products=opsi-client-agent,oca-access-test --actionrequest=setup,setup --productsources=opsi-client-agent,oca-access-test
