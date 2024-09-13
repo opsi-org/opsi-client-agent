@@ -384,7 +384,6 @@ DefFunc install_loginblocker() : void
 	Message "Uninstalling login blocker"
 	Registry_uninstall_loginblocker /sysnative
 	; logonui.exe locks OpsiLoginBlocker.dll
-	;KillTask "logonui.exe"
 	ShellCall("taskkill /f /im logonui.exe")
 	Files_uninstall_loginblocker /sysnative
 
@@ -399,6 +398,9 @@ DefFunc install_loginblocker() : void
 		Files_install_loginblocker_32 /sysnative
 	endif
 	Registry_install_loginblocker /sysnative
+
+	; triggering logonui.exe to reload credential providers
+	ShellCall("taskkill /f /im logonui.exe")
 
 	if ErrorsOccurredSinceMark > 0
 		LogError "Failed to install loginblocker"

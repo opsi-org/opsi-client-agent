@@ -1,5 +1,18 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.4.2-1] - 2024-09-13
+
+### Changed
+- Increased rpc-timeout for loginUser call to 30s (Jan Schneider <j.schneider@uib.de>)
+- Improved base directory detection (Jan Schneider <j.schneider@uib.de>)
+- Improved logging (Jan Schneider <j.schneider@uib.de>)
+
+### Fixed
+- Fixed access modifiers for opsiclientd.conf file (Nils Doerrer <n.doerrerer@uib.de>)
+- Updated opsiclientd to 4.3.4.2  (updated caching rules for mshotfix for win11-24h2) (Nils Doerrer <n.doerrerer@uib.de>)
+- Cleaned up installation in netboot context (Jan Schneider <j.schneider@uib.de>)
+- Fixed caching of ConfigStates (specific to depot) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.4.1-1] - 2024-08-16
 
 ### Fixed
