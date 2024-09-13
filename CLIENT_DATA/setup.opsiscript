@@ -594,6 +594,15 @@ DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : strin
 	set returncode=0
 	; Take ownership, redirect stdout to nul for speedup
 	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$VarDir$" > nul || set returncode=1
+	; Check if the domain controller is available before resetting the permissions!
+	; If the domain controller is not available, the reset will work, but not the grant, which will end up in an inaccessible folder.
+	; If the domain controller is not available, the following error will occur:
+	; The security account manager (SAM) or local security authority (LSA) server was in the wrong state to perform the security operation.
+	icacls "$VarDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F"
+	if not errorlevel 0
+		LogError "Failed to set permissions on $VarDir$"
+		exit 1
+	)
 	; Remove all explicit permissions from the folder recursively (inheritance only)
 	icacls "$VarDir$" /q /c /t /reset || set returncode=1
 	; Allow full access to local admin group, system user and admin user inherit to all objects (OI) and containers (CI)
@@ -617,6 +626,15 @@ DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : strin
 	set returncode=0
 	; Take ownership, redirect stdout to nul for speedup
 	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$BaseDir$" > nul || set returncode=1
+	; Check if the domain controller is available before resetting the permissions!
+	; If the domain controller is not available, the reset will work, but not the grant, which will end up in an inaccessible folder.
+	; If the domain controller is not available, the following error will occur:
+	; The security account manager (SAM) or local security authority (LSA) server was in the wrong state to perform the security operation.
+	icacls "$BaseDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F"
+	if not errorlevel 0
+		LogError "Failed to set permissions on $BaseDir$"
+		exit 1
+	)
 	; Remove all explicit permissions from the folder recursively (inheritance only)
 	icacls "$BaseDir$" /q /c /t /reset || set returncode=1
 	; Remove all permissions for local/domain users
