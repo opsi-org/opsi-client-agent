@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.4.2-2] - 2024-09-16
+
+### Fixed
+- Fixed syntax error in script
+
 ## [4.3.4.2-1] - 2024-09-13
 
 ### Changed
