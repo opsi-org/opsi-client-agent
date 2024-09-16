@@ -601,7 +601,7 @@ DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : strin
 	; If the domain controller is not available, the following error will occur:
 	; The security account manager (SAM) or local security authority (LSA) server was in the wrong state to perform the security operation.
 	icacls "$VarDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F"
-	if not errorlevel 0
+	if not errorlevel 0 (
 		LogError "Failed to set permissions on $VarDir$"
 		exit 1
 	)
@@ -633,7 +633,7 @@ DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : strin
 	; If the domain controller is not available, the following error will occur:
 	; The security account manager (SAM) or local security authority (LSA) server was in the wrong state to perform the security operation.
 	icacls "$BaseDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F"
-	if not errorlevel 0
+	if not errorlevel 0 (
 		LogError "Failed to set permissions on $BaseDir$"
 		exit 1
 	)
