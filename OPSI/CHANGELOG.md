@@ -1,10 +1,5 @@
 ﻿# Changelog opsi-client-agent
 
-## [4.3.4.4-1] - 2024-09-19
-
-### Fixed
-- Update opsiclientd to 4.3.4.4 (run opsiSetupUser powershell script elevated if admin)
-
 ## [4.3.4.2-2] - 2024-09-16
 
 ### Fixed
