@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.4.5-1] - 2024-09-27
+
+### Changed
+- Update opsiclientd to 4.3.4.5 (Improved messagebus reconnection) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.4.2-2] - 2024-09-16
 
 ### Fixed
