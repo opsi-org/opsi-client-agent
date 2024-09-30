@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.4.6-1] - 2024-09-30
+
+### Changed
+- Update opsiclientd to 4.3.4.6 (Continue if FQDN is unknown, use cached products in same event) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.4.5-1] - 2024-09-27
 
 ### Changed
