@@ -131,7 +131,7 @@ pull-binaries:
 
   # Visual C++ redistributable 2015-2022
   # This needed for opsi-login-blocker x86 >= 4.2.0.0 and opsiclientd
-  - name: vcredist2015-2022
+  - name: microsoft_vcredist_2015-2022
     server-type: binaryindex
     destination: CLIENT_DATA/files/vcredist/
     extract: true
@@ -145,7 +145,7 @@ pull-binaries:
 
   # Visual C++ redistributable 2015-2022
   # This needed for opsi-login-blocker x86 >= 4.2.0.0 and opsiclientd
-  - name: vcredist2015-2022
+  - name: microsoft_vcredist_2015-2022
     server-type: binaryindex
     destination: CLIENT_DATA/files/vcredist/
     extract: true
