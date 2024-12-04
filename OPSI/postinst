@@ -10,15 +10,14 @@
 #   PRODUCT_VERSION
 #   PACKAGE_VERSION
 PUBLIC_DIR="/var/lib/opsi/public"
-INSTALLER="${CLIENT_DATA_DIR}/opsi-client-agent-installer.exe"
+INSTALLER="${CLIENT_DATA_DIR}/oca-installation-helper.exe"
 
 if [ -e "${INSTALLER}" -a -d "${PUBLIC_DIR}" ]; then
 	mkdir -p "${PUBLIC_DIR}/opsi-client-agent" || true
 	if [ -d "${PUBLIC_DIR}/opsi-client-agent" ]; then
-		mv "${INSTALLER}" "${PUBLIC_DIR}/opsi-client-agent/" || true
+		mv "${INSTALLER}" "${PUBLIC_DIR}/opsi-client-agent/opsi-client-agent-installer.exe" || true
 	fi
 fi
-[ -e "${INSTALLER}" ] && rm "${INSTALLER}"
 
 chmod u+x,g+x $CLIENT_DATA_DIR/opsi-deploy-client-agent
 chmod u+x,g+x $CLIENT_DATA_DIR/service_setup.cmd
