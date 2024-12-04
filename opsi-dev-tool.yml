@@ -11,50 +11,6 @@ pull-binaries:
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
- # opsi-script binaries
-  - name: opsi-script-bin
-    server-type: binaryindex
-    destination: CLIENT_DATA/files
-    extract: true
-    post-script: []
-    os: windows
-    architecture: x86
-    version: 4.12.15.4
-    branch: development
-    server-url: http://binaryindex.uib.gmbh
-
-  # opsi-script common files
-  - name: opsi-script-common
-    server-type: binaryindex
-    destination: CLIENT_DATA/files
-    extract: true
-    post-script:
-      linux:
-        - cp -r CLIENT_DATA/files/opsi-script-common/* CLIENT_DATA/files/opsi-script/
-        - rm -r CLIENT_DATA/files/opsi-script-common
-      windows:
-        - Copy-Item -Path CLIENT_DATA\\files\\opsi-script-common\\* -Destination CLIENT_DATA\\files\\opsi-script\\ -Recurse
-        - Remove-Item -Recurse -Force CLIENT_DATA\\files\\opsi-script-common
-    os: all
-    architecture: all
-    version: 4.12.14.0
-    branch: development
-    server-url: http://binaryindex.uib.gmbh
-
- # openssl library for opsi-script
-  - name: openssl
-    server-type: binaryindex
-    destination: CLIENT_DATA/files/opsi-script
-    extract: true
-    post-script:
-      - cp CLIENT_DATA/files/opsi-script/ssl-libs/* CLIENT_DATA/files/opsi-script
-      - rm -r CLIENT_DATA/files/opsi-script/ssl-libs
-    os: windows
-    architecture: x86
-    version: 3.0.14
-    branch: development
-    server-url: http://binaryindex.uib.gmbh
-
   # opsi-login-blocker - prevents login during opsi task execution
   - name: opsi-login-blocker
     server-type: binaryindex
