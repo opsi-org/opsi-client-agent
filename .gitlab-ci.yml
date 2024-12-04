@@ -31,7 +31,7 @@ linux_make_msi:
   script:
     - apt update
     - apt -y install wget cpio unar wixl uuid-runtime
-    - cp CLIENT_DATA/oca-installation-helper.exe CLIENT_DATA/opsi-client-agent-installer.exe
+    - cp CLIENT_DATA/oca-installation-helper.exe opsi-client-agent-installer.exe
     - version=$(grep OPSI/control -A 10 -e "\[Product\]" | grep "version:" | tr -d "^a-zA-Z :")
     #- product_id=$(uuidgen | tr a-z A-Z)
     #- sed "s/{version}/${version}/g;s/{product_id}/${product_id}/g" msi/opsi-client-agent.wxs > opsi-client-agent.wxs
@@ -54,7 +54,7 @@ windows_make_msi:
   tags:
     - windows
   script:
-    - Copy-Item CLIENT_DATA\oca-installation-helper.exe -Destination CLIENT_DATA\opsi-client-agent-installer.exe
+    - Copy-Item CLIENT_DATA\oca-installation-helper.exe -Destination opsi-client-agent-installer.exe
     - Invoke-WebRequest -UseBasicParsing -Uri "$OPSIDEVTOOLS_URL_WINDOWS_X86" -OutFile opsi-dev-tools.zip
     - Expand-Archive opsi-dev-tools.zip -DestinationPath .
     - Copy-Item .\opsi-dev-tool.exe -Destination .\opsi-dev-cli.exe
