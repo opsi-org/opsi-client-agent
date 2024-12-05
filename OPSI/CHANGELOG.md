@@ -7,4 +7,4 @@
 - Update oca-installation-helper to 4.4.0.0 (Nils Doerrer <n.doerrerer@uib.de>)
 
 ### Removed
-- Removed opsi-script from opsi-client-agent package
+- Removed opsi-script from opsi-client-agent package (Nils Doerrer <n.doerrerer@uib.de>)
