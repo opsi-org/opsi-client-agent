@@ -1,5 +1,13 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.4.12-1] - 2024-12-06
+
+### Changed
+- Update opsiclientd to 4.3.4.12 (Nils Doerrer <n.doerrer@uib.de>)
+
+### Fixed
+- Fixed handling of special characters in users in installer (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.4.11-1] - 2024-10-09
 
 ### Changed
