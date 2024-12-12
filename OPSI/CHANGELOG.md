@@ -3,6 +3,11 @@
 ## [4.3.4.13-1] - 2024-12-11
 
 ### Fixed
+- Update opsiclientd to 4.3.4.14 fixed setup registry part (Nils Doerrer <n.doerrer@uib.de>)
+
+## [4.3.4.13-1] - 2024-12-11
+
+### Fixed
 - Update opsiclientd to 4.3.4.13 (fixed event handling for new clients) (Nils Doerrer <n.doerrer@uib.de>)
 
 ## [4.3.4.12-1] - 2024-12-06
