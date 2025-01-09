@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.6.0-1] - 2025-01-09
+
+### Fixed
+- Update opsiclientd to 4.3.6.0 - fixed processActionRequests and prepared opsi-script execution by rpc (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.3.4.14-1] - 2024-12-12
 
 ### Fixed
