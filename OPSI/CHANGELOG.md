@@ -1,5 +1,12 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.6.0-2] - 2025-01-17
+
+### Changed
+- Stopping setup if on windows < 10.0 (Nils Doerrer <n.doerrer@uib.de>)
+- Stopping setup if connection to server is broken (Nils Doerrer <n.doerrer@uib.de>)
+- Attempting to restore old opsiclientd.conf if opsiclientd setup fails (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.3.6.0-1] - 2025-01-09
 
 ### Fixed
