@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.6.1-1] - 2025-01-20
+
+### Changed
+- Update opsiclientd to 4.3.6.1 and reenable Windows 7 support (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.6.0-2] - 2025-01-17
 
 ### Changed

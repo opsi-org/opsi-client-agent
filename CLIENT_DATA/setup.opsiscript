@@ -1064,7 +1064,7 @@ if not (GetOS = "Windows_NT")
 	isFatalError "OS not supported: " + GetOS
 endif
 
-if CompareDotSeparatedNumbers(GetMsVersionInfo, "<", "10.0")
+if CompareDotSeparatedNumbers(GetMsVersionInfo, "<", "6.0")
 	logError "Windows version not supported: " + GetMsVersionInfo
 	isFatalError "Windows version not supported: " + GetMsVersionInfo
 endif
