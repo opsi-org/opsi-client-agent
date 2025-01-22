@@ -190,4 +190,4 @@ jenkins-test:
   PRODUCTSOURCES: opsi-client-agent,opsi-client-agent,opsi-client-agent
   PROPERTIES: {}
   SNAPSHOT: patched
-  SYSTEMS: win10-21h1,win10-x64-21h1,win11-x64-22h2
+  SYSTEMS: win10-21h1,win10-x64-21h1,win11-x64-22h2,win7
