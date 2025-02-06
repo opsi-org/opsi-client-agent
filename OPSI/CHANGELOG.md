@@ -1,5 +1,14 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.6.2-1] - 2025-02-06
+
+### Fixed
+- Restarting logonui if it failed to automatically restart after opsi-login-blocker installation (Nils Doerrer <n.doerrer@uib.de>)
+
+### Changed
+- Update opsiclientd to 4.3.6.2 (Nils Doerrer <n.doerrer@uib.de>)
+
+
 ## [4.3.6.1-1] - 2025-01-20
 
 ### Changed

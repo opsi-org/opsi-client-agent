@@ -381,10 +381,15 @@ EndFunc
 DefFunc install_loginblocker() : void
 	DefVar $LoginBlockerTimeoutConnect$ = "120"
 	DefVar $LoginBlockerLogLevel$ = "5"
+	DefVar $logonui_kill_result$
 
 	Sub_uninstall_loginblocker
 	if GetProductProperty("LoginBlockerStart", "on") = "on"
 		Sub_install_loginblocker
+	endif
+	if $logonui_kill_result$ = "0" and not (ProcessIsRunning("logonui.exe"))
+		; we killed logonui and it failed to restart itself (probably because of GPO that requires ctrl+alt+del for logonui start)
+		powershellcall('start-process -FilePath "logonui"')
 	endif
 
 	[Sub_uninstall_loginblocker]
@@ -392,7 +397,7 @@ DefFunc install_loginblocker() : void
 	Message "Uninstalling login blocker"
 	Registry_uninstall_loginblocker /sysnative
 	; logonui.exe locks OpsiLoginBlocker.dll
-	ShellCall("taskkill /f /im logonui.exe")
+	set $logonui_kill_result$ = ShellCall("taskkill /f /im logonui.exe")
 	Files_uninstall_loginblocker /sysnative
 
 	[Sub_install_loginblocker]
