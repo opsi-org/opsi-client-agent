@@ -381,15 +381,10 @@ EndFunc
 DefFunc install_loginblocker() : void
 	DefVar $LoginBlockerTimeoutConnect$ = "120"
 	DefVar $LoginBlockerLogLevel$ = "5"
-	DefVar $logonui_kill_result$
 
 	Sub_uninstall_loginblocker
 	if GetProductProperty("LoginBlockerStart", "on") = "on"
 		Sub_install_loginblocker
-	endif
-	if $logonui_kill_result$ = "0" and not (ProcessIsRunning("logonui.exe"))
-		; we killed logonui and it failed to restart itself (probably because of GPO that requires ctrl+alt+del for logonui start)
-		powershellcall('start-process -FilePath "logonui"')
 	endif
 
 	[Sub_uninstall_loginblocker]
@@ -397,7 +392,11 @@ DefFunc install_loginblocker() : void
 	Message "Uninstalling login blocker"
 	Registry_uninstall_loginblocker /sysnative
 	; logonui.exe locks OpsiLoginBlocker.dll
-	set $logonui_kill_result$ = ShellCall("taskkill /f /im logonui.exe")
+	if getRegistryValue("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon", "DisableCAD") = "0" or getRegistryValue("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System", "DisableCAD") = "0"
+		LogWarning "DisableCAD is not set, not restarting logonui.exe"
+	else
+		ShellCall("taskkill /f /im logonui.exe")
+	endif
 	Files_uninstall_loginblocker /sysnative
 
 	[Sub_install_loginblocker]
@@ -413,7 +412,11 @@ DefFunc install_loginblocker() : void
 	Registry_install_loginblocker /sysnative
 
 	; triggering logonui.exe to reload credential providers
-	ShellCall("taskkill /f /im logonui.exe")
+	if getRegistryValue("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon", "DisableCAD") = "0" or getRegistryValue("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System", "DisableCAD") = "0"
+		Message "DisableCAD is not set, not restarting logonui.exe"
+	else
+		ShellCall("taskkill /f /im logonui.exe")
+	endif
 
 	if ErrorsOccurredSinceMark > 0
 		LogError "Failed to install loginblocker"
@@ -422,7 +425,8 @@ DefFunc install_loginblocker() : void
 	endif
 
 	[Files_uninstall_loginblocker]
-	del -f "%System%\OpsiLoginBlocker.dll"
+	del -f "%System%\OpsiLoginBlocker.dll.old"
+	move "%System%\OpsiLoginBlocker.dll" "%System%\OpsiLoginBlocker.dll.old"
 
 	[Files_install_loginblocker_32]
 	copy -Vc "%ScriptPath%\files\OpsiLoginBlocker\32bit\OpsiLoginBlocker.dll" "%System%\"

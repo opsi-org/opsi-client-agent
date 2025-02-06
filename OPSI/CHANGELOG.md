@@ -3,7 +3,7 @@
 ## [4.3.6.2-1] - 2025-02-06
 
 ### Fixed
-- Restarting logonui if it failed to automatically restart after opsi-login-blocker installation (Nils Doerrer <n.doerrer@uib.de>)
+- Not killing logonui if ctrl+alt+del before logon policy is set (new opsi-login-blocker activation is delayed to after next reboot) (Nils Doerrer <n.doerrer@uib.de>)
 
 ### Changed
 - Update opsiclientd to 4.3.6.2 (Nils Doerrer <n.doerrer@uib.de>)
