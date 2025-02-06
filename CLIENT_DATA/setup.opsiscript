@@ -392,10 +392,12 @@ DefFunc install_loginblocker() : void
 	Message "Uninstalling login blocker"
 	Registry_uninstall_loginblocker /sysnative
 	; logonui.exe locks OpsiLoginBlocker.dll
-	if getRegistryValue("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon", "DisableCAD") = "0" or getRegistryValue("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System", "DisableCAD") = "0"
-		LogWarning "DisableCAD is not set, not restarting logonui.exe"
-	else
-		ShellCall("taskkill /f /im logonui.exe")
+	if processIsRunning("logonui.exe")
+		if (getRegistryValue("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon", "DisableCAD") = "0" or getRegistryValue("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System", "DisableCAD") = "0")
+			LogWarning "DisableCAD is not set, not restarting logonui.exe"
+		else
+			ShellCall("taskkill /f /im logonui.exe")
+		endif
 	endif
 	Files_uninstall_loginblocker /sysnative
 
