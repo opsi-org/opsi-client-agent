@@ -1,12 +1,12 @@
 ﻿# Changelog opsi-client-agent
 
-## [4.3.7.1-1] - 2025-02-12
+## [4.3.7.2-1] - 2025-02-19
 
 ### Fixed
 - Not killing logonui if ctrl+alt+del before logon policy is set (new opsi-login-blocker activation is delayed to after next reboot) (Nils Doerrer <n.doerrer@uib.de>)
 
 ### Changed
-- Update opsiclientd to 4.3.7.1 (Nils Doerrer <n.doerrer@uib.de>)
+- Update opsiclientd to 4.3.7.2 (Nils Doerrer <n.doerrer@uib.de>)
 
 ## [4.3.7.0-1] - 2025-02-11
 
