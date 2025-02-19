@@ -1,6 +1,6 @@
 [Package]
 version: 1
-depends:
+depends: 
 
 [Product]
 type: localboot
@@ -11,14 +11,14 @@ advice:
 version: 4.3.7.1
 priority: 95
 licenseRequired: False
-productClasses:
+productClasses: 
 setupScript: setup.opsiscript
 uninstallScript: files/uninst/uninstall.opsiscript
-updateScript:
-alwaysScript:
-onceScript:
-customScript:
-userLoginScript:
+updateScript: 
+alwaysScript: 
+onceScript: 
+customScript: 
+userLoginScript: 
 
 [ProductProperty]
 type: unicode
