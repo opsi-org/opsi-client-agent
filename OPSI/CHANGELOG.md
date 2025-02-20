@@ -1,12 +1,14 @@
 ﻿# Changelog opsi-client-agent
 
-## [4.3.7.2-1] - 2025-02-19
+## [4.3.7.4-1] - 2025-02-20
+
+### New
+- New rpc-call sendSAS activate CredentialProviders (Jan Schneider <j.schneider@uib.de>) 
 
 ### Fixed
-- Not killing logonui if ctrl+alt+del before logon policy is set (new opsi-login-blocker activation is delayed to after next reboot) (Nils Doerrer <n.doerrer@uib.de>)
+- Update opsiclientd to 4.3.7.4 - fixed log file download behaviour (Jeena John <j.john@uib.de>)
 
-### Changed
-- Update opsiclientd to 4.3.7.2 (Nils Doerrer <n.doerrer@uib.de>)
+
 
 ## [4.3.7.0-1] - 2025-02-11
 
