@@ -4,6 +4,8 @@
 
 ### Fixed
 - Use configState_getValues (Jan Schneider <j.schneider@uib.de>)
+- Update opsi-script to 4.12.17.2-6
+- Update opsi-script-common to 4.12.17.0
 
 ## [4.3.7.4-1] - 2025-02-20
 
