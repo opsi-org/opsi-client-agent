@@ -822,45 +822,20 @@ EndFunc
 
 ; === wim-capture ================================================================
 DefFunc get_config_value($ConfigName$ : string) : string
-	DefStringList $TempList$
-
-	Set $result$ = "__null__"
-
 	Comment "Get configState " + $ConfigName$
-	Set $TempList$ = GetReturnListFromSection('OpsiServiceCall_get_configState')
-	if Count($TempList$) > "0"
-		DefVar $TempString$ = TakeString(0, $TempList$)
-		if jsonAsArrayCountElements($TempString$) > "0"
-			Set $TempString$ = JsonAsArrayGetElementByIndex($TempString$, "0")
-			Set $TempString$ = JsonAsObjectGetValueByKey($TempString$, "values")
-			Set $result$ = JsonAsArrayGetElementByIndex($TempString$, "0")
-		endif
-	endif
-	if $result$ = "__null__"
-		; ConfigState not found, use default from Config
-		Set $TempString$ = TakeString(0, GetReturnListFromSection('OpsiServiceCall_get_config'))
-		if jsonAsArrayCountElements($TempString$) > "0"
-			Set $TempString$ = JsonAsArrayGetElementByIndex($TempString$, "0")
-			Set $TempString$ = JsonAsObjectGetValueByKey($TempString$, "defaultValues")
-			Set $result$ = JsonAsArrayGetElementByIndex($TempString$, "0")
-		else
-			Set $result$ = ""
-		endif
-	endif
+	Set $TempString$ = GetReturnListFromSection('OpsiServiceCall_configState_getValues')
+	Set $TempString$ = JsonAsObjectGetValueByKey($TempString$, $ClientId$)
+	Set $TempString$ = JsonAsObjectGetValueByKey($TempString$, $ConfigName$)
+	Set $result$ = JsonAsArrayGetElementByIndex($TempString$, "0")
 
-	[OpsiServiceCall_get_config]
-	"method": "config_getObjects"
+	[OpsiServiceCall_configState_getValues]
+	"method": "configState_getValues"
 	"params": [
-		'[]',
-		'{"id":"$ConfigName$"}',
+		'["$ConfigName$"]',
+		'["$ClientId$"]',
+		'true',
 	]
 
-	[OpsiServiceCall_get_configState]
-	"method": "configState_getObjects"
-	"params": [
-		'[]',
-		'{"configId":"$ConfigName$","objectId":"$ClientId$"}',
-	]
 EndFunc
 
 DefFunc process_wim_capture() : void

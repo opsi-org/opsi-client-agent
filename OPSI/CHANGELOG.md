@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.7.5-1] - 2025-02-25
+
+### Fixed
+- Use configState_getValues (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.7.4-1] - 2025-02-20
 
 ### New
@@ -7,8 +12,6 @@
 
 ### Fixed
 - Update opsiclientd to 4.3.7.4 - fixed log file download behaviour (Jeena John <j.john@uib.de>)
-
-
 
 ## [4.3.7.0-1] - 2025-02-11
 
