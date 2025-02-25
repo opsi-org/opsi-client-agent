@@ -801,9 +801,7 @@ EndFunc
 
 ; === setup after install ========================================================
 DefFunc setup_after_install() : void
-	DefStringList $TempList$
-
-	Set $TempList$ = createStringList()
+	DefStringList $TempList$ = createStringList()
 	Set $TempList$ = GetProductPropertyList("setup_after_install", $TempList$)
 	if count($TempList$) > "0"
 		Comment "Setup after install"
@@ -823,7 +821,8 @@ EndFunc
 ; === wim-capture ================================================================
 DefFunc get_config_value($ConfigName$ : string) : string
 	Comment "Get configState " + $ConfigName$
-	Set $TempString$ = GetReturnListFromSection('OpsiServiceCall_configState_getValues')
+	DefStringList $TempList$ = GetReturnListFromSection('OpsiServiceCall_configState_getValues')
+	DefVar $TempString$ = TakeString(0, $TempList$)
 	Set $TempString$ = JsonAsObjectGetValueByKey($TempString$, $ClientId$)
 	Set $TempString$ = JsonAsObjectGetValueByKey($TempString$, $ConfigName$)
 	Set $result$ = JsonAsArrayGetElementByIndex($TempString$, "0")
@@ -831,11 +830,10 @@ DefFunc get_config_value($ConfigName$ : string) : string
 	[OpsiServiceCall_configState_getValues]
 	"method": "configState_getValues"
 	"params": [
-		'["$ConfigName$"]',
-		'["$ClientId$"]',
-		'true',
+		"$ConfigName$",
+		"$ClientId$",
+		"true",
 	]
-
 EndFunc
 
 DefFunc process_wim_capture() : void
