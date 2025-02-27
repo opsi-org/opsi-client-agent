@@ -1,5 +1,11 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.8.0-1] - 2025-02-27
+
+### Changed
+- Update opsi-notifier to 4.3.2.0 with --stay-on-top argument (Jan Schneider <j.schneider@uib.de>)
+- Update opsiclientd to 4.3.8.0 (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.7.5-1] - 2025-02-25
 
 ### Fixed
