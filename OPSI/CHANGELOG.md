@@ -4,7 +4,6 @@
 
 ### Changed
 - Downgrade opsi-notifier to 4.3.0.1 (Jan Schneider <j.schneider@uib.de>)
-- Update opsiclientd to 4.3.8.0 (Jan Schneider <j.schneider@uib.de>)
 
 ## [4.3.7.5-1] - 2025-02-25
 
