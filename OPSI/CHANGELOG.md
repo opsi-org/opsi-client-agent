@@ -1,5 +1,11 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.9.0-1] - 2025-03-07
+
+### Changed
+- Upgrade opsclientd to 4.3.9.0 - showDialog (Jan Schneider <j.schneider@uib.de>)
+- Upgrade motd-notifier to 0.3.0 - dialog (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.8.0-1] - 2025-02-27
 
 ### Changed
