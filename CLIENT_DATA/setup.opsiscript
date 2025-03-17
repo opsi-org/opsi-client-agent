@@ -81,11 +81,16 @@ DefFunc install_opsiclientd(): void
 	if FileExists($BaseDir$ + "\opsiclientdguard")
 		ShellCall('sc stop opsiclientdguard')
 		ShellCall('sc delete opsiclientdguard')
-		Files_uninstall_opsiclientdguard
+		Files_cleanup_legacy
 	endif
 
-	[Files_uninstall_opsiclientdguard]
+	[Files_cleanup_legacy]
 	del -sf "$BaseDir$\opsiclientdguard"
+	del -sf "$BaseDir$\lib"
+	del -f "$BaseDir$\python*.dll"
+	del -f "$BaseDir$\action_processor_starter.exe"
+	del -f "$BaseDir$\opsiclientd_rpc.exe"
+	del -f "$BaseDir$\opsiclientd_sutdown_starter.exe"
 
 	[Sub_install_opsiclientd]
 	Comment "Installing opsiclientd"
@@ -477,6 +482,7 @@ DefFunc install_opsinotifier() : void
 	Files_install_motd_notifier
 
 	[Files_install_opsinotifier]
+	del -f "$BaseDir$\notifier.exe"
 	copy -c "%ScriptPath%\files\opsi-notifier\opsi-notifier.exe" "$BaseDir$\"
 	copy -c "%ScriptPath%\files\opsi-notifier\notifier.d\*.*" "$BaseDir$\notifier\"
 
@@ -819,13 +825,18 @@ EndFunc
 
 
 ; === wim-capture ================================================================
-DefFunc get_config_value($ConfigName$ : string) : string
+DefFunc get_config_value($ConfigName$ : string, $default$ : string) : string
 	Comment "Get configState " + $ConfigName$
 	DefStringList $TempList$ = GetReturnListFromSection('OpsiServiceCall_configState_getValues')
-	DefVar $TempString$ = TakeString(0, $TempList$)
-	Set $TempString$ = JsonAsObjectGetValueByKey($TempString$, $ClientId$)
-	Set $TempString$ = JsonAsObjectGetValueByKey($TempString$, $ConfigName$)
-	Set $result$ = JsonAsArrayGetElementByIndex($TempString$, "0")
+	if count($TempList$) = 0
+		LogWarning "Failed to get configState '" + $ConfigName$ + "', using default value '" + $default$ +"'"
+		set $result$ = $default$
+	else
+		DefVar $TempString$ = TakeString(0, $TempList$)
+		Set $TempString$ = JsonAsObjectGetValueByKey($TempString$, $ClientId$)
+		Set $TempString$ = JsonAsObjectGetValueByKey($TempString$, $ConfigName$)
+		Set $result$ = JsonAsArrayGetElementByIndex($TempString$, "0")
+	endif
 
 	[OpsiServiceCall_configState_getValues]
 	"method": "configState_getValues"
@@ -859,12 +870,12 @@ DefFunc process_wim_capture() : void
 
 	Set $ProductIdsInstalled$ = EmptyList($ProductIdsInstalled$)
 
-	DefVar $SwitchInstalledProductsToSetup$ = Lower(get_config_value("clientconfig.capture.switch_installed_products_to_setup"))
+	DefVar $SwitchInstalledProductsToSetup$ = Lower(get_config_value("clientconfig.capture.switch_installed_products_to_setup", "false"))
 	Comment "Mode: switch_installed_products_to_setup = " + $SwitchInstalledProductsToSetup$
 	DefVar $DoNotChangeSetupRequests$ = "true"
 
 	if $SwitchInstalledProductsToSetup$ = "true"
-		Set $DoNotChangeSetupRequests$ = Lower(get_config_value("clientconfig.capture.do_not_change_setup_requests"))
+		Set $DoNotChangeSetupRequests$ = Lower(get_config_value("clientconfig.capture.do_not_change_setup_requests", "true"))
 		Comment "Fetch installed localboot packages from opsi service"
 		Set $ProductOnClients$ = EmptyList($ProductOnClients$)
 		Set $TempList$ = GetReturnListFromSection("OpsiServiceCall_get_productOnClient_installed_localboot")
