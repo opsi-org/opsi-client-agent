@@ -81,16 +81,11 @@ DefFunc install_opsiclientd(): void
 	if FileExists($BaseDir$ + "\opsiclientdguard")
 		ShellCall('sc stop opsiclientdguard')
 		ShellCall('sc delete opsiclientdguard')
-		Files_cleanup_legacy
+		Files_cleanup_opsiclientdguard
 	endif
 
-	[Files_cleanup_legacy]
+	[Files_cleanup_opsiclientdguard]
 	del -sf "$BaseDir$\opsiclientdguard"
-	del -sf "$BaseDir$\lib"
-	del -f "$BaseDir$\python*.dll"
-	del -f "$BaseDir$\action_processor_starter.exe"
-	del -f "$BaseDir$\opsiclientd_rpc.exe"
-	del -f "$BaseDir$\opsiclientd_sutdown_starter.exe"
 
 	[Sub_install_opsiclientd]
 	Comment "Installing opsiclientd"
@@ -285,6 +280,12 @@ DefFunc install_opsiclientd(): void
 	del -s "$BaseDir$\prelogin"
 	del -s "$BaseDir$\custom\"
 	del -s "$BaseDir$\images\"
+	del -sf "$BaseDir$\lib"
+	del -f "$BaseDir$\python*.dll"
+	del -f "$BaseDir$\action_processor_starter.exe"
+	del -f "$BaseDir$\opsiclientd_rpc.exe"
+	del -f "$BaseDir$\opsiclientd_shutdown_starter.exe"
+
 
 	[ExecWith_powershell_install_binaries]
 	$bin_dir = "$BaseDir$\opsiclientd_windows_x86"
