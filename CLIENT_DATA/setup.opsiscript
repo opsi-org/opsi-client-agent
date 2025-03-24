@@ -81,10 +81,10 @@ DefFunc install_opsiclientd(): void
 	if FileExists($BaseDir$ + "\opsiclientdguard")
 		ShellCall('sc stop opsiclientdguard')
 		ShellCall('sc delete opsiclientdguard')
-		Files_cleanup_opsiclientdguard
+		Files_uninstall_opsiclientdguard
 	endif
 
-	[Files_cleanup_opsiclientdguard]
+	[Files_uninstall_opsiclientdguard]
 	del -sf "$BaseDir$\opsiclientdguard"
 
 	[Sub_install_opsiclientd]
