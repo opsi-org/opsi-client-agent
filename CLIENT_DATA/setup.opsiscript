@@ -829,7 +829,7 @@ EndFunc
 DefFunc get_config_value($ConfigName$ : string, $default$ : string) : string
 	Comment "Get configState " + $ConfigName$
 	DefStringList $TempList$ = GetReturnListFromSection('OpsiServiceCall_configState_getValues')
-	if count($TempList$) = 0
+	if count($TempList$) = "0"
 		LogWarning "Failed to get configState '" + $ConfigName$ + "', using default value '" + $default$ +"'"
 		set $result$ = $default$
 	else
