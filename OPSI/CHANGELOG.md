@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.9.2-3] - 2025-03-26
+
+### Fixed
+- Robust handling of wim-capture with missing configuration (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.3.9.2-2] - 2025-03-17
 
 ### Fixed
