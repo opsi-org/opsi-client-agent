@@ -785,6 +785,11 @@ DefFunc install_configuration() : void
 	Files_copy_uninst
 	Files_copy_versionfile
 	Defvar $InstallingVersion$ = strLoadTextFileWithEncoding("%ScriptPath%\files\opsi-client-agent.version", "utf-8")
+	Defvar $UninstallString$ = '"$BaseDir$\opsi-script\opsi-script.exe" /batch "$BaseDir$\uninst\uninstall.opsiscript" "%opsiLogDir%\deinstall_opsi-client-agent.log"'
+	if getProductProperty("remove_uninstall_entry", "false") = "true"
+		$UninstallString$ = ""
+	endif
+	
 	Registry_SetUninstallEntries
 
 	[Files_copy_uninst]
@@ -800,7 +805,7 @@ DefFunc install_configuration() : void
 	set "DisplayIcon" = "$BaseDir$\opsi-script\opsi-script.exe"
 	set "DisplayPublisher" = "uib gmbh, Mainz, Germany"
 	set "Publisher" = "uib gmbh, Mainz, Germany"
-	set "UninstallString" = '"$BaseDir$\opsi-script\opsi-script.exe" /batch "$BaseDir$\uninst\uninstall.opsiscript" "%opsiLogDir%\deinstall_opsi-client-agent.log"'
+	set "UninstallString" = "$UninstallString$"
 	set "URLInfoAbout" = "http://opsi.org"
 	set "HelpLink" = "http://www.opsi.org/support/"
 EndFunc

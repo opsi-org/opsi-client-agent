@@ -51,6 +51,12 @@ description: Should opsi systray be installed?
 default: False
 
 [ProductProperty]
+type: bool
+name: remove_uninstall_entry
+description: Should the uninstallation entry for Registry be removed (deinstallation protection)?
+default: False
+
+[ProductProperty]
 type: unicode
 name: systray_check_interval
 multivalue: False
