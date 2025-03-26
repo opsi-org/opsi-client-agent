@@ -831,7 +831,7 @@ DefFunc get_config_value($ConfigName$ : string, $default$ : string) : string
 	DefStringList $TempList$ = GetReturnListFromSection('OpsiServiceCall_configState_getValues')
 	DefVar $TempString$ = TakeString(0, $TempList$)
 	Set $TempString$ = JsonAsObjectGetValueByKey($TempString$, $ClientId$)
-	if takeFirstStringContaining($TempString$, $ConfigName$) = ""
+	if contains($TempString$, $ConfigName$) = "false"
 		LogWarning "Config '" + $ConfigName$ + "'' not found. Using default value '" + $default$ + "'"
 		Set $result$ = $default$
 	else
