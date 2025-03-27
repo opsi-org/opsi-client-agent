@@ -785,9 +785,11 @@ DefFunc install_configuration() : void
 	Files_copy_uninst
 	Files_copy_versionfile
 	Defvar $InstallingVersion$ = strLoadTextFileWithEncoding("%ScriptPath%\files\opsi-client-agent.version", "utf-8")
-	Defvar $UninstallString$ = '"$BaseDir$\opsi-script\opsi-script.exe" /batch "$BaseDir$\uninst\uninstall.opsiscript" "%opsiLogDir%\deinstall_opsi-client-agent.log"'
-	if getProductProperty("remove_uninstall_entry", "false") = "true"
-		$UninstallString$ = ""
+	Defvar $OCANoModify$ = 0
+	Defvar $OCANoRemove$ = 0
+	if getProductProperty("disable_uninstall_option", "false") = "true"
+		Set $OCANoModify$ = 1
+		Set $OCANoRemove$ = 1
 	endif
 	
 	Registry_SetUninstallEntries
@@ -805,9 +807,11 @@ DefFunc install_configuration() : void
 	set "DisplayIcon" = "$BaseDir$\opsi-script\opsi-script.exe"
 	set "DisplayPublisher" = "uib gmbh, Mainz, Germany"
 	set "Publisher" = "uib gmbh, Mainz, Germany"
-	set "UninstallString" = "$UninstallString$"
+	set "UninstallString" = '"$BaseDir$\opsi-script\opsi-script.exe" /batch "$BaseDir$\uninst\uninstall.opsiscript" "%opsiLogDir%\deinstall_opsi-client-agent.log"'
 	set "URLInfoAbout" = "http://opsi.org"
 	set "HelpLink" = "http://www.opsi.org/support/"
+	set "NoModify" = $OCANoModify$
+	set "NoRemove" = $OCANoRemove$
 EndFunc
 
 

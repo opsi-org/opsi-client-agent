@@ -3,7 +3,7 @@
 ## [4.3.9.2-3] - 2025-03-26
 
 ### New
-- Added productProperty to remove Registry uninstallation entry for opsi-client-agent (Nils Doerrer <n.doerrer@uib.de>)
+- Added productProperty "disable_uninstall_option" to remove set NoRemove and NoModify in Registry Software entry for opsi-client-agent (Nils Doerrer <n.doerrer@uib.de>)
 
 ### Fixed
 - Robust handling of wim-capture with missing configuration (Nils Doerrer <n.doerrer@uib.de>)

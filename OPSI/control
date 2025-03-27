@@ -52,8 +52,8 @@ default: False
 
 [ProductProperty]
 type: bool
-name: remove_uninstall_entry
-description: Should the uninstallation entry for Registry be removed (deinstallation protection)?
+name: disable_uninstall_option
+description: Should the uninstallation option for Registry be disabled (deinstallation protection)?
 default: False
 
 [ProductProperty]
