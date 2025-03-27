@@ -785,11 +785,11 @@ DefFunc install_configuration() : void
 	Files_copy_uninst
 	Files_copy_versionfile
 	Defvar $InstallingVersion$ = strLoadTextFileWithEncoding("%ScriptPath%\files\opsi-client-agent.version", "utf-8")
-	Defvar $OCANoModify$ = 0
-	Defvar $OCANoRemove$ = 0
+	Defvar $OCANoModify$ = "REG_DWORD:0"
+	Defvar $OCANoRemove$ = "REG_DWORD:0"
 	if getProductProperty("disable_uninstall_option", "false") = "true"
-		Set $OCANoModify$ = 1
-		Set $OCANoRemove$ = 1
+		Set $OCANoModify$ = "REG_DWORD:1"
+		Set $OCANoRemove$ = "REG_DWORD:1"
 	endif
 	
 	Registry_SetUninstallEntries
