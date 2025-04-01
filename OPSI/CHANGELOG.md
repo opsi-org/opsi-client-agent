@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.10.0-1] - 2025-04-01
+
+### Changed
+- Upgrade opsclientd to 4.3.10.0 (clientconfig.smart_cache) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.9.2-3] - 2025-03-26
 
 ### New
