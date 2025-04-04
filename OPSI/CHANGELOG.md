@@ -1,5 +1,11 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.10.1-1] - 2025-04-04
+
+### Changed
+- Upgrade opsclientd to 4.3.10.1 (reworked installation_pending mechanic) (Nils Doerrer <n.doerrer@uib.de>)
+- Uninstall now updates Installation status before connection to server breaks (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.3.10.0-1] - 2025-04-01
 
 ### Changed
