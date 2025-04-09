@@ -23,7 +23,7 @@ Registry_uninstall_loginblocker /sysnative
 ShellCall("taskkill /f /im logonui.exe")
 Sub_uninstall_opsisystray
 Registry_del_keys /sysnative
-Sub_uninstall_opsiclientdguard
+OpsiServiceCall_setOCANotinstalled
 Files_uninstall
 
 [Registry_uninstall_loginblocker]
@@ -48,15 +48,11 @@ deletekey [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\opsiclientd]
 deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\opsi.org]
 deletekey [HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\opsi-client-agent]
 
-[Sub_uninstall_opsiclientdguard]
-Comment "Uninstalling opsiclientdguard"
-Message "Uninstalling opsiclientdguard"
-if FileExists($BaseDir$ + "\opsiclientdguard")
-	ShellCall('sc stop opsiclientdguard')
-	ShellCall('sc delete opsiclientdguard')
-	ShellCall("sc stop opsiclientd")
-	ShellCall("sc delete opsiclientd")
-endif
+[OpsiServiceCall_setProductActionRequestWithDependencies_setup]
+"method": "productOnClient_updateObjects"
+"params": [
+	'{"productId":"opsi-client-agent","clientId":"$ClientId$"","actionRequest":null,"installationStatus":"not_installed"}'
+]
 
 [Files_uninstall]
 del -frc "%System%\OpsiLoginBlocker.dll"

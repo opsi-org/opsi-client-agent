@@ -7,7 +7,7 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x86
-    version: 4.4.0.0
+    version: 4.3.10.2
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
@@ -31,7 +31,7 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x86
-    version: 4.3.1.1
+    version: 4.3.0.1
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
@@ -57,7 +57,7 @@ pull-binaries:
         - chmod 755 CLIENT_DATA/oca-installation-helper.exe
     os: windows
     architecture: x86
-    version: 4.4.0.0
+    version: 4.3.2.0
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
@@ -69,7 +69,7 @@ pull-binaries:
     post-script: []
     os: linux
     architecture: x64
-    version: 4.4.0.0
+    version: 4.3.1.0
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
@@ -81,7 +81,7 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x86
-    version: 0.2.0
+    version: 0.3.1
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
@@ -146,4 +146,4 @@ jenkins-test:
   PRODUCTSOURCES: opsi-client-agent,opsi-client-agent,opsi-client-agent
   PROPERTIES: {}
   SNAPSHOT: patched
-  SYSTEMS: win10-21h1,win10-x64-21h1,win11-x64-22h2
+  SYSTEMS: win10-21h1,win10-x64-21h1,win11-x64-22h2,win7

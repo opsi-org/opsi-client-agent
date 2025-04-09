@@ -210,6 +210,10 @@ DefFunc install_opsiclientd(): void
 			Comment "Removing " + $BinDirOld$
 			PowershellCall('Remove-Item "' + $BinDirOld$ + '" -Recurse')
 		endif
+		if FileExists($BaseDir$ + "\opsiclientd\opsiclientd.conf")
+			Comment "Saving old opsiclientd.conf"
+			PowershellCall('Copy-Item -Path "' + $BaseDir$ + '\opsiclientd\opsiclientd.conf" -Destination "' + $BaseDir$ + '\opsiclientd\opsiclientd.conf.bak" -force')
+		endif
 
 		MarkErrorNumber
 		Files_install_opsiclientd_dir
@@ -224,6 +228,10 @@ DefFunc install_opsiclientd(): void
 		DosInAnIcon_opsiclientd_setup
 		if not(GetLastExitcode = "0")
 			LogError "opsiclientd setup failed"
+			if FileExists($BaseDir$ + "\opsiclientd\opsiclientd.conf.bak")
+				Comment "Trying to restore old opsiclientd.conf"
+				PowershellCall('Copy-Item -Path "' + $BaseDir$ + '\opsiclientd\opsiclientd.conf.bak" -Destination "' + $BaseDir$ + '\opsiclientd\opsiclientd.conf" -force')
+			endif
 			IsFatalError "opsiclientd setup failed"
 		endif
 	endif
@@ -272,6 +280,12 @@ DefFunc install_opsiclientd(): void
 	del -s "$BaseDir$\prelogin"
 	del -s "$BaseDir$\custom\"
 	del -s "$BaseDir$\images\"
+	del -sf "$BaseDir$\lib"
+	del -f "$BaseDir$\python*.dll"
+	del -f "$BaseDir$\action_processor_starter.exe"
+	del -f "$BaseDir$\opsiclientd_rpc.exe"
+	del -f "$BaseDir$\opsiclientd_shutdown_starter.exe"
+
 
 	[ExecWith_powershell_install_binaries]
 	$bin_dir = "$BaseDir$\opsiclientd_windows_x86"
@@ -384,7 +398,13 @@ DefFunc install_loginblocker() : void
 	Message "Uninstalling login blocker"
 	Registry_uninstall_loginblocker /sysnative
 	; logonui.exe locks OpsiLoginBlocker.dll
-	ShellCall("taskkill /f /im logonui.exe")
+	if processIsRunning("logonui.exe")
+		if (getRegistryValue("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon", "DisableCAD") = "0" or getRegistryValue("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System", "DisableCAD") = "0")
+			LogWarning "DisableCAD is not set, not restarting logonui.exe"
+		else
+			ShellCall("taskkill /f /im logonui.exe")
+		endif
+	endif
 	Files_uninstall_loginblocker /sysnative
 
 	[Sub_install_loginblocker]
@@ -400,7 +420,11 @@ DefFunc install_loginblocker() : void
 	Registry_install_loginblocker /sysnative
 
 	; triggering logonui.exe to reload credential providers
-	ShellCall("taskkill /f /im logonui.exe")
+	if getRegistryValue("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon", "DisableCAD") = "0" or getRegistryValue("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System", "DisableCAD") = "0"
+		Message "DisableCAD is not set, not restarting logonui.exe"
+	else
+		ShellCall("taskkill /f /im logonui.exe")
+	endif
 
 	if ErrorsOccurredSinceMark > 0
 		LogError "Failed to install loginblocker"
@@ -409,7 +433,8 @@ DefFunc install_loginblocker() : void
 	endif
 
 	[Files_uninstall_loginblocker]
-	del -f "%System%\OpsiLoginBlocker.dll"
+	del -f "%System%\OpsiLoginBlocker.dll.old"
+	move "%System%\OpsiLoginBlocker.dll" "%System%\OpsiLoginBlocker.dll.old"
 
 	[Files_install_loginblocker_32]
 	copy -Vc "%ScriptPath%\files\OpsiLoginBlocker\32bit\OpsiLoginBlocker.dll" "%System%\"
@@ -458,6 +483,7 @@ DefFunc install_opsinotifier() : void
 	Files_install_motd_notifier
 
 	[Files_install_opsinotifier]
+	del -f "$BaseDir$\notifier.exe"
 	copy -c "%ScriptPath%\files\opsi-notifier\opsi-notifier.exe" "$BaseDir$\"
 	copy -c "%ScriptPath%\files\opsi-notifier\notifier.d\*.*" "$BaseDir$\notifier\"
 
@@ -759,6 +785,13 @@ DefFunc install_configuration() : void
 	Files_copy_uninst
 	Files_copy_versionfile
 	Defvar $InstallingVersion$ = strLoadTextFileWithEncoding("%ScriptPath%\files\opsi-client-agent.version", "utf-8")
+	Defvar $OCANoModify$ = "REG_DWORD:0"
+	Defvar $OCANoRemove$ = "REG_DWORD:0"
+	if getProductProperty("disable_uninstall_option", "false") = "true"
+		Set $OCANoModify$ = "REG_DWORD:1"
+		Set $OCANoRemove$ = "REG_DWORD:1"
+	endif
+	
 	Registry_SetUninstallEntries
 
 	[Files_copy_uninst]
@@ -777,14 +810,14 @@ DefFunc install_configuration() : void
 	set "UninstallString" = '"$BaseDir$\opsi-script\opsi-script.exe" /batch "$BaseDir$\uninst\uninstall.opsiscript" "%opsiLogDir%\deinstall_opsi-client-agent.log"'
 	set "URLInfoAbout" = "http://opsi.org"
 	set "HelpLink" = "http://www.opsi.org/support/"
+	set "NoModify" = $OCANoModify$
+	set "NoRemove" = $OCANoRemove$
 EndFunc
 
 
 ; === setup after install ========================================================
 DefFunc setup_after_install() : void
-	DefStringList $TempList$
-
-	Set $TempList$ = createStringList()
+	DefStringList $TempList$ = createStringList()
 	Set $TempList$ = GetProductPropertyList("setup_after_install", $TempList$)
 	if count($TempList$) > "0"
 		Comment "Setup after install"
@@ -802,45 +835,25 @@ EndFunc
 
 
 ; === wim-capture ================================================================
-DefFunc get_config_value($ConfigName$ : string) : string
-	DefStringList $TempList$
-
-	Set $result$ = "__null__"
-
+DefFunc get_config_value($ConfigName$ : string, $default$ : string) : string
 	Comment "Get configState " + $ConfigName$
-	Set $TempList$ = GetReturnListFromSection('OpsiServiceCall_get_configState')
-	if Count($TempList$) > "0"
-		DefVar $TempString$ = TakeString(0, $TempList$)
-		if jsonAsArrayCountElements($TempString$) > "0"
-			Set $TempString$ = JsonAsArrayGetElementByIndex($TempString$, "0")
-			Set $TempString$ = JsonAsObjectGetValueByKey($TempString$, "values")
-			Set $result$ = JsonAsArrayGetElementByIndex($TempString$, "0")
-		endif
-	endif
-	if $result$ = "__null__"
-		; ConfigState not found, use default from Config
-		Set $TempString$ = TakeString(0, GetReturnListFromSection('OpsiServiceCall_get_config'))
-		if jsonAsArrayCountElements($TempString$) > "0"
-			Set $TempString$ = JsonAsArrayGetElementByIndex($TempString$, "0")
-			Set $TempString$ = JsonAsObjectGetValueByKey($TempString$, "defaultValues")
-			Set $result$ = JsonAsArrayGetElementByIndex($TempString$, "0")
-		else
-			Set $result$ = ""
-		endif
+	DefStringList $TempList$ = GetReturnListFromSection('OpsiServiceCall_configState_getValues')
+	DefVar $TempString$ = TakeString(0, $TempList$)
+	Set $TempString$ = JsonAsObjectGetValueByKey($TempString$, $ClientId$)
+	if not(contains($TempString$, $ConfigName$))
+		LogWarning "Config '" + $ConfigName$ + "'' not found. Using default value '" + $default$ + "'"
+		Set $result$ = $default$
+	else
+		Set $TempString$ = JsonAsObjectGetValueByKey($TempString$, $ConfigName$)
+		Set $result$ = JsonAsArrayGetElementByIndex($TempString$, "0")
 	endif
 
-	[OpsiServiceCall_get_config]
-	"method": "config_getObjects"
+	[OpsiServiceCall_configState_getValues]
+	"method": "configState_getValues"
 	"params": [
-		'[]',
-		'{"id":"$ConfigName$"}',
-	]
-
-	[OpsiServiceCall_get_configState]
-	"method": "configState_getObjects"
-	"params": [
-		'[]',
-		'{"configId":"$ConfigName$","objectId":"$ClientId$"}',
+		"$ConfigName$",
+		"$ClientId$",
+		"true",
 	]
 EndFunc
 
@@ -867,12 +880,12 @@ DefFunc process_wim_capture() : void
 
 	Set $ProductIdsInstalled$ = EmptyList($ProductIdsInstalled$)
 
-	DefVar $SwitchInstalledProductsToSetup$ = Lower(get_config_value("clientconfig.capture.switch_installed_products_to_setup"))
+	DefVar $SwitchInstalledProductsToSetup$ = Lower(get_config_value("clientconfig.capture.switch_installed_products_to_setup", "false"))
 	Comment "Mode: switch_installed_products_to_setup = " + $SwitchInstalledProductsToSetup$
 	DefVar $DoNotChangeSetupRequests$ = "true"
 
 	if $SwitchInstalledProductsToSetup$ = "true"
-		Set $DoNotChangeSetupRequests$ = Lower(get_config_value("clientconfig.capture.do_not_change_setup_requests"))
+		Set $DoNotChangeSetupRequests$ = Lower(get_config_value("clientconfig.capture.do_not_change_setup_requests", "true"))
 		Comment "Fetch installed localboot packages from opsi service"
 		Set $ProductOnClients$ = EmptyList($ProductOnClients$)
 		Set $TempList$ = GetReturnListFromSection("OpsiServiceCall_get_productOnClient_installed_localboot")
@@ -1100,6 +1113,13 @@ if not($PreviousOCDVersion$ = "-1") and CompareDotSeparatedNumbers($PreviousOCDV
 	IsFatalError "opsiclientd too old"
 endif
 
+MarkErrorNumber
+OpsiServiceCall_authenticated
+if errorsOccurredSinceMark > 0
+	LogError "Opsi service authentication failed"
+	IsFatalError "Opsi service authentication failed"
+endif
+
 Comment "Show product image"
 ShowBitmap "%ScriptPath%\files\opsi-logo.png" "opsi client agent"
 
@@ -1123,13 +1143,6 @@ else
 	if ProcessIsRunning("opsiclientd.exe")
 		ShellCall("sc stop opsiclientd")
 		SleepSeconds 5
-	endif
-
-	MarkErrorNumber
-	OpsiServiceCall_authenticated
-	if errorsOccurredSinceMark > 0
-		LogError "Opsi service authentication failed"
-		IsFatalError "Opsi service authentication failed"
 	endif
 
 	; Rotate instlog until opsi-script can be forced to not use appendmode

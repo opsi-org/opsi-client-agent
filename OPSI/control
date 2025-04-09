@@ -8,7 +8,7 @@ id: opsi-client-agent
 name: opsi.org client agent
 description: opsi windows client agent
 advice: 
-version: 4.4.0.0
+version: 4.3.10.2
 priority: 95
 licenseRequired: False
 productClasses: 
@@ -48,6 +48,12 @@ default: []
 type: bool
 name: systray_install
 description: Should opsi systray be installed?
+default: False
+
+[ProductProperty]
+type: bool
+name: disable_uninstall_option
+description: Should the uninstallation option for Registry be disabled (deinstallation protection)?
 default: False
 
 [ProductProperty]
