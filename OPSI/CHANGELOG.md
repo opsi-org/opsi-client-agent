@@ -1,9 +1,9 @@
 ﻿# Changelog opsi-client-agent
 
-## [4.3.10.2-1] - 2025-04-09
+## [4.3.10.3-1] - 2025-04-10
 
 ### Fixed
-- Upgrade opsclientd to 4.3.10.2 (Minor fix in event handling) (Nils Doerrer <n.doerrer@uib.de>)
+- Upgrade opsclientd to 4.3.10.3 (Minor fix in event handling, fixed terminal connection timeout) (Nils Doerrer <n.doerrer@uib.de>)
 
 ### Changed
 - Upgrade oca-installation-helper to 4.3.2.0 (New gui/tui components, loading installation files from depot) (Nils Doerrer <n.doerrer@uib.de>)
