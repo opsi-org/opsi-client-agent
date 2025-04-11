@@ -10,9 +10,6 @@
 - Upgrade opsi-deploy-client-agent to 4.3.1.0 (Adaption to new installer mechanic) (Nils Doerrer <n.doerrer@uib.de>)
 - Upgrade motd-notifier to 0.3.1 (Improved logging) (Nils Doerrer <n.doerrer@uib.de>)
 
-### Removed
-- Removed opsi-script (and its openssl libraries) from package (During installation opsi-script is retrieved from depot) (Nils Doerrer <n.doerrer@uib.de>)
-
 ## [4.3.10.1-1] - 2025-04-04
 
 ### Changed
