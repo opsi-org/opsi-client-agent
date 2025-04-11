@@ -1,5 +1,15 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.10.3-1] - 2025-04-10
+
+### Fixed
+- Upgrade opsclientd to 4.3.10.3 (Minor fix in event handling, fixed terminal connection timeout) (Nils Doerrer <n.doerrer@uib.de>)
+
+### Changed
+- Upgrade oca-installation-helper to 4.3.2.0 (New gui/tui components, loading installation files from depot) (Nils Doerrer <n.doerrer@uib.de>)
+- Upgrade opsi-deploy-client-agent to 4.3.1.0 (Adaption to new installer mechanic) (Nils Doerrer <n.doerrer@uib.de>)
+- Upgrade motd-notifier to 0.3.1 (Improved logging) (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.3.10.1-1] - 2025-04-04
 
 ### Changed
