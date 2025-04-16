@@ -7,7 +7,7 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x86
-    version: 4.3.10.3
+    version: 4.3.10.4
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
@@ -139,7 +139,7 @@ pull-binaries:
       - chmod u+x,g+x CLIENT_DATA/files/vcredist/*.exe
     os: windows
     architecture: x86
-    version: 14.30.30528.0
+    version: 14.44.35026.0
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
@@ -153,7 +153,7 @@ pull-binaries:
       - chmod u+x,g+x CLIENT_DATA/files/vcredist/*.exe
     os: windows
     architecture: x64
-    version: 14.30.30528.0
+    version: 14.44.35026.0
     branch: development
     server-url: http://binaryindex.uib.gmbh
 
