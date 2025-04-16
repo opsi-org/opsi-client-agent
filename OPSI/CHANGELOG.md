@@ -7,6 +7,7 @@
 
 ### Changed
 - Using oca-installation-helper for installation in netboot context (Nils Doerrer <n.doerrer@uib.de>)
+- Upgraded microsoft_vcredist_2025-2022 to 14.44.35026.0 (Nils Doerrer <n.doerrer@uib.de>)
 
 ## [4.3.10.3-1] - 2025-04-10
 
