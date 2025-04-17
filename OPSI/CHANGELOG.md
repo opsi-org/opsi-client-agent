@@ -1,7 +1,7 @@
 ﻿# Changelog opsi-client-agent
 
 
-## [4.3.10.4-1] - 2025-04-16
+## [4.3.10.4-2] - 2025-04-17
 
 ### Fixed
 - Fixed postinst scenario with patched values (Nils Doerrer <n.doerrer@uib.de>)
