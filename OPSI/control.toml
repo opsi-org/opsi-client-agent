@@ -25,7 +25,7 @@ values = [
     "on",
 ]
 multivalue = false
-editable = false
+editable = true
 
 [[ProductProperty]]
 type = "BoolProductProperty"
@@ -81,4 +81,4 @@ values = [
     "productname productversion : request",
 ]
 multivalue = false
-editable = false
+editable = true
