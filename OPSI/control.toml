@@ -1,0 +1,84 @@
+[Package]
+version = "3"
+depends = []
+
+[Product]
+type = "LocalbootProduct"
+id = "opsi-client-agent"
+name = "opsi.org client agent"
+description = """opsi windows client agent"""
+version = "4.3.10.4"
+priority = 95
+licenseRequired = false
+productClasses = []
+setupScript = "setup.opsiscript"
+uninstallScript = "files/uninst/uninstall.opsiscript"
+windowsSoftwareIds = []
+
+[[ProductProperty]]
+type = "UnicodeProductProperty"
+name = "loginblockerstart"
+description = """Install opsi login blocker (credential provider / filter)?"""
+default = ["on"]
+values = [
+    "off",
+    "on",
+]
+multivalue = false
+editable = false
+
+[[ProductProperty]]
+type = "BoolProductProperty"
+name = "allow_reboot"
+description = """Allow restarting the computer after installation or update?"""
+default = [true]
+
+[[ProductProperty]]
+type = "UnicodeProductProperty"
+name = "setup_after_install"
+description = """Which opsi packages should be set to setup after installation?"""
+default = []
+values = []
+multivalue = true
+editable = true
+
+[[ProductProperty]]
+type = "BoolProductProperty"
+name = "systray_install"
+description = """Should opsi systray be installed?"""
+default = [false]
+
+[[ProductProperty]]
+type = "BoolProductProperty"
+name = "disable_uninstall_option"
+description = """Should the uninstallation option for Registry be disabled (deinstallation protection)?"""
+default = [false]
+
+[[ProductProperty]]
+type = "UnicodeProductProperty"
+name = "systray_check_interval"
+description = """Interval in minutes in which checks are made for pending action requests (0 = no check)."""
+default = ["180"]
+values = [
+    "0",
+    "120",
+    "180",
+    "240",
+    "300",
+    "60",
+]
+multivalue = false
+editable = true
+
+[[ProductProperty]]
+type = "UnicodeProductProperty"
+name = "systray_request_notify_format"
+description = """Action request message format"""
+default = ["productname : request"]
+values = [
+    "productid : request",
+    "productname : request",
+    "productname productversion : request",
+]
+multivalue = false
+editable = false

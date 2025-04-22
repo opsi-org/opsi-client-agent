@@ -1,5 +1,9 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.10.4-3] - 2025-04-22
+
+### Changed
+- Using control.toml (Nils Doerrer <n.doerrer@uib.de>)
 
 ## [4.3.10.4-2] - 2025-04-17
 
