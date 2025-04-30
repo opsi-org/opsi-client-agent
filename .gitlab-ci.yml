@@ -19,7 +19,7 @@ prepare_files:
   artifacts:
     name: prepared_files
     paths:
-      - OPSI/control
+      - OPSI/control.toml
       - CLIENT_DATA/
 
 
@@ -32,7 +32,7 @@ linux_make_msi:
     - apt update
     - apt -y install wget cpio unar wixl uuid-runtime
     - cp CLIENT_DATA/oca-installation-helper.exe opsi-client-agent-installer.exe
-    - version=$(grep OPSI/control -A 10 -e "\[Product\]" | grep "version:" | tr -d "^a-zA-Z :")
+    - version=$(opsi-dev-cli opsi-package get-value productVersion)
     #- product_id=$(uuidgen | tr a-z A-Z)
     #- sed "s/{version}/${version}/g;s/{product_id}/${product_id}/g" msi/opsi-client-agent.wxs > opsi-client-agent.wxs
     - sed "s/{version}/${version}/g" msi/opsi-client-agent.wxs > opsi-client-agent.wxs
