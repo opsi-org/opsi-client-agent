@@ -1,6 +1,11 @@
 ﻿# Changelog opsi-client-agent
 
-## [4.3.10.5.1] - 2025-04-25
+## [4.3.10.5-2] - 2025-04-30
+
+### Fixed
+- Upgrade oca-installation-helper to 4.3.2.1 (reenabled installation on win7) (Nils Doerrer <n.doerrer@uib.de>)
+
+## [4.3.10.5-1] - 2025-04-25
 
 ### Fixed
 - Upgrade opsiclientd to 4.3.10.5 (fixed opsi-script execution from rpc) (Nils Doerrer <n.doerrer@uib.de>)
