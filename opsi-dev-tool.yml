@@ -8,6 +8,7 @@ pull-binaries:
     os: windows
     architecture: x86
     version: 4.3.10.5
+    server-url: http://binaryindex.uib.gmbh
 
  # opsi-script binaries - only needed for netboot
   - name: opsi-script-bin
@@ -18,6 +19,7 @@ pull-binaries:
     os: windows
     architecture: x86
     version: 4.12.17.2
+    server-url: http://binaryindex.uib.gmbh
 
   # opsi-script common files - only needed for netboot
   - name: opsi-script-common
@@ -34,6 +36,7 @@ pull-binaries:
     os: all
     architecture: all
     version: 4.12.17.0
+    server-url: http://binaryindex.uib.gmbh
 
  # openssl library for opsi-script - only needed for netboot
   - name: openssl
@@ -46,6 +49,7 @@ pull-binaries:
     os: windows
     architecture: x86
     version: 3.0.14
+    server-url: http://binaryindex.uib.gmbh
 
   # opsi-login-blocker - prevents login during opsi task execution
   - name: opsi-login-blocker
@@ -56,6 +60,7 @@ pull-binaries:
     os: windows
     architecture: all
     version: 4.3.0.0
+    server-url: http://binaryindex.uib.gmbh
 
   # opsi-notifier
   - name: opsi-notifier
@@ -66,6 +71,7 @@ pull-binaries:
     os: windows
     architecture: x86
     version: 4.3.0.1
+    server-url: http://binaryindex.uib.gmbh
 
   # opsi-systray
   - name: opsi-client-systray
@@ -76,6 +82,7 @@ pull-binaries:
     os: windows
     architecture: x86
     version: 4.3.0.0
+    server-url: http://binaryindex.uib.gmbh
 
   # opsi client agent installation helper (as binary)
   - name: oca-installation-helper
@@ -88,6 +95,7 @@ pull-binaries:
     os: windows
     architecture: x86
     version: 4.3.2.1
+    server-url: http://binaryindex.uib.gmbh
 
   # opsi deployment script (as binary)
   - name: opsi-deploy-client-agent
@@ -98,6 +106,7 @@ pull-binaries:
     os: linux
     architecture: x64
     version: 4.3.1.0
+    server-url: http://binaryindex.uib.gmbh
 
   # message of the day notifier
   - name: motd-notifier
@@ -108,6 +117,7 @@ pull-binaries:
     os: windows
     architecture: x86
     version: 0.3.1
+    server-url: http://binaryindex.uib.gmbh
 
   # Visual C++ redistributable 2015-2022
   # This needed for opsi-login-blocker x86 >= 4.2.0.0 and opsiclientd
@@ -120,6 +130,7 @@ pull-binaries:
     os: windows
     architecture: x86
     version: 14.44.35026.0
+    server-url: http://binaryindex.uib.gmbh
 
   # Visual C++ redistributable 2015-2022
   # This needed for opsi-login-blocker x86 >= 4.2.0.0 and opsiclientd
@@ -132,6 +143,7 @@ pull-binaries:
     os: windows
     architecture: x64
     version: 14.44.35026.0
+    server-url: http://binaryindex.uib.gmbh
 
   # api-ms-win-core-path-l1-1-0.dll needed for python >= 3.9 on windows < 10
   # https://bugs.python.org/issue40740
@@ -143,6 +155,7 @@ pull-binaries:
     os: windows
     architecture: x86
     version: 0.3.1
+    server-url: http://binaryindex.uib.gmbh
 
   # api-ms-win-core-path-l1-1-0.dll needed for python >= 3.9 on windows < 10
   # https://bugs.python.org/issue40740
@@ -154,6 +167,7 @@ pull-binaries:
     os: windows
     architecture: x64
     version: 0.3.1
+    server-url: http://binaryindex.uib.gmbh
 
 
 jenkins-test:
