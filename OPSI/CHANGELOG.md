@@ -1,5 +1,11 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.11.0-1] - 2025-05-06
+
+### Changed
+- Upgrade opsi-deploy-client-agent to 4.3.2.0 (Jan Schneider <j.schneider@uib.de>)
+- Upgrade opsiclientd to 4.3.11.0 (New config option global.send_sas_on_startup) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.10.5-2] - 2025-04-30
 
 ### Fixed
