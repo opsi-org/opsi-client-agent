@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.11.1-1] - 2025-05-08
+
+### Changed
+- Upgrade oca-installation-helper to 4.3.2.3 (more robust against incomplete/missing 32bit powershell) (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.3.11.0-1] - 2025-05-06
 
 ### Changed
