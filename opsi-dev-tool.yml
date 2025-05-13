@@ -129,7 +129,7 @@ pull-binaries:
       - chmod u+x,g+x CLIENT_DATA/files/vcredist/*.exe
     os: windows
     architecture: x86
-    version: 14.44.35026.0
+    version: 14.42.34438.0
     server-url: http://binaryindex.uib.gmbh
 
   # Visual C++ redistributable 2015-2022
@@ -142,7 +142,7 @@ pull-binaries:
       - chmod u+x,g+x CLIENT_DATA/files/vcredist/*.exe
     os: windows
     architecture: x64
-    version: 14.44.35026.0
+    version: 14.42.34438.0
     server-url: http://binaryindex.uib.gmbh
 
   # api-ms-win-core-path-l1-1-0.dll needed for python >= 3.9 on windows < 10

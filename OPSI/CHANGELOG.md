@@ -1,5 +1,11 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.12.1-2] - 2025-05-13
+
+### Changed
+- Downgraded vcredist to 14.42.34438.0 (Nils Doerrer <n.doerrer@uib.de>)
+
+
 ## [4.3.12.1-1] - 2025-05-12
 
 ### Changed
