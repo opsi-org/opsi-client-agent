@@ -9,6 +9,7 @@ stages:
 prepare_files:
   stage: prepare
   script:
+    - curl http://binaryindex.uib.gmbh/development/opsi-dev-tools/linux/x64/installer.sh | sh
     - opsi-dev-cli -l info binary pull
     - version=$(opsi-dev-cli opsi-package get-value productVersion)
     - package=$(opsi-dev-cli opsi-package get-value packageVersion)
@@ -29,6 +30,7 @@ linux_make_msi:
   image: debian:bullseye
   stage: package
   script:
+    - curl http://binaryindex.uib.gmbh/development/opsi-dev-tools/linux/x64/installer.sh | sh
     - apt update
     - apt -y install wget cpio unar wixl uuid-runtime
     - cp CLIENT_DATA/oca-installation-helper.exe opsi-client-agent-installer.exe
@@ -54,14 +56,12 @@ windows_make_msi:
   tags:
     - windows
   script:
+    - powershell -ExecutionPolicy ByPass -c "irm http://binaryindex.uib.gmbh/development/opsi-dev-tools/windows/x86/installer.ps1 | iex"
     - Copy-Item CLIENT_DATA\oca-installation-helper.exe -Destination opsi-client-agent-installer.exe
-    - Invoke-WebRequest -UseBasicParsing -Uri "$OPSIDEVTOOLS_URL_WINDOWS_X86" -OutFile opsi-dev-tools.zip
-    - Expand-Archive opsi-dev-tools.zip -DestinationPath .
-    - Copy-Item .\opsi-dev-tool.exe -Destination .\opsi-dev-cli.exe
     - Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/wixtoolset/wix3/releases/download/wix3141rtm/wix314-binaries.zip" -OutFile wix-binaries.zip
     - Expand-Archive wix-binaries.zip -DestinationPath wix
     # Get version from control file
-    - $version = .\opsi-dev-cli.exe opsi-package get-value productVersion
+    - $version = opsi-dev-cli.exe opsi-package get-value productVersion
     # Patch version
     - ((Get-Content -path msi\\opsi-client-agent.wxs -Raw) -replace "{version}",$version) | Set-Content -Path opsi-client-agent.wxs
     - Get-Content opsi-client-agent.wxs
@@ -69,15 +69,16 @@ windows_make_msi:
     - wix\\candle.exe opsi-client-agent.wxs
     - wix\\light.exe opsi-client-agent.wixobj
     # Sign msi
-    - .\opsi-dev-tool.exe -l info --signserver-sign opsi-client-agent.msi
+    - opsi-dev-tool.exe -l6 --signserver-sign opsi-client-agent.msi
     # Push to binaryindex
-    - if (! $CI_COMMIT_TAG) {.\opsi-dev-cli.exe -l info binary push opsi-client-agent.msi --product=opsi-client-agent-msi --system=windows --architecture=x86 --version=$version --prerelease="$CI_JOB_ID"}
-    - if ($CI_COMMIT_TAG) {.\opsi-dev-cli.exe -l info binary push opsi-client-agent.msi --product=opsi-client-agent-msi --system=windows --architecture=x86 --version=$version }
-    - if ($CI_COMMIT_TAG) {.\opsi-dev-cli.exe -l info release-service register-package-version opsi-client-agent-msi TOOL --files=opsi-client-agent.msi --version=$version --changelog-file=OPSI\\CHANGELOG.md}
+    - if (! $CI_COMMIT_TAG) {opsi-dev-cli.exe -l6 binary push opsi-client-agent.msi --product=opsi-client-agent-msi --system=windows --architecture=x86 --version=$version --prerelease="$CI_JOB_ID"}
+    - if ($CI_COMMIT_TAG) {opsi-dev-cli.exe -l6 binary push opsi-client-agent.msi --product=opsi-client-agent-msi --system=windows --architecture=x86 --version=$version }
+    - if ($CI_COMMIT_TAG) {opsi-dev-cli.exe -l6 release-service register-package-version opsi-client-agent-msi TOOL --files=opsi-client-agent.msi --version=$version --changelog-file=OPSI\\CHANGELOG.md}
 
 make_opsi_package:
   stage: package
   script:
+    - curl http://binaryindex.uib.gmbh/development/opsi-dev-tools/linux/x64/installer.sh | sh
     - opsi-makepackage --no-set-rights -l 6
     - upload-package opsi-client-agent_*.opsi
 
@@ -86,6 +87,7 @@ test_windows_versions:
   stage: test
   when: manual
   script:
+    - curl http://binaryindex.uib.gmbh/development/opsi-dev-tools/linux/x64/installer.sh | sh
     - OLDVERSION="4.1.1.0-1"
     - version=$(opsi-dev-cli opsi-package get-value productVersion)
     - package=$(opsi-dev-cli opsi-package get-value packageVersion)
@@ -98,6 +100,7 @@ test_tagged:
   only:
     - tags
   script:
+    - curl http://binaryindex.uib.gmbh/development/opsi-dev-tools/linux/x64/installer.sh | sh
     - OLDVERSION="4.1.1.0-1"
     - version=$(opsi-dev-cli opsi-package get-value productVersion)
     - package=$(opsi-dev-cli opsi-package get-value packageVersion)
