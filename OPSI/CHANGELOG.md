@@ -1,20 +1,24 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.12.2-1] - 2025-05-14
+
+### Changed
+- Upgrade opsiclientd to 4.3.12.2 (reworked product cache) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.12.1-2] - 2025-05-13
 
 ### Changed
 - Downgraded vcredist to 14.42.34438.0 (Nils Doerrer <n.doerrer@uib.de>)
 
-
 ## [4.3.12.1-1] - 2025-05-12
 
 ### Changed
-- Upgrade opsclientd to 4.3.12.1 (smart cache for on_demand) (Jan Schneider <j.schneider@uib.de>)
+- Upgrade opsiclientd to 4.3.12.1 (smart cache for on_demand) (Jan Schneider <j.schneider@uib.de>)
 
 ## [4.3.12.0-1] - 2025-05-12
 
 ### Changed
-- Upgrade opsclientd to 4.3.12.0 (centralized service connection) (Jan Schneider <j.schneider@uib.de>)
+- Upgrade opsiclientd to 4.3.12.0 (centralized service connection) (Jan Schneider <j.schneider@uib.de>)
 
 ## [4.3.11.1-1] - 2025-05-08
 
@@ -50,7 +54,7 @@
 ## [4.3.10.4-1] - 2025-04-15
 
 ### Fixed
-- Upgrade opsclientd to 4.3.10.4 (Minor fix in event handling) (Nils Doerrer <n.doerrer@uib.de>)
+- Upgrade opsiclientd to 4.3.10.4 (Minor fix in event handling) (Nils Doerrer <n.doerrer@uib.de>)
 
 ### Changed
 - Using oca-installation-helper for installation in netboot context (Nils Doerrer <n.doerrer@uib.de>)
@@ -59,7 +63,7 @@
 ## [4.3.10.3-1] - 2025-04-10
 
 ### Fixed
-- Upgrade opsclientd to 4.3.10.3 (Minor fix in event handling, fixed terminal connection timeout) (Nils Doerrer <n.doerrer@uib.de>)
+- Upgrade opsiclientd to 4.3.10.3 (Minor fix in event handling, fixed terminal connection timeout) (Nils Doerrer <n.doerrer@uib.de>)
 
 ### Changed
 - Upgrade oca-installation-helper to 4.3.2.0 (New gui/tui components, loading installation files from depot) (Nils Doerrer <n.doerrer@uib.de>)
@@ -69,13 +73,13 @@
 ## [4.3.10.1-1] - 2025-04-04
 
 ### Changed
-- Upgrade opsclientd to 4.3.10.1 (reworked installation_pending mechanic) (Nils Doerrer <n.doerrer@uib.de>)
+- Upgrade opsiclientd to 4.3.10.1 (reworked installation_pending mechanic) (Nils Doerrer <n.doerrer@uib.de>)
 - Uninstall now updates Installation status before connection to server breaks (Nils Doerrer <n.doerrer@uib.de>)
 
 ## [4.3.10.0-1] - 2025-04-01
 
 ### Changed
-- Upgrade opsclientd to 4.3.10.0 (clientconfig.smart_cache) (Jan Schneider <j.schneider@uib.de>)
+- Upgrade opsiclientd to 4.3.10.0 (clientconfig.smart_cache) (Jan Schneider <j.schneider@uib.de>)
 
 ## [4.3.9.2-3] - 2025-03-26
 
@@ -94,12 +98,12 @@
 ## [4.3.9.2-1] - 2025-03-14
 
 ### Changed
-- Upgrade opsclientd to 4.3.9.2 (Jan Schneider <j.schneider@uib.de>)
+- Upgrade opsiclientd to 4.3.9.2 (Jan Schneider <j.schneider@uib.de>)
 
 ## [4.3.9.0-1] - 2025-03-07
 
 ### Changed
-- Upgrade opsclientd to 4.3.9.0 - showDialog (Jan Schneider <j.schneider@uib.de>)
+- Upgrade opsiclientd to 4.3.9.0 - showDialog (Jan Schneider <j.schneider@uib.de>)
 - Upgrade motd-notifier to 0.3.0 - dialog (Jan Schneider <j.schneider@uib.de>)
 
 ## [4.3.8.0-1] - 2025-02-27
