@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.12.3-1] - 2025-05-14
+
+### Changed
+- Upgrade opsiclientd to 4.3.12.3 (Fix CA store update) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.12.2-1] - 2025-05-14
 
 ### Changed
