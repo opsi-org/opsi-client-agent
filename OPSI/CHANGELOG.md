@@ -1,9 +1,14 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.12.4-1] - 2025-05-26
+
+### Changed
+- Upgrade opsiclientd to 4.3.12.4 (WAN/VPN connection fixes) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.12.3-2] - 2025-05-16
 
 ### Changed
-- Upgrade oca-installation-helper to 4.3.2.4 (allow trailing dot in client domain)(Jan Schneider <j.schneider@uib.de>)
+- Upgrade oca-installation-helper to 4.3.2.4 (allow trailing dot in client domain) (Nils Doerrer <n.doerrer@uib.de>)
 
 ## [4.3.12.3-1] - 2025-05-14
 
