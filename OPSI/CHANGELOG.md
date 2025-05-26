@@ -1,5 +1,12 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.12.4-2] - 2025-05-26
+
+### Changed
+- Upgrade oca-installation-helper to 4.3.12.5 (Nils Doerrer <n.doerrer@uib.de>)
+- Upgrade opsi-deploy-client-agent to 4.3.2.1 (Nils Doerrer <n.doerrer@uib.de>)
+
+
 ## [4.3.12.4-1] - 2025-05-26
 
 ### Changed

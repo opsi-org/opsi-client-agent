@@ -94,7 +94,7 @@ pull-binaries:
         - chmod 755 CLIENT_DATA/oca-installation-helper.exe
     os: windows
     architecture: x86
-    version: 4.3.2.4
+    version: 4.3.2.5
     server-url: http://binaryindex.uib.gmbh
 
   # opsi deployment script (as binary)
@@ -105,7 +105,7 @@ pull-binaries:
     post-script: []
     os: linux
     architecture: x64
-    version: 4.3.2.0
+    version: 4.3.2.1
     server-url: http://binaryindex.uib.gmbh
 
   # message of the day notifier
