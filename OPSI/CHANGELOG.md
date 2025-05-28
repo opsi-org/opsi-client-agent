@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.12.5-1] - 2025-05-28
+
+### Fixed
+- Upgrade opsiclientd to 4.3.12.5 (fix show service URL) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.12.4-3] - 2025-05-26
 
 ### Fixed
