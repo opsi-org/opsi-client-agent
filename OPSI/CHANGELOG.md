@@ -4,6 +4,7 @@
 
 ### New
 - Upgrade opsiclientd to 4.3.13.0 (cached server version, domain login) (Jan Schneider <j.schneider@uib.de>)
+- Upgrade opsi-login-blocker to 4.3.1.0 (domain login) (Jan Schneider <j.schneider@uib.de>)
 
 ## [4.3.12.5-1] - 2025-05-28
 
