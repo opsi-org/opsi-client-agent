@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.13.1-1] - 2025-06-04
+
+### Fixed
+- Upgrade opsiclientd to 4.3.13.1 (fixed dutch translation) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.13.0-1] - 2025-06-02
 
 ### New
