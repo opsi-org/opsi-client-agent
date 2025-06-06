@@ -1,0 +1,16 @@
+[[installers]]
+processes = []
+check_processes_from_dirs = []
+install_dir = ''
+path = ''
+
+[installers.requirement]
+os_arch = 'x86'
+os = 'windows'
+requiredSpaceMB = 200
+
+[product]
+productIconFilePath = 'files\\opsi-logo.png'
+
+[specification]
+version = '0.1'
