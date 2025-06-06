@@ -1,5 +1,27 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.13.3-1] - 2025-06-06
+
+### Fixed
+- Upgrade opsiclientd to 4.3.13.1 (fixed opsi-script call, process listing, translation errors) (Jan Schneider <j.schneider@uib.de>)
+- Upgrade oca-installation-helper to 4.3.3.0 (pull opsi-client-agent from depot)
+
+## [4.3.13.1-1] - 2025-06-04
+
+### Fixed
+- Upgrade opsiclientd to 4.3.13.1 (fixed dutch translation) (Jan Schneider <j.schneider@uib.de>)
+
+## [4.3.13.0-1] - 2025-06-02
+
+### New
+- Upgrade opsiclientd to 4.3.13.0 (cached server version, domain login) (Jan Schneider <j.schneider@uib.de>)
+- Upgrade opsi-login-blocker to 4.3.1.0 (domain login) (Jan Schneider <j.schneider@uib.de>)
+
+## [4.3.12.5-1] - 2025-05-28
+
+### Fixed
+- Upgrade opsiclientd to 4.3.12.5 (fix show service URL) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.12.4-3] - 2025-05-26
 
 ### Fixed
