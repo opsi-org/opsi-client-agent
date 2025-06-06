@@ -1,5 +1,11 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.13.3-1] - 2025-06-06
+
+### Fixed
+- Upgrade opsiclientd to 4.3.13.1 (fixed opsi-script call, process listing, translation errors) (Jan Schneider <j.schneider@uib.de>)
+- Upgrade oca-installation-helper to 4.3.3.0 (pull opsi-client-agent from depot)
+
 ## [4.3.13.1-1] - 2025-06-04
 
 ### Fixed
