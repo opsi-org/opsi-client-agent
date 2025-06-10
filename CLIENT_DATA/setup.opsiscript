@@ -229,8 +229,8 @@ DefFunc install_opsiclientd(): void
 		if not(GetLastExitcode = "0")
 			LogError "opsiclientd setup failed"
 			if FileExists($BaseDir$ + "\opsiclientd\opsiclientd.conf.bak")
-				Comment "Trying to restore old opsiclientd.conf"
-				PowershellCall('Copy-Item -Path "' + $BaseDir$ + '\opsiclientd\opsiclientd.conf.bak" -Destination "' + $BaseDir$ + '\opsiclientd\opsiclientd.conf" -force')
+				Comment "Restoring opsiclientd config backup"
+				PowershellCall('Move-Item -Path "' + $BaseDir$ + '\opsiclientd\opsiclientd.conf.bak" -Destination "' + $BaseDir$ + '\opsiclientd\opsiclientd.conf" -force')
 			endif
 			IsFatalError "opsiclientd setup failed"
 		endif
