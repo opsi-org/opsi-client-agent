@@ -285,6 +285,7 @@ DefFunc install_opsiclientd(): void
 	del -f "$BaseDir$\action_processor_starter.exe"
 	del -f "$BaseDir$\opsiclientd_rpc.exe"
 	del -f "$BaseDir$\opsiclientd_shutdown_starter.exe"
+	del -f "$BaseDir$\opsiclientd\opsiclientd.conf.bak"
 
 
 	[ExecWith_powershell_install_binaries]
@@ -791,7 +792,7 @@ DefFunc install_configuration() : void
 		Set $OCANoModify$ = "REG_DWORD:1"
 		Set $OCANoRemove$ = "REG_DWORD:1"
 	endif
-	
+
 	Registry_SetUninstallEntries
 
 	[Files_copy_uninst]
