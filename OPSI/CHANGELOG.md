@@ -4,6 +4,7 @@
 
 ### Changed
 - Upgrade opsiclientd to 4.3.13.5 (Jan Schneider <j.schneider@uib.de>)
+- Upgrade motd-notifier to 0.3.3 (Jan Schneider <j.schneider@uib.de>)
 
 ## [4.3.13.4-1] - 2025-06-10
 
