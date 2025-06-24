@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.13.5-4] - 2025-06-24
+
+### Changed
+- Cleaning up opsi-winst files (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.3.13.5-3] - 2025-06-24
 
 ### Changed
