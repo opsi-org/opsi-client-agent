@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.13.5-3] - 2025-06-24
+
+### Changed
+- Upgrade oca-installation-helper to 4.3.3.2 (fixed --encode-password) (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.3.13.5-2] - 2025-06-16
 
 ### Changed
