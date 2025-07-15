@@ -1,5 +1,13 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.13.7-1] - 2025-07-15
+
+### Fixed
+- Upgrade opsiclientd to 4.3.13.7 (fixed behaviour with WAN-related configs) (Nils Doerrer <n.doerrer@uib.de>)
+
+### Changed
+- Upgrade oca-installation-helper to 4.3.3.3 (more robust get_mac_address in case of weird network configurations) (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.3.13.5-4] - 2025-06-24
 
 ### Changed
