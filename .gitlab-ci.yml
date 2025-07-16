@@ -88,7 +88,7 @@ test_windows_versions:
   when: manual
   script:
     - curl http://binaryindex.uib.gmbh/development/opsi-dev-tools/linux/x64/installer.sh | sh
-    - OLDVERSION="4.2.0.42-1"
+    - OLDVERSION="4.2.0.34-1"
     - version=$(opsi-dev-cli opsi-package get-value productVersion)
     - package=$(opsi-dev-cli opsi-package get-value packageVersion)
     - version="$version-$(echo $package | tr '.' '~')"
@@ -101,7 +101,7 @@ test_tagged:
     - tags
   script:
     - curl http://binaryindex.uib.gmbh/development/opsi-dev-tools/linux/x64/installer.sh | sh
-    - OLDVERSION="4.2.0.42-1"
+    - OLDVERSION="4.2.0.34-1"
     - version=$(opsi-dev-cli opsi-package get-value productVersion)
     - package=$(opsi-dev-cli opsi-package get-value packageVersion)
     - version="$version-$(echo $package | tr '.' '~')"
