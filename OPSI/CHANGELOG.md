@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.13.7-2] - 2025-07-29
+
+### Fixed
+- Upgrade opsi-login-blocker to 4.3.1.1 (improvements in stability and logging) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.13.7-1] - 2025-07-15
 
 ### Fixed
