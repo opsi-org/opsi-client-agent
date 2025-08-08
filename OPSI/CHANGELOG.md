@@ -1,5 +1,13 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.13.8-1] - 2025-08-08
+
+### Fixed
+- Upgrade motd-notifier to 0.3.4 (improved locking mechanism) (Jan Schneider <j.schneider@uib.de>)
+
+### Changed
+- Upgrade opsiclientd to 4.3.13.8 (only lock session if not on Winlogon desktop) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.13.7-2] - 2025-07-29
 
 ### Fixed
