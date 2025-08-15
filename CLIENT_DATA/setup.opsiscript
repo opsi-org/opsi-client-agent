@@ -1143,11 +1143,7 @@ else
 	endif
 endif
 
-DefVar $PermissionSetSuccess$
-if not ("%Username%" = "SYSTEM")
-	; if not running as system: fix permissions on BaseDir (not VarDir)
-	Set $PermissionSetSuccess$ = install_directories("false", "true")
-endif
+DefVar $PermissionSetSuccess$ = install_directories("false", "true")
 
 if not (FileExists($BaseDir$ + "\opsi-script"))
 	install_opsiscript()
