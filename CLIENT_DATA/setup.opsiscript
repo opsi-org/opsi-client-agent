@@ -162,7 +162,7 @@ DefFunc install_opsiclientd(): void
 
 	if FileExists($NewDir$)
 		Comment "Removing " + $NewDir$
-		DefVar $randomString$ = RandomIntStr(999999)
+		DefVar $randomString$ = RandomIntStr("999999")
 		Files_remove_old_opsiclientd_dir
 	endif
 	; In case removal failed (or partially successful) do not change link target
