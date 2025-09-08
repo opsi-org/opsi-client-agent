@@ -162,7 +162,8 @@ DefFunc install_opsiclientd(): void
 
 	if FileExists($NewDir$)
 		Comment "Removing " + $NewDir$
-		PowershellCall('Remove-Item "' + $NewDir$ + '" -Recurse')
+		DefVar $randomString$ = RandomIntStr(999999)
+		Files_remove_old_opsiclientd_dir
 	endif
 	; In case removal failed (or partially successful) do not change link target
 	if FileExists($NewDir$)
@@ -275,6 +276,9 @@ DefFunc install_opsiclientd(): void
 	del -f "$BaseDir$\opsiclientd_shutdown_starter.exe"
 	del -f "$BaseDir$\opsiclientd\opsiclientd.conf.bak"
 
+	[Files_remove_old_opsiclientd_dir]
+	move "$NewDir$" "$BaseDir$\$randomString$"
+	del -src "$BaseDir$\$randomString$
 
 	[ExecWith_powershell_install_binaries]
 	$bin_dir = "$BaseDir$\opsiclientd_windows_x86"
