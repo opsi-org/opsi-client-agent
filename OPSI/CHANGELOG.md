@@ -1,4 +1,9 @@
 ﻿# Changelog opsi-client-agent
+## [4.3.13.8-1] - 2025-09-08
+
+### Changed
+- Made removal of old opsiclientd more robust (Nils Doerrer <n.doerrer@uib.de>)
+- Upgrade opsiclientd to 4.3.14.0 (enabled prioritising events) (Jan Schneider <j.schneider@uib.de>)
 
 ## [4.3.13.8-1] - 2025-08-08
 
