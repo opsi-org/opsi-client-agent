@@ -748,7 +748,7 @@ DefFunc set_installed_packages_to_setup() : void
 	[OpsiServiceCall_productOnClient_getObjects_localboot_installed]
 	"method": "productOnClient_getObjects"
 	"params": [
-		"[]",
+		'["productId", "actionRequest", "installationStatus", "productType", "clientId"]',
 		'{"clientId":"$ClientId$","productType":"LocalbootProduct","installationStatus":"installed","actionRequest":"none"}'
 	]
 EndFunc
