@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
-## [4.3.13.8-1] - 2025-09-08
+## [4.3.14.1-1] - 2025-09-10
+
+### Changed
+- Upgrade opsiclientd to 4.3.14.1 (improved network handling) (Nils Doerrer <n.doerrer@uib.de>)
+
+## [4.3.14.0-1] - 2025-09-08
 
 ### Changed
 - Made removal of old opsiclientd more robust (Nils Doerrer <n.doerrer@uib.de>)

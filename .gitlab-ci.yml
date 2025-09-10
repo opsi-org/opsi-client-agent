@@ -79,8 +79,8 @@ make_opsi_package:
   stage: package
   script:
     - curl http://binaryindex.uib.gmbh/development/opsi-dev-tools/linux/x64/installer.sh | sh
-    - opsi-makepackage --no-set-rights -l 6
-    - upload-package opsi-client-agent_*.opsi
+    - opsi-cli package make
+    - upload-package *.opsi
 
 
 test_windows_versions:
@@ -93,7 +93,7 @@ test_windows_versions:
     - package=$(opsi-dev-cli opsi-package get-value packageVersion)
     - version="$version-$(echo $package | tr '.' '~')"
     - opsi-dev-cli -l info jenkins test --versions="$OLDVERSION,$version,$version"
-    - opsi-dev-cli -l info jenkins test --versions="$version,1.0-2" --systems=win11-x64-23h2 --products=opsi-client-agent,oca-access-test --actionrequest=setup,setup --productsources=opsi-client-agent,oca-access-test
+    - opsi-dev-cli -l info jenkins test --versions="$version,1.0-2" --systems=win11-x64-24h2 --products=opsi-client-agent,oca-access-test --actionrequest=setup,setup --productsources=opsi-client-agent,oca-access-test
 
 test_tagged:
   stage: test
@@ -106,4 +106,4 @@ test_tagged:
     - package=$(opsi-dev-cli opsi-package get-value packageVersion)
     - version="$version-$(echo $package | tr '.' '~')"
     - opsi-dev-cli -l info jenkins test --versions="$OLDVERSION,$version,$version"
-    - opsi-dev-cli -l info jenkins test --versions="$version,1.0-2" --systems=win11-x64-23h2 --products=opsi-client-agent,oca-access-test --actionrequest=setup,setup --productsources=opsi-client-agent,oca-access-test
+    - opsi-dev-cli -l info jenkins test --versions="$version,1.0-2" --systems=win11-x64-24h2 --products=opsi-client-agent,oca-access-test --actionrequest=setup,setup --productsources=opsi-client-agent,oca-access-test
