@@ -1,4 +1,9 @@
 ﻿# Changelog opsi-client-agent
+## [4.3.14.1-2] - 2025-09-19
+
+### New
+- Upgrade oca-installation-helper to 4.3.3.4 (connect_timeout 60s, new option --depot-by-network) (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.3.14.1-1] - 2025-09-10
 
 ### Changed
