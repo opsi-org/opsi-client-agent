@@ -1,4 +1,9 @@
 ﻿# Changelog opsi-client-agent
+## [4.3.14.2-1] - 2025-09-23
+
+### Fixed
+- Upgrade opsiclientd to 4.3.14.2 (increasing connect_timeout with each retry) (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.3.14.1-2] - 2025-09-19
 
 ### New
