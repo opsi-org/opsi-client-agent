@@ -1,4 +1,9 @@
 ﻿# Changelog opsi-client-agent
+## [4.3.14.2-2] - 2025-09-25
+
+### Fixed
+- Upgrade opsi-login-blocker to 4.3.1.2 (fix heap corruption) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.14.2-1] - 2025-09-23
 
 ### Fixed
