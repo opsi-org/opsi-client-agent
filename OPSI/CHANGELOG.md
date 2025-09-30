@@ -1,6 +1,11 @@
 ﻿# Changelog opsi-client-agent
 ## [4.3.14.2-2] - 2025-09-25
 
+### Changed
+- Aborting installation when failing to set rights (SAM or LSA in wrong state to perform security operation) (Nils Doerrer <n.doerrer@uib.de>)
+
+## [4.3.14.2-2] - 2025-09-25
+
 ### Fixed
 - Upgrade opsi-login-blocker to 4.3.1.2 (fix heap corruption) (Jan Schneider <j.schneider@uib.de>)
 
