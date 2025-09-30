@@ -390,7 +390,9 @@ DefFunc install_loginblocker() : void
 			ShellCall("taskkill /f /im logonui.exe")
 		endif
 	endif
-	Files_uninstall_loginblocker /sysnative
+	if FileExists("%System%\OpsiLoginBlocker.dll")
+		Files_uninstall_loginblocker /sysnative
+	endif
 
 	[Sub_install_loginblocker]
 	Comment "Installing login blocker"
