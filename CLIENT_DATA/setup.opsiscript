@@ -1154,6 +1154,10 @@ if not ("%Username%" = "SYSTEM")
 	; if not running as system: fix permissions on BaseDir (not VarDir)
 	Set $PermissionSetSuccess$ = install_directories("false", "true")
 endif
+if $PermissionSetSuccess$ = "false"
+		LogError "Failed to set permissions before installation"
+		IsFatalError "Failed to set permissions"
+endif
 
 if not (FileExists($BaseDir$ + "\opsi-script"))
 	install_opsiscript()
