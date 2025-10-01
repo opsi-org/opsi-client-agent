@@ -604,6 +604,7 @@ DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : strin
 	CheckTargetPath = "$VarDir$\opsiclientd"
 	CheckTargetPath = "$VarDir$\tls"
 	CheckTargetPath = "$VarDir$\data"
+	CheckTargetPath = "$BaseDir$"
 
 	[DosInAnIcon_set_file_permissions_vardir]
 	set returncode=0
@@ -666,11 +667,11 @@ DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : strin
 	; Set owner to SYSTEM - may fail
 	icacls "$BaseDir$" /setowner SYSTEM
 	; Add read and exceute permission for local users on opsi-script
-	icacls "$BaseDir$\opsi-script" /grant "*S-1-5-32-545:(OI)(CI)RX" || set returncode=1
+	if exist "$BaseDir$\opsi-script" icacls "$BaseDir$\opsi-script" /grant "*S-1-5-32-545:(OI)(CI)RX" || set returncode=1
 	; Add read and exceute permission for local users on opsi-client-systray and notifiers
-	icacls "$BaseDir$\opsi-client-systray" /grant "*S-1-5-32-545:(OI)(CI)RX"
-	icacls "$BaseDir$\opsi-notifier.exe" /grant "*S-1-5-32-545:RX"
-	icacls "$BaseDir$\motd-notifier.exe" /grant "*S-1-5-32-545:RX"
+	if exist "$BaseDir$\opsi-client-systray" icacls "$BaseDir$\opsi-client-systray" /grant "*S-1-5-32-545:(OI)(CI)RX"
+	if exist "$BaseDir$\opsi-notifier.exe" icacls "$BaseDir$\opsi-notifier.exe" /grant "*S-1-5-32-545:RX"
+	if exist "$BaseDir$\motd-notifier.exe" cacls "$BaseDir$\motd-notifier.exe" /grant "*S-1-5-32-545:RX"
 	exit %returncode%
 EndFunc
 
@@ -1149,11 +1150,7 @@ else
 	endif
 endif
 
-DefVar $PermissionSetSuccess$
-if not ("%Username%" = "SYSTEM")
-	; if not running as system: fix permissions on BaseDir (not VarDir)
-	Set $PermissionSetSuccess$ = install_directories("false", "true")
-endif
+DefVar $PermissionSetSuccess$ = install_directories("false", "true")
 if $PermissionSetSuccess$ = "false"
 		LogError "Failed to set permissions before installation"
 		IsFatalError "Failed to set permissions"
