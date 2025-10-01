@@ -1,5 +1,5 @@
 ﻿# Changelog opsi-client-agent
-## [4.3.14.2-2] - 2025-09-25
+## [4.3.14.2-4] - 2025-10-01
 
 ### Changed
 - Aborting installation when failing to set rights (SAM or LSA in wrong state to perform security operation) (Nils Doerrer <n.doerrer@uib.de>)
