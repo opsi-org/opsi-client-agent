@@ -515,33 +515,20 @@ EndFunc
 
 ; === custom files ==============================================================
 DefFunc install_custom_files(): void
-	if FileExists("%ScriptPath%\files\custom")
-		comment "Copy custom files"
-		MarkErrorNumber
-		Files_install_custom
-		if errorsOccurredSinceMark > 0
-			LogError "Failed to install custom files"
-			Message "Failed to install custom files"
-			IsFatalError "Failed to install custom files"
-		endif
-	else
-		comment "No custom files found"
-	endif
-
 	if not (runningInWanMode)
 		DefStringList $TempList$
 		Set $TempList$ = GetReturnListFromSection("OpsiServiceCall_product_getIdents_opsi-client-agent-custom")
 		DefVar $TempString$ = TakeString(0, $TempList$)
 		if JsonAsArrayCountElements($TempString$) > "0"
 			comment "Package opsi-client-agent-custom available, downloading custom files"
-			ShellCall('"'+ $BaseDir$ + '\opsiclientd_bin\opsiclientd.exe" --log-level 5 download-from-depot opsi-client-agent-custom "' + $BaseDir$ + '" "common/*"')
+			ShellCall('"'+ $BaseDir$ + '\opsiclientd_bin\opsiclientd.exe" --log-level 5 download-from-depot opsi-client-agent-custom "' + $BaseDir$ + '" "common/"')
 			if not(GetLastExitcode = "0")
 				LogError "Failed to fetch files from opsi-client-agent-custom"
 				Message "Failed to fetch files from opsi-client-agent-custom"
 			endif
 		else
 			comment "Package opsi-client-agent-custom not available, downloading custom files from opsi-client-agent"
-			ShellCall('"'+ $BaseDir$ + '\opsiclientd_bin\opsiclientd.exe" --log-level 5 download-from-depot opsi-client-agent "' + $BaseDir$ + '" "files/custom/*"')
+			ShellCall('"'+ $BaseDir$ + '\opsiclientd_bin\opsiclientd.exe" --log-level 5 download-from-depot opsi-client-agent "' + $BaseDir$ + '" "files/custom/"')
 			if not(GetLastExitcode = "0")
 				LogError "Failed to fetch custom files from opsi-client-agent"
 				Message "Failed to fetch custom files from opsi-client-agent"
@@ -549,8 +536,31 @@ DefFunc install_custom_files(): void
 		endif
 	endif
 
+	DefStringList $CustomPathList$ = createStringList()
+	if FileExists($BaseDir$+"\custom")
+		addtolist($CustomPathList$, $BaseDir$+"\custom")
+	endif
+	if FileExists($BaseDir$+"\common")
+		addtolist($CustomPathList$, $BaseDir$+"\common")
+	endif
+	if count($CustomPathList$) = "0"
+		comment "No custom files to install"
+	else
+		comment "Copying custom files"
+
+		MarkErrorNumber
+		for %TempCustomPath% in $CustomPathList$ do Files_install_custom
+		if errorsOccurredSinceMark > 0
+			LogError "Failed to install custom files"
+			Message "Failed to install custom files"
+			IsFatalError "Failed to install custom files"
+		endif
+	endif
+
 	[Files_install_custom]
-	copy -sc "%ScriptPath%\files\custom\*.*" "$BaseDir$\"
+	copy -sc "%TempCustomPath%\*.*" "$BaseDir$\"
+	del -sc "%TempCustomPath%"
+
 
 	[OpsiServiceCall_product_getIdents_opsi-client-agent-custom]
 	"method": "product_getIdents"
