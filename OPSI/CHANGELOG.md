@@ -1,4 +1,10 @@
 ﻿# Changelog opsi-client-agent
+## [4.3.14.3-1] - 2025-10-06
+
+### Fixed
+- Upgrade opsiclientd to 4.3.14.3 (fix opsiclientd download-from-depot function) (Nils Doerrer <n.doerrer@uib.de>)
+- Fixed custom file installation (custom directory in opsi-client-agent and opsi-client-agent-custom package) (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.3.14.2-4] - 2025-10-01
 
 ### Changed
