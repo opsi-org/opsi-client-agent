@@ -540,10 +540,10 @@ DefFunc install_custom_files(): void
 
 		DefStringList $CustomPathList$ = createStringList()
 		if FileExists($BaseDir$+"\custom")
-			addtolist($CustomPathList$, $BaseDir$+"\custom")
+			set $CustomPathList$ = addtolist($CustomPathList$, $BaseDir$+"\custom")
 		endif
 		if FileExists($BaseDir$+"\common")
-			addtolist($CustomPathList$, $BaseDir$+"\common")
+			set $CustomPathList$ = addtolist($CustomPathList$, $BaseDir$+"\common")
 		endif
 		if count($CustomPathList$) = "0"
 			comment "No custom files to install"
