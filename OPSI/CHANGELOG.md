@@ -1,4 +1,10 @@
 ﻿# Changelog opsi-client-agent
+
+## [4.3.14.4-1] - 2025-10-22
+
+### New
+- Upgrade opsiclientd to 4.3.14.4 (added pause/resume for product caching on metered network connection) (Jeena John <j.john@uib.de>)
+
 ## [4.3.14.3-1] - 2025-10-06
 
 ### Fixed
