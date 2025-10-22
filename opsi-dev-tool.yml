@@ -35,7 +35,7 @@ pull-binaries:
         - Remove-Item -Recurse -Force CLIENT_DATA\\files\\opsi-script-common
     os: all
     architecture: all
-    version: 4.12.17.0
+    version: 4.12.18.8
     server-url: http://binaryindex.uib.gmbh
 
  # openssl library for opsi-script - only needed for netboot
