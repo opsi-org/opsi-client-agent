@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.15.0-1] - 2025-10-23
+
+### New
+- Upgrade opsiclientd to 4.3.15.0 (added mshotfix cache settings for windows 2025 and win11 25h2) (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.3.14.4-1] - 2025-10-22
 
 ### New
