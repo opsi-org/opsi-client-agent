@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.15.2-1] - 2025-11-10
+
+### Fixed
+- Upgrade opsiclientd to 4.3.15.2 (fixed assembling messagebus rpc call result) (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.3.15.0-1] - 2025-10-23
 
 ### New
