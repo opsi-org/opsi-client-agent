@@ -1,5 +1,11 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.15.4-1] - 2025-11-14
+
+### Changed
+- Upgrade opsiclientd to 4.3.15.4 (fixed connection timeout increase) (Jan Schneider <j.schneider@uib.de>)
+- Upgrade motd-notifier to 1.0.0
+
 ## [4.3.15.2-1] - 2025-11-10
 
 ### Fixed
