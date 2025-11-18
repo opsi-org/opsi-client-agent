@@ -467,7 +467,6 @@ DefFunc install_opsinotifier() : void
 	;VERY old opsi-client-agents use notifier.exe instead of opsi-notifier.exe
 	ShellCall("taskkill /f /im notifier.exe")
 	Files_install_opsinotifier
-	Comment "Installing motd-notifier into basedir"
 	Files_install_motd_notifier
 
 	[Files_install_opsinotifier]
@@ -689,7 +688,7 @@ DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : strin
 	if exist "$BaseDir$\opsi-client-systray" icacls "$BaseDir$\opsi-client-systray" /grant "*S-1-5-32-545:(OI)(CI)RX"
 	if exist "$BaseDir$\opsi-notifier.exe" icacls "$BaseDir$\opsi-notifier.exe" /grant "*S-1-5-32-545:RX"
 	if exist "$BaseDir$\motd-notifier" icacls "$BaseDir$\motd-notifier" /grant "*S-1-5-32-545:(OI)(CI)RX"
-	if exist "$BaseDir$\motd-notifier.exe" icacls "$BaseDir$\motd-notifier.exe" /grant "*S-1-5-32-545:RX"
+	if exist "$BaseDir$\motd-notifier\opsi-notifier.exe" icacls "$BaseDir$\motd-notifier\opsi-notifier.exe" /grant "*S-1-5-32-545:RX"
 	exit %returncode%
 EndFunc
 

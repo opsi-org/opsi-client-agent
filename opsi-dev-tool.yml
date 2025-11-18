@@ -7,7 +7,7 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x86
-    version: 4.3.15.4
+    version: 4.3.15.4~429156
     server-url: http://binaryindex.uib.gmbh
 
  # opsi-script binaries - only needed for netboot
@@ -116,7 +116,7 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x86
-    version: 1.0.0~429002
+    version: 1.0.0.1~429111
     server-url: http://binaryindex.uib.gmbh
 
   # Visual C++ redistributable 2015-2022
