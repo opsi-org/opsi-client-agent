@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.15.5-1] - 2025-11-11
+
+### Changed
+- update opsiclientd and motd-notifier (notifier is build as one-dir) (Anna Sucher <a.sucher@uib.de>)
+
 ## [4.3.15.4-1] - 2025-11-17
 
 ### Changed
