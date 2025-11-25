@@ -477,6 +477,7 @@ DefFunc install_opsinotifier() : void
 	[Files_install_motd_notifier]
 	del -f "$BaseDir$\motd-notifier.exe"
 	copy -cs "%ScriptPath%\files\motd-notifier\*.*" "$BaseDir$\motd-notifier\"
+
 EndFunc
 
 
@@ -687,8 +688,12 @@ DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : strin
 	; Add read and exceute permission for local users on opsi-client-systray and notifiers
 	if exist "$BaseDir$\opsi-client-systray" icacls "$BaseDir$\opsi-client-systray" /grant "*S-1-5-32-545:(OI)(CI)RX"
 	if exist "$BaseDir$\opsi-notifier.exe" icacls "$BaseDir$\opsi-notifier.exe" /grant "*S-1-5-32-545:RX"
+<<<<<<< HEAD
 	if exist "$BaseDir$\motd-notifier" icacls "$BaseDir$\motd-notifier" /grant "*S-1-5-32-545:(OI)(CI)RX"
 	if exist "$BaseDir$\motd-notifier\opsi-notifier.exe" icacls "$BaseDir$\motd-notifier\opsi-notifier.exe" /grant "*S-1-5-32-545:RX"
+=======
+	if exist "$BaseDir$\motd-notifier.exe" icacls "$BaseDir$\motd-notifier.exe" /grant "*S-1-5-32-545:RX"
+>>>>>>> v4.3
 	exit %returncode%
 EndFunc
 
