@@ -456,6 +456,7 @@ EndFunc
 
 ; === opsi-notifier =============================================================
 DefFunc install_opsinotifier() : void
+	DefStringList $TempList$
 	Sub_install_opsinotifier
 
 	[Sub_install_opsinotifier]
@@ -467,17 +468,40 @@ DefFunc install_opsinotifier() : void
 	;VERY old opsi-client-agents use notifier.exe instead of opsi-notifier.exe
 	ShellCall("taskkill /f /im notifier.exe")
 	Files_install_opsinotifier
-	Files_install_motd_notifier
+	Sub_install_motd_notifier
+	
 
 	[Files_install_opsinotifier]
 	del -f "$BaseDir$\notifier.exe"
 	copy -c "%ScriptPath%\files\opsi-notifier\opsi-notifier.exe" "$BaseDir$\"
 	copy -c "%ScriptPath%\files\opsi-notifier\notifier.d\*.*" "$BaseDir$\notifier\"
 
-	[Files_install_motd_notifier]
-	del -f "$BaseDir$\motd-notifier.exe"
-	copy -cs "%ScriptPath%\files\motd-notifier\*.*" "$BaseDir$\motd-notifier\"
 
+	[Sub_install_motd_notifier]
+	Set $TempList$ = ShellCall('dir /B "%ScriptPath%\files"')
+	Set $TempList$ = GetRegexMatchList('(?m)^motd-notifier_windows_\S*.zip', $TempList$)
+	if count($TempList$) = "0"
+		LogError "Did not find motd-notifier binary archive in installation files"
+		isFatalError "No motd-notifier archive"
+	endif
+	DefVar $BinaryArchiveFile$ = "%ScriptPath%\files\" + TakeString(0, $TempList$)
+	Comment "Extracting motd-notifier archive file: " + $BinaryArchiveFile$
+	Files_install_motdnotifier
+	DefStringList $TempList$ = ShellCall('dir /B "$BaseDir$\motd-notifier_windows_x86"')
+	; Give antivir time to lock and unlock new directory
+	sleepSeconds 2
+	Files_rename_motd_notifier
+
+	[Files_install_motdnotifier]
+	del -f "$BaseDir$\motd-notifier.exe"
+	del -sfc "$BaseDir$\motd-notifier"
+	del -sfc "$BaseDir$\motd-notifier_windows_x86"
+	unzipfile "$BinaryArchiveFile$" "$BaseDir$\"
+	
+	
+	[Files_rename_motd_notifier]
+	copy -sc "$BaseDir$\motd-notifier_windows_x64\*.*" "$BaseDir$\motd-notifier\"
+	del -sfc "$BaseDir$\motd-notifier_windows_x64"
 EndFunc
 
 
@@ -534,6 +558,7 @@ DefFunc install_custom_files(): void
 		else
 			comment "Package opsi-client-agent-custom not available, downloading custom files from opsi-client-agent"
 			ShellCall('"'+ $BaseDir$ + '\opsiclientd_bin\opsiclientd.exe" --log-level 5 download-from-depot opsi-client-agent "' + $BaseDir$ + '" "files/custom/"')
+
 			if not(GetLastExitcode = "0")
 				LogError "Failed to fetch custom files from opsi-client-agent"
 				Message "Failed to fetch custom files from opsi-client-agent"
@@ -562,11 +587,13 @@ DefFunc install_custom_files(): void
 		endif
 	endif
 
-	[Files_install_custom]
+	[Files_install_custom] 
+	
 	copy -sc "%TempCustomPath%\*.*" "$BaseDir$\"
 	del -sc "%TempCustomPath%"
 
 	[Files_install_custom_wan]
+
 	copy -sc "%ScriptPath%\files\custom\*.*" "$BaseDir$\"
 
 	[OpsiServiceCall_product_getIdents_opsi-client-agent-custom]

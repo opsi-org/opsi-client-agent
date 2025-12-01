@@ -112,7 +112,7 @@ pull-binaries:
   - name: motd-notifier
     server-type: binaryindex
     destination: CLIENT_DATA/files
-    extract: true
+    extract: false
     post-script: []
     os: windows
     architecture: x86
