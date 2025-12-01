@@ -497,8 +497,7 @@ DefFunc install_opsinotifier() : void
 	del -sfc "$BaseDir$\motd-notifier"
 	del -sfc "$BaseDir$\motd-notifier_windows_x86"
 	unzipfile "$BinaryArchiveFile$" "$BaseDir$\"
-	
-	
+
 	[Files_custom_motd_notifier]
 	del -f "$BinaryArchiveFile$"
 	copy -sc "$BaseDir$\motd-notifier_windows_x64\*.*" "$BaseDir$\motd-notifier\"
