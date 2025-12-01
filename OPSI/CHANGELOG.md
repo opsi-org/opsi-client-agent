@@ -4,7 +4,7 @@
 
 ### Changed
 - Reduce duration of installation by compressing motd-notifier (Anna Sucher <a.sucher@uib.de>)
-- Update opsiclientd to 4.3.15.6 (Retry service connection on sertup) (Jan Schneider <j.schneider@uib.de>)
+- Update opsiclientd to 4.3.15.6 (Retry service connection on setup) (Jan Schneider <j.schneider@uib.de>)
 
 ## [4.3.15.5-1] - 2025-11-11
 
