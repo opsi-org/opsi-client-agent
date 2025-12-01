@@ -3,12 +3,13 @@
 ## [4.3.15.6-1] - 2025-12-01
 
 ### Changed
-- reduce duration of installation by compressing motd-notifier (Anna Sucher <a.sucher@uib.de>)
+- Reduce duration of installation by compressing motd-notifier (Anna Sucher <a.sucher@uib.de>)
+- Update opsiclientd to 4.3.15.6 (Retry service connection on sertup) (Jan Schneider <j.schneider@uib.de>)
 
 ## [4.3.15.5-1] - 2025-11-11
 
 ### Changed
-- update opsiclientd and motd-notifier (notifier is build as one-dir) (Anna Sucher <a.sucher@uib.de>)
+- Update opsiclientd and motd-notifier (notifier is build as one-dir) (Anna Sucher <a.sucher@uib.de>)
 
 ## [4.3.15.4-1] - 2025-11-17
 
