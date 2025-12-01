@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.15.6-1] - 2025-12-01
+
+### Changed
+- reduce duration of installation by compressing motd-notifier (Anna Sucher <a.sucher@uib.de>)
+
 ## [4.3.15.5-1] - 2025-11-11
 
 ### Changed
