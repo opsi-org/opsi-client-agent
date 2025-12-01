@@ -490,7 +490,7 @@ DefFunc install_opsinotifier() : void
 	DefStringList $TempList$ = ShellCall('dir /B "$BaseDir$\motd-notifier_windows_x86"')
 	; Give antivir time to lock and unlock new directory
 	sleepSeconds 2
-	Files_rename_motd_notifier
+	Files_custom_motd_notifier
 
 	[Files_install_motdnotifier]
 	del -f "$BaseDir$\motd-notifier.exe"
@@ -499,9 +499,10 @@ DefFunc install_opsinotifier() : void
 	unzipfile "$BinaryArchiveFile$" "$BaseDir$\"
 	
 	
-	[Files_rename_motd_notifier]
+	[Files_custom_motd_notifier]
 	copy -sc "$BaseDir$\motd-notifier_windows_x64\*.*" "$BaseDir$\motd-notifier\"
 	del -sfc "$BaseDir$\motd-notifier_windows_x64"
+	copy -sc "$BaseDir$\files\custom\motd-notifier\*.*" "$BaseDir$\motd-notifier\data\images\"
 EndFunc
 
 

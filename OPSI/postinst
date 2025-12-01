@@ -47,4 +47,8 @@ fi
 [ -e "${CLIENT_DATA_DIR}/files/custom/opsiclientd" ] || mkdir -p "${CLIENT_DATA_DIR}/files/custom/opsiclientd"
 [ -e "${CLIENT_DATA_DIR}/files/custom/opsi-script/skin" ] || mkdir -p "${CLIENT_DATA_DIR}/files/custom/opsi-script/skin"
 
+if [ -e "${CLIENT_DATA_DIR}/files/custom/motd-notifier" ]; then
+	[ -e "${CLIENT_DATA_DIR}/files/custom/motd-notifier" ] || mkdir -p "${CLIENT_DATA_DIR}/files/custom/motd-notifier"
+
+fi
 exit 0
