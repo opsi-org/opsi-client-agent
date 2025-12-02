@@ -486,7 +486,7 @@ DefFunc install_opsinotifier() : void
 		isFatalError "No motd-notifier archive"
 	endif
 	DefVar $BinaryArchiveFile$ = "%ScriptPath%\files\" + TakeString(0, $TempList$)
-	Comment "Extracting motd-notifier archive file: " + $BinaryArchiveFile$
+	
 	Files_install_motdnotifier
 	DefStringList $TempList$ = ShellCall('dir /B "' + $BaseDir$ + '\"')
 	DefStringList $TempList$ = ShellCall('dir /B "' + $BaseDir$ + '\motd-notifier\"')
@@ -498,14 +498,11 @@ DefFunc install_opsinotifier() : void
 	del -f "$BaseDir$\motd-notifier.exe"
 	del -sfc "$BaseDir$\motd-notifier"
 	del -sfc "$BaseDir$\motd-notifier_windows_x86"
-	; unzipping directly created the motd-notifier directory (?)
+	; unzipping directly created the motd-notifier directory
 	unzipfile "$BinaryArchiveFile$" "$BaseDir$\"
 	
 
 	[Files_custom_motd_notifier]
-	;del -f "$BinaryArchiveFile$"
-	;copy -sc "$BaseDir$\motd-notifier_windows_x64\*.*" "$BaseDir$\motd-notifier\"
-	;del -sfc "$BaseDir$\motd-notifier_windows_x64"
 	copy -sc "%ScriptPath%\files\custom\motd-notifier\*.*" "$BaseDir$\motd-notifier\data\images\"
 EndFunc
 
