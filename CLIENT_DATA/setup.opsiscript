@@ -500,10 +500,10 @@ DefFunc install_opsinotifier() : void
 	unzipfile "$BinaryArchiveFile$" "$BaseDir$\"
 
 	[Files_custom_motd_notifier]
-	del -f "$BinaryArchiveFile$"
+	;del -f "$BinaryArchiveFile$"
 	copy -sc "$BaseDir$\motd-notifier_windows_x64\*.*" "$BaseDir$\motd-notifier\"
 	del -sfc "$BaseDir$\motd-notifier_windows_x64"
-	copy -scu "%ScriptPath%\files\custom\motd-notifier\*.*" "$BaseDir$\motd-notifier\data\images\"
+	copy -sc "%ScriptPath%\files\custom\motd-notifier\*.*" "$BaseDir$\motd-notifier\data\images\"
 EndFunc
 
 
