@@ -469,7 +469,7 @@ DefFunc install_opsinotifier() : void
 	ShellCall("taskkill /f /im notifier.exe")
 	Files_install_opsinotifier
 	Sub_install_motd_notifier
-	
+
 
 	[Files_install_opsinotifier]
 	del -f "$BaseDir$\notifier.exe"
@@ -497,8 +497,8 @@ DefFunc install_opsinotifier() : void
 	del -sfc "$BaseDir$\motd-notifier"
 	del -sfc "$BaseDir$\motd-notifier_windows_x86"
 	unzipfile "$BinaryArchiveFile$" "$BaseDir$\"
-	
-	
+
+
 	[Files_rename_motd_notifier]
 	copy -sc "$BaseDir$\motd-notifier_windows_x64\*.*" "$BaseDir$\motd-notifier\"
 	del -sfc "$BaseDir$\motd-notifier_windows_x64"
@@ -587,8 +587,8 @@ DefFunc install_custom_files(): void
 		endif
 	endif
 
-	[Files_install_custom] 
-	
+	[Files_install_custom]
+
 	copy -sc "%TempCustomPath%\*.*" "$BaseDir$\"
 	del -sc "%TempCustomPath%"
 
@@ -826,6 +826,11 @@ DefFunc install_configuration() : void
 		Set $OCANoRemove$ = "REG_DWORD:1"
 	endif
 
+	; Delete all uninstall registry keys from previous (MSI) installations
+	ExecWith_Powershell_delete_opsi_client_agent_uninstall_registry_keys powershell.exe -ExecutionPolicy Bypass winst /32Bit
+	ExecWith_Powershell_delete_opsi_client_agent_uninstall_registry_keys powershell.exe -ExecutionPolicy Bypass winst /64Bit
+
+	; Create uninstall registry entry
 	Registry_SetUninstallEntries
 
 	[Files_copy_uninst]
@@ -846,6 +851,17 @@ DefFunc install_configuration() : void
 	set "HelpLink" = "http://www.opsi.org/support/"
 	set "NoModify" = $OCANoModify$
 	set "NoRemove" = $OCANoRemove$
+
+	[ExecWith_Powershell_delete_opsi_client_agent_uninstall_registry_keys]
+	$path = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
+	$keys = Get-ChildItem $path | Where-Object {
+		(Get-ItemProperty $_.PsPath -ErrorAction SilentlyContinue).DisplayName -like "opsi-client-agent *"
+	}
+	foreach ($key in $keys) {
+		Write-Host "Deleting: $($key.PSPath)"
+		Remove-Item -Path $key.PSPath -Recurse -Force
+	}
+
 EndFunc
 
 
