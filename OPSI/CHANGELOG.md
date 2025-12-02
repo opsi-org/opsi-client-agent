@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.15.7-1] - 2025-12-02
+
+### Changed
+- Update opsiclientd to 4.3.15.7 (Improve logging on CIFS mount error 1219) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.15.6-1] - 2025-12-01
 
 ### Changed
