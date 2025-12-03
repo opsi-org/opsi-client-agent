@@ -6,7 +6,7 @@
            Language="1033" Codepage="1252" Version="{version}" Manufacturer="uib GmbH">
 
     <Package Id="*" Keywords="Installer" Description="opsi-client-agent {version} installer" Manufacturer="uib GmbH"
-             InstallerVersion="200" Languages="1033" Compressed="yes" SummaryCodepage="1252" />
+             InstallScope="perMachine" InstallerVersion="200" Languages="1033" Compressed="yes" SummaryCodepage="1252" />
 
     <Media Id="1" Cabinet="oca.cab" EmbedCab="yes" />
 
