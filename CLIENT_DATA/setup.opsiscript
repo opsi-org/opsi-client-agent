@@ -470,7 +470,6 @@ DefFunc install_opsinotifier() : void
 	Files_install_opsinotifier
 	Sub_install_motd_notifier
 
-
 	[Files_install_opsinotifier]
 	del -f "$BaseDir$\notifier.exe"
 	copy -c "%ScriptPath%\files\opsi-notifier\opsi-notifier.exe" "$BaseDir$\"
@@ -485,23 +484,20 @@ DefFunc install_opsinotifier() : void
 		isFatalError "No motd-notifier archive"
 	endif
 	DefVar $BinaryArchiveFile$ = "%ScriptPath%\files\" + TakeString(0, $TempList$)
-	Comment "Extracting motd-notifier archive file: " + $BinaryArchiveFile$
+	
 	Files_install_motdnotifier
-	DefStringList $TempList$ = ShellCall('dir /B "$BaseDir$\motd-notifier_windows_x86"')
+	DefStringList $TempList$ = ShellCall('dir /B "' + $BaseDir$ + '\"')
+	DefStringList $TempList$ = ShellCall('dir /B "' + $BaseDir$ + '\motd-notifier\"')
 	; Give antivir time to lock and unlock new directory
 	sleepSeconds 2
-	Files_rename_motd_notifier
 
 	[Files_install_motdnotifier]
 	del -f "$BaseDir$\motd-notifier.exe"
 	del -sfc "$BaseDir$\motd-notifier"
 	del -sfc "$BaseDir$\motd-notifier_windows_x86"
+	; unzipping directly created the motd-notifier directory
 	unzipfile "$BinaryArchiveFile$" "$BaseDir$\"
 
-
-	[Files_rename_motd_notifier]
-	copy -sc "$BaseDir$\motd-notifier_windows_x64\*.*" "$BaseDir$\motd-notifier\"
-	del -sfc "$BaseDir$\motd-notifier_windows_x64"
 EndFunc
 
 
@@ -543,7 +539,7 @@ EndFunc
 DefFunc install_custom_files(): void
 	if runningInWanMode
 		comment "Copying custom files (WAN mode)"
-		Files_install_custom_wan
+		Files_copy_custom_wan
 	else
 		DefStringList $TempList$
 		Set $TempList$ = GetReturnListFromSection("OpsiServiceCall_product_getIdents_opsi-client-agent-custom")
@@ -564,37 +560,44 @@ DefFunc install_custom_files(): void
 				Message "Failed to fetch custom files from opsi-client-agent"
 			endif
 		endif
-
-		DefStringList $CustomPathList$ = createStringList()
-		if FileExists($BaseDir$+"\custom")
-			set $CustomPathList$ = addtolist($CustomPathList$, $BaseDir$+"\custom")
-		endif
-		if FileExists($BaseDir$+"\common")
-			set $CustomPathList$ = addtolist($CustomPathList$, $BaseDir$+"\common")
-		endif
-		if count($CustomPathList$) = "0"
-			comment "No custom files to install"
-		else
-			comment "Copying custom files"
-
-			MarkErrorNumber
-			for %TempCustomPath% in $CustomPathList$ do Files_install_custom
-			if errorsOccurredSinceMark > 0
-				LogError "Failed to install custom files"
-				Message "Failed to install custom files"
-				IsFatalError "Failed to install custom files"
-			endif
-		endif
+	endif
+	
+	if FileExists($BaseDir$+"\custom\motd-notifier")
+		Files_install_motd_custom
 	endif
 
-	[Files_install_custom]
+	DefStringList $CustomPathList$ = createStringList()
+	if FileExists($BaseDir$+"\custom")
+		set $CustomPathList$ = addtolist($CustomPathList$, $BaseDir$+"\custom")
+	endif
+	if FileExists($BaseDir$+"\common")
+		set $CustomPathList$ = addtolist($CustomPathList$, $BaseDir$+"\common")
+	endif
+	if count($CustomPathList$) = "0"
+		comment "No custom files to install"
+	else
+		comment "Copying custom files"
 
+		MarkErrorNumber
+		for %TempCustomPath% in $CustomPathList$ do Files_install_custom
+		if errorsOccurredSinceMark > 0
+			LogError "Failed to install custom files"
+			Message "Failed to install custom files"
+			IsFatalError "Failed to install custom files"
+		endif
+	endif
+	
+	[Files_copy_custom_wan]
+	copy -sc "%ScriptPath%\files\custom\*.*" "$BaseDir$\custom\"
+	
+	[Files_install_custom]
 	copy -sc "%TempCustomPath%\*.*" "$BaseDir$\"
 	del -sc "%TempCustomPath%"
+	
+	[Files_install_motd_custom]
+	copy -sc "$BaseDir$\custom\motd-notifier\*.*" "$BaseDir$\motd-notifier\data\images\"
+	del -sc "$BaseDir$\custom\motd-notifier"
 
-	[Files_install_custom_wan]
-
-	copy -sc "%ScriptPath%\files\custom\*.*" "$BaseDir$\"
 
 	[OpsiServiceCall_product_getIdents_opsi-client-agent-custom]
 	"method": "product_getIdents"
