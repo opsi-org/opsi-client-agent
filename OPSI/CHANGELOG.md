@@ -1,11 +1,11 @@
 ﻿# Changelog opsi-client-agent
 
-## [4.3.15.7-1] - 2025-12-02
+## [4.3.15.7-1] - 2025-12-04
 
 ### Changed
 - Update opsiclientd to 4.3.15.7 (Improve logging on CIFS mount error 1219) (Jan Schneider <j.schneider@uib.de>)
 - Delete previous uninstall registry keys for opsi-client-agent MSI installs (Jan Schneider <j.schneider@uib.de>)
-- Update motd-notifier to 1.1.0 (Refactoring and new notification windows) (Anna Sucher <a.sucher@uib.de>)
+- Update motd-notifier to 1.1.1 (Refactoring and new notification windows) (Anna Sucher <a.sucher@uib.de>)
 
 ## [4.3.15.6-1] - 2025-12-01
 
