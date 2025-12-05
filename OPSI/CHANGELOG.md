@@ -6,6 +6,7 @@
 - Update opsiclientd to 4.3.15.7 (Improve logging on CIFS mount error 1219) (Jan Schneider <j.schneider@uib.de>)
 - Delete previous uninstall registry keys for opsi-client-agent MSI installs (Jan Schneider <j.schneider@uib.de>)
 - Update motd-notifier to 1.1.1 (Refactoring and new notification windows) (Anna Sucher <a.sucher@uib.de>)
+- Update oca-installation-helper to 4.3.4.0 (Default log level info and new log path) (Jan Schneider <j.schneider@uib.de>)
 
 ## [4.3.15.6-1] - 2025-12-01
 
