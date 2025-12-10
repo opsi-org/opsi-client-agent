@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.16.0-1] - 2025-12-10
+
+### New
+- Upgrade opsiclientd to 4.3.16.0 (Added WinRT event generator for network connection cost monitoring ) (Jeena John <j.john@uib.de>)
+
 ## [4.3.15.7-1] - 2025-12-04
 
 ### Changed
@@ -293,7 +298,7 @@
 ## [4.3.7.4-1] - 2025-02-20
 
 ### New
-- New rpc-call sendSAS activate CredentialProviders (Jan Schneider <j.schneider@uib.de>) 
+- New rpc-call sendSAS activate CredentialProviders (Jan Schneider <j.schneider@uib.de>)
 
 ### Fixed
 - Update opsiclientd to 4.3.7.4 - fixed log file download behaviour (Jeena John <j.john@uib.de>)
