@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.16.0-2] - 2025-12-15
+
+### Changed
+- Update oca-installation-helper to 4.3.5.0 (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.16.0-1] - 2025-12-10
 
 ### New
