@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.16.1-1] - 2025-12-16
+
+### Fixed
+- Update opsiclientd to 4.3.16.1 (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.16.0-2] - 2025-12-15
 
 ### Changed
