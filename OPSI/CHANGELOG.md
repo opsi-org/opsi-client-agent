@@ -4,6 +4,7 @@
 
 ### Fixed
 - Update oca-installation-helper to 4.3.5.1 (Jan Schneider <j.schneider@uib.de>)
+- Update motd-notifier to 1.1.2 (Anna Sucher <a.sucher@uib.de>)
 
 ## [4.3.16.1-1] - 2025-12-16
 
