@@ -1,4 +1,8 @@
 ﻿# Changelog opsi-client-agent
+## [4.3.16.2-1] - 2026-01-05
+
+### Changed
+- Update motd-notifier to 1.1.3 (Fix flickering; Chg translations) (Anna Sucher <a.sucher@uib.de>)
 
 ## [4.3.16.1-2] - 2025-12-19
 

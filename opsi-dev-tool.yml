@@ -116,7 +116,7 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x86
-    version: 1.1.2
+    version: 1.1.5
     server-url: http://binaryindex.uib.gmbh
 
   # Visual C++ redistributable 2015-2022
