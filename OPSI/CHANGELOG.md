@@ -1,5 +1,11 @@
 ﻿# Changelog opsi-client-agent
 
+
+## [4.3.17.0-2] - 2026-01-06
+
+### Fixed
+- Update motd-notifier to 1.1.8 (Fix: button flickering) (Anna Sucher <a.sucher@uib.de>)
+
 ## [4.3.17.0-1] - 2025-01-15
 
 ### Changed
