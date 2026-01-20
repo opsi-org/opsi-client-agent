@@ -1,16 +1,16 @@
 ﻿# Changelog opsi-client-agent
 
-## [4.3.17.2-1] - 2025-01-20
+## [4.3.17.2-1] - 2026-01-20
 
 ### Changed
 - Update opsiclientd to 4.3.17.2 (Jan Schneider <j.schneider@uib.de>)
 
-## [4.3.17.1-1] - 2025-01-16
+## [4.3.17.1-1] - 2026-01-16
 
 ### Changed
 - Update opsiclientd to 4.3.17.1 (Jan Schneider <j.schneider@uib.de>)
 
-## [4.3.17.0-1] - 2025-01-15
+## [4.3.17.0-1] - 2026-01-15
 
 ### Changed
 - Update motd-notifier to 1.1.8 (Fix: button flickering) (Anna Sucher <a.sucher@uib.de>)
