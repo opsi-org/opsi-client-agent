@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.17.4-1] - 2026-01-27
+
+### Fixed
+- Update opsiclientd to 4.3.17.4
+
 ## [4.3.17.3-2] - 2026-01-27
 
 ### Changed
