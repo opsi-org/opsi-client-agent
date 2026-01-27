@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.17.3-2] - 2026-01-27
+
+### Changed
+- Update motd-notifier to 1.1.9 (Fix: button callback) (Anna Sucher <a.sucher@uib.de>)
+
 ## [4.3.17.3-1] - 2026-01-21
 
 ### Changed
