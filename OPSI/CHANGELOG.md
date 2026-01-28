@@ -1,9 +1,14 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.17.5-1] - 2026-01-28
+
+### Fixed
+- Update opsiclientd to 4.3.17.5 (Fix handling for error 1219 on Windows when mounting depot share) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.17.4-1] - 2026-01-27
 
 ### Fixed
-- Update opsiclientd to 4.3.17.4
+- Update opsiclientd to 4.3.17.4 (Jan Schneider <j.schneider@uib.de>)
 
 ## [4.3.17.3-2] - 2026-01-27
 
