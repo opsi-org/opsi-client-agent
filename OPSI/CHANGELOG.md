@@ -1,5 +1,11 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.17.6-1] - 2026-02-05
+
+### Changed
+- Update opsiclientd to 4.3.17.6 (Jan Schneider <j.schneider@uib.de>)
+- Improve setting file ACLs with retries
+
 ## [4.3.17.5-1] - 2026-01-28
 
 ### Fixed

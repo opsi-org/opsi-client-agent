@@ -484,7 +484,7 @@ DefFunc install_opsinotifier() : void
 		isFatalError "No motd-notifier archive"
 	endif
 	DefVar $BinaryArchiveFile$ = "%ScriptPath%\files\" + TakeString(0, $TempList$)
-	
+
 	Files_install_motdnotifier
 	DefStringList $TempList$ = ShellCall('dir /B "' + $BaseDir$ + '\"')
 	DefStringList $TempList$ = ShellCall('dir /B "' + $BaseDir$ + '\motd-notifier\"')
@@ -561,7 +561,7 @@ DefFunc install_custom_files(): void
 			endif
 		endif
 	endif
-	
+
 	if FileExists($BaseDir$+"\custom\motd-notifier")
 		Files_install_motd_custom
 	endif
@@ -586,14 +586,14 @@ DefFunc install_custom_files(): void
 			IsFatalError "Failed to install custom files"
 		endif
 	endif
-	
+
 	[Files_copy_custom_wan]
 	copy -sc "%ScriptPath%\files\custom\*.*" "$BaseDir$\custom\"
-	
+
 	[Files_install_custom]
 	copy -sc "%TempCustomPath%\*.*" "$BaseDir$\"
 	del -sc "%TempCustomPath%"
-	
+
 	[Files_install_motd_custom]
 	copy -sc "$BaseDir$\custom\motd-notifier\*.*" "$BaseDir$\motd-notifier\data\images\"
 	del -sc "$BaseDir$\custom\motd-notifier"
@@ -654,73 +654,80 @@ DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : strin
 	CheckTargetPath = "$BaseDir$"
 
 	[DosInAnIcon_set_file_permissions_vardir]
-	set returncode=0
+	set attempt=1
+
+	:RETRY_BEGIN
 	; Take ownership, redirect stdout to nul for speedup
-	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$VarDir$" > nul || set returncode=1
-	; Check if the domain controller is available before resetting the permissions!
-	; If the domain controller is not available, the reset will work, but not the grant, which will end up in an inaccessible folder.
-	; If the domain controller is not available, the following error will occur:
-	; The security account manager (SAM) or local security authority (LSA) server was in the wrong state to perform the security operation.
-	icacls "$VarDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F"
-	if not errorlevel 0 (
-		LogError "Failed to set permissions on $VarDir$"
-		exit 1
-	)
+	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$VarDir$" > nul || goto RETRY
 	; Remove all explicit permissions from the folder recursively (inheritance only)
-	icacls "$VarDir$" /q /c /t /reset || set returncode=1
+	icacls "$VarDir$" /q /c /t /reset || goto RETRY
 	; Allow full access to local admin group, system user and admin user inherit to all objects (OI) and containers (CI)
 	; Allow read access to local users for folder only
 	if "$AdminSID$"=="" (
-		icacls "$VarDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F" /grant:r "*S-1-5-18:(OI)(CI)F" /grant:r "*S-1-5-32-545:RX" || set returncode=1
+		icacls "$VarDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F" /grant:r "*S-1-5-18:(OI)(CI)F" /grant:r "*S-1-5-32-545:RX" || goto RETRY
 	) else (
-		icacls "$VarDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F" /grant:r "*S-1-5-18:(OI)(CI)F" /grant:r "*$AdminSID$:(OI)(CI)F" /grant:r "*S-1-5-32-545:RX" || set returncode=1
+		icacls "$VarDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F" /grant:r "*S-1-5-18:(OI)(CI)F" /grant:r "*$AdminSID$:(OI)(CI)F" /grant:r "*S-1-5-32-545:RX" || goto RETRY
 	)
 	; Disable inheritance from parent folder
-	icacls "$VarDir$" /inheritance:r || set returncode=1
+	icacls "$VarDir$" /inheritance:r || goto RETRY
 	; Set owner to SYSTEM - may fail
 	icacls "$VarDir$" /setowner SYSTEM
 	; Add full permission for local users on applog
-	icacls "$VarDir$\applog" /grant "*S-1-5-32-545:(OI)(CI)F" || set returncode=1
+	icacls "$VarDir$\applog" /grant "*S-1-5-32-545:(OI)(CI)F" || goto RETRY
 	; Add full permission for local users on usertmp
-	icacls "$VarDir$\usertmp" /grant "*S-1-5-32-545:(OI)(CI)F" || set returncode=1
-	exit %returncode%
+	icacls "$VarDir$\usertmp" /grant "*S-1-5-32-545:(OI)(CI)F" || goto RETRY
 
-	[DosInAnIcon_set_file_permissions_basedir]
-	set returncode=0
-	; Take ownership, redirect stdout to nul for speedup
-	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$BaseDir$" > nul || set returncode=1
-	; Check if the domain controller is available before resetting the permissions!
-	; If the domain controller is not available, the reset will work, but not the grant, which will end up in an inaccessible folder.
-	; If the domain controller is not available, the following error will occur:
-	; The security account manager (SAM) or local security authority (LSA) server was in the wrong state to perform the security operation.
-	icacls "$BaseDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F"
-	if not errorlevel 0 (
-		LogError "Failed to set permissions on $BaseDir$"
+	exit 0
+
+	:RETRY
+	echo "Failed to set permissions on $VarDir$ on attempt %attempt%"
+	set /a attempt+=1
+	if %attempt% GTR 3 (
 		exit 1
 	)
+	timeout /t 15 /nobreak >nul
+	goto RETRY_BEGIN
+
+
+	[DosInAnIcon_set_file_permissions_basedir]
+	set attempt=1
+
+	:RETRY_BEGIN
+	; Take ownership, redirect stdout to nul for speedup
+	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$BaseDir$" > nul || goto RETRY
 	; Remove all explicit permissions from the folder recursively (inheritance only)
-	icacls "$BaseDir$" /q /c /t /reset || set returncode=1
+	icacls "$BaseDir$" /q /c /t /reset || goto RETRY
 	; Remove all permissions for local/domain users
-	icacls "$BaseDir$" /remove:g "*S-1-5-32-545" /q /c /t
+	icacls "$BaseDir$" /remove:g "*S-1-5-32-545" /q /c /t || goto RETRY
 	; Allow full access to local admin group, system user and admin user inherit to all objects (OI) and containers (CI)
 	; Allow read access to local/domain users for folder only
 	if "$AdminSID$"=="" (
-		icacls "$BaseDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F" /grant:r "*S-1-5-18:(OI)(CI)F" /grant:r "*S-1-5-32-545:(CI)RX" || set returncode=1
+		icacls "$BaseDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F" /grant:r "*S-1-5-18:(OI)(CI)F" /grant:r "*S-1-5-32-545:(CI)RX" || goto RETRY
 	) else (
-		icacls "$BaseDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F" /grant:r "*S-1-5-18:(OI)(CI)F" /grant:r "*$AdminSID$:(OI)(CI)F" /grant:r "*S-1-5-32-545:(CI)RX" || set returncode=1
+		icacls "$BaseDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F" /grant:r "*S-1-5-18:(OI)(CI)F" /grant:r "*$AdminSID$:(OI)(CI)F" /grant:r "*S-1-5-32-545:(CI)RX" || goto RETRY
 	)
 	; Disable inheritance from parent folder
-	icacls "$BaseDir$" /inheritance:r || set returncode=1
+	icacls "$BaseDir$" /inheritance:r || goto RETRY
 	; Set owner to SYSTEM - may fail
 	icacls "$BaseDir$" /setowner SYSTEM
 	; Add read and exceute permission for local users on opsi-script
-	if exist "$BaseDir$\opsi-script" icacls "$BaseDir$\opsi-script" /grant "*S-1-5-32-545:(OI)(CI)RX" || set returncode=1
+	if exist "$BaseDir$\opsi-script" icacls "$BaseDir$\opsi-script" /grant "*S-1-5-32-545:(OI)(CI)RX" || goto RETRY
 	; Add read and exceute permission for local users on opsi-client-systray and notifiers
-	if exist "$BaseDir$\opsi-client-systray" icacls "$BaseDir$\opsi-client-systray" /grant "*S-1-5-32-545:(OI)(CI)RX"
-	if exist "$BaseDir$\opsi-notifier.exe" icacls "$BaseDir$\opsi-notifier.exe" /grant "*S-1-5-32-545:RX"
-	if exist "$BaseDir$\motd-notifier" icacls "$BaseDir$\motd-notifier" /grant "*S-1-5-32-545:(OI)(CI)RX"
-	if exist "$BaseDir$\motd-notifier\opsi-notifier.exe" icacls "$BaseDir$\motd-notifier\opsi-notifier.exe" /grant "*S-1-5-32-545:RX"
-	exit %returncode%
+	if exist "$BaseDir$\opsi-client-systray" icacls "$BaseDir$\opsi-client-systray" /grant "*S-1-5-32-545:(OI)(CI)RX" || goto RETRY
+	if exist "$BaseDir$\opsi-notifier.exe" icacls "$BaseDir$\opsi-notifier.exe" /grant "*S-1-5-32-545:RX" || goto RETRY
+	if exist "$BaseDir$\motd-notifier" icacls "$BaseDir$\motd-notifier" /grant "*S-1-5-32-545:(OI)(CI)RX" || goto RETRY
+	if exist "$BaseDir$\motd-notifier\opsi-notifier.exe" icacls "$BaseDir$\motd-notifier\opsi-notifier.exe" /grant "*S-1-5-32-545:RX" || goto RETRY
+
+	exit 0
+
+	:RETRY
+	echo "Failed to set permissions on $BaseDir$ on attempt %attempt%"
+	set /a attempt+=1
+	if %attempt% GTR 3 (
+		exit 1
+	)
+	timeout /t 15 /nobreak >nul
+	goto RETRY_BEGIN
 EndFunc
 
 
