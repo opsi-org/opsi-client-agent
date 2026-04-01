@@ -13,6 +13,11 @@
 ## [4.3.17.7-1] - 2026-02-19
 
 ### Changed
+- Update opsiclientd to 4.3.17.8 (Changed trusted-installer-detection to also work on win11) (Nils Doerrer <n.doerrer@uib.de>)
+
+## [4.3.17.7-1] - 2026-02-19
+
+### Changed
 - Update opsiclientd to 4.3.17.7 (Jan Schneider <j.schneider@uib.de>)
 
 ## [4.3.17.6-1] - 2026-02-05
