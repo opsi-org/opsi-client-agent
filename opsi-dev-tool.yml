@@ -7,7 +7,7 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x86
-    version: 4.3.17.10
+    version: 4.3.18.0
     server-url: http://binaryindex.uib.gmbh
 
  # opsi-script binaries - only needed for netboot
@@ -94,7 +94,7 @@ pull-binaries:
         - chmod 755 CLIENT_DATA/oca-installation-helper.exe
     os: windows
     architecture: x86
-    version: 4.3.5.1
+    version: 4.3.6.0
     server-url: http://binaryindex.uib.gmbh
 
   # opsi deployment script (as binary)
