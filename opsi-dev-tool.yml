@@ -48,7 +48,7 @@ pull-binaries:
       - rm -r CLIENT_DATA/files/opsi-script/ssl-libs
     os: windows
     architecture: x86
-    version: 3.0.14
+    version: 3.0.19
     server-url: http://binaryindex.uib.gmbh
 
   # opsi-login-blocker - prevents login during opsi task execution
