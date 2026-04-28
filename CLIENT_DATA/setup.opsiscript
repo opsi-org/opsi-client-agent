@@ -279,44 +279,6 @@ DefFunc install_opsiclientd(): void
 	[Files_remove_old_opsiclientd_dir]
 	move "$NewDir$" "$BaseDir$\old_opsiclientd_$randomString$"
 	del -src "$BaseDir$\old_opsiclientd_$randomString$"
-
-	[ExecWith_powershell_install_binaries]
-	$bin_dir = "$BaseDir$\opsiclientd_windows_x86"
-	$inst_dir = "$BaseDir$\opsiclientd_bin"
-
-	$target = Get-Item $inst_dir | Select-Object -ExpandProperty Target
-	$new_dir = "${inst_dir}2"
-	if ($target) {
-		Write-Host "${inst_dir} is a symbolic link"
-		if ((Get-Item($target)).Name -eq "opsiclientd_bin2") {
-			$new_dir = "${inst_dir}1"
-		}
-		Write-Host "Removing link ${inst_dir}"
-		Remove-Item $inst_dir
-	}
-	else {
-		Write-Host "${inst_dir} is not a symbolic link"
-		if (Test-Path $inst_dir) {
-			if (Test-Path "${inst_dir}1") {
-				Write-Host "Deleting ${inst_dir}1"
-				Remove-Item "${inst_dir}1" -Recurse
-			}
-			Write-Host "Moving ${inst_dir} to ${inst_dir}1"
-			Rename-Item $inst_dir "${inst_dir}1"
-		}
-	}
-
-	if (Test-Path $new_dir) {
-		Write-Host "Deleting ${new_dir}"
-		Remove-Item $new_dir -Recurse
-	}
-
-	Write-Host "Moving ${bin_dir} to ${new_dir}"
-	Rename-Item $bin_dir $new_dir
-
-	Write-Host "Creating link ${inst_dir} to ${new_dir}"
-	$arglist = "/c mklink /d `"${inst_dir}`" `"${new_dir}`""
-	Start-Process -Wait -WindowStyle Hidden -Verb RunAs -FilePath "cmd.exe" -ArgumentList $arglist
 EndFunc
 
 
