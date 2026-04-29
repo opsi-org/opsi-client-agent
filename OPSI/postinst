@@ -9,6 +9,7 @@
 #   DEPOT_ID
 #   PRODUCT_VERSION
 #   PACKAGE_VERSION
+
 PUBLIC_DIR="/var/lib/opsi/public"
 INSTALLER="${CLIENT_DATA_DIR}/oca-installation-helper.exe"
 

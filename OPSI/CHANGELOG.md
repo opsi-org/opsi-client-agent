@@ -1,6 +1,11 @@
 ﻿# Changelog opsi-client-agent
 
-## [4.3.19.0-1] - 2026-04-23
+## [4.3.19.0-2] - 2026-04-29
+
+### Changed
+- Remove preinst.py and use preinst script (Jan Schneider <j.schneider@uib.de>)
+
+## [4.3.19.0-1] - 2026-04-29
 
 ### Changed
 - Update opsiclientd to 4.3.19.0 (Refactoring) (Jan Schneider <j.schneider@uib.de>)
