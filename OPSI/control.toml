@@ -5,8 +5,8 @@ depends = []
 [Product]
 type = "LocalbootProduct"
 id = "opsi-client-agent"
-name = "opsi.org client agent"
-description = """opsi windows client agent"""
+name = "OPSI Client Agent"
+description = """OPSI Client Agent for Windows"""
 version = "4.3.19.1"
 priority = 95
 licenseRequired = false
@@ -18,7 +18,7 @@ windowsSoftwareIds = []
 [[ProductProperty]]
 type = "UnicodeProductProperty"
 name = "loginblockerstart"
-description = """Install opsi login blocker (credential provider / filter)?"""
+description = """Install OPSI login blocker (credential provider / filter)?"""
 default = ["on"]
 values = [
     "off",
@@ -45,7 +45,7 @@ editable = true
 [[ProductProperty]]
 type = "BoolProductProperty"
 name = "systray_install"
-description = """Should opsi systray be installed?"""
+description = """Should OPSI systray be installed?"""
 default = [false]
 
 [[ProductProperty]]
