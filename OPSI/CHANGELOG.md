@@ -1,5 +1,13 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.19.1-1] - 2026-04-29
+
+### Changed
+- Update opsiclientd to 4.3.19.1 (Jan Schneider <j.schneider@uib.de>)
+  - Improved service connection handling
+  - By default, do not wait for Windows updates, as detection is currently unreliable on some systems.
+    To re-enable this feature, set the configuration option "opsiclientd.event_default.trusted_installer_detection" to "true".
+
 ## [4.3.19.0-2] - 2026-04-29
 
 ### Changed

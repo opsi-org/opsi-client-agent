@@ -61,9 +61,10 @@ windows_make_msi:
     - Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/wixtoolset/wix3/releases/download/wix3141rtm/wix314-binaries.zip" -OutFile wix-binaries.zip
     - Expand-Archive wix-binaries.zip -DestinationPath wix
     # Get version from control file
-    - $version = opsi-dev-cli opsi-package get-value productVersion
+    - $productVersion = opsi-dev-cli opsi-package get-value productVersion
+    - $packageVersion = opsi-dev-cli opsi-package get-value packageVersion
     # Patch version
-    - ((Get-Content -path msi\\opsi-client-agent.wxs -Raw) -replace "{version}",$version) | Set-Content -Path opsi-client-agent.wxs
+    - ((Get-Content -path msi\\opsi-client-agent.wxs -Raw) -replace "{version}","$productVersion-$packageVersion") | Set-Content -Path opsi-client-agent.wxs
     - Get-Content opsi-client-agent.wxs
     # Build msi
     - wix\\candle.exe opsi-client-agent.wxs
