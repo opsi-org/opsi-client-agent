@@ -63,8 +63,9 @@ windows_make_msi:
     # Get version from control file
     - $productVersion = opsi-dev-cli opsi-package get-value productVersion
     - $packageVersion = opsi-dev-cli opsi-package get-value packageVersion
+    - $version = "$productVersion-$packageVersion"
     # Patch version
-    - ((Get-Content -path msi\\opsi-client-agent.wxs -Raw) -replace "{version}","$productVersion-$packageVersion") | Set-Content -Path opsi-client-agent.wxs
+    - ((Get-Content -path msi\\opsi-client-agent.wxs -Raw) -replace "{version}","$productVersion") | Set-Content -Path opsi-client-agent.wxs
     - Get-Content opsi-client-agent.wxs
     # Build msi
     - wix\\candle.exe opsi-client-agent.wxs
