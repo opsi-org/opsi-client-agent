@@ -1,8 +1,13 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.19.4-1] - 2026-05-07
+
+### Changed
+- Update opsiclientd to 4.3.19.4 (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.19.2-1] - 2026-04-30
 
-##Changed
+### Changed
 - Update opsiclientd to 4.3.19.2 (Jan Schneider <j.schneider@uib.de>)
   - TrustedInstaller status logging
   - By default, wait for Windows updates again, because Windows Update initiated reboots can break OPSI Client Agent installation.
