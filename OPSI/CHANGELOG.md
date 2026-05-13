@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.19.8-1] - 2026-05-13
+
+### Changed
+- Update opsiclientd to 4.3.19.8 (Start opsi-script in maximized mode only if the event blocks the login) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.19.7-1] - 2026-05-12
 
 ### Changed
