@@ -1,4 +1,13 @@
 ﻿# Changelog opsi-client-agent
+## [4.3.19.9-1] - 2026-05-13
+
+### Changed
+- Update opsiclientd to 4.3.19.9 (Anna Sucher <a.sucher@uib.de>)
+- Update motd-notifier to 4.3.1.0 (Use py qt) (Anna Sucher <a.sucher@uib.de>)
+
+## [4.3.19.8-2] - 2026-05-13
+
+- Update motd-notifier to 4.3.1.0 (New: Qt base) (Anna Sucher <a.sucher@uib.de>)
 
 ## [4.3.19.8-1] - 2026-05-13
 
