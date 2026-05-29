@@ -1,4 +1,10 @@
 ﻿# Changelog opsi-client-agent
+
+## [4.3.19.10-1] - 2026-05-29
+
+### Changed
+- Update opsiclientd to 4.3.19.10 (Wait for console session instead of GUI process on GUI startup) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.19.9-1] - 2026-05-13
 
 ### Changed
