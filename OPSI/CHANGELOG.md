@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.19.12-1] - 2026-06-08
+
+### Fixed
+- Update opsiclientd to 4.3.19.12 (Fix duplicate actions) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.19.11-1] - 2026-05-29
 
 ### Fixed
