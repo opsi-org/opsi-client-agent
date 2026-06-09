@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.19.13-1] - 2026-06-09
+
+### Changed
+- Update opsiclientd to 4.3.19.13 (Improved Trusted Installer logging) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.19.12-1] - 2026-06-08
 
 ### Fixed
