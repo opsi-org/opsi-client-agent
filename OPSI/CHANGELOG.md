@@ -1,5 +1,12 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.20.0-1] - 2026-06-10
+
+### Changed
+- Update opsiclientd to 4.3.20.0 (Jan Schneider <j.schneider@uib.de>)
+  - Remove impersonation of action processor user and related configuration options
+  - Use NetUseAdd instead of WNetAddConnection2 to mount CIFS shares
+
 ## [4.3.19.13-1] - 2026-06-09
 
 ### Changed
