@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.20.1-1] - 2026-06-11
+
+### Changed
+- Update opsiclientd to 4.3.20.1 (Fix unmount) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.20.0-1] - 2026-06-10
 
 ### Changed
