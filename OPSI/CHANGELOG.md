@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.21.0-1] - 2026-06-12
+
+### Changed
+- Update oca-installation-helper to 4.3.7.0 (New commandline param --set-product-actions) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.20.1-1] - 2026-06-11
 
 ### Changed
