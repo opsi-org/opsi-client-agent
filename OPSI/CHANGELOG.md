@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.22.1-1] - 2026-06-24
+
+### Changed
+- Update opsiclientd to 4.3.22.1 (Product Cache Soft and Hard Limits) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.22.0-1] - 2026-06-24
 
 ### Changed
