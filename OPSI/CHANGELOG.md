@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.22.3-1] - 2026-06-25
+
+### Changed
+- Update opsiclientd to 4.3.22.2 (caching limits) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.22.2-1] - 2026-06-24
 
 ### Changed
