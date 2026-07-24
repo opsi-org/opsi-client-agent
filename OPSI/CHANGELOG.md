@@ -1,5 +1,11 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.22.6-1] - 2026-07-24
+
+### Changed
+- Update opsiclientd to 4.3.22.6 (fix userlogin handling) (Jan Schneider <j.schneider@uib.de>)
+- Update motd-notifier to 4.3.1.2 (improve link-handling) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.22.5-1] - 2026-07-23
 
 ### Changed
