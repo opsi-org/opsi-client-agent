@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.22.7-1] - 2026-07-26
+
+### Changed
+- Update opsiclientd to 4.3.22.7 (Retry on RepositoryError in CacheService) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.22.6-1] - 2026-07-24
 
 ### Changed
