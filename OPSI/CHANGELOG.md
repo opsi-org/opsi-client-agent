@@ -1,5 +1,11 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.22.7-2] - 2026-07-27
+
+### Changed
+- Update opsi-login-blocker to 4.3.2.0 (Port the credential provider / filter from C++ to Rust) (Jan Schneider <j.schneider@uib.de>)
+- Remove api-ms-win-core-path-l1-1-0.dll which was only needed for Windows < 10 (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.22.7-1] - 2026-07-26
 
 ### Changed

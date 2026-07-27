@@ -59,7 +59,7 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: all
-    version: 4.3.1.2
+    version: 4.3.2.0
     server-url: http://binaryindex.uib.gmbh
 
   # opsi-notifier
@@ -120,7 +120,7 @@ pull-binaries:
     server-url: http://binaryindex.uib.gmbh
 
   # Visual C++ redistributable 2015-2022
-  # This needed for opsi-login-blocker x86 >= 4.2.0.0 and opsiclientd
+  # This is needed for opsiclientd
   - name: microsoft_vcredist_2015-2022
     server-type: binaryindex
     destination: CLIENT_DATA/files/vcredist/
@@ -133,7 +133,7 @@ pull-binaries:
     server-url: http://binaryindex.uib.gmbh
 
   # Visual C++ redistributable 2015-2022
-  # This needed for opsi-login-blocker x86 >= 4.2.0.0 and opsiclientd
+  # This is needed for opsiclientd
   - name: microsoft_vcredist_2015-2022
     server-type: binaryindex
     destination: CLIENT_DATA/files/vcredist/
@@ -144,31 +144,6 @@ pull-binaries:
     architecture: x64
     version: 14.42.34438.0
     server-url: http://binaryindex.uib.gmbh
-
-  # api-ms-win-core-path-l1-1-0.dll needed for python >= 3.9 on windows < 10
-  # https://bugs.python.org/issue40740
-  # https://github.com/nalexandru/api-ms-win-core-path-HACK
-  - name: api-ms-win-core-path
-    server-type: binaryindex
-    destination: CLIENT_DATA/files/api-ms-win-core-path/x86/
-    extract: true
-    os: windows
-    architecture: x86
-    version: 0.3.1
-    server-url: http://binaryindex.uib.gmbh
-
-  # api-ms-win-core-path-l1-1-0.dll needed for python >= 3.9 on windows < 10
-  # https://bugs.python.org/issue40740
-  # https://github.com/nalexandru/api-ms-win-core-path-HACK
-  - name: api-ms-win-core-path
-    server-type: binaryindex
-    destination: CLIENT_DATA/files/api-ms-win-core-path/x64/
-    extract: true
-    os: windows
-    architecture: x64
-    version: 0.3.1
-    server-url: http://binaryindex.uib.gmbh
-
 
 jenkins-test:
   ACTIONREQUEST: setup,setup,setup
