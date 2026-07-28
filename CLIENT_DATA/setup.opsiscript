@@ -574,17 +574,6 @@ DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : strin
 	Message "Creating directories and setting permissions"
 	Files_create_dirs
 
-	; Get-LocalUser is not available in Powershell 2 (win7)
-	; Some win10 seem to get stuck on Get-WmiObject win32_useraccount, do not use!
-	DefVar $AdminSID$ = TakeString(0, PowerShellCall("(Get-LocalUser | Where-Object {$_.SID -like 'S-1-5-*-500'}).SID.Value"))
-	if not (contains($AdminSID$, "S-1-5-"))
-		Set $AdminSID$ = takeString(0, GetSubListByContainingRegex("^S-1-5-21-.*-500$", GetRegistryKeyListSysNative("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList")))
-	endif
-	if not (contains($AdminSID$, "S-1-5-"))
-		LogWarning "Failed to get AdminSID."
-		Set $AdminSID$ = ""
-	endif
-
 	Set $result$ = "true"
 	if $FixVarDir$ = "true"
 		DosInAnIcon_set_file_permissions_vardir
@@ -621,13 +610,9 @@ DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : strin
 	if not "%USERNAME%"=="SYSTEM" takeown /R /D N /F "$VarDir$" > nul || goto RETRY
 	; Remove all explicit permissions from the folder recursively (inheritance only)
 	icacls "$VarDir$" /q /c /t /reset || goto RETRY
-	; Allow full access to local admin group, system user and admin user inherit to all objects (OI) and containers (CI)
+	; Allow full access to local admin group and system user, inherit to all objects (OI) and containers (CI)
 	; Allow read access to local users for folder only
-	if "$AdminSID$"=="" (
-		icacls "$VarDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F" /grant:r "*S-1-5-18:(OI)(CI)F" /grant:r "*S-1-5-32-545:RX" || goto RETRY
-	) else (
-		icacls "$VarDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F" /grant:r "*S-1-5-18:(OI)(CI)F" /grant:r "*$AdminSID$:(OI)(CI)F" /grant:r "*S-1-5-32-545:RX" || goto RETRY
-	)
+	icacls "$VarDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F" /grant:r "*S-1-5-18:(OI)(CI)F" /grant:r "*S-1-5-32-545:RX" || goto RETRY
 	; Disable inheritance from parent folder
 	icacls "$VarDir$" /inheritance:r || goto RETRY
 	; Set owner to SYSTEM - may fail
@@ -659,13 +644,9 @@ DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : strin
 	icacls "$BaseDir$" /q /c /t /reset || goto RETRY
 	; Remove all permissions for local/domain users
 	icacls "$BaseDir$" /remove:g "*S-1-5-32-545" /q /c /t || goto RETRY
-	; Allow full access to local admin group, system user and admin user inherit to all objects (OI) and containers (CI)
+	; Allow full access to local admin group and system user, inherit to all objects (OI) and containers (CI)
 	; Allow read access to local/domain users for folder only
-	if "$AdminSID$"=="" (
-		icacls "$BaseDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F" /grant:r "*S-1-5-18:(OI)(CI)F" /grant:r "*S-1-5-32-545:(CI)RX" || goto RETRY
-	) else (
-		icacls "$BaseDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F" /grant:r "*S-1-5-18:(OI)(CI)F" /grant:r "*$AdminSID$:(OI)(CI)F" /grant:r "*S-1-5-32-545:(CI)RX" || goto RETRY
-	)
+	icacls "$BaseDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F" /grant:r "*S-1-5-18:(OI)(CI)F" /grant:r "*S-1-5-32-545:(CI)RX" || goto RETRY
 	; Disable inheritance from parent folder
 	icacls "$BaseDir$" /inheritance:r || goto RETRY
 	; Set owner to SYSTEM - may fail
