@@ -232,13 +232,13 @@ DefFunc install_opsiclientd(): void
 	;Powershell -ExecutionPolicy Bypass -NoProfile -Command "New-Item -ItemType SymbolicLink -Path \"$BaseDir$\opsiclientd_bin\" -Target \"$NewDir$\""
 
 	[Files_extract_opsiclientd_binaries_to_temp]
-	del -sfc "$BaseDir$\opsiclientd_windows_x86"
+	del -sfc "$BaseDir$\opsiclientd_windows_x64"
 	unzipfile "$BinaryArchiveFile$" "$BaseDir$\"
 
 	[Files_install_opsiclientd_binaries_from_temp]
 	del -sfc "$BaseDir$\opsiclientd_bin"
-	copy -sc "$BaseDir$\opsiclientd_windows_x86\*.*" "$BaseDir$\opsiclientd_bin\"
-	del -sfc "$BaseDir$\opsiclientd_windows_x86"
+	copy -sc "$BaseDir$\opsiclientd_windows_x64\*.*" "$BaseDir$\opsiclientd_bin\"
+	del -sfc "$BaseDir$\opsiclientd_windows_x64"
 
 	[Files_install_opsiclientd_dir]
 	copy -s "$BaseDir$\opsiclientd_bin\opsiclientd_data\*.*" "$BaseDir$\opsiclientd\"
