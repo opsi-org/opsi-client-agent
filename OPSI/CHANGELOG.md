@@ -1,5 +1,14 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.24.0-1] - 2026-08-05
+
+### Changed
+- Update opsiclientd to 4.3.24.0 (Jan Schneider <j.schneider@uib.de>)
+  - Packaged opsiclientd is now a 64 bit binary
+- Update oca-installation-helper to 4.3.8.0 (Jan Schneider <j.schneider@uib.de>)
+  - Add new options to use opsi-client-agent and opsi-script from local sources instead of downloading them from the depot
+  - Packaged oca-installation-helper is now a 64 bit binary
+
 ## [4.3.23.1-1] - 2026-08-04
 
 ### Changed
