@@ -19,6 +19,11 @@
 ### Changed
 - Update opsiclientd to 4.3.23.0 (Jan Schneider <j.schneider@uib.de>)
 
+## [4.3.22.8-1] - 2026-07-26
+
+### Fixed
+- Update opsiclientd to 4.3.22.8 (Fix depot mount) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.22.7-2] - 2026-07-27
 
 ### Changed
