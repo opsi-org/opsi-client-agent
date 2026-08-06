@@ -1075,6 +1075,11 @@ if CompareDotSeparatedNumbers(GetMsVersionInfo, "<", "6.0")
 	isFatalError "Windows version not supported: " + GetMsVersionInfo
 endif
 
+if not (GetSystemType = "64 Bit System")
+	LogError "Architecture not supported: " + GetSystemType
+	isFatalError "Architecture not supported: " + GetSystemType
+endif
+
 if not (HasMinimumSpace("%SystemDrive%", "200 MB"))
 	LogError "Insufficient disk space on %SystemDrive% (200 MB required)"
 	IsFatalError "Insufficient disk space"

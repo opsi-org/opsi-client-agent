@@ -1,5 +1,11 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.24.1-1] - 2026-08-06
+
+### Changed
+- Abort installation with a fatal error on 32 bit systems, as the packaged binaries now require a 64 bit Windows (Jan Schneider <j.schneider@uib.de>)
+- Update opsiclientd to 4.3.24.1 (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.24.0-1] - 2026-08-06
 
 ### Changed
