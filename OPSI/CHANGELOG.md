@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.24.2-1] - 2026-08-08
+
+### Fixed
+- Update opsiclientd to 4.3.24.2 (Fix read RebootRequested and ShutdownRequested from registry) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.24.1-1] - 2026-08-06
 
 ### Changed
