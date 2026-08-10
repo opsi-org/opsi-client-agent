@@ -4,6 +4,7 @@
 
 ### Fixed
 - Update opsiclientd to 4.3.24.3 (Jan Schneider <j.schneider@uib.de>)
+- Update opsi-login-blocker to 4.3.2.1 (Fix loginUser) (Jan Schneider <j.schneider@uib.de>)
 
 ## [4.3.24.2-1] - 2026-08-08
 
