@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.24.4-1] - 2026-08-11
+
+### Changed
+- Update opsiclientd to 4.3.24.4 (Add new event config option wait_for_transfer_slot) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.24.3-1] - 2026-08-10
 
 ### Fixed
