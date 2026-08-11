@@ -1127,7 +1127,7 @@ if errorsOccurredSinceMark > 0
 endif
 
 Comment "Show product image"
-ShowBitmap "%ScriptPath%\files\opsi-logo.png" "opsi client agent"
+ShowBitmap "%ScriptPath%\files\opsi-logo.png" "OPSI Client Agent"
 
 Message "Installing " + $ProductId$ + " ..."
 
