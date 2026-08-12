@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.24.5-1] - 2026-08-12
+
+### Changed
+- Update opsiclientd to 4.3.24.5 (Use Component "Based Servicing\Interface\ServicingInProgress" to detect running Windows Updates) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.24.4-1] - 2026-08-11
 
 ### Changed
