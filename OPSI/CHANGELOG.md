@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.24.5-2] - 2026-08-18
+
+### Changed
+- Update oca-installation-helper to 4.3.8.3 (Improved exit code handling and opsi session handling) (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.3.24.5-1] - 2026-08-12
 
 ### Changed

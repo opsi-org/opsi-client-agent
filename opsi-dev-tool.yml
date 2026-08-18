@@ -94,7 +94,7 @@ pull-binaries:
         - chmod 755 CLIENT_DATA/oca-installation-helper.exe
     os: windows
     architecture: x64
-    version: 4.3.8.1
+    version: 4.3.8.3
     server-url: http://binaryindex.uib.gmbh
 
   # opsi deployment script (as binary)
@@ -151,4 +151,4 @@ jenkins-test:
   PRODUCTSOURCES: opsi-client-agent,opsi-client-agent,opsi-client-agent
   PROPERTIES: {}
   SNAPSHOT: patched
-  SYSTEMS: windows
+  SYSTEMS: winx64
