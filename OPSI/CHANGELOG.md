@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.24.6-1] - 2026-08-20
+
+### Fixed
+- Update opsiclientd to 4.3.24.6 (fixed time stamps for ProductOnClient-Objects in WAN-Backend) (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.3.24.5-2] - 2026-08-18
 
 ### Changed
