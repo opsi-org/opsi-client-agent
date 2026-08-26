@@ -4,11 +4,16 @@
 
 ### Fixed
 - Set correct permissions for local groups on VarDir and BaseDir (Jan Schneider <j.schneider@uib.de>)
+- Update opsiclientd to 4.3.24.7
+  - Fix RPC runOpsiScriptAsOpsiSetupUser
+  - Set registry values in the correct view on Windows
+  - Update dependencies
+  - Add /depotpath to action processor command
 
 ## [4.3.24.6-1] - 2026-08-20
 
 ### Fixed
-- Update opsiclientd to 4.3.24.6 (fixed time stamps for ProductOnClient-Objects in WAN-Backend) (Nils Doerrer <n.doerrer@uib.de>)
+- Update opsiclientd to 4.3.24.6 (Fixed time stamps for ProductOnClient-Objects in WAN-Backend) (Nils Doerrer <n.doerrer@uib.de>)
 
 ## [4.3.24.5-2] - 2026-08-18
 
