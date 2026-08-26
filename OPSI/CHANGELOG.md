@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.24.7-1] - 2026-08-26
+
+### Fixed
+- Set correct permissions for local groups on VarDir and BaseDir (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.24.6-1] - 2026-08-20
 
 ### Fixed
