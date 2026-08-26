@@ -612,7 +612,7 @@ DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : strin
 	icacls "$VarDir$" /q /c /t /reset || goto RETRY
 	; Allow full access to local admin group and system user, inherit to all objects (OI) and containers (CI)
 	; Allow read access to local users for folder only
-	icacls "$VarDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F" /grant:r "*S-1-5-18:(OI)(CI)F" /grant:r "*S-1-5-32-545:RX" || goto RETRY
+	icacls "$VarDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F" /grant:r "*S-1-5-18:(OI)(CI)F" /grant:r "*S-1-5-32-544:RX" || goto RETRY
 	; Disable inheritance from parent folder
 	icacls "$VarDir$" /inheritance:r || goto RETRY
 	; Set owner to SYSTEM - may fail
@@ -643,21 +643,21 @@ DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : strin
 	; Remove all explicit permissions from the folder recursively (inheritance only)
 	icacls "$BaseDir$" /q /c /t /reset || goto RETRY
 	; Remove all permissions for local/domain users
-	icacls "$BaseDir$" /remove:g "*S-1-5-32-545" /q /c /t || goto RETRY
+	icacls "$BaseDir$" /remove:g "*S-1-5-32-544" /q /c /t || goto RETRY
 	; Allow full access to local admin group and system user, inherit to all objects (OI) and containers (CI)
 	; Allow read access to local/domain users for folder only
-	icacls "$BaseDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F" /grant:r "*S-1-5-18:(OI)(CI)F" /grant:r "*S-1-5-32-545:(CI)RX" || goto RETRY
+	icacls "$BaseDir$" /grant:r "*S-1-5-32-544:(OI)(CI)F" /grant:r "*S-1-5-18:(OI)(CI)F" /grant:r "*S-1-5-32-544:(CI)RX" || goto RETRY
 	; Disable inheritance from parent folder
 	icacls "$BaseDir$" /inheritance:r || goto RETRY
 	; Set owner to SYSTEM - may fail
 	icacls "$BaseDir$" /setowner SYSTEM
 	; Add read and exceute permission for local users on opsi-script
-	if exist "$BaseDir$\opsi-script" icacls "$BaseDir$\opsi-script" /grant "*S-1-5-32-545:(OI)(CI)RX" || goto RETRY
+	if exist "$BaseDir$\opsi-script" icacls "$BaseDir$\opsi-script" /grant "*S-1-5-32-544:(OI)(CI)RX" || goto RETRY
 	; Add read and exceute permission for local users on opsi-client-systray and notifiers
-	if exist "$BaseDir$\opsi-client-systray" icacls "$BaseDir$\opsi-client-systray" /grant "*S-1-5-32-545:(OI)(CI)RX" || goto RETRY
-	if exist "$BaseDir$\opsi-notifier.exe" icacls "$BaseDir$\opsi-notifier.exe" /grant "*S-1-5-32-545:RX" || goto RETRY
-	if exist "$BaseDir$\motd-notifier" icacls "$BaseDir$\motd-notifier" /grant "*S-1-5-32-545:(OI)(CI)RX" || goto RETRY
-	if exist "$BaseDir$\motd-notifier\opsi-notifier.exe" icacls "$BaseDir$\motd-notifier\opsi-notifier.exe" /grant "*S-1-5-32-545:RX" || goto RETRY
+	if exist "$BaseDir$\opsi-client-systray" icacls "$BaseDir$\opsi-client-systray" /grant "*S-1-5-32-544:(OI)(CI)RX" || goto RETRY
+	if exist "$BaseDir$\opsi-notifier.exe" icacls "$BaseDir$\opsi-notifier.exe" /grant "*S-1-5-32-544:RX" || goto RETRY
+	if exist "$BaseDir$\motd-notifier" icacls "$BaseDir$\motd-notifier" /grant "*S-1-5-32-544:(OI)(CI)RX" || goto RETRY
+	if exist "$BaseDir$\motd-notifier\opsi-notifier.exe" icacls "$BaseDir$\motd-notifier\opsi-notifier.exe" /grant "*S-1-5-32-544:RX" || goto RETRY
 
 	exit 0
 
