@@ -183,6 +183,9 @@ DefFunc install_opsiclientd(): void
 		isFatalError "Failed to access new opsiclientd - check Antivirus software"
 	endif
 
+	Comment "Setting file permissions for opsiclientd binaries"
+	ShellInAnIcon_set_file_permissions_opsiclientd_bin
+
 	Comment "Creating link " + $BinDir$ + " pointing to " + $NewDir$
 	ShellInAnIcon_mklink
 
@@ -230,6 +233,10 @@ DefFunc install_opsiclientd(): void
 	mklink /j "$BinDir$" "$NewDir$"
 	;mklink /d "$BaseDir$\opsiclientd_bin" "$NewDir$"
 	;Powershell -ExecutionPolicy Bypass -NoProfile -Command "New-Item -ItemType SymbolicLink -Path \"$BaseDir$\opsiclientd_bin\" -Target \"$NewDir$\""
+
+	[ShellInAnIcon_set_file_permissions_opsiclientd_bin]
+	if exist "$BaseDir$\opsiclientd_bin1" icacls "$BaseDir$\opsiclientd_bin1" /grant "*S-1-5-32-545:(OI)(CI)RX"
+	if exist "$BaseDir$\opsiclientd_bin2" icacls "$BaseDir$\opsiclientd_bin2" /grant "*S-1-5-32-545:(OI)(CI)RX"
 
 	[Files_extract_opsiclientd_binaries_to_temp]
 	del -sfc "$BaseDir$\opsiclientd_windows_x64"
