@@ -651,9 +651,12 @@ DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : strin
 	icacls "$BaseDir$" /inheritance:r || goto RETRY
 	; Set owner to SYSTEM - may fail
 	icacls "$BaseDir$" /setowner SYSTEM
-	; Add read and exceute permission for local users on opsi-script
+	; Add read and execute permission for local users on opsiclientd_bin (needed for opsisetupuser)
+	if exist "$BaseDir$\opsiclientd_bin1" icacls "$BaseDir$\opsiclientd_bin1" /grant "*S-1-5-32-545:(OI)(CI)RX" || goto RETRY
+	if exist "$BaseDir$\opsiclientd_bin2" icacls "$BaseDir$\opsiclientd_bin2" /grant "*S-1-5-32-545:(OI)(CI)RX" || goto RETRY
+	; Add read and execute permission for local users on opsi-script
 	if exist "$BaseDir$\opsi-script" icacls "$BaseDir$\opsi-script" /grant "*S-1-5-32-545:(OI)(CI)RX" || goto RETRY
-	; Add read and exceute permission for local users on opsi-client-systray and notifiers
+	; Add read and execute permission for local users on opsi-client-systray and notifiers
 	if exist "$BaseDir$\opsi-client-systray" icacls "$BaseDir$\opsi-client-systray" /grant "*S-1-5-32-545:(OI)(CI)RX" || goto RETRY
 	if exist "$BaseDir$\opsi-notifier.exe" icacls "$BaseDir$\opsi-notifier.exe" /grant "*S-1-5-32-545:RX" || goto RETRY
 	if exist "$BaseDir$\motd-notifier" icacls "$BaseDir$\motd-notifier" /grant "*S-1-5-32-545:(OI)(CI)RX" || goto RETRY
