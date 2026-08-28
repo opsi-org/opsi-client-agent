@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.24.9-1] - 2026-08-28
+
+### Changed
+- Update opsiclientd to 4.3.24.9 (By default, the control server (4441) is only available on localhost) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.24.8-1] - 2026-08-28
 
 ### Fixed
