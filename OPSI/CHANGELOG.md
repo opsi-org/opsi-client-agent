@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.24.9-2] - 2026-08-28
+
+### Fixed
+- Update opsi-login-blocker to 4.3.2.2 (Do not activate login blocking for CredUI prompts such as "Run as administrator") (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.24.9-1] - 2026-08-28
 
 ### Changed
