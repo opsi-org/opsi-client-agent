@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.24.8-1] - 2026-08-28
+
+### Fixed
+- Update opsiclientd to 4.3.24.8 (Set depotDrive in registry for opsi-script) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.24.7-1] - 2026-08-26
 
 ### Fixed
