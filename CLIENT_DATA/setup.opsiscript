@@ -161,8 +161,9 @@ DefFunc install_opsiclientd(): void
 	if FileExists($NewDir$)
 		Comment "Removing " + $NewDir$
 		DefVar $randomString$ = RandomIntStr("999999")
-		PowershellCall('Rename-Item "' + $NewDir$ + '" "' + $BaseDir$ + '\old_opsiclientd_' + $randomString$ + '"')
-		PowershellCall('Remove-Item "' + $BaseDir$ + '\old_opsiclientd_' + $randomString$ + '" -Recurse')
+		DefVar $randomDir$ = $BaseDir$ + '\old_opsiclientd_' + $randomString$
+		PowershellCall('Rename-Item "' + $NewDir$ + '" "' + $randomDir$ + '"')
+		PowershellCall('Remove-Item "' + $randomDir$ + '" -Recurse')
 	endif
 	; In case removal failed (or partially successful) do not change link target
 	if FileExists($NewDir$)
