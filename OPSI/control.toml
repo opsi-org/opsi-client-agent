@@ -1,5 +1,5 @@
 [Package]
-version = "2"
+version = "1"
 depends = []
 
 [Product]
@@ -7,7 +7,7 @@ type = "LocalbootProduct"
 id = "opsi-client-agent"
 name = "OPSI Client Agent"
 description = """OPSI Client Agent for Windows"""
-version = "4.3.24.9"
+version = "4.3.25.0"
 priority = 95
 licenseRequired = false
 productClasses = []

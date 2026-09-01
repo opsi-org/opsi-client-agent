@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.25.0-1] - 2026-09-01
+
+### Changed
+- Update opsiclientd to 4.3.25.0 (Show action warning before caching products if event uses cached products) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.24.9-2] - 2026-08-28
 
 ### Fixed
