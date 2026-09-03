@@ -7,7 +7,7 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x64
-    version: 4.3.25.1~495621
+    version: 4.3.25.2
     server-url: http://binaryindex.uib.gmbh
 
  # opsi-script binaries - only needed for netboot
