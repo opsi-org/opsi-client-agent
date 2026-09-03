@@ -1,5 +1,10 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.25.2-1] - 2026-09-03
+
+### New
+- Update opsiclientd to 4.3.25.2 (mshotfix caching hooks for win server 2025 and win11 26h2) (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.3.25.1-1] - 2026-09-02
 
 ### Changed
