@@ -1,5 +1,12 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.26.1-1] - 2026-09-16
+
+### Changed
+- Update opsiclientd to 4.3.26.1 (Jan Schneider <j.schneider@uib.de>)
+  - Filter overlapping control server bind addresses
+  - Suppress error when event processing is canceled due to product caching state
+
 ## [4.3.26.0-1] - 2026-09-12
 
 ### Changed
