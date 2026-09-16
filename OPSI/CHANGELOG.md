@@ -6,6 +6,7 @@
 - Update opsiclientd to 4.3.26.1 (Jan Schneider <j.schneider@uib.de>)
   - Filter overlapping control server bind addresses
   - Suppress error when event processing is canceled due to product caching state
+- Improve script for setting file permissions
 
 ## [4.3.26.0-1] - 2026-09-12
 
