@@ -639,7 +639,7 @@ DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : strin
 		exit 1
 	)
 	; timeout does not support the redirected stdin used by opsi-script
-	ping.exe -n 15 127.0.0.1 >nul
+	ping -n 10 127.0.0.1 >nul
 	goto RETRY_BEGIN
 
 
@@ -697,7 +697,7 @@ DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : strin
 		exit 1
 	)
 	; timeout does not support the redirected stdin used by opsi-script
-	ping.exe -n 15 127.0.0.1 >nul
+	ping -n 10 127.0.0.1 >nul
 	goto RETRY_BEGIN
 EndFunc
 
