@@ -1,5 +1,11 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.26.2-1] - 2026-09-29
+
+### Changed
+- Update opsiclientd to 4.3.26.2 (Jan Schneider <j.schneider@uib.de>)
+  - Reliability remove OPSI CAs from system certificate store
+
 ## [4.3.26.1-1] - 2026-09-16
 
 ### Changed
