@@ -1,5 +1,14 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.27.0-1] - 2026-10-19
+
+### Fixed
+- Do not remove the opsiclientd binary directory in use by running processes if the opsiclientd_bin junction points to a different directory (Jan Schneider <j.schneider@uib.de>)
+
+### Changed
+- Update opsiclientd to 4.3.27.0 (Jan Schneider <j.schneider@uib.de>)
+  - Fire on_shutdown event if shutdown / reboot is requested via rpc (e.g. configed)
+
 ## [4.3.26.2-1] - 2026-09-29
 
 ### Changed

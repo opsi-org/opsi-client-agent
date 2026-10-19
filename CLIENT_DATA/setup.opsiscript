@@ -96,6 +96,7 @@ DefFunc install_opsiclientd(): void
 	DefVar $BinDirOld$ = $BaseDir$ + "\opsiclientd_bin_old"
 	DefVar $NewDir$ = $BinDir2$
 	DefVar $LinkTarget$ = ""
+	DefVar $RunningDir$ = ""
 
 	MarkErrorNumber
 	if FileExists($BinDir$)
@@ -109,6 +110,19 @@ DefFunc install_opsiclientd(): void
 		else
 			Set $TempList$ = PowershellCall('Get-Item "' + $BinDir$ + '" | Select-Object -ExpandProperty Target')
 			Set $LinkTarget$ = TakeString(0, $TempList$)
+		endif
+	endif
+
+	if not ($LinkTarget$ = "")
+		; The junction may already point to another directory than the one the running processes were started from
+		; (e.g. no service restart after a previous update). Never select the directory in use for removal.
+		Set $TempList$ = PowershellCall('Get-Process -Name opsiclientd,action_processor_starter,opsiclientd_rpc -ErrorAction SilentlyContinue | Where-Object { $_.Path } | ForEach-Object { Split-Path -Leaf (Split-Path -Parent $_.Path) }')
+		Set $RunningDir$ = Trim(TakeFirstStringContaining($TempList$, "opsiclientd_bin"))
+		if ($RunningDir$ = "opsiclientd_bin1") or ($RunningDir$ = "opsiclientd_bin2")
+			if not (TakeString(-1, SplitString($LinkTarget$, "\")) = $RunningDir$)
+				LogWarning $BinDir$ + " points to " + $LinkTarget$ + " but opsiclientd is running from " + $RunningDir$
+				Set $LinkTarget$ = $BaseDir$ + "\" + $RunningDir$
+			endif
 		endif
 	endif
 
