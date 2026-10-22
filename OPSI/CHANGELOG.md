@@ -1,5 +1,12 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.27.2-1] - 2026-10-22
+
+### Security
+- Update opsiclientd to 4.3.27.2 (Jan Schneider <j.schneider@uib.de>)
+  - Keep product cache service running after temporary errors
+  - Update bundled SSL certificates
+
 ## [4.3.27.0-1] - 2026-10-19
 
 ### Fixed
