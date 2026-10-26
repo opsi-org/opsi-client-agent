@@ -5,7 +5,7 @@
 ### Security
 - Update opsiclientd to 4.3.27.3 (Jan Schneider <j.schneider@uib.de>)
   - Quote opsiclientd service ImagePath to fix unquoted service path vulnerability
-
+- Update oca-installation-helper to 4.3.8.5 (Jan Schneider <j.schneider@uib.de>)
 
 ## [4.3.27.2-1] - 2026-10-22
 
