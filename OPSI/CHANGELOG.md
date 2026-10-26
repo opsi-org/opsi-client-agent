@@ -1,5 +1,12 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.27.3-1] - 2026-10-26
+
+### Security
+- Update opsiclientd to 4.3.27.3 (Jan Schneider <j.schneider@uib.de>)
+  - Quote opsiclientd service ImagePath to fix unquoted service path vulnerability
+
+
 ## [4.3.27.2-1] - 2026-10-22
 
 ### Security
