@@ -1,5 +1,14 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.27.5-1] - 2026-10-29
+
+### Fix
+- Update opsiclientd to 4.3.27.5 (Jan Schneider <j.schneider@uib.de>)
+  - Reset SmartCache config if clientconfig.smart_cache is missing
+  - Ignore empty/invalid control server interface entries
+- Update oca-installation-helper to 4.3.8.7 (deep signed onefile binary -> for Smart App Control) (Nils Doerrer <n.doerrer@uib.de>)
+- Update opsi-deploy-client-agent to 4.3.2.2 (updated dependencies and improved error logging) (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.3.27.3-1] - 2026-10-26
 
 ### Security
