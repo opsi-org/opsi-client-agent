@@ -1,5 +1,11 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.27.6-1] - 2026-11-05
+
+### Fix
+
+- Update opsiclientd to 4.3.27.6 (fixed service connection in case of shaky interfaces) (Nils Doerrer <n.doerrer@uib.de>)
+
 ## [4.3.27.5-1] - 2026-10-29
 
 ### Fix
