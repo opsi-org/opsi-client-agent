@@ -574,7 +574,7 @@ DefFunc install_custom_files(): void
 	del -sc "%TempCustomPath%"
 
 	[Files_install_motd_custom]
-	copy -sc "$BaseDir$\custom\motd-notifier\*.*" "$BaseDir$\motd-notifier\data\images\"
+	copy -sc "$BaseDir$\custom\motd-notifier\*.*" "$BaseDir$\motd-notifier\data\"
 	del -sc "$BaseDir$\custom\motd-notifier"
 
 

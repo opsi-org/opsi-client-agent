@@ -1,5 +1,11 @@
 ﻿# Changelog opsi-client-agent
 
+## [4.3.27.6-2] - 2026-11-05
+
+### New
+
+- Update notifier 4.3.2.0 (redesign with rust)
+
 ## [4.3.27.6-1] - 2026-11-05
 
 ### Fix
