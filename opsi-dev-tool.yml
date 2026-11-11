@@ -7,7 +7,7 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x64
-    version: 4.3.27.6
+    version: 4.3.28.0
     server-url: http://binaryindex.uib.gmbh
 
  # opsi-script binaries - only needed for netboot
@@ -18,7 +18,7 @@ pull-binaries:
     post-script: []
     os: windows
     architecture: x86
-    version: 4.12.18.8
+    version: 4.12.22.0
     server-url: http://binaryindex.uib.gmbh
 
   # opsi-script common files - only needed for netboot
@@ -35,7 +35,7 @@ pull-binaries:
         - Remove-Item -Recurse -Force CLIENT_DATA\\files\\opsi-script-common
     os: all
     architecture: all
-    version: 4.12.18.8
+    version: 4.12.21.2
     server-url: http://binaryindex.uib.gmbh
 
  # openssl library for opsi-script - only needed for netboot

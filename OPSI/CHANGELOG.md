@@ -1,10 +1,13 @@
-﻿# Changelog opsi-client-agent
+﻿# Changelog of opsi-client-agent
 
-## [4.3.27.6-2] - 2026-11-05
+## [4.3.28.0-1] - 2026-11-11
 
-### New
-
-- Update notifier 4.3.2.0 (redesign with rust)
+### Changed
+- Update motd-notifier to 4.3.2.0 (redesign, rust based) (Anna Sucher <a.sucher@uib.de>)
+- Update opsiclientd to 4.3.28.0 (Jan Schneider <j.schneider@uib.de>)
+- Update opsi-script to 4.12.22.0 (Jan Schneider <j.schneider@uib.de>)
+- Update uib opsi-script libs to 4.12.21.2 (Jan Schneider <j.schneider@uib.de>)
+- Log opsiclientd setup to opsiclientd-setup.log (Jan Schneider <j.schneider@uib.de>)
 
 ## [4.3.27.6-1] - 2026-11-05
 
