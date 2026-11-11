@@ -1,5 +1,10 @@
 ﻿# Changelog of opsi-client-agent
 
+## [4.3.28.2-1] - 2026-11-11
+
+### Changed
+- Update opsiclientd to 4.3.28.2 (improved logging, add notifier active flags for event, action, and shutdown notifiers) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.28.1-1] - 2026-11-11
 
 ### Changed
