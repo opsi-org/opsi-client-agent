@@ -230,7 +230,7 @@ DefFunc install_opsiclientd(): void
 		Patches_opsiclientd_conf $BaseDir$ + "\opsiclientd\opsiclientd.conf"
 
 		comment "Run opsiclientd setup"
-		DosInAnIcon_opsiclientd_setup
+		ShellInAnIcon_opsiclientd_setup /timeoutSeconds 120
 		if not(GetLastExitcode = "0")
 			LogError "opsiclientd setup failed"
 			if FileExists($BaseDir$ + "\opsiclientd\opsiclientd.conf.bak")
@@ -275,10 +275,10 @@ DefFunc install_opsiclientd(): void
 	Set [action_processor] remote_common_dir = opsi-script\\common
 	Set [action_processor] filename = opsi-script.exe
 
-	[DosInAnIcon_opsiclientd_setup]
+	[ShellInAnIcon_opsiclientd_setup]
 	"$BaseDir$\opsiclientd_bin\opsiclientd.exe" setup --log-file "$VarDir$\log\opsiclientd-setup.log" --log-level 6 --client-id "$ClientId$" --service-address "$ServiceAddress$" --service-username "$ServiceUsername$" --service-password "$ServicePassword$"
 	set EXITCODE=%ERRORLEVEL%
-	echo "opsiclientd setup had errorlevel %EXITCODE%"
+	echo "opsiclientd setup exitcode: %EXITCODE%"
 	exit %EXITCODE%
 
 	[Files_remove_old_opsiclientd]
@@ -595,14 +595,14 @@ DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : strin
 
 	Set $result$ = "true"
 	if $FixVarDir$ = "true"
-		DosInAnIcon_set_file_permissions_vardir
+		ShellInAnIcon_set_file_permissions_vardir
 		if not ("0" = GetLastExitcode)
 			LogError "Failed to set permissions on VarDir"
 			Set $result$ = "false"
 		endif
 	endif
 	if $FixBaseDir$ = "true"
-		DosInAnIcon_set_file_permissions_basedir
+		ShellInAnIcon_set_file_permissions_basedir
 		if not ("0" = GetLastExitcode)
 			LogError "Failed to set permissions on BaseDir"
 			Set $result$ = "false"
@@ -621,7 +621,7 @@ DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : strin
 	CheckTargetPath = "$VarDir$\data"
 	CheckTargetPath = "$BaseDir$"
 
-	[DosInAnIcon_set_file_permissions_vardir]
+	[ShellInAnIcon_set_file_permissions_vardir]
 	set attempt=1
 
 	:RETRY_BEGIN
@@ -657,7 +657,7 @@ DefFunc install_directories($FixVarDir$ : string, $FixBaseDir$ : string) : strin
 	goto RETRY_BEGIN
 
 
-	[DosInAnIcon_set_file_permissions_basedir]
+	[ShellInAnIcon_set_file_permissions_basedir]
 	set attempt=1
 
 	:RETRY_BEGIN
