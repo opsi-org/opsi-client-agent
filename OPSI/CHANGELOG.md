@@ -1,5 +1,11 @@
 ﻿# Changelog of opsi-client-agent
 
+## [4.3.28.3-1] - 2026-11-12
+
+### Fixed
+- Update opsiclientd to 4.3.28.3 (Fixed linux command execution session selection), updated dependencies (Nils Doerrer <n.doerrer@uib.de>)
+- Update motd-notifier to 4.3.2.1 (Fixed minor bugs) (Anna Sucher <a.sucher@uib.de>)
+
 ## [4.3.28.2-1] - 2026-11-11
 
 ### Changed
