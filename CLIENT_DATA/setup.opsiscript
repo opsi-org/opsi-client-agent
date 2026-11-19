@@ -519,6 +519,9 @@ DefFunc install_custom_files(): void
 	if runningInWanMode
 		comment "Copying custom files (WAN mode)"
 		Files_copy_custom_wan
+		if FileExists($BaseDir$+"\custom\motd-notifier")
+			Files_install_motd_custom
+		endif
 	else
 		DefStringList $TempList$
 		Set $TempList$ = GetReturnListFromSection("OpsiServiceCall_product_getIdents_opsi-client-agent-custom")
@@ -539,10 +542,6 @@ DefFunc install_custom_files(): void
 				Message "Failed to fetch custom files from opsi-client-agent"
 			endif
 		endif
-	endif
-
-	if FileExists($BaseDir$+"\custom\motd-notifier")
-		Files_install_motd_custom
 	endif
 
 	DefStringList $CustomPathList$ = createStringList()

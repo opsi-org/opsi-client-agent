@@ -152,3 +152,4 @@ jenkins-test:
   PROPERTIES: {}
   SNAPSHOT: patched
   SYSTEMS: winx64
+  PIPELINE: localboot-test

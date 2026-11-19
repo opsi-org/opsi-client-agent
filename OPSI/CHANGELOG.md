@@ -1,5 +1,10 @@
 ﻿# Changelog of opsi-client-agent
 
+## [Unreleased]
+
+### Changed
+- Install MOTD customizations from opsi-client-agent-custom/common/motd-notifier/data/ outside WAN mode; only relocate legacy custom/motd-notifier files in WAN mode.
+
 ## [4.3.28.4-2] - 2026-11-18
 
 ### Fixed
