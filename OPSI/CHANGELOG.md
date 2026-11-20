@@ -1,5 +1,11 @@
 ﻿# Changelog of opsi-client-agent
 
+## [4.3.28.?-?] - 2026-11-20
+
+### Fixed
+- Update motd-notifier to 4.3.2.2 (fixed custom style evaluation) (Nils Doerrer <n.doerrer@uib.de>)
+
+
 ## [4.3.28.4-3] - 2026-11-19
 
 ### Changed
