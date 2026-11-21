@@ -1,5 +1,10 @@
 ﻿# Changelog of opsi-client-agent
 
+## [4.3.28.4-5] - 2026-11-21
+
+### Fixed
+- Set old service URL as fallback if empty (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.28.4-4] - 2026-11-20
 
 ### Fixed

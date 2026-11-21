@@ -97,6 +97,8 @@ DefFunc install_opsiclientd(): void
 	DefVar $NewDir$ = $BinDir2$
 	DefVar $LinkTarget$ = ""
 	DefVar $RunningDir$ = ""
+	DefVar $OldServiceURL$ = ""
+	DefVar $NewServiceURL$ = ""
 
 	MarkErrorNumber
 	if FileExists($BinDir$)
@@ -217,6 +219,9 @@ DefFunc install_opsiclientd(): void
 		endif
 		if FileExists($BaseDir$ + "\opsiclientd\opsiclientd.conf")
 			Comment "Saving old opsiclientd.conf"
+			; Use the current service URL as default for the new opsiclientd.conf
+			Set $OldServiceURL$ = GetValueFromInifile($BaseDir$ + "\opsiclientd\opsiclientd.conf", "config_service", "url", "", "utf8")
+			Set $NewServiceURL$ = $OldServiceURL$
 			PowershellCall('Copy-Item -Path "' + $BaseDir$ + '\opsiclientd\opsiclientd.conf" -Destination "' + $BaseDir$ + '\opsiclientd\opsiclientd.conf.bak" -force')
 		endif
 
@@ -226,7 +231,7 @@ DefFunc install_opsiclientd(): void
 			LogError "Failed to install opsiclientd data directory"
 		endif
 
-		comment "Patch opsiclientd.conf"
+		comment "Patching opsiclientd.conf before running setup"
 		Patches_opsiclientd_conf $BaseDir$ + "\opsiclientd\opsiclientd.conf"
 
 		comment "Run opsiclientd setup"
@@ -238,6 +243,14 @@ DefFunc install_opsiclientd(): void
 				PowershellCall('Move-Item -Path "' + $BaseDir$ + '\opsiclientd\opsiclientd.conf.bak" -Destination "' + $BaseDir$ + '\opsiclientd\opsiclientd.conf" -force')
 			endif
 			IsFatalError "opsiclientd setup failed"
+		endif
+
+		Set $NewServiceURL$ = GetValueFromInifile($BaseDir$ + "\opsiclientd\opsiclientd.conf", "config_service", "url", "", "utf8")
+		if ($NewServiceURL$ = "")
+			Comment "New service URL is empty, using old service URL"
+			Comment "Patching opsiclientd.conf after running setup"
+			Set $NewServiceURL$ = $OldServiceURL$
+			Patches_opsiclientd_conf $BaseDir$ + "\opsiclientd\opsiclientd.conf"
 		endif
 	endif
 
@@ -268,8 +281,8 @@ DefFunc install_opsiclientd(): void
 	del -fs "$BaseDir$\opsiclientd_bin\opsiclientd_data"
 
 	[Patches_opsiclientd_conf]
+	Set [config_service] url = $NewServiceURL$
 	Set [global] log_level = 6
-
 	Set [action_processor] local_dir = %global.base_dir%\\opsi-script
 	Set [action_processor] remote_dir = opsi-script\\windows\\x86
 	Set [action_processor] remote_common_dir = opsi-script\\common
