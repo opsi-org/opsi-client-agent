@@ -221,7 +221,6 @@ DefFunc install_opsiclientd(): void
 			Comment "Saving old opsiclientd.conf"
 			; Use the current service URL as default for the new opsiclientd.conf
 			Set $OldServiceURL$ = GetValueFromInifile($BaseDir$ + "\opsiclientd\opsiclientd.conf", "config_service", "url", "", "utf8")
-			Set $NewServiceURL$ = $OldServiceURL$
 			PowershellCall('Copy-Item -Path "' + $BaseDir$ + '\opsiclientd\opsiclientd.conf" -Destination "' + $BaseDir$ + '\opsiclientd\opsiclientd.conf.bak" -force')
 		endif
 
@@ -246,11 +245,10 @@ DefFunc install_opsiclientd(): void
 		endif
 
 		Set $NewServiceURL$ = GetValueFromInifile($BaseDir$ + "\opsiclientd\opsiclientd.conf", "config_service", "url", "", "utf8")
-		if ($NewServiceURL$ = "")
+		if ($NewServiceURL$ = "") and (not($OldServiceURL$ = ""))
 			Comment "New service URL is empty, using old service URL"
 			Comment "Patching opsiclientd.conf after running setup"
-			Set $NewServiceURL$ = $OldServiceURL$
-			Patches_opsiclientd_conf $BaseDir$ + "\opsiclientd\opsiclientd.conf"
+			Patches_opsiclientd_conf_service_url $BaseDir$ + "\opsiclientd\opsiclientd.conf"
 		endif
 	endif
 
@@ -281,12 +279,14 @@ DefFunc install_opsiclientd(): void
 	del -fs "$BaseDir$\opsiclientd_bin\opsiclientd_data"
 
 	[Patches_opsiclientd_conf]
-	Set [config_service] url = $NewServiceURL$
 	Set [global] log_level = 6
 	Set [action_processor] local_dir = %global.base_dir%\\opsi-script
 	Set [action_processor] remote_dir = opsi-script\\windows\\x86
 	Set [action_processor] remote_common_dir = opsi-script\\common
 	Set [action_processor] filename = opsi-script.exe
+
+	[Patches_opsiclientd_conf_service_url]
+	Set [config_service] url = $OldServiceURL$
 
 	[ShellInAnIcon_opsiclientd_setup]
 	"$BaseDir$\opsiclientd_bin\opsiclientd.exe" setup --log-file "$VarDir$\log\opsiclientd-setup.log" --log-level 6 --client-id "$ClientId$" --service-address "$ServiceAddress$" --service-username "$ServiceUsername$" --service-password "$ServicePassword$"
