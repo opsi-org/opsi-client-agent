@@ -220,7 +220,7 @@ DefFunc install_opsiclientd(): void
 		if FileExists($BaseDir$ + "\opsiclientd\opsiclientd.conf")
 			Comment "Saving old opsiclientd.conf"
 			; Use the current service URL as default for the new opsiclientd.conf
-			Set $OldServiceURL$ = GetValueFromInifile($BaseDir$ + "\opsiclientd\opsiclientd.conf", "config_service", "url", "", "utf8")
+			Set $OldServiceURL$ = GetValueFromInifile($BaseDir$ + "\opsiclientd\opsiclientd.conf", "config_service", "url", "")
 			PowershellCall('Copy-Item -Path "' + $BaseDir$ + '\opsiclientd\opsiclientd.conf" -Destination "' + $BaseDir$ + '\opsiclientd\opsiclientd.conf.bak" -force')
 		endif
 
@@ -244,7 +244,7 @@ DefFunc install_opsiclientd(): void
 			IsFatalError "opsiclientd setup failed"
 		endif
 
-		Set $NewServiceURL$ = GetValueFromInifile($BaseDir$ + "\opsiclientd\opsiclientd.conf", "config_service", "url", "", "utf8")
+		Set $NewServiceURL$ = GetValueFromInifile($BaseDir$ + "\opsiclientd\opsiclientd.conf", "config_service", "url", "")
 		if ($NewServiceURL$ = "") and (not($OldServiceURL$ = ""))
 			Comment "New service URL is empty, using old service URL"
 			Comment "Patching opsiclientd.conf after running setup"
