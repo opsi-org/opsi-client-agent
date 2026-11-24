@@ -1,5 +1,10 @@
 ﻿# Changelog of opsi-client-agent
 
+## [4.3.28.5-1] - 2026-11-24
+
+### Fixed
+- Update opsiclientd to 4.3.28.5 (Add retry logic in download_from_depot) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.28.4-5] - 2026-11-21
 
 ### Fixed
@@ -9,7 +14,7 @@
 
 ### Fixed
 - Update motd-notifier to 4.3.2.2 (fixed custom style evaluation) (Nils Doerrer <n.doerrer@uib.de>)
-- Update opsi-notifier to notifier 4.3.3.1 (Jan Schneider <j.schneider@uib.de>)
+- Update opsi-notifier to 4.3.3.1 (Jan Schneider <j.schneider@uib.de>)
 
 ## [4.3.28.4-3] - 2026-11-19
 
