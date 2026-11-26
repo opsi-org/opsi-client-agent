@@ -1,5 +1,10 @@
 ﻿# Changelog of opsi-client-agent
 
+## [4.3.28.5-2] - 2026-11-26
+
+### Fixed
+- Update opsi-login-blocker to 4.3.2.3 (Fix LogonUI.exe crash) (Jan Schneider <j.schneider@uib.de>)
+
 ## [4.3.28.5-1] - 2026-11-24
 
 ### Fixed
